@@ -11,11 +11,14 @@ export default function Home() {
   const [frequency, setFrequency] = useState(440);
 
 
+
   useEffect(() => {
     let mounted = true;
 
     try {
-      const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+      const AudioContextClass: typeof AudioContext =
+        window.AudioContext || ((window as any).webkitAudioContext as typeof AudioContext);
+
 
       if (AudioContextClass && mounted) {
         const newContext = new AudioContextClass();
@@ -45,6 +48,7 @@ export default function Home() {
       oscillator?.stop();
       actx?.close();
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleFrequencyChange = (newFrequency: number) => {
