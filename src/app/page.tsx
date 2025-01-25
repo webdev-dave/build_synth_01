@@ -5,17 +5,19 @@ import { useEffect, useState } from 'react';
 export default function Home() {
   const [actx, setActx] = useState<AudioContext | null>(null);
   const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
-  const [gainNode, setGainNode] = useState<GainNode | null>(null);
+  // const [gainNode, setGainNode] = useState<GainNode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
   const [frequency, setFrequency] = useState(440);
 
 
   useEffect(() => {
+    let mounted = true;
+
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
 
-      if (AudioContextClass) {
+      if (AudioContextClass && mounted) {
         const newContext = new AudioContextClass();
         setActx(newContext);
 
@@ -24,23 +26,33 @@ export default function Home() {
         const gain = newContext.createGain();
 
         gain.gain.value = 0.1;
-        osc.frequency.value = 440;
+        osc.frequency.value = frequency;
 
         osc.connect(gain);
         gain.connect(out);
 
-        setOscillator(osc);
-        setGainNode(gain);
+        if (mounted) {
+          setOscillator(osc);
+          // setGainNode(gain);
+        }
       }
     } catch (error) {
       console.error('Error initializing AudioContext:', error);
     }
 
     return () => {
+      mounted = false;
       oscillator?.stop();
       actx?.close();
     };
   }, []);
+
+  const handleFrequencyChange = (newFrequency: number) => {
+    setFrequency(newFrequency);
+    if (oscillator) {
+      oscillator.frequency.value = newFrequency;
+    }
+  };
 
   const toggleSound = async () => {
     if (!actx || !oscillator) return;
@@ -57,13 +69,6 @@ export default function Home() {
         setHasStarted(true);
       }
       setIsPlaying(true);
-    }
-  };
-
-  const handleFrequencyChange = (newFrequency: number) => {
-    setFrequency(newFrequency);
-    if (oscillator) {
-      oscillator.frequency.value = newFrequency;
     }
   };
 
