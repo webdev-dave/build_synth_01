@@ -79,7 +79,7 @@ export default function Home() {
       <main>
         <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         {actx ? (
-          <div className='flex flex-col gap-4 my-10 text-lg'>
+          <div className='flex flex-col gap-4 mt-20 text-lg'>
             <p className='className="block mb-0'>Wave: Sine</p>
             <FrequencySlider
               frequency={frequency}
