@@ -16,9 +16,7 @@ export default function Home() {
     let mounted = true;
 
     try {
-      const AudioContextClass: typeof AudioContext =
-        window.AudioContext || ((window as any).webkitAudioContext as typeof AudioContext);
-
+      const AudioContextClass: typeof AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
 
       if (AudioContextClass && mounted) {
         const newContext = new AudioContextClass();
