@@ -53,8 +53,8 @@ export default function Home() {
         await actx.resume();
       }
       if (!hasStarted) {
-        oscillator.start();
-        setHasStarted(true);  // Track the started state in React
+        oscillator.start(); // Start the oscillator (can only be called once)
+        setHasStarted(true);
       }
       setIsPlaying(true);
     }
@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <div className="">
       <main>
-        <h1 className='text-3xl pb-4 font-bold'>Sliders</h1>
+        <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         {actx ? (
           <div className='flex flex-col gap-4 my-10'>
             <FrequencySlider
