@@ -12,7 +12,7 @@ export default function FrequencySlider({ frequency, onChange }: FrequencySlider
     };
 
     return (
-        <div className="mt-4">
+        <div className="mt-0">
             <label htmlFor="frequency" className="block mb-2">
                 Frequency: {frequency}Hz
             </label>
