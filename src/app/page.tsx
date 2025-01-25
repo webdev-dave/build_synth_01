@@ -1,4 +1,5 @@
 'use client';
+import FrequencySlider from '@/components/FrequencySlider';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -6,16 +7,18 @@ export default function Home() {
   const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
   const [gainNode, setGainNode] = useState<GainNode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);  // New state for tracking if oscillator has been started
+  const [hasStarted, setHasStarted] = useState(false);
+  const [frequency, setFrequency] = useState(440);
+
 
   useEffect(() => {
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
-      
+
       if (AudioContextClass) {
         const newContext = new AudioContextClass();
         setActx(newContext);
-        
+
         const out = newContext.destination;
         const osc = newContext.createOscillator();
         const gain = newContext.createGain();
@@ -57,16 +60,26 @@ export default function Home() {
     }
   };
 
+  const handleFrequencyChange = (newFrequency: number) => {
+    setFrequency(newFrequency);
+    if (oscillator) {
+      oscillator.frequency.value = newFrequency;
+    }
+  };
+
   return (
     <div className="">
       <main>
-        <h1>Sliders</h1>
+        <h1 className='text-3xl pb-4 font-bold'>Sliders</h1>
         {actx ? (
-          <div>
-            <div>Audio Context initialized!</div>
+          <div className='flex flex-col gap-4 my-10'>
+            <FrequencySlider
+              frequency={frequency}
+              onChange={handleFrequencyChange}
+            />
             <button
               onClick={toggleSound}
-              className="px-4 py-2 bg-orange-500 text-white rounded"
+              className="px-4 py-2 bg-orange-600 text-white rounded"
             >
               {isPlaying ? 'Stop Sound' : 'Start Sound'}
             </button>
