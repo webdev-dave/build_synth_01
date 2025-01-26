@@ -21,18 +21,23 @@ export default function ToggleSound({
             return;
         }
 
-        if (isPlaying) {
-            await actx.suspend();
+        try {
+            if (isPlaying) {
+                await actx.suspend();
+                setIsPlaying(false);
+            } else {
+                if (actx.state === 'suspended') {
+                    await actx.resume();
+                }
+                if (!oscHasStarted) {
+                    oscillator.start();
+                    setOscHasStarted(true);
+                }
+                setIsPlaying(true);
+            }
+        } catch (error) {
+            console.error('Error toggling sound:', error);
             setIsPlaying(false);
-        } else {
-            if (actx.state === 'suspended') {
-                await actx.resume();
-            }
-            if (!oscHasStarted) {
-                oscillator.start(); // Start the oscillator (can only be called once)
-                setOscHasStarted(true);
-            }
-            setIsPlaying(true);
         }
     };
 

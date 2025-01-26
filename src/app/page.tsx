@@ -17,10 +17,22 @@ export default function Home() {
     let mounted = true;
 
     try {
-      const AudioContextClass: typeof AudioContext = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
+      // Fix Safari audio context
+      const AudioContextClass = window.AudioContext ||
+        ((window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext);
 
       if (AudioContextClass && mounted) {
         const newContext = new AudioContextClass();
+
+        // Safari requires user interaction before starting audio context
+        if (newContext.state === 'suspended') {
+          const resumeOnClick = () => {
+            newContext.resume();
+            document.removeEventListener('click', resumeOnClick);
+          };
+          document.addEventListener('click', resumeOnClick);
+        }
+
         setActx(newContext);
 
         const out = newContext.destination;
@@ -54,7 +66,7 @@ export default function Home() {
 
   return (
     <main>
-      <div className="bg-synth-bg p-6 rounded-md border border-2">
+      <div className="bg-synth-bg p-6 rounded-md border-2">
 
         <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         {actx ? (
