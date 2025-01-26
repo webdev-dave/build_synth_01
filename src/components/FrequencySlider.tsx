@@ -3,12 +3,16 @@ import React from 'react';
 interface FrequencySliderProps {
     frequency: number;
     onChange: (frequency: number) => void;
+    oscillator: OscillatorNode | null;
 }
 
-export default function FrequencySlider({ frequency, onChange }: FrequencySliderProps) {
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const newFrequency = parseFloat(event.target.value);
+export default function FrequencySlider({ frequency, onChange, oscillator }: FrequencySliderProps) {
+    
+    const handleFrequencyChange = (newFrequency: number) => {
         onChange(newFrequency);
+        if (oscillator) {
+            oscillator.frequency.value = newFrequency;
+        }
     };
 
     return (
@@ -23,7 +27,7 @@ export default function FrequencySlider({ frequency, onChange }: FrequencySlider
                 max="2000"
                 step="1"
                 value={frequency}
-                onChange={handleChange}
+                onChange={(e) => handleFrequencyChange(Number(e.target.value))}
                 className="w-full"
             />
         </div>

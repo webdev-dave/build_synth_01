@@ -1,5 +1,6 @@
 'use client';
 import FrequencySlider from '@/components/FrequencySlider';
+import ToggleSound from '@/components/ToggleSound';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -7,7 +8,7 @@ export default function Home() {
   const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
   // const [gainNode, setGainNode] = useState<GainNode | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [hasStarted, setHasStarted] = useState(false);
+  const [oscHasStarted, setOscHasStarted] = useState(false);
   const [frequency, setFrequency] = useState(440);
 
 
@@ -49,30 +50,7 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleFrequencyChange = (newFrequency: number) => {
-    setFrequency(newFrequency);
-    if (oscillator) {
-      oscillator.frequency.value = newFrequency;
-    }
-  };
 
-  const toggleSound = async () => {
-    if (!actx || !oscillator) return;
-
-    if (isPlaying) {
-      await actx.suspend();
-      setIsPlaying(false);
-    } else {
-      if (actx.state === 'suspended') {
-        await actx.resume();
-      }
-      if (!hasStarted) {
-        oscillator.start(); // Start the oscillator (can only be called once)
-        setHasStarted(true);
-      }
-      setIsPlaying(true);
-    }
-  };
 
   return (
     <div className="">
@@ -83,14 +61,17 @@ export default function Home() {
             <p className='className="block mb-0'>Wave: Sine</p>
             <FrequencySlider
               frequency={frequency}
-              onChange={handleFrequencyChange}
+              onChange={setFrequency}
+              oscillator={oscillator}
             />
-            <button
-              onClick={toggleSound}
-              className="px-4 py-2 bg-orange-600 text-white rounded"
-            >
-              {isPlaying ? 'Stop Sound' : 'Start Sound'}
-            </button>
+            <ToggleSound
+              actx={actx}
+              oscillator={oscillator}
+              isPlaying={isPlaying}
+              setIsPlaying={setIsPlaying}
+              oscHasStarted={oscHasStarted}
+              setOscHasStarted={setOscHasStarted}
+            />
           </div>
         ) : (
           <div>Initializing Audio Context...</div>
