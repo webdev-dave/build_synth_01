@@ -49,9 +49,9 @@ export default function ToggleSound({
             aria-label={isPlaying ? 'Stop sound' : 'Play sound'}
         >
             {isPlaying ? (
-                <Square className="h-4 w-4" aria-hidden="true" fill="currentColor" />
+                <Square className="h-4 w-4" fill="currentColor" aria-hidden="true" />
             ) : (
-                <Play className="h-4 w-4" aria-hidden="true" fill="currentColor" />
+                <Play className="h-4 w-4" fill="currentColor" aria-hidden="true" />
             )}
             <span className="sr-only">
                 {isPlaying ? 'Stop sound' : 'Play sound'}
