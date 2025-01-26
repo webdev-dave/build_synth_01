@@ -11,8 +11,6 @@ export default function Home() {
   const [oscHasStarted, setOscHasStarted] = useState(false);
   const [frequency, setFrequency] = useState(440);
 
-
-
   useEffect(() => {
     let mounted = true;
 
@@ -62,12 +60,9 @@ export default function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-
-
   return (
     <main>
       <div className="bg-synth-bg p-6 rounded-md border-2">
-
         <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         {actx ? (
           <div className='flex flex-col gap-4 mt-16 text-lg'>
@@ -89,7 +84,6 @@ export default function Home() {
         ) : (
           <div>Initializing Audio Context...</div>
         )}
-
       </div>
     </main>
   );
