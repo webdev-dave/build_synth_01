@@ -3,6 +3,7 @@ import DetuneSlider from './DetuneSlider';
 import { useEffect, useState } from 'react';
 import ToggleSound from './ToggleSound';
 
+
 interface Oscillator {
     actx: AudioContext | null;
 }
@@ -41,7 +42,7 @@ export default function Oscillator({ actx }: Oscillator) {
                 <DetuneSlider
                     oscillator={oscillator}
                 />
-                <div className="w-full mt-4">
+                <div className="w-full mt-2">
                     <ToggleSound
                         actx={actx}
                         oscillator={oscillator}
