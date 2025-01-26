@@ -8,7 +8,7 @@ interface Osc1Props {
 
 export default function Osc1({ frequency, onChange, oscillator }: Osc1Props) {
   return (
-    <div className="p-4 border border-2 rounded-lg bg-osc-bg">
+    <div className="p-4 border-2 rounded-lg bg-osc-bg">
       <h2 className="text-xl font-bold mb-4">Oscillator 1</h2>
       <FrequencySlider
         frequency={frequency}
