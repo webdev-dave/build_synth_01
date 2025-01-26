@@ -12,6 +12,10 @@ export default {
         background: "var(--background)",
         foreground: "var(--foreground)",
       },
+      backgroundColor: {
+        "synth-bg": "rgba(75, 85, 99, 0.50)",
+        "osc-bg": "rgba(0, 0, 0, 0.5)",
+      },
     },
   },
   plugins: [],

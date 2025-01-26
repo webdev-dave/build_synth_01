@@ -1,5 +1,5 @@
 'use client';
-import FrequencySlider from '@/components/FrequencySlider';
+import Osc1 from '@/components/Osc1';
 import ToggleSound from '@/components/ToggleSound';
 import { useEffect, useState } from 'react';
 
@@ -53,13 +53,14 @@ export default function Home() {
 
 
   return (
-    <div className="">
-      <main>
+    <main>
+      <div className="bg-synth-bg p-6 rounded-md border border-2">
+
         <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         {actx ? (
           <div className='flex flex-col gap-4 mt-16 text-lg'>
             <p className='className="block mb-0'>Wave: Sine</p>
-            <FrequencySlider
+            <Osc1
               frequency={frequency}
               onChange={setFrequency}
               oscillator={oscillator}
@@ -76,7 +77,7 @@ export default function Home() {
         ) : (
           <div>Initializing Audio Context...</div>
         )}
-      </main>
-    </div>
+
+      </div>
+    </main>
   );
-}
