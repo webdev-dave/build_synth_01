@@ -1,15 +1,13 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 interface FrequencySliderProps {
-    frequency: number;
-    onChange: (frequency: number) => void;
     oscillator: OscillatorNode | null;
 }
 
-export default function FrequencySlider({ frequency, onChange, oscillator }: FrequencySliderProps) {
-    
+export default function FrequencySlider({ oscillator }: FrequencySliderProps) {
+    const [frequency, setFrequency] = useState(440);
     const handleFrequencyChange = (newFrequency: number) => {
-        onChange(newFrequency);
+        setFrequency(newFrequency);
         if (oscillator) {
             oscillator.frequency.value = newFrequency;
         }

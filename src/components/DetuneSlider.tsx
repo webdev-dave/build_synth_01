@@ -1,15 +1,23 @@
+import { useState } from "react";
+
 interface DetuneSliderProps {
-    detune: number;
-    onChange: (detune: number) => void;
     oscillator: OscillatorNode | null;
 }
 
-export default function DetuneSlider({ detune, onChange, oscillator }: DetuneSliderProps) {
+export default function DetuneSlider({ oscillator }: DetuneSliderProps) {
+    const [detune, setDetune] = useState(0);
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         const newDetune = parseInt(event.target.value);
-        onChange(newDetune);
+        setDetune(newDetune);
         if (oscillator) {
             oscillator.detune.value = newDetune;
+        }
+    };
+
+    const handleDoubleClick = () => {
+        setDetune(0);
+        if (oscillator) {
+            oscillator.detune.value = 0;
         }
     };
 
@@ -26,6 +34,7 @@ export default function DetuneSlider({ detune, onChange, oscillator }: DetuneSli
                 step="1"
                 value={detune}
                 onChange={handleChange}
+                onDoubleClick={handleDoubleClick}
                 className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer"
             />
         </div>

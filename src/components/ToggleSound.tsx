@@ -1,3 +1,6 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faPlay, faStop } from '@fortawesome/free-solid-svg-icons';
+
 interface ToggleSoundProps {
     actx: AudioContext | null;
     oscillator: OscillatorNode | null;
@@ -44,9 +47,16 @@ export default function ToggleSound({
     return (
         <button
             onClick={toggleSound}
-            className="px-4 py-2 bg-orange-600 text-white rounded"
+            className="px-4 py-2 bg-orange-600 text-white rounded w-full"
+            aria-label={isPlaying ? 'Stop sound' : 'Play sound'}
         >
-            {isPlaying ? 'Stop Sound' : 'Start Sound'}
+            <FontAwesomeIcon
+                icon={isPlaying ? faStop : faPlay}
+                aria-hidden="true"
+            />
+            <span className="sr-only">
+                {isPlaying ? 'Stop sound' : 'Play sound'}
+            </span>
         </button>
     );
 } 
