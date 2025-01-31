@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface PianoKeyboardProps {
     actx: AudioContext;
@@ -24,6 +24,7 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
     const [activeOscillator, setActiveOscillator] = useState<OscillatorNode | null>(null);
     const [activeGain, setActiveGain] = useState<GainNode | null>(null);
     const [isMouseDown, setIsMouseDown] = useState(false);
+    const [activeKey, setActiveKey] = useState<string | null>(null);
 
     const createOctave = (octaveNumber: number): PianoKey[] => {
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
@@ -82,17 +83,16 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
         osc.start();
     };
 
-    // Add touch handling
     const handleTouchStart = async (event: React.TouchEvent, key: PianoKey) => {
         event.preventDefault();
         event.stopPropagation();
 
-        // Resume audio context if suspended (important for iOS)
+        // Resume audio context if suspended
         if (actx.state === 'suspended') {
             await actx.resume();
         }
 
-        setIsMouseDown(true); // Track touch state
+        setActiveKey(key.note);
         const frequency = getNoteFrequency(key.noteNumber);
         await playNote(frequency);
     };
@@ -100,16 +100,17 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
     const handleTouchEnd = (event: React.TouchEvent) => {
         event.preventDefault();
         event.stopPropagation();
-        setIsMouseDown(false); // Reset touch state
+        setActiveKey(null);
         stopNote();
     };
 
-    const handleTouchMove = (event: React.TouchEvent) => {
-        event.preventDefault();
-        if (!isMouseDown) {
-            stopNote(); // Ensure note stops if touch moves away
-        }
-    };
+    // Add this to component cleanup
+    useEffect(() => {
+        return () => {
+            stopNote();
+            setActiveKey(null);
+        };
+    }, []);
 
     return (
         <div className="relative w-full"
@@ -117,7 +118,6 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
             onMouseLeave={() => setIsMouseDown(false)}
             onTouchEnd={handleTouchEnd}
             onTouchCancel={handleTouchEnd}
-            onTouchMove={handleTouchMove}  // Add touch move handler
         >
             <div className="flex gap-2 mb-4 items-center">
                 <button
@@ -159,6 +159,7 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
                             }
                             hover:bg-gray-100 active:bg-gray-200
                             ${key.isBlack ? 'hover:bg-gray-900 active:bg-gray-800' : ''}
+                            ${activeKey === key.note ? 'opacity-75' : ''}
                             relative
                         `}
                         onMouseDown={async () => {
@@ -177,7 +178,7 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
                             stopNote();
                         }}
                         onMouseLeave={stopNote}
-                        onTouchStart={(e) => handleTouchStart(e, key)}  // Add touch handlers
+                        onTouchStart={(e) => handleTouchStart(e, key)}
                         onTouchEnd={handleTouchEnd}
                     >
                         <span className={`
