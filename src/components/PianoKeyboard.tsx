@@ -82,10 +82,37 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
         osc.start();
     };
 
+    // Add touch handling
+    const handleTouchStart = async (event: React.TouchEvent, key: PianoKey) => {
+        event.preventDefault(); // Prevent default touch behavior
+        event.stopPropagation(); // Stop event bubbling
+
+        // Resume audio context if suspended (important for iOS)
+        if (actx.state === 'suspended') {
+            await actx.resume();
+        }
+
+        const frequency = getNoteFrequency(key.noteNumber);
+        await playNote(frequency);
+    };
+
+    const handleTouchEnd = (event: React.TouchEvent) => {
+        event.preventDefault();
+        event.stopPropagation();
+        stopNote();
+    };
+
+    const handleTouchMove = (event: React.TouchEvent) => {
+        event.preventDefault(); // Prevent scrolling while touching piano
+    };
+
     return (
         <div className="relative w-full"
             onMouseUp={() => setIsMouseDown(false)}
             onMouseLeave={() => setIsMouseDown(false)}
+            onTouchEnd={handleTouchEnd}
+            onTouchCancel={handleTouchEnd}
+            onTouchMove={handleTouchMove}  // Add touch move handler
         >
             <div className="flex gap-2 mb-4 items-center">
                 <button
@@ -145,6 +172,8 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
                             stopNote();
                         }}
                         onMouseLeave={stopNote}
+                        onTouchStart={(e) => handleTouchStart(e, key)}  // Add touch handlers
+                        onTouchEnd={handleTouchEnd}
                     >
                         <span className={`
                             absolute bottom-1 left-1 text-xs

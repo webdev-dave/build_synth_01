@@ -15,7 +15,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
-- First create a new branch off of main (both local and remote) where the the earliest version of the code is stored and can be viewed by deploying to netlify via a separate git branch called "synth-v01-phase-1". Once completed, merge the "add-piano" branch back into main and push to remote main (then deploy to netlify main).
+- make sure to review all logic related to the piano keyboard and make sure it's working as expected (and that i understand it before moving on to the next phase). Also, make sure to understand the concept of different sound wave shapes/types
 - Add multi-touch support for playing chords on mobile/touch devices
 - create a mapping of computer keyboard => virtual piano
 - Optimize audio latency
