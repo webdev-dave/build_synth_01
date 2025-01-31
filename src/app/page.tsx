@@ -65,7 +65,7 @@ export default function Home() {
       <div className="bg-synth-bg p-6 rounded-md border-2">
         <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
         <div className='flex flex-col gap-4 mt-16 text-lg'>
-          <p className='className="block mb-0'>Wave: Sine</p>
+          {/* <p className='className="block mb-0'>Wave: Sine</p> */}
           {actx ? (
             <>
               {/* <Oscillator actx={actx} /> */}
