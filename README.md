@@ -4,7 +4,7 @@ A simple web-based synthesizer application built with Next.js & the Web Audio AP
 
 ## Live Demo
 
-Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
+Check out the live version here: [Synth-v01-phase-1](https://synth-v01-phase-1.netlify.app)
 
 ## Features
 
@@ -12,10 +12,3 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Adjust frequency using a slider
 - Basic sound generation using an oscillator
 
-## Development
-
-...
-
-## Todo
-
-- Add a white noise oscillator that can be used offline (and play in the background)
