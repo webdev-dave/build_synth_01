@@ -2,6 +2,8 @@ import { useState } from 'react';
 
 interface PianoKeyboardProps {
     actx: AudioContext;
+    isAudioInitialized: boolean;
+    onAudioInitialized: () => void;
 }
 
 type PianoKey = {
@@ -12,12 +14,11 @@ type PianoKey = {
 
 type OscillatorType = 'sine' | 'square' | 'sawtooth' | 'triangle';
 
-export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
+export default function PianoKeyboard({ actx, isAudioInitialized, onAudioInitialized }: PianoKeyboardProps) {
     const [startOctave, setStartOctave] = useState(4);
     const [waveType, setWaveType] = useState<OscillatorType>('sine');
     const [currentFreq, setCurrentFreq] = useState<number | null>(null);
     const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
-    const [isAudioInitialized, setIsAudioInitialized] = useState(false);
 
     // Create piano keys
     const createOctave = (octaveNumber: number): PianoKey[] => {
@@ -74,7 +75,7 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
     const initializeAudio = async () => {
         if (actx.state === 'suspended') {
             await actx.resume();
-            setIsAudioInitialized(true);
+            onAudioInitialized();
         }
     };
 

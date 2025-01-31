@@ -11,6 +11,7 @@ interface WindowWithWebkit extends Window {
 export default function Home() {
   const [actx, setActx] = useState<AudioContext | null>(null);
   const [isPortrait, setIsPortrait] = useState(false);
+  const [isAudioInitialized, setIsAudioInitialized] = useState(false);
 
   useEffect(() => {
     // Check initial orientation
@@ -45,7 +46,6 @@ export default function Home() {
 
     return () => {
       mounted = false;
-      audioContext?.close();
     };
   }, []);
 
@@ -69,7 +69,11 @@ export default function Home() {
           {actx ? (
             <>
               {/* <Oscillator actx={actx} /> */}
-              <PianoKeyboard actx={actx} />
+              <PianoKeyboard
+                actx={actx}
+                isAudioInitialized={isAudioInitialized}
+                onAudioInitialized={() => setIsAudioInitialized(true)}
+              />
             </>
           ) : (
             <div>Initializing Audio Context...</div>
