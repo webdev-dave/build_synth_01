@@ -84,14 +84,15 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
 
     // Add touch handling
     const handleTouchStart = async (event: React.TouchEvent, key: PianoKey) => {
-        event.preventDefault(); // Prevent default touch behavior
-        event.stopPropagation(); // Stop event bubbling
+        event.preventDefault();
+        event.stopPropagation();
 
         // Resume audio context if suspended (important for iOS)
         if (actx.state === 'suspended') {
             await actx.resume();
         }
 
+        setIsMouseDown(true); // Track touch state
         const frequency = getNoteFrequency(key.noteNumber);
         await playNote(frequency);
     };
@@ -99,11 +100,15 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
     const handleTouchEnd = (event: React.TouchEvent) => {
         event.preventDefault();
         event.stopPropagation();
+        setIsMouseDown(false); // Reset touch state
         stopNote();
     };
 
     const handleTouchMove = (event: React.TouchEvent) => {
-        event.preventDefault(); // Prevent scrolling while touching piano
+        event.preventDefault();
+        if (!isMouseDown) {
+            stopNote(); // Ensure note stops if touch moves away
+        }
     };
 
     return (
