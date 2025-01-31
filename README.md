@@ -58,3 +58,5 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Integration with music streaming platforms for source material
 - Natural language processing for sound design instructions
 - Machine learning models for sound synthesis and modification
+- Mobile audio requires explicit user interaction to initialize audio context
+- Added "Tap to Enable Sound" modal for mobile browsers

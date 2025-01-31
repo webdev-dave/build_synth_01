@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface PianoKeyboardProps {
     actx: AudioContext;
@@ -12,24 +12,17 @@ type PianoKey = {
 
 type OscillatorType = 'sine' | 'square' | 'sawtooth' | 'triangle';
 
-function getNoteFrequency(noteNumber: number): number {
-    // Standard Western tuning: A4 (note 69) = 440 Hz
-    return 440 * Math.pow(2, (noteNumber - 69) / 12);
-}
-
 export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
     const [startOctave, setStartOctave] = useState(4);
     const [waveType, setWaveType] = useState<OscillatorType>('sine');
     const [currentFreq, setCurrentFreq] = useState<number | null>(null);
-    const [activeOscillator, setActiveOscillator] = useState<OscillatorNode | null>(null);
-    const [activeGain, setActiveGain] = useState<GainNode | null>(null);
-    const [isMouseDown, setIsMouseDown] = useState(false);
-    const [activeKey, setActiveKey] = useState<string | null>(null);
+    const [oscillator, setOscillator] = useState<OscillatorNode | null>(null);
+    const [isAudioInitialized, setIsAudioInitialized] = useState(false);
 
+    // Create piano keys
     const createOctave = (octaveNumber: number): PianoKey[] => {
         const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
         const baseNoteNumber = (octaveNumber + 1) * 12;
-
         return notes.map((note, index) => ({
             note: `${note}${octaveNumber}`,
             noteNumber: baseNoteNumber + index,
@@ -37,35 +30,17 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
         }));
     };
 
-    const handleOctaveChange = (direction: 'up' | 'down') => {
-        setStartOctave(prev => {
-            if (direction === 'up' && prev < 7) return prev + 1;
-            if (direction === 'down' && prev > 0) return prev - 1;
-            return prev;
-        });
-    };
-
-    // Generate keys for two octaves
     const keys = [...createOctave(startOctave), ...createOctave(startOctave + 1)];
-    console.log(keys);
 
-    const stopNote = () => {
-        if (activeOscillator && activeGain) {
-            activeOscillator.stop();
-            activeOscillator.disconnect();
-            activeGain.disconnect();
-            setActiveOscillator(null);
-            setActiveGain(null);
-            setCurrentFreq(null);
-        }
-    };
-
+    // Audio functions
     const playNote = async (frequency: number) => {
-        stopNote(); // Stop any playing note
-        if (actx.state === 'suspended') {
-            await actx.resume();
+        // Stop any playing note
+        if (oscillator) {
+            oscillator.stop();
+            oscillator.disconnect();
         }
 
+        // Create and configure new oscillator
         const osc = actx.createOscillator();
         const gain = actx.createGain();
 
@@ -76,49 +51,62 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
         osc.connect(gain);
         gain.connect(actx.destination);
 
-        setActiveOscillator(osc);
-        setActiveGain(gain);
-        setCurrentFreq(frequency);
-
-        osc.start();
-    };
-
-    const handleTouchStart = async (event: React.TouchEvent, key: PianoKey) => {
-        event.preventDefault();
-        event.stopPropagation();
-
-        // Resume audio context if suspended
+        // Start the note
         if (actx.state === 'suspended') {
             await actx.resume();
         }
+        osc.start();
 
-        setActiveKey(key.note);
-        const frequency = getNoteFrequency(key.noteNumber);
+        setOscillator(osc);
+        setCurrentFreq(frequency);
+    };
+
+    const stopNote = () => {
+        if (oscillator) {
+            oscillator.stop();
+            oscillator.disconnect();
+            setOscillator(null);
+            setCurrentFreq(null);
+        }
+    };
+
+    // Initialize audio context with explicit user interaction
+    const initializeAudio = async () => {
+        if (actx.state === 'suspended') {
+            await actx.resume();
+            setIsAudioInitialized(true);
+        }
+    };
+
+    // Event handlers
+    const handleNoteStart = async (noteNumber: number) => {
+        if (!isAudioInitialized) {
+            await initializeAudio();
+        }
+        const frequency = 440 * Math.pow(2, (noteNumber - 69) / 12);
         await playNote(frequency);
     };
 
-    const handleTouchEnd = (event: React.TouchEvent) => {
-        event.preventDefault();
-        event.stopPropagation();
-        setActiveKey(null);
-        stopNote();
+    const handleOctaveChange = (direction: 'up' | 'down') => {
+        setStartOctave(prev => {
+            if (direction === 'up' && prev < 7) return prev + 1;
+            if (direction === 'down' && prev > 0) return prev - 1;
+            return prev;
+        });
     };
 
-    // Add this to component cleanup
-    useEffect(() => {
-        return () => {
-            stopNote();
-            setActiveKey(null);
-        };
-    }, []);
-
     return (
-        <div className="relative w-full"
-            onMouseUp={() => setIsMouseDown(false)}
-            onMouseLeave={() => setIsMouseDown(false)}
-            onTouchEnd={handleTouchEnd}
-            onTouchCancel={handleTouchEnd}
-        >
+        <div className="relative w-full">
+            {!isAudioInitialized && (
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                    <button
+                        onClick={initializeAudio}
+                        className="px-4 py-2 bg-gray-700 rounded text-white"
+                    >
+                        Tap to Enable Sound
+                    </button>
+                </div>
+            )}
             <div className="flex gap-2 mb-4 items-center">
                 <button
                     onClick={() => handleOctaveChange('down')}
@@ -151,7 +139,17 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
             <div className="relative h-48 flex w-full">
                 {keys.map((key) => (
                     <button
-                        key={`${key.note}-${key.noteNumber}`}
+                        key={key.note}
+                        onMouseDown={() => handleNoteStart(key.noteNumber)}
+                        onMouseUp={stopNote}
+                        onTouchStart={(e) => {
+                            e.preventDefault();
+                            handleNoteStart(key.noteNumber);
+                        }}
+                        onTouchEnd={(e) => {
+                            e.preventDefault();
+                            stopNote();
+                        }}
                         className={`
                             ${key.isBlack
                                 ? 'bg-black h-3/5 w-[4%] -mx-[2%] z-10 relative'
@@ -159,27 +157,8 @@ export default function PianoKeyboard({ actx }: PianoKeyboardProps) {
                             }
                             hover:bg-gray-100 active:bg-gray-200
                             ${key.isBlack ? 'hover:bg-gray-900 active:bg-gray-800' : ''}
-                            ${activeKey === key.note ? 'opacity-75' : ''}
                             relative
                         `}
-                        onMouseDown={async () => {
-                            setIsMouseDown(true);
-                            const frequency = getNoteFrequency(key.noteNumber);
-                            await playNote(frequency);
-                        }}
-                        onMouseEnter={async () => {
-                            if (isMouseDown) {
-                                const frequency = getNoteFrequency(key.noteNumber);
-                                await playNote(frequency);
-                            }
-                        }}
-                        onMouseUp={() => {
-                            setIsMouseDown(false);
-                            stopNote();
-                        }}
-                        onMouseLeave={stopNote}
-                        onTouchStart={(e) => handleTouchStart(e, key)}
-                        onTouchEnd={handleTouchEnd}
                     >
                         <span className={`
                             absolute bottom-1 left-1 text-xs
