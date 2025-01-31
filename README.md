@@ -17,7 +17,8 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 - make sure to review all logic related to the piano keyboard and make sure it's working as expected (and that i understand it before moving on to the next phase). Also, make sure to understand the concept of different sound wave shapes/types
 - Add multi-touch support for playing chords on mobile/touch devices
-- Get app to work on mobile safari browsers
+- Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
+- Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
 - create a mapping of computer keyboard => virtual piano
 - Optimize audio latency
   - Reduce delay between key press and sound playback
