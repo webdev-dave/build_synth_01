@@ -15,3 +15,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 ## Development
 
 ...
+
+## Todo
+
+- Add a white noise oscillator that can be used offline (and play in the background)
