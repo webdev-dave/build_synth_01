@@ -15,9 +15,12 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
-- Add a feature to allow users to select a major or minor scale from a dropdown menu and that would grey out the keys that are not in the selected scale (there should also be a button to make this even more obvious by coloring the keys that are in the selected scale green and the keys that are not in the selected scale red)
-- make sure to review all logic related to the piano keyboard and make sure it's working as expected (and that i understand it before moving on to the next phase).
-- make sure to understand the concept of different sound wave shapes/types
+- Make sure to understand the concept of different sound wave shapes/types
+- Make sure to understand the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
+- Fix: fix issue with piano keyButtons remaining "visually" pressed (darker grey than the other keys) after being functionally released
+- Fix: issues with piano key sizing and alignment:
+  - some white piano keys being slightly wider than others
+  - black piano keys aren't truly centered on the white keys
 - Add multi-touch support for playing chords on mobile/touch devices
 - Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
 - Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
