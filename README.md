@@ -15,7 +15,9 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
-- make sure to review all logic related to the piano keyboard and make sure it's working as expected (and that i understand it before moving on to the next phase). Also, make sure to understand the concept of different sound wave shapes/types
+- Add a feature to allow users to select a major or minor scale from a dropdown menu and that would grey out the keys that are not in the selected scale (there should also be a button to make this even more obvious by coloring the keys that are in the selected scale green and the keys that are not in the selected scale red)
+- make sure to review all logic related to the piano keyboard and make sure it's working as expected (and that i understand it before moving on to the next phase).
+- make sure to understand the concept of different sound wave shapes/types
 - Add multi-touch support for playing chords on mobile/touch devices
 - Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
 - Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
@@ -59,5 +61,4 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Integration with music streaming platforms for source material
 - Natural language processing for sound design instructions
 - Machine learning models for sound synthesis and modification
-- Mobile audio requires explicit user interaction to initialize audio context
-- Added "Tap to Enable Sound" modal for mobile browsers
+- Added "Tap to Enable Sound" modal
