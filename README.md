@@ -52,6 +52,20 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
   - Interpret classical piano pieces with different synth voices
 - Support batch processing of playlists
 
+### AI Scale Recognition
+
+- Real-time scale detection from audio input (microphone)
+  - Automatically detect musical scale from live or streaming audio
+  - Visually highlight detected scale on piano keyboard
+  - Default to "unlocked" scale mode to allow experimentation
+  - Option to "lock" to detected scale once confirmed
+- Features:
+  - Works with live performances
+  - Compatible with streaming platforms
+  - Real-time scale updates as song progresses
+  - Handles key changes within songs
+  - Confidence indicator for scale detection accuracy
+
 ### AI Sound Design
 
 - AI-powered preset generation and modification
