@@ -24,6 +24,8 @@ export default function RootLayout({
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        role="application"
+        aria-label="Web-based synthesizer application"
       >
         {children}
       </body>

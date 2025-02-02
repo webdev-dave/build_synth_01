@@ -120,10 +120,14 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
     };
 
     return (
-        <div className="relative w-full">
+        <div className="relative w-full" aria-label="Piano Keyboard Interface">
             {!hasAudioPermission && (
                 <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 z-50">
-                    <button onClick={initializeAudio} className="p-8 sm:p-12">
+                    <button
+                        onClick={initializeAudio}
+                        className="p-8 sm:p-12"
+                        aria-label="Enable sound for the synthesizer"
+                    >
                         <span className="px-6 py-4 bg-gray-50 text-gray-900 rounded-lg text-lg font-medium shadow-lg hover:bg-gray-100 transition-colors">
                             Tap to Enable Sound
                         </span>
@@ -139,6 +143,7 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                             onClick={() => setStartOctave(prev => Math.max(0, prev - 1))}
                             className="px-6 py-1 bg-gray-700 rounded disabled:opacity-50"
                             disabled={startOctave === 0}
+                            aria-label="Lower octave range"
                         >
                             ←
                         </button>
@@ -161,6 +166,7 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                             value={selectedScale}
                             onChange={(e) => setSelectedScale(e.target.value as ScaleCombination)}
                             className="px-3 py-1 bg-gray-700 rounded h-[37px]"
+                            aria-label="Select musical scale"
                         >
                             <option value="none">No Scale</option>
                             <option value="A major">A Maj</option>
@@ -193,11 +199,16 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                             <button
                                 onClick={() => setAllowOutOfScale(prev => !prev)}
                                 className={`
-                                    px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2 hover:opacity-80
-                                    ${allowOutOfScale ? 'bg-green-600 opacity-90 hover:bg-green-700' : 'bg-red-600 opacity-90 hover:bg-red-700'}
+                                    px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2
+                                    ${allowOutOfScale ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}
                                 `}
+                                aria-label={allowOutOfScale
+                                    ? `Scale is unlocked. All notes can be played. Click to lock to ${selectedScale} scale only`
+                                    : `Scale is locked to ${selectedScale}. Only scale notes can be played. Click to unlock`
+                                }
+                                aria-pressed={!allowOutOfScale}
                             >
-                                {allowOutOfScale ? <Unlock size={16} /> : <Lock size={16} />}
+                                {allowOutOfScale ? <Unlock size={16} aria-hidden="true" /> : <Lock size={16} aria-hidden="true" />}
                                 <span>Scale</span>
                             </button>
                         )}
@@ -213,6 +224,7 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                                 }
                             }}
                             className="px-3 py-1 bg-gray-700 rounded h-[37px]"
+                            aria-label="Select wave type for synthesizer sound"
                         >
                             <option value="sine">Sine</option>
                             <option value="square">Square</option>
@@ -278,6 +290,9 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                                 relative touch-none select-none
                                 transition-colors duration-150
                             `}
+                            aria-label={`Piano key ${key.note}${isDisabled ? ' (not in current scale)' : ''}`}
+                            aria-disabled={isDisabled}
+                            aria-pressed={activeKey === key.note}
                         >
                             <span className={`
                                 absolute bottom-1 left-1 text-xs 
@@ -294,7 +309,12 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
             </div>
 
             <div className="flex justify-end mt-4">
-                <div className="px-3 py-2 bg-gray-700 rounded h-[37px] flex items-center">
+                <div
+                    className="px-3 py-2 bg-gray-700 rounded h-[37px] flex items-center"
+                    role="status"
+                    aria-live="polite"
+                    aria-label={currentFreq ? `Current frequency: ${currentFreq.toFixed(1)} Hertz` : 'No note playing'}
+                >
                     {currentFreq ? `${currentFreq.toFixed(1)} Hz` : 'No note playing'}
                 </div>
             </div>
