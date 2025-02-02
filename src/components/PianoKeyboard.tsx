@@ -236,13 +236,14 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                             onMouseLeave={stopNote}
                             onTouchStart={(e) => {
                                 e.preventDefault();
-                                handleNoteStart(key.noteNumber, key.note);
+                                if (!isDisabled) {
+                                    handleNoteStart(key.noteNumber, key.note);
+                                }
                             }}
                             onTouchEnd={(e) => {
                                 e.preventDefault();
                                 stopNote();
                             }}
-                            disabled={isDisabled}
                             style={{
                                 backgroundImage: !inScale && scaleRoot !== 'none' ?
                                     `repeating-linear-gradient(45deg, 

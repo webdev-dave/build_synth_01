@@ -8,13 +8,15 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Features
 
-- Play and stop sound using a button
-- Adjust frequency using a slider
 - Basic sound generation using an oscillator
 - Piano keyboard with octave controls
+- Added Selectable musical scales with visual feedback to help PianoSynth users visualize the keys that belong in the selected scaled scale of the notes being played
 
 ## Development Todo
 
+- By implementing the selectScale feature, the overall app performance is noticeably slower. Find out why and fix it
+- review the new code logic for the selectScale feature and make sure it's working as expected
+- start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
 - Make sure to understand the concept of different sound wave shapes/types
 - Make sure to understand the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
 - Fix: fix issue with piano keyButtons remaining "visually" pressed (darker grey than the other keys) after being functionally released
