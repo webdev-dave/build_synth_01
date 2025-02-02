@@ -193,8 +193,8 @@ export default function PianoKeyboard({ actx, hasAudioPermission, onAudioPermiss
                             <button
                                 onClick={() => setAllowOutOfScale(prev => !prev)}
                                 className={`
-                                    px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2
-                                    ${allowOutOfScale ? 'bg-green-600 hover:bg-green-700' : 'bg-gray-700 hover:bg-gray-600'}
+                                    px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2 hover:opacity-80
+                                    ${allowOutOfScale ? 'bg-green-600 opacity-90 hover:bg-green-700' : 'bg-red-600 opacity-90 hover:bg-red-700'}
                                 `}
                             >
                                 {allowOutOfScale ? <Unlock size={16} /> : <Lock size={16} />}
