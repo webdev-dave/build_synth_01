@@ -15,7 +15,8 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 ## Development Todo
 
 - By implementing the selectScale feature, the overall app performance is noticeably slower. Find out why and fix it
-- review the new code logic for the selectScale feature and make sure it's working as expected
+- add a Piano Emoji to browser tab title (and also, when/if user saves the webpage to a mobile device, add the Piano Emoji to the mobile device's home screen page saved icon)
+- Make sure new logic for the selectScale feature and make sure it's working as expected
 - start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
 - Make sure to understand the concept of different sound wave shapes/types
 - Make sure to understand the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
@@ -23,6 +24,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Fix: issues with piano key sizing and alignment:
   - some white piano keys being slightly wider than others
   - black piano keys aren't truly centered on the white keys
+- Need to find a way to make it more visually obvious to a user when a note is being played, what note is being played (use a visual indicator)
 - Add multi-touch support for playing chords on mobile/touch devices
 - Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
 - Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
