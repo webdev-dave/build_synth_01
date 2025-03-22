@@ -14,9 +14,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
-- By implementing the selectScale feature, the overall app performance is noticeably slower. Find out why and fix it
-- add a Piano Emoji to browser tab title (and also, when/if user saves the webpage to a mobile device, add the Piano Emoji to the mobile device's home screen page saved icon)
-- Make sure new logic for the selectScale feature and make sure it's working as expected
+- Make sure new logic for the selectScale feature is working as expected
 - start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
 - Make sure to understand the concept of different sound wave shapes/types
 - Make sure to understand the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
