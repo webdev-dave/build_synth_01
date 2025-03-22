@@ -61,10 +61,10 @@ export default function Home() {
   }
 
   return (
-    <main>
-      <div className="bg-synth-bg p-6 rounded-md border-2">
-        <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
-        <div className='flex flex-col gap-4 mt-16 text-lg'>
+    <main className="mt-6">
+      <div className="bg-synth-bg py-6 px-4 rounded-md border-2">
+        <h1 className='text-3xl pb-4 font-bold text-center'>Synth-v01</h1>
+        <div className='flex flex-col gap-4 mt-8 text-lg'>
           {/* <p className='className="block mb-0'>Wave: Sine</p> */}
           {actx ? (
             <>
