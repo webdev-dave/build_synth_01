@@ -1,7 +1,7 @@
-'use client';
+"use client";
 // import Oscillator from '@/components/Oscillator';
-import { useEffect, useState } from 'react';
-import PianoKeyboard from '../components/PianoKeyboard';
+import { useEffect, useState } from "react";
+import PianoKeyboard from "../components/PianoKeyboard";
 
 // Add this type declaration for Safari's webkitAudioContext
 interface WindowWithWebkit extends Window {
@@ -22,8 +22,8 @@ export default function Home() {
       setIsPortrait(window.innerHeight > window.innerWidth);
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   useEffect(() => {
@@ -32,7 +32,8 @@ export default function Home() {
 
     try {
       // Properly typed AudioContext for both standard and webkit
-      const AudioContextClass = window.AudioContext ||
+      const AudioContextClass =
+        window.AudioContext ||
         (window as unknown as WindowWithWebkit).webkitAudioContext;
 
       if (AudioContextClass && mounted) {
@@ -41,7 +42,7 @@ export default function Home() {
         setActx(audioContext);
       }
     } catch (error) {
-      console.error('Error initializing AudioContext:', error);
+      console.error("Error initializing AudioContext:", error);
     }
 
     return () => {
@@ -62,9 +63,9 @@ export default function Home() {
 
   return (
     <main>
-      <div className="bg-synth-bg p-6 rounded-md border-2">
-        <h1 className='text-3xl pb-4 font-bold'>Synth-v01</h1>
-        <div className='flex flex-col gap-4 mt-16 text-lg'>
+      <div className="bg-synth-bg p-6 rounded-md border-2 max-w-[1200px] mx-auto">
+        <h1 className="text-3xl pb-4 font-bold">Synth-v01</h1>
+        <div className="flex flex-col gap-4 mt-16 text-lg">
           {/* <p className='className="block mb-0'>Wave: Sine</p> */}
           {actx ? (
             <>

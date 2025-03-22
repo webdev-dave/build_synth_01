@@ -363,7 +363,7 @@ export default function PianoKeyboard({
       className={`piano-wrapper ${isFullScreen ? "fullscreen-piano" : ""}`}
       style={{
         width: isFullScreen ? "100vw" : "100%",
-        maxWidth: isFullScreen ? "100%" : "1200px",
+        maxWidth: isFullScreen ? "100%" : "100%",
         position: isFullScreen ? "fixed" : "relative",
         left: isFullScreen ? "0" : "auto",
         top: isFullScreen ? "0" : "auto",
