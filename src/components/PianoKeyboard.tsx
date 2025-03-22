@@ -417,7 +417,9 @@ export default function PianoKeyboard({
                 activeKeys.size === 0
                   ? "No notes playing"
                   : activeKeys.size === 1
-                  ? `Playing at ${activeNoteFreq?.toFixed(1)} Hz`
+                  ? `Playing ${Array.from(activeKeys)[0]} note in the frequency of ${activeNoteFreq?.toFixed(
+                    1
+                  )} Hz`
                   : activeKeys.size > 1
                   ? `Chord: ${identifyChord(activeKeys)}`
                   : `Playing ${activeKeys.size} notes`
@@ -426,7 +428,9 @@ export default function PianoKeyboard({
               {activeKeys.size === 0
                 ? "No note playing"
                 : activeKeys.size === 1
-                ? `${activeNoteFreq?.toFixed(1)} Hz`
+                ? `${Array.from(activeKeys)[0]} | ${activeNoteFreq?.toFixed(
+                    1
+                  )} Hz`
                 : activeKeys.size > 1
                 ? `Chord: ${identifyChord(activeKeys)}`
                 : `Playing ${activeKeys.size} notes`}
