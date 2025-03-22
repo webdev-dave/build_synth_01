@@ -408,24 +408,30 @@ export default function PianoKeyboard({
           style={{ boxSizing: "border-box" }}
         >
           <div className="flex items-center gap-2">
-            <button
-              onClick={() => setStartOctave((prev) => Math.max(0, prev - 1))}
-              className="px-6 py-1 bg-gray-700 rounded disabled:opacity-50"
-              disabled={startOctave === 0}
-              aria-label="Lower octave range"
+            {/* Note data display moved to the top left */}
+            <div
+              className="px-3 py-1 bg-gray-700 rounded h-[37px] flex items-center"
+              role="status"
+              aria-live="polite"
+              aria-label={
+                activeKeys.size === 0
+                  ? "No notes playing"
+                  : activeKeys.size === 1
+                  ? `Playing at ${activeNoteFreq?.toFixed(1)} Hz`
+                  : activeKeys.size > 1
+                  ? `Chord: ${identifyChord(activeKeys)}`
+                  : `Playing ${activeKeys.size} notes`
+              }
             >
-              ←
-            </button>
-            <span className="px-3 py-1">
-              Octave {startOctave}-{startOctave + 1}
-            </span>
-            <button
-              onClick={() => setStartOctave((prev) => Math.min(7, prev + 1))}
-              className="px-6 py-1 bg-gray-700 rounded disabled:opacity-50"
-              disabled={startOctave === 7}
-            >
-              →
-            </button>
+              {activeKeys.size === 0
+                ? "No note playing"
+                : activeKeys.size === 1
+                ? `${activeNoteFreq?.toFixed(1)} Hz`
+                : activeKeys.size > 1
+                ? `Chord: ${identifyChord(activeKeys)}`
+                : `Playing ${activeKeys.size} notes`}
+            </div>
+
             <div className="w-px h-8 bg-gray-600 mx-2" />
           </div>
 
@@ -472,13 +478,13 @@ export default function PianoKeyboard({
               <button
                 onClick={() => setAllowOutOfScale((prev) => !prev)}
                 className={`
-                                    px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2
-                                    ${
-                                      allowOutOfScale
-                                        ? "bg-green-600 hover:bg-green-700"
-                                        : "bg-red-600 hover:bg-red-700"
-                                    }
-                                `}
+                        px-3 py-1 rounded h-[37px] transition-colors flex items-center gap-2
+                        ${
+                          allowOutOfScale
+                            ? "bg-green-600 hover:bg-green-700"
+                            : "bg-red-600 hover:bg-red-700"
+                        }
+                    `}
                 aria-label={
                   allowOutOfScale
                     ? `Scale is unlocked. All notes can be played. Click to lock to ${selectedScale} scale only`
@@ -655,27 +661,27 @@ export default function PianoKeyboard({
           alignSelf: "stretch",
         }}
       >
-        <div
-          className="px-3 py-2 bg-gray-700 rounded h-[37px] flex items-center"
-          role="status"
-          aria-live="polite"
-          aria-label={
-            activeKeys.size === 0
-              ? "No notes playing"
-              : activeKeys.size === 1
-              ? `Playing at ${activeNoteFreq?.toFixed(1)} Hz`
-              : activeKeys.size > 1
-              ? `Chord: ${identifyChord(activeKeys)}`
-              : `Playing ${activeKeys.size} notes`
-          }
-        >
-          {activeKeys.size === 0
-            ? "No note playing"
-            : activeKeys.size === 1
-            ? `${activeNoteFreq?.toFixed(1)} Hz`
-            : activeKeys.size > 1
-            ? `Chord: ${identifyChord(activeKeys)}`
-            : `Playing ${activeKeys.size} notes`}
+        {/* Octave controls moved to the bottom left */}
+        <div className="flex items-center gap-2 bg-gray-700 rounded">
+          <button
+            onClick={() => setStartOctave((prev) => Math.max(0, prev - 1))}
+            className="px-5 py-2 bg-gray-600 rounded disabled:opacity-50"
+            disabled={startOctave === 0}
+            aria-label="Lower octave range"
+          >
+            ←
+          </button>
+          <span className="px-3">
+            Octave {startOctave}-{startOctave + 1}
+          </span>
+          <button
+            onClick={() => setStartOctave((prev) => Math.min(7, prev + 1))}
+            className="px-5 py-2 bg-gray-600 rounded disabled:opacity-50"
+            disabled={startOctave === 7}
+            aria-label="Higher octave range"
+          >
+            →
+          </button>
         </div>
 
         <button
