@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Lock, Unlock } from "lucide-react";
+import { Lock, Unlock, Expand, Shrink } from "lucide-react";
 
 interface PianoKeyboardProps {
   actx: AudioContext;
@@ -347,10 +347,43 @@ export default function PianoKeyboard({
     return "Unknown";
   };
 
+  // Ensure the state change is actually affecting the layout
+  const [isFullScreen, setIsFullScreen] = useState(false);
+
+  const toggleFullScreen = () => {
+    setIsFullScreen((prevState) => !prevState);
+    // Force layout update if needed
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"));
+    }, 10);
+  };
+
   return (
     <div
-      className="relative w-full"
-      aria-label="Piano Keyboard Interface"
+      className={`piano-wrapper ${isFullScreen ? "fullscreen-piano" : ""}`}
+      style={{
+        width: isFullScreen ? "100vw" : "100%",
+        maxWidth: isFullScreen ? "100%" : "1200px",
+        position: isFullScreen ? "fixed" : "relative",
+        left: isFullScreen ? "0" : "auto",
+        top: isFullScreen ? "0" : "auto",
+        right: isFullScreen ? "0" : "auto",
+        bottom: isFullScreen ? "0" : "auto",
+        zIndex: isFullScreen ? 50 : "auto",
+        padding: isFullScreen ? "0" : "1rem",
+        margin: isFullScreen ? "0" : "auto",
+        backgroundColor: isFullScreen
+          ? "var(--bg-color, #1e3a5f)"
+          : "rgb(10, 58, 79)",
+        transition: "background-color 0.3s ease, height 0.3s ease",
+        overflow: "hidden",
+        display: isFullScreen ? "flex" : "block",
+        flexDirection: isFullScreen ? "column" : "initial",
+        justifyContent: isFullScreen ? "center" : "initial",
+        alignItems: isFullScreen ? "center" : "initial",
+        height: isFullScreen ? "100vh" : "auto",
+        borderRadius: "0.5rem",
+      }}
     >
       {!hasAudioPermission && (
         <div className="absolute inset-0 flex items-center justify-center bg-gray-900/70 z-50">
@@ -367,8 +400,13 @@ export default function PianoKeyboard({
       )}
 
       {/* Top toolbar */}
-      <div className="w-full mb-4">
-        <div className="flex items-center justify-between gap-2 p-2 bg-gray-800 rounded-lg w-full">
+      <div className={`w-full ${isFullScreen ? "mb-0" : "mb-0"}`}>
+        <div
+          className={`flex items-center justify-between gap-2 p-2 bg-gray-800 rounded-lg w-full ${
+            isFullScreen ? "rounded-none" : "rounded-b-none"
+          }`}
+          style={{ boxSizing: "border-box" }}
+        >
           <div className="flex items-center gap-2">
             <button
               onClick={() => setStartOctave((prev) => Math.max(0, prev - 1))}
@@ -486,7 +524,21 @@ export default function PianoKeyboard({
       </div>
 
       {/* Piano keys */}
-      <div className="relative h-48 flex w-full mb-4">
+      <div
+        className={`relative h-48 flex w-full ${
+          isFullScreen ? "mb-0" : "mb-4"
+        }`}
+        style={{
+          width: "100%",
+          maxWidth: "100%",
+          borderRadius: isFullScreen
+            ? "0 0 0.5rem 0.5rem"
+            : "0 0 0.5rem 0.5rem",
+          padding: "0",
+          boxSizing: "border-box",
+          overflow: "hidden",
+        }}
+      >
         {keys.map((key) => {
           const inScale = isNoteInScale(key.noteNumber);
           const isDisabled =
@@ -531,12 +583,16 @@ export default function PianoKeyboard({
                                         #ffffff 10px, 
                                         #ffffff 20px)`
                     : "none",
+                // Fixed sizes for consistent spacing
+                width: key.isBlack ? "4%" : "12.5%",
+                marginLeft: key.isBlack ? "-2%" : "0",
+                marginRight: key.isBlack ? "-2%" : "0",
               }}
               className={`
                                 ${
                                   key.isBlack
-                                    ? "bg-black h-3/5 w-[4%] -mx-[2%] z-10 absolute"
-                                    : "bg-white h-full w-[12.5%] border border-gray-300 relative"
+                                    ? "bg-black h-3/5 z-10 absolute"
+                                    : "bg-white h-full border border-gray-300 relative"
                                 }
                                 ${
                                   selectedScale !== "none"
@@ -590,7 +646,15 @@ export default function PianoKeyboard({
         })}
       </div>
 
-      <div className="flex justify-end mt-4">
+      <div
+        className="flex justify-between items-center mt-4"
+        style={{
+          width: "100%",
+          justifyContent: "space-between",
+          alignItems: "center",
+          alignSelf: "stretch",
+        }}
+      >
         <div
           className="px-3 py-2 bg-gray-700 rounded h-[37px] flex items-center"
           role="status"
@@ -613,6 +677,14 @@ export default function PianoKeyboard({
             ? `Chord: ${identifyChord(activeKeys)}`
             : `Playing ${activeKeys.size} notes`}
         </div>
+
+        <button
+          onClick={toggleFullScreen}
+          className="fullscreen-toggle p-2 ml-auto mr-0 rounded hover:bg-gray-700 focus:outline-none"
+          aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
+        >
+          {isFullScreen ? <Shrink size={20} /> : <Expand size={20} />}
+        </button>
       </div>
     </div>
   );
