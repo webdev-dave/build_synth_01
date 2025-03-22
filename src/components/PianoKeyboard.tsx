@@ -593,6 +593,12 @@ export default function PianoKeyboard({
                 width: key.isBlack ? "4%" : "12.5%",
                 marginLeft: key.isBlack ? "-2%" : "0",
                 marginRight: key.isBlack ? "-2%" : "0",
+                // Apply different orange shades based on key type when active
+                backgroundColor: activeKeys.has(key.note)
+                  ? key.isBlack
+                    ? "#D84315"
+                    : "#FFE0B2"
+                  : "",
               }}
               className={`
                                 ${
@@ -614,8 +620,8 @@ export default function PianoKeyboard({
                                 ${
                                   activeKeys.has(key.note)
                                     ? key.isBlack
-                                      ? "bg-gray-800"
-                                      : "bg-gray-200"
+                                      ? "!bg-orange-400" // Dark orange for black keys
+                                      : "!bg-orange-100" // Light orange for white keys
                                     : key.isBlack
                                     ? "hover:bg-gray-900"
                                     : "hover:bg-gray-100"
@@ -641,7 +647,13 @@ export default function PianoKeyboard({
                                 absolute bottom-1 left-1 text-xs 
                                 whitespace-pre-line leading-tight
                                 text-left
-                                ${key.isBlack ? "text-white" : "text-black"}
+                                ${
+                                  activeKeys.has(key.note) && key.isBlack
+                                    ? "text-white"
+                                    : key.isBlack
+                                    ? "text-white"
+                                    : "text-black"
+                                }
                                 ${isDisabled ? "text-gray-900" : ""}
                             `}
               >
