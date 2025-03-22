@@ -11,19 +11,24 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Basic sound generation using an oscillator
 - Piano keyboard with octave controls
 - Added Selectable musical scales with visual feedback to help PianoSynth users visualize the keys that belong in the selected scaled scale of the notes being played
+- Created a note/notes data window that displays data related to current note/notes being played. For example, if a single note is being played, the window displays the Hz Frequency of that note. If multiple notes are being played, the window will attempt to detect what chord is being played
+
+## Research Music Theory and Logic
+
+- Research the concept of different sound wave shapes/types
+- Research the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
+- Research the logic used by the "note playing" data window on the bottom piano menu to detect what chord is playing
+- Research how multi-touch input support logic works
 
 ## Development Todo
 
-- Make sure new logic for the selectScale feature is working as expected
 - start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
-- Make sure to understand the concept of different sound wave shapes/types
-- Make sure to understand the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
+- Add a selectChord feature. This will be an add on to the selectScale feature. If a user is in a "selected scale" then there should be another dropdown that will allow them to select a chord from that scale. The effect of selecting a chord should be as follows. The keys in the selected chord should be colored orange. Additionally, next to the chord dropdown, there will be a play/pause button that will play the chord sound if a user selects "play". The chord should automatically stop playing if any new key input is pressed by an app user
 - Fix: fix issue with piano keyButtons remaining "visually" pressed (darker grey than the other keys) after being functionally released
 - Fix: issues with piano key sizing and alignment:
   - some white piano keys being slightly wider than others
   - black piano keys aren't truly centered on the white keys
 - Need to find a way to make it more visually obvious to a user when a note is being played, what note is being played (use a visual indicator)
-- Add multi-touch support for playing chords on mobile/touch devices
 - Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
 - Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
 - create a mapping of computer keyboard => virtual piano
