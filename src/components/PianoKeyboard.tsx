@@ -36,7 +36,7 @@ export default function PianoKeyboard({
   hasAudioPermission,
   onAudioPermissionGranted,
 }: PianoKeyboardProps) {
-  const [startOctave, setStartOctave] = useState(4);
+  const [startOctave, setStartOctave] = useState<number>(4);
   const [waveType, setWaveType] = useState<OscillatorType>("sine");
 
   // Add state to store current frequency for single-note display
@@ -94,10 +94,12 @@ export default function PianoKeyboard({
 
     const rootNumber = getRootNoteNumber(scaleRoot);
     const pattern = scalePatterns[scaleType];
-    const noteInOctave = noteNumber % 12;
-    const normalizedNote = (noteInOctave - rootNumber + 12) % 12;
-    return pattern.includes(normalizedNote);
+    const octaveIndependentNotePosition  = noteNumber % 12;
+    const semitoneOffsetFromRoot = (octaveIndependentNotePosition - rootNumber + 12) % 12;
+    return pattern.includes(semitoneOffsetFromRoot);
   };
+
+  //ToDo: Continue code review below
 
   // Create piano keys
   const createOctave = (octaveNumber: number): PianoKey[] => {

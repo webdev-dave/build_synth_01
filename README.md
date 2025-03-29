@@ -35,6 +35,9 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - create a mapping of computer keyboard => virtual piano
 - Optimize audio latency
   - Reduce delay between key press and sound playback
+- Reduce click/pop sounds on note abrupt end
+- Sound Bank/Library
+  - 70s Organ
 
 ## Additional Features
 
