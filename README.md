@@ -1,6 +1,55 @@
-# Synth-v01
+# Build Synth 01
 
-A simple web-based synthesizer application built with Next.js & the Web Audio API.
+A modern web-based Digital Audio Workstation (DAW) built with Next.js and TypeScript, featuring a template-based instrument architecture.
+
+## 🎹 Architecture Overview
+
+This DAW uses a **template-based architecture** where each instrument family has primitive templates that can spawn multiple variations:
+
+```
+src/instruments/
+├── synth/                    # Synthesizer family
+│   ├── templates/           # Primitive templates
+│   │   └── basic-synth/     # Basic synthesizer template
+│   ├── variants/            # Template variations (future)
+│   │   ├── piano/          # Piano variant of basic-synth
+│   │   └── organ/          # Organ variant of basic-synth
+│   └── index.ts            # Synth family exports
+└── drums/                   # Drum machine family (future)
+    ├── templates/
+    └── variants/
+```
+
+## 🚀 Current Features
+
+- **Basic Synthesizer Template**: A foundational synth with customizable waveforms
+- **Scale-aware Key Highlighting**: Visual feedback for musical scales
+- **Real-time Audio Synthesis**: Web Audio API-based sound generation
+- **Responsive Design**: Optimized for landscape orientation
+- **Modular Architecture**: Easy to extend with new instruments
+
+## 🛠 Development Status
+
+### ✅ Completed
+
+- Template-based architecture implementation
+- Basic synthesizer template with modular components
+- Audio synthesis with multiple waveforms
+- Scale logic and key highlighting
+- Responsive UI components
+
+### 🔄 In Progress
+
+- Component refactoring and optimization
+- Enhanced audio features
+
+### 📋 Planned
+
+- Piano and organ variants of the basic synthesizer
+- Drum machine templates and variants
+- Advanced synthesis features
+- Preset management system
+- Recording and playback capabilities
 
 ## Live Demo
 

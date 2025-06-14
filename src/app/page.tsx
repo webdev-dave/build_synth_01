@@ -1,7 +1,7 @@
 "use client";
 // import Oscillator from '@/components/Oscillator';
 import { useEffect, useState } from "react";
-import PianoKeyboard from "../components/PianoKeyboard";
+import { SynthKeyboard } from "../instruments";
 
 // Add this type declaration for Safari's webkitAudioContext
 interface WindowWithWebkit extends Window {
@@ -70,7 +70,7 @@ export default function Home() {
           {actx ? (
             <>
               {/* <Oscillator actx={actx} /> */}
-              <PianoKeyboard
+              <SynthKeyboard
                 actx={actx}
                 hasAudioPermission={hasAudioPermission}
                 onAudioPermissionGranted={() => setHasAudioPermission(true)}
