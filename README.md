@@ -72,7 +72,9 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
-- orange visual indicator doesn't work when in scale mode (obviously this only applies to "unlocked" scale since a user cannot play any keys in "locked" scale)
+- Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost
+- Fix: currently, when using "touch" and sliding down the keyboard there is no sound (instead user must first release previous key and start new press on next key)
+- Re-arrange key/scale dropdown so that next to each scale the matching minor/major is also shown in the list (for example: Cmaj (Amin) )
 - start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
 - Add a selectChord feature. This will be an add on to the selectScale feature. If a user is in a "selected scale" then there should be another dropdown that will allow them to select a chord from that scale. The effect of selecting a chord should be as follows. The keys in the selected chord should be colored orange. Additionally, next to the chord dropdown, there will be a play/pause button that will play the chord sound if a user selects "play". The chord should automatically stop playing if any new key input is pressed by an app user
 - Fix: fix issue with piano keyButtons remaining "visually" pressed (darker grey than the other keys) after being functionally released
