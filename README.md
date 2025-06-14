@@ -79,6 +79,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 - Fix: issues with piano key sizing and alignment:
   - some white piano keys being slightly wider than others
   - black piano keys aren't truly centered on the white keys
+- Fix: Windows tablet triple-finger touch gesture interferes with chord playing by triggering the task switcher overlay
 - Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
 - Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
 - create a mapping of computer keyboard => virtual piano

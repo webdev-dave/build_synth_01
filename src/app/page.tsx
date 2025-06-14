@@ -2,6 +2,7 @@
 // import Oscillator from '@/components/Oscillator';
 import { useEffect, useState } from "react";
 import { SynthKeyboard } from "../instruments";
+import PreventDefaultTouchWrapper from "@/components/wrappers/PreventDefaultTouchWrapper";
 
 // Add this type declaration for Safari's webkitAudioContext
 interface WindowWithWebkit extends Window {
@@ -68,14 +69,14 @@ export default function Home() {
         <div className="flex flex-col gap-4 mt-16 text-lg">
           {/* <p className='className="block mb-0'>Wave: Sine</p> */}
           {actx ? (
-            <>
+            <PreventDefaultTouchWrapper>
               {/* <Oscillator actx={actx} /> */}
               <SynthKeyboard
                 actx={actx}
                 hasAudioPermission={hasAudioPermission}
                 onAudioPermissionGranted={() => setHasAudioPermission(true)}
               />
-            </>
+            </PreventDefaultTouchWrapper>
           ) : (
             <div>Initializing Audio Context...</div>
           )}
