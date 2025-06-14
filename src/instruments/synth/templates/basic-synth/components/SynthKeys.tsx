@@ -85,6 +85,14 @@ export default function SynthKeys({
 
         const blackKeyPositioning = getBlackKeyPosition(key, index);
 
+        const isStriped = !inScale && selectedScale !== "none";
+        const isActive = activeKeys.has(key.note);
+
+        // Define stripe colors
+        const firstStripeColor = allowOutOfScale ? "#4a6e55" : "#fee2e2";
+        const activeColor = key.isBlack ? "#fb923c" : "#ffedd5"; // Corresponds to Tailwind's orange-400 and orange-100
+        const secondStripeColor = isActive ? activeColor : "#ffffff";
+
         return (
           <button
             key={key.note}
@@ -110,14 +118,13 @@ export default function SynthKeys({
               onNoteStop(key.note);
             }}
             style={{
-              backgroundImage:
-                !inScale && selectedScale !== "none"
-                  ? `repeating-linear-gradient(45deg, 
-                      ${allowOutOfScale ? "#4a6e55" : "#fee2e2"}, 
-                      ${allowOutOfScale ? "#4a6e55" : "#fee2e2"} 10px, 
-                      #ffffff 10px, 
-                      #ffffff 20px)`
-                  : "none",
+              backgroundImage: isStriped
+                ? `repeating-linear-gradient(45deg, 
+                      ${firstStripeColor}, 
+                      ${firstStripeColor} 10px, 
+                      ${secondStripeColor} 10px, 
+                      ${secondStripeColor} 20px)`
+                : "none",
               // Use new positioning for black keys, fallback to original for white keys
               ...(key.isBlack
                 ? blackKeyPositioning
