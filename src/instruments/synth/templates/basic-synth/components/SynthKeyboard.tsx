@@ -86,7 +86,7 @@ export default function SynthKeyboard() {
       message="This synth works best in landscape mode 🎹"
       icon="🎹"
     >
-      <PreventDefaultTouchWrapper>
+      <PreventDefaultTouchWrapper allowScroll={true}>
         <div
           className={`synth-wrapper ${isFullScreen ? "fullscreen-synth" : ""}`}
           style={{

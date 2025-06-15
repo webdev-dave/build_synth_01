@@ -12,6 +12,12 @@ interface PreventDefaultTouchWrapperProps {
    * @default true
    */
   preventContextMenu?: boolean;
+  /**
+   * If true, allows basic scrolling while still preventing other touch actions like pinch-to-zoom.
+   * When enabled, uses touchAction: "pan-y" instead of "none" to allow vertical scrolling.
+   * @default false
+   */
+  allowScroll?: boolean;
 }
 
 /**
@@ -34,12 +40,20 @@ interface PreventDefaultTouchWrapperProps {
  *   <MyInteractiveComponent />
  * </PreventDefaultTouchWrapper>
  * ```
+ *
+ * @example
+ * ```tsx
+ * <PreventDefaultTouchWrapper allowScroll={true}>
+ *   <MyScrollableComponent />
+ * </PreventDefaultTouchWrapper>
+ * ```
  */
 const PreventDefaultTouchWrapper: React.FC<PreventDefaultTouchWrapperProps> = ({
   children,
   style,
   className,
   preventContextMenu = true,
+  allowScroll = false,
 }) => {
   const handleContextMenu = (e: React.MouseEvent) => {
     if (preventContextMenu) {
@@ -48,7 +62,8 @@ const PreventDefaultTouchWrapper: React.FC<PreventDefaultTouchWrapperProps> = ({
   };
 
   const wrapperStyle: CSSProperties = {
-    touchAction: "none", // Disables pinch-zoom, double-tap-zoom, and scrolling.
+    // Allow scrolling when requested, otherwise disable all touch actions
+    touchAction: allowScroll ? "pan-y" : "none", // "pan-y" allows vertical scrolling, "none" disables all touch actions
     overscrollBehavior: "none", // Prevents scroll chaining and browser navigation gestures.
     userSelect: "none", // Prevents text selection.
     WebkitTouchCallout: "none", // Disables the callout menu on long-press (iOS).
