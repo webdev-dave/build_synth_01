@@ -1,4 +1,5 @@
 import { SynthKey } from "../utils/synthUtils";
+import { useRef, useCallback } from "react";
 
 interface SynthKeysProps {
   keys: SynthKey[];
@@ -9,6 +10,12 @@ interface SynthKeysProps {
   onNoteStart: (noteNumber: number, note: string) => void;
   onNoteStop: (note: string) => void;
   isFullScreen: boolean;
+  /**
+   * If true, allows scrolling over the piano keys by not preventing default touch behavior.
+   * When false, prevents all default touch behavior for better touch accuracy on keys.
+   * @default false
+   */
+  allowScroll?: boolean;
 }
 
 export default function SynthKeys({
@@ -20,7 +27,71 @@ export default function SynthKeys({
   onNoteStart,
   onNoteStop,
   isFullScreen,
+  allowScroll = false,
 }: SynthKeysProps) {
+  const currentTouchedKey = useRef<string | null>(null);
+
+  const getKeyFromTouch = useCallback((touch: React.Touch): string | null => {
+    const element = document.elementFromPoint(touch.clientX, touch.clientY);
+    if (element) {
+      // Find the button element (could be the button itself or a child element)
+      const button = element.closest("button");
+      if (button) {
+        // Extract the key note from the aria-label
+        const ariaLabel = button.getAttribute("aria-label");
+        if (ariaLabel) {
+          const match = ariaLabel.match(/Synth key ([A-G][#b]?\d+)/);
+          if (match) {
+            return match[1];
+          }
+        }
+      }
+    }
+    return null;
+  }, []);
+
+  const handleTouchMove = useCallback(
+    (e: React.TouchEvent) => {
+      if (!allowScroll) {
+        e.preventDefault();
+      }
+
+      if (e.touches.length > 0) {
+        const touch = e.touches[0];
+        const keyNote = getKeyFromTouch(touch);
+
+        if (keyNote && keyNote !== currentTouchedKey.current) {
+          // Stop the previous key if there was one
+          if (currentTouchedKey.current) {
+            onNoteStop(currentTouchedKey.current);
+          }
+
+          // Start the new key
+          const key = keys.find((k) => k.note === keyNote);
+          if (key) {
+            const inScale = isNoteInScale(key.noteNumber);
+            const isDisabled =
+              !allowOutOfScale && selectedScale !== "none" && !inScale;
+
+            if (!isDisabled) {
+              onNoteStart(key.noteNumber, key.note);
+              currentTouchedKey.current = keyNote;
+            }
+          }
+        }
+      }
+    },
+    [
+      keys,
+      isNoteInScale,
+      allowOutOfScale,
+      selectedScale,
+      onNoteStart,
+      onNoteStop,
+      getKeyFromTouch,
+      allowScroll,
+    ]
+  );
   // Helper function to calculate black key position
   const getBlackKeyPosition = (key: SynthKey, keyIndex: number) => {
     if (!key.isBlack) return {};
@@ -77,6 +148,7 @@ export default function SynthKeys({
         boxSizing: "border-box",
         overflow: "hidden",
       }}
+      onTouchMove={handleTouchMove}
     >
       {keys.map((key, index) => {
         const inScale = isNoteInScale(key.noteNumber);
@@ -104,18 +176,36 @@ export default function SynthKeys({
             onMouseUp={() => onNoteStop(key.note)}
             onMouseLeave={() => onNoteStop(key.note)}
             onTouchStart={(e) => {
-              e.preventDefault();
+              // Only prevent default if we don't want to allow scrolling
+              if (!allowScroll) {
+                e.preventDefault();
+              }
               if (!isDisabled) {
                 onNoteStart(key.noteNumber, key.note);
+                currentTouchedKey.current = key.note;
               }
             }}
             onTouchEnd={(e) => {
-              e.preventDefault();
-              onNoteStop(key.note);
+              // Only prevent default if we don't want to allow scrolling
+              if (!allowScroll) {
+                e.preventDefault();
+              }
+              // Stop the currently tracked key, not necessarily this key
+              if (currentTouchedKey.current) {
+                onNoteStop(currentTouchedKey.current);
+                currentTouchedKey.current = null;
+              }
             }}
             onTouchCancel={(e) => {
-              e.preventDefault();
-              onNoteStop(key.note);
+              // Only prevent default if we don't want to allow scrolling
+              if (!allowScroll) {
+                e.preventDefault();
+              }
+              // Stop the currently tracked key, not necessarily this key
+              if (currentTouchedKey.current) {
+                onNoteStop(currentTouchedKey.current);
+                currentTouchedKey.current = null;
+              }
             }}
             style={{
               backgroundImage: isStriped
