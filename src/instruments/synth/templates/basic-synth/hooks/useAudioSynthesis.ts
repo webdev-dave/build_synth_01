@@ -19,7 +19,7 @@ interface UseAudioSynthesisReturn {
 }
 
 export function useAudioSynthesis(
-  actx: AudioContext,
+  actx: AudioContext | null,
   onAudioPermissionGranted: () => void,
   keys: SynthKey[]
 ): UseAudioSynthesisReturn {
@@ -31,13 +31,14 @@ export function useAudioSynthesis(
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
 
   const initializeAudio = useCallback(async () => {
+    if (!actx) return;
     await actx.resume();
     onAudioPermissionGranted();
   }, [actx, onAudioPermissionGranted]);
 
   const handleNoteStart = useCallback(
     async (noteNumber: number, note: string) => {
-      if (activeOscillators.has(note)) return;
+      if (!actx || activeOscillators.has(note)) return;
 
       const frequency = noteNumberToFrequency(noteNumber);
       const osc = actx.createOscillator();
@@ -75,6 +76,7 @@ export function useAudioSynthesis(
 
   const stopNote = useCallback(
     (note: string) => {
+      if (!actx) return;
       const noteData = activeOscillators.get(note);
       if (noteData) {
         const { oscillator, gain } = noteData;
