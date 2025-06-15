@@ -83,7 +83,7 @@ export default function SynthKeyboard() {
     <OrientationGuard
       requiredOrientation="landscape"
       title="Please Rotate Your Device"
-      message="This synth works best in landscape mode 🎹"
+      message="This synth works best in landscape mode"
       icon="🎹"
     >
       <PreventDefaultTouchWrapper allowScroll={true}>
