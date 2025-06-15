@@ -69,7 +69,7 @@ export default function SynthKeyboard() {
       <OrientationGuard
         requiredOrientation="landscape"
         title="Please Rotate Your Device"
-        message="This synth works best in landscape mode 🎹"
+        message="This synth works best in landscape mode"
         icon="🎹"
       >
         <div className="bg-synth-bg p-6 rounded-md border-2 text-center">
