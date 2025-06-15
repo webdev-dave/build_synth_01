@@ -60,7 +60,7 @@ export default function OrientationGuard({
   // If current orientation doesn't match required orientation, show guard
   if (currentOrientation !== requiredOrientation) {
     return (
-      <div className="fixed inset-0 flex items-center justify-center p-4 bg-synth-bg z-50">
+      <div className="fixed inset-0 flex items-center justify-center p-4 m-4 z-50">
         <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4 text-center flex flex-col items-center justify-center">
           <div className="text-5xl mb-6">{icon}</div>
           <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>
