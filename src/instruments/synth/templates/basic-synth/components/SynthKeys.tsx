@@ -29,7 +29,8 @@ export default function SynthKeys({
   isFullScreen,
   allowScroll = false,
 }: SynthKeysProps) {
-  const currentTouchedKey = useRef<string | null>(null);
+  // Use a Set to track multiple touched keys instead of a single key
+  const currentTouchedKeys = useRef<Set<string>>(new Set());
 
   const getKeyFromTouch = useCallback((touch: React.Touch): string | null => {
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
@@ -56,17 +57,29 @@ export default function SynthKeys({
         e.preventDefault();
       }
 
-      if (e.touches.length > 0) {
-        const touch = e.touches[0];
+      // Handle all active touch points for multi-touch support
+      const activeTouchKeys = new Set<string>();
+
+      // Get all currently touched keys
+      for (let i = 0; i < e.touches.length; i++) {
+        const touch = e.touches[i];
         const keyNote = getKeyFromTouch(touch);
+        if (keyNote) {
+          activeTouchKeys.add(keyNote);
+        }
+      }
 
-        if (keyNote && keyNote !== currentTouchedKey.current) {
-          // Stop the previous key if there was one
-          if (currentTouchedKey.current) {
-            onNoteStop(currentTouchedKey.current);
-          }
+      // Stop keys that are no longer being touched
+      currentTouchedKeys.current.forEach((key) => {
+        if (!activeTouchKeys.has(key)) {
+          onNoteStop(key);
+          currentTouchedKeys.current.delete(key);
+        }
+      });
 
-          // Start the new key
+      // Start new keys that are now being touched
+      activeTouchKeys.forEach((keyNote) => {
+        if (!currentTouchedKeys.current.has(keyNote)) {
           const key = keys.find((k) => k.note === keyNote);
           if (key) {
             const inScale = isNoteInScale(key.noteNumber);
@@ -75,11 +88,11 @@ export default function SynthKeys({
 
             if (!isDisabled) {
               onNoteStart(key.noteNumber, key.note);
-              currentTouchedKey.current = keyNote;
+              currentTouchedKeys.current.add(keyNote);
             }
           }
         }
-      }
+      });
     },
     [
       keys,
@@ -182,7 +195,7 @@ export default function SynthKeys({
               }
               if (!isDisabled) {
                 onNoteStart(key.noteNumber, key.note);
-                currentTouchedKey.current = key.note;
+                currentTouchedKeys.current.add(key.note);
               }
             }}
             onTouchEnd={(e) => {
@@ -190,22 +203,18 @@ export default function SynthKeys({
               if (!allowScroll) {
                 e.preventDefault();
               }
-              // Stop the currently tracked key, not necessarily this key
-              if (currentTouchedKey.current) {
-                onNoteStop(currentTouchedKey.current);
-                currentTouchedKey.current = null;
-              }
+              // Stop this specific key and remove it from touched keys
+              onNoteStop(key.note);
+              currentTouchedKeys.current.delete(key.note);
             }}
             onTouchCancel={(e) => {
               // Only prevent default if we don't want to allow scrolling
               if (!allowScroll) {
                 e.preventDefault();
               }
-              // Stop the currently tracked key, not necessarily this key
-              if (currentTouchedKey.current) {
-                onNoteStop(currentTouchedKey.current);
-                currentTouchedKey.current = null;
-              }
+              // Stop this specific key and remove it from touched keys
+              onNoteStop(key.note);
+              currentTouchedKeys.current.delete(key.note);
             }}
             style={{
               backgroundImage: isStriped
