@@ -105,6 +105,38 @@ export default function SynthKeys({
       allowScroll,
     ]
   );
+
+  const handleTouchEnd = useCallback(
+    (e: React.TouchEvent) => {
+      if (!allowScroll) {
+        e.preventDefault();
+      }
+
+      // When all touches end, stop all currently tracked keys
+      if (e.touches.length === 0) {
+        currentTouchedKeys.current.forEach((key) => {
+          onNoteStop(key);
+        });
+        currentTouchedKeys.current.clear();
+      }
+    },
+    [onNoteStop, allowScroll]
+  );
+
+  const handleTouchCancel = useCallback(
+    (e: React.TouchEvent) => {
+      if (!allowScroll) {
+        e.preventDefault();
+      }
+
+      // When touches are cancelled, stop all currently tracked keys
+      currentTouchedKeys.current.forEach((key) => {
+        onNoteStop(key);
+      });
+      currentTouchedKeys.current.clear();
+    },
+    [onNoteStop, allowScroll]
+  );
   // Helper function to calculate black key position
   const getBlackKeyPosition = (key: SynthKey, keyIndex: number) => {
     if (!key.isBlack) return {};
@@ -162,6 +194,8 @@ export default function SynthKeys({
         overflow: "hidden",
       }}
       onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+      onTouchCancel={handleTouchCancel}
     >
       {keys.map((key, index) => {
         const inScale = isNoteInScale(key.noteNumber);
