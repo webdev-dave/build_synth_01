@@ -162,7 +162,7 @@ export default function SynthKeys({
 
         // Define stripe colors
         const firstStripeColor = allowOutOfScale ? "#4a6e55" : "#fee2e2";
-        const activeColor = key.isBlack ? "#fb923c" : "#ffedd5"; // Corresponds to Tailwind's orange-400 and orange-100
+        const activeColor = key.isBlack ? "#fb923c" : "#fb923c"; // Orange-400 for both black and white keys
         const secondStripeColor = isActive ? activeColor : "#ffffff";
 
         return (
@@ -237,7 +237,7 @@ export default function SynthKeys({
                 activeKeys.has(key.note)
                   ? key.isBlack
                     ? "!bg-orange-400"
-                    : "!bg-orange-100"
+                    : "!bg-orange-400"
                   : key.isBlack
                   ? "hover:bg-gray-900"
                   : "hover:bg-gray-100"
