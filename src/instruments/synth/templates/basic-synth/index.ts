@@ -11,6 +11,11 @@ export {
   BottomToolbar as SynthBottomToolbar,
 } from "./components/SynthControls";
 export { default as AudioPermissionOverlay } from "./components/AudioPermissionOverlay";
+export { default as MusicTheoryPanel } from "./components/MusicTheoryPanel";
+export { default as ScaleTheoryPanel } from "./components/ScaleTheoryPanel";
+export { default as ChordTheoryPanel } from "./components/ChordTheoryPanel";
+export { default as SoundEngineeringPanel } from "./components/SoundEngineeringPanel";
+export { default as WaveExplanationPanel } from "./components/WaveExplanationPanel";
 
 // Synth Hooks
 export { useAudioSynthesis } from "./hooks/useAudioSynthesis";

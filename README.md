@@ -72,6 +72,7 @@ Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
 
 ## Development Todo
 
+- Do a deep dive and fix all UX/UI issues with FullScreen mode for desktop and mobile
 - Add Feature: When user is in "Scale Mode", color the root key and relative minor/major to point out to the user what is the root and relative min/maj
 - Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost
 - Re-arrange key/scale dropdown so that next to each scale the matching minor/major is also shown in the list (for example: Cmaj (Amin) )

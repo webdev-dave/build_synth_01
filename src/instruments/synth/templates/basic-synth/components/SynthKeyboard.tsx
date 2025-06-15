@@ -5,6 +5,8 @@ import { createSynthKeys } from "../utils/synthUtils";
 import AudioPermissionOverlay from "./AudioPermissionOverlay";
 import SynthKeys from "./SynthKeys";
 import { TopToolbar, BottomToolbar } from "./SynthControls";
+import MusicTheoryPanel from "./MusicTheoryPanel";
+import SoundEngineeringPanel from "./SoundEngineeringPanel";
 import OrientationGuard from "@/components/wrappers/OrientationGuard";
 import PreventDefaultTouchWrapper from "@/components/wrappers/PreventDefaultTouchWrapper";
 
@@ -118,6 +120,13 @@ export default function SynthKeyboard() {
               onInitializeAudio={audioSynthesis.initializeAudio}
             />
           )}
+          <div className="mb-4">
+            <MusicTheoryPanel
+              selectedScale={scaleLogic.selectedScale}
+              activeKeys={audioSynthesis.activeKeys}
+              identifyChord={scaleLogic.identifyChord}
+            />
+          </div>
 
           <TopToolbar
             activeKeys={audioSynthesis.activeKeys}
@@ -148,6 +157,10 @@ export default function SynthKeyboard() {
             isFullScreen={isFullScreen}
             toggleFullScreen={toggleFullScreen}
           />
+
+          <div className="mt-16">
+            <SoundEngineeringPanel waveType={audioSynthesis.waveType} />
+          </div>
         </div>
       </PreventDefaultTouchWrapper>
     </OrientationGuard>
