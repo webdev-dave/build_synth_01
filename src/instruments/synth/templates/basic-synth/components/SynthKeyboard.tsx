@@ -13,6 +13,7 @@ import {
   useComputerKeyboard,
   buildNoteToCharMap,
 } from "../hooks/useComputerKeyboard";
+import useIsMobile from "@/hooks/useIsMobile";
 
 // Add this type declaration for Safari's webkitAudioContext
 interface WindowWithWebkit extends Window {
@@ -24,7 +25,8 @@ export default function SynthKeyboard() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [actx, setActx] = useState<AudioContext | null>(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(false);
-  const [kbEnabled, setKbEnabled] = useState(true);
+  const isMobile = useIsMobile();
+  const [kbEnabled, setKbEnabled] = useState<boolean>(() => !isMobile);
   const [showKbLabels, setShowKbLabels] = useState(false);
 
   // Disable body scroll & padding while in full-screen mode
@@ -74,6 +76,14 @@ export default function SynthKeyboard() {
     };
   }, []);
 
+  // Ensure keyboard input stays disabled on mobile devices
+  useEffect(() => {
+    if (isMobile) {
+      setKbEnabled(false);
+      setShowKbLabels(false);
+    }
+  }, [isMobile]);
+
   const keys = createSynthKeys(startOctave);
 
   const scaleLogic = useScaleLogic();
@@ -99,7 +109,7 @@ export default function SynthKeyboard() {
   const handleToggleShowLabels = () => {
     setShowKbLabels((prev) => {
       const next = !prev;
-      if (next && !kbEnabled) {
+      if (!isMobile && next && !kbEnabled) {
         setKbEnabled(true);
       }
       return next;
@@ -208,6 +218,7 @@ export default function SynthKeyboard() {
             isFullScreen={isFullScreen}
             toggleFullScreen={toggleFullScreen}
             kbEnabled={kbEnabled}
+            isMobile={isMobile}
             toggleKbEnabled={() => setKbEnabled((prev) => !prev)}
             showKbLabels={showKbLabels}
             toggleShowKbLabels={handleToggleShowLabels}

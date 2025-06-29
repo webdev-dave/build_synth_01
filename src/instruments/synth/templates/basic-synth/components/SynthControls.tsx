@@ -27,6 +27,8 @@ interface BottomToolbarProps {
   toggleKbEnabled?: () => void;
   showKbLabels?: boolean;
   toggleShowKbLabels?: () => void;
+  /** If true, the UI is running on a mobile / touch-only device. */
+  isMobile?: boolean;
 }
 
 export function TopToolbar({
@@ -186,6 +188,7 @@ export function BottomToolbar({
   toggleKbEnabled = () => {},
   showKbLabels = false,
   toggleShowKbLabels = () => {},
+  isMobile = false,
 }: BottomToolbarProps) {
   return (
     <div className="w-full flex justify-between items-center py-1">
@@ -240,59 +243,63 @@ export function BottomToolbar({
 
       {/* Right Side - Additional Controls */}
       <div className="flex items-center gap-2">
-        {/* Enable computer keyboard */}
-        <Tooltip
-          message="Enable/disable computer keyboard input"
-          alignX="right"
-          placement="bottom"
-        >
-          <button
-            onClick={toggleKbEnabled}
-            className={`p-2 rounded transition-colors text-white ${
-              kbEnabled
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-            aria-label={
-              kbEnabled
-                ? "Disable computer keyboard input"
-                : "Enable computer keyboard input"
-            }
-            aria-pressed={kbEnabled}
+        {/* Enable computer keyboard (hidden on mobile) */}
+        {!isMobile && (
+          <Tooltip
+            message="Enable/disable computer keyboard input"
+            alignX="right"
+            placement="bottom"
           >
-            <Keyboard
-              size={20}
-              aria-hidden="true"
-            />
-          </button>
-        </Tooltip>
+            <button
+              onClick={toggleKbEnabled}
+              className={`p-2 rounded transition-colors text-white ${
+                kbEnabled
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-700 hover:bg-gray-600"
+              }`}
+              aria-label={
+                kbEnabled
+                  ? "Disable computer keyboard input"
+                  : "Enable computer keyboard input"
+              }
+              aria-pressed={kbEnabled}
+            >
+              <Keyboard
+                size={20}
+                aria-hidden="true"
+              />
+            </button>
+          </Tooltip>
+        )}
 
-        {/* Show keyboard labels */}
-        <Tooltip
-          message="Show/hide keyboard letter overlays"
-          alignX="right"
-          placement="bottom"
-        >
-          <button
-            onClick={toggleShowKbLabels}
-            className={`p-2 rounded transition-colors text-white ${
-              showKbLabels
-                ? "bg-blue-600 hover:bg-blue-700"
-                : "bg-gray-700 hover:bg-gray-600"
-            }`}
-            aria-label={
-              showKbLabels
-                ? "Hide computer key labels on piano"
-                : "Show computer key labels on piano"
-            }
-            aria-pressed={showKbLabels}
+        {/* Show keyboard labels (hidden on mobile) */}
+        {!isMobile && (
+          <Tooltip
+            message="Show/hide keyboard letter overlays"
+            alignX="right"
+            placement="bottom"
           >
-            <Type
-              size={20}
-              aria-hidden="true"
-            />
-          </button>
-        </Tooltip>
+            <button
+              onClick={toggleShowKbLabels}
+              className={`p-2 rounded transition-colors text-white ${
+                showKbLabels
+                  ? "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gray-700 hover:bg-gray-600"
+              }`}
+              aria-label={
+                showKbLabels
+                  ? "Hide computer key labels on piano"
+                  : "Show computer key labels on piano"
+              }
+              aria-pressed={showKbLabels}
+            >
+              <Type
+                size={20}
+                aria-hidden="true"
+              />
+            </button>
+          </Tooltip>
+        )}
 
         {/* Full-screen toggle */}
         <Tooltip
@@ -302,9 +309,7 @@ export function BottomToolbar({
         >
           <button
             onClick={toggleFullScreen}
-            className={
-              "p-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors"
-            }
+            className="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors"
             aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
           >
             {isFullScreen ? <Shrink size={20} /> : <Expand size={20} />}

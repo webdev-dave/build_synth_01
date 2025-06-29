@@ -8,7 +8,9 @@
 
 ## Development Todo
 
+- add feature: allow user to select how many octives they want visible on the screen at once. by default, for mobile phones display only one octave. for tablet and desktop display 2 but allow up to 5 (as long as the screen is wide enough, this means the feature should check screen width and based on how much width space there is, limit the user from adding too many octives since this would squish the layout and cause much of the design to collaps or overflow)
 - add Feature: when is user "right clicks" on a piano/synth key, the key should sustain infintely until the user presses it again via any touch or click input
+- Add Feature: accept midi input for midi devices
 - Add Feature: When user is in "Scale Mode", color the root key and relative minor/major to point out to the user what is the root and relative min/maj
 - Add Feature: add a "blues scale" dropdown that handles blues scales for "scale mode"
 - Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost
