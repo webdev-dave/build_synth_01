@@ -27,7 +27,7 @@ const MusicTheoryPanel: React.FC<MusicTheoryPanelProps> = ({
   };
 
   return (
-    <div className="space-y-3">
+    <div className="w-full space-y-3">
       <ScaleTheoryPanel
         selectedScale={selectedScale}
         isExpanded={expandedPanels.scale}

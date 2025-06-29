@@ -157,12 +157,12 @@ const ScaleTheoryPanel: React.FC<ScaleTheoryPanelProps> = ({
 
   if (!scaleInfo) {
     return (
-      <div className="bg-gray-800 rounded-lg border border-gray-700 text-white">
+      <div className="w-full bg-gray-800 rounded-lg border border-gray-700 text-white">
         <button
           onClick={onToggle}
           className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
         >
-          <h3 className="text-lg font-semibold text-blue-300">
+          <h3 className="text-lg font-semibold text-blue-300 mx-auto">
             🎼 Scale Theory
           </h3>
           {isExpanded ? (
@@ -199,12 +199,12 @@ const ScaleTheoryPanel: React.FC<ScaleTheoryPanelProps> = ({
   );
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 text-white">
+    <div className="w-full bg-gray-800 rounded-lg border border-gray-700 text-white">
       <button
         onClick={onToggle}
         className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
       >
-        <h3 className="text-lg font-semibold text-blue-300">
+        <h3 className="text-lg font-semibold text-blue-300 mx-auto">
           🎼 Understanding the {scaleInfo.name} Scale
         </h3>
         {isExpanded ? (

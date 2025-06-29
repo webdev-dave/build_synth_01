@@ -110,7 +110,7 @@ export default function SynthKeyboard() {
             display: isFullScreen ? "flex" : "block",
             flexDirection: isFullScreen ? "column" : "initial",
             justifyContent: isFullScreen ? "center" : "initial",
-            alignItems: isFullScreen ? "center" : "initial",
+            alignItems: isFullScreen ? "stretch" : "initial",
             height: isFullScreen ? "100vh" : "auto",
             borderRadius: "0.5rem",
           }}

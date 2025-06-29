@@ -36,7 +36,7 @@ export function TopToolbar({
   setWaveType,
 }: TopToolbarProps) {
   return (
-    <div className="flex items-center justify-between gap-2 p-3 bg-gray-800 rounded-t-lg border-b border-gray-700">
+    <div className="w-full flex items-center justify-between gap-2 p-3 bg-gray-800 rounded-t-lg border-b border-gray-700">
       {/* Left Side - Status Display */}
       <div className="flex items-center gap-2">
         <div
@@ -158,7 +158,7 @@ export function BottomToolbar({
   toggleFullScreen,
 }: BottomToolbarProps) {
   return (
-    <div className="flex justify-between items-center py-1">
+    <div className="w-full flex justify-between items-center py-1">
       {/* Left Side - Octave Controls */}
       <div className="flex items-center bg-gray-700 rounded overflow-hidden">
         <button

@@ -27,12 +27,12 @@ const SoundEngineeringPanel: React.FC<SoundEngineeringPanelProps> = ({
   };
 
   return (
-    <div className="bg-gray-800 rounded-lg border border-gray-700 text-white">
+    <div className="w-full bg-gray-800 rounded-lg border border-gray-700 text-white">
       <button
         onClick={togglePanel}
         className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
       >
-        <h3 className="text-lg font-semibold text-green-400">
+        <h3 className="text-lg font-semibold text-green-400 mx-auto">
           🔊 Sound Engineering &gt; Wave: {getWaveName(waveType)}
         </h3>
         {isExpanded ? (
