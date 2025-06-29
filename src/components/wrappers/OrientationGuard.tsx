@@ -52,24 +52,24 @@ export default function OrientationGuard({
     return () => window.removeEventListener("resize", updateOrientation);
   }, []);
 
-  // If no specific orientation is required, always show content
-  if (requiredOrientation === "any") {
-    return <>{children}</>;
-  }
+  const needsOverlay =
+    requiredOrientation !== "any" && currentOrientation !== requiredOrientation;
 
-  // If current orientation doesn't match required orientation, show guard
-  if (currentOrientation !== requiredOrientation) {
-    return (
-      <div className="fixed inset-0 flex items-center justify-center p-4 m-4 z-50">
-        <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4 text-center flex flex-col items-center justify-center">
-          <div className="text-5xl mb-6">{icon}</div>
-          <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>
-          <p className="text-gray-300 leading-relaxed">{message}</p>
+  return (
+    <>
+      {/* Always render children so their React state persists */}
+      {children}
+
+      {/* Conditionally render overlay on top when orientation is incorrect */}
+      {needsOverlay && (
+        <div className="fixed inset-0 flex items-center justify-center p-4 m-4 z-[100] pointer-events-auto bg-black/80">
+          <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4 text-center flex flex-col items-center justify-center">
+            <div className="text-5xl mb-6">{icon}</div>
+            <h2 className="text-xl font-bold mb-4 text-white">{title}</h2>
+            <p className="text-gray-300 leading-relaxed">{message}</p>
+          </div>
         </div>
-      </div>
-    );
-  }
-
-  // If orientation matches requirement, show the content
-  return <>{children}</>;
+      )}
+    </>
+  );
 }

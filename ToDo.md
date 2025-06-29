@@ -8,8 +8,8 @@
 
 ## Development Todo
 
-- Do a deep dive and fix all UX/UI issues with FullScreen mode for desktop and mobile
 - Add Feature: When user is in "Scale Mode", color the root key and relative minor/major to point out to the user what is the root and relative min/maj
+- Add Feature: add a "blues scale" dropdown that handles blues scales for "scale mode"
 - Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost
 - Re-arrange key/scale dropdown so that next to each scale the matching minor/major is also shown in the list (for example: Cmaj (Amin) )
 - start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
