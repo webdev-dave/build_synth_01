@@ -29,6 +29,18 @@ interface BottomToolbarProps {
   toggleShowKbLabels?: () => void;
   /** If true, the UI is running on a mobile / touch-only device. */
   isMobile?: boolean;
+  /** Currently selected number of visible octaves */
+  visibleOctaves?: number;
+  /** Setter for visible octaves */
+  setVisibleOctaves?: (num: number) => void;
+  /** Maximum allowed visible octaves based on screen width */
+  maxVisibleOctaves?: number;
+  /** Minimum allowed visible octaves (defaults to 1) */
+  minVisibleOctaves?: number;
+  /** Which visible octave (0-based) the computer keyboard is mapped to */
+  kbOctaveOffset?: number;
+  /** Setter for kbOctaveOffset */
+  setKbOctaveOffset?: (offset: number) => void;
 }
 
 export function TopToolbar({
@@ -189,10 +201,16 @@ export function BottomToolbar({
   showKbLabels = false,
   toggleShowKbLabels = () => {},
   isMobile = false,
+  visibleOctaves = 2,
+  setVisibleOctaves = () => {},
+  maxVisibleOctaves = 5,
+  minVisibleOctaves = 2,
+  kbOctaveOffset = 0,
+  setKbOctaveOffset = () => {},
 }: BottomToolbarProps) {
   return (
     <div className="w-full flex justify-between items-center py-1">
-      {/* Left Side - Octave Controls */}
+      {/* Left Side - Octave & Visible Range Controls */}
       <Tooltip
         message="Change keyboard octave up/down"
         alignX="left"
@@ -241,8 +259,72 @@ export function BottomToolbar({
         </div>
       </Tooltip>
 
+      {/* Visible Octaves Controls (only on tablets / desktop) */}
+      {!isMobile && (
+        <Tooltip
+          message="Change the number of octaves displayed"
+          alignX="center"
+          placement="bottom"
+        >
+          <div className="flex items-center bg-gray-700 rounded ml-2 overflow-visible">
+            <button
+              onClick={() =>
+                setVisibleOctaves(
+                  Math.max(minVisibleOctaves, visibleOctaves - 1)
+                )
+              }
+              className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={visibleOctaves <= minVisibleOctaves}
+              aria-label="Show fewer octaves"
+            >
+              –
+            </button>
+            <span className="px-3 py-2 text-white bg-gray-700 font-medium">
+              {visibleOctaves} octave{visibleOctaves > 1 ? "s" : ""}
+            </span>
+            <button
+              onClick={() =>
+                setVisibleOctaves(
+                  Math.min(maxVisibleOctaves, visibleOctaves + 1)
+                )
+              }
+              className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              disabled={visibleOctaves >= maxVisibleOctaves}
+              aria-label="Show more octaves"
+            >
+              +
+            </button>
+          </div>
+        </Tooltip>
+      )}
+
       {/* Right Side - Additional Controls */}
       <div className="flex items-center gap-2">
+        {/* Computer-keyboard octave mapping dropdown (only when keyboard enabled and not mobile) */}
+        {!isMobile && kbEnabled && visibleOctaves > 1 && (
+          <Tooltip
+            message="Select which visible octave the computer keyboard controls"
+            alignX="right"
+            placement="bottom"
+          >
+            <select
+              value={kbOctaveOffset}
+              onChange={(e) => setKbOctaveOffset(Number(e.target.value))}
+              className="p-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
+              aria-label="Select octave mapped to computer keyboard"
+            >
+              {Array.from({ length: visibleOctaves }).map((_, idx) => (
+                <option
+                  key={idx}
+                  value={idx}
+                >
+                  KB Octave {startOctave + idx}
+                </option>
+              ))}
+            </select>
+          </Tooltip>
+        )}
+
         {/* Enable computer keyboard (hidden on mobile) */}
         {!isMobile && (
           <Tooltip

@@ -150,7 +150,7 @@ export default function SynthKeys({
       .slice(0, keyIndex)
       .filter((k) => !k.isBlack).length;
     const whiteKeyWidth = 100 / keys.filter((k) => !k.isBlack).length; // Percentage width of each white key
-    const blackKeyWidth = 4; // 4% width for black keys
+    const blackKeyWidth = whiteKeyWidth * 0.66; // Black keys should be roughly 2/3 the width of white keys
 
     // Position black key at the boundary between white keys
     // Each black key sits between specific white keys based on piano layout
