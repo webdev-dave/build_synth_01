@@ -32,7 +32,7 @@ const SoundEngineeringPanel: React.FC<SoundEngineeringPanelProps> = ({
         onClick={togglePanel}
         className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
       >
-        <h3 className="text-lg font-semibold text-green-400 mx-auto">
+        <h3 className="text-lg font-semibold text-green-400">
           🔊 Sound Engineering &gt; Wave: {getWaveName(waveType)}
         </h3>
         {isExpanded ? (

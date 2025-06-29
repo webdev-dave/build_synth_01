@@ -568,7 +568,7 @@ const ChordTheoryPanel: React.FC<ChordTheoryPanelProps> = ({
         onClick={onToggle}
         className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
       >
-        <h3 className="text-lg font-semibold text-orange-300 mx-auto">
+        <h3 className="text-lg font-semibold text-orange-300">
           {getHeaderText()}
         </h3>
         {isExpanded ? (

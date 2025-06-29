@@ -185,10 +185,12 @@ export function BottomToolbar({
       {/* Right Side - Layout Controls */}
       <button
         onClick={toggleFullScreen}
-        className="p-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors"
+        className={`${
+          isFullScreen ? "p-3" : "p-2"
+        } bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors`}
         aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
       >
-        {isFullScreen ? <Shrink size={20} /> : <Expand size={20} />}
+        {isFullScreen ? <Shrink size={24} /> : <Expand size={20} />}
       </button>
     </div>
   );

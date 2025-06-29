@@ -162,7 +162,7 @@ const ScaleTheoryPanel: React.FC<ScaleTheoryPanelProps> = ({
           onClick={onToggle}
           className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
         >
-          <h3 className="text-lg font-semibold text-blue-300 mx-auto">
+          <h3 className="text-lg font-semibold text-blue-300">
             🎼 Scale Theory
           </h3>
           {isExpanded ? (
@@ -204,7 +204,7 @@ const ScaleTheoryPanel: React.FC<ScaleTheoryPanelProps> = ({
         onClick={onToggle}
         className="w-full p-4 text-left flex items-center justify-between hover:bg-gray-700 transition-colors rounded-lg"
       >
-        <h3 className="text-lg font-semibold text-blue-300 mx-auto">
+        <h3 className="text-lg font-semibold text-blue-300">
           🎼 Understanding the {scaleInfo.name} Scale
         </h3>
         {isExpanded ? (
