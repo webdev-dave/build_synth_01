@@ -53,6 +53,18 @@ export function createSynthKeys(
     }
   }
 
+  // Ensure the keyboard ends on the "C" key of the NEXT octave (common on real MIDI controllers)
+  const finalOctave = startOctave + octavesToGenerate;
+  const finalCNoteNumber = finalOctave * 12; // C is index 0 of the octave
+  const finalCFrequency = 440 * Math.pow(2, (finalCNoteNumber - 69) / 12);
+
+  keys.push({
+    note: `C${finalOctave}`,
+    noteNumber: finalCNoteNumber,
+    frequency: finalCFrequency,
+    isBlack: false,
+  });
+
   return keys;
 }
 
