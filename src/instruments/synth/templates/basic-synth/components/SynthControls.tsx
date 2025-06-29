@@ -73,7 +73,10 @@ export function TopToolbar({
       {/* Right Side - Piano Settings */}
       <div className="flex items-center gap-2">
         {/* Scale Controls */}
-        <Tooltip message="Choose musical scale">
+        <Tooltip
+          message="Choose musical scale"
+          alignX="right"
+        >
           <select
             value={selectedScale}
             onChange={(e) =>
@@ -117,6 +120,7 @@ export function TopToolbar({
                 ? "Lock to scale notes only"
                 : "Unlock scale restriction"
             }
+            alignX="right"
           >
             <button
               onClick={() => setAllowOutOfScale(!allowOutOfScale)}
@@ -152,7 +156,10 @@ export function TopToolbar({
         )}
 
         {/* Wave Type Control */}
-        <Tooltip message="Select oscillator wave shape">
+        <Tooltip
+          message="Select oscillator wave shape"
+          alignX="right"
+        >
           <select
             value={waveType}
             onChange={(e) => setWaveType(e.target.value as OscillatorType)}
@@ -183,7 +190,11 @@ export function BottomToolbar({
   return (
     <div className="w-full flex justify-between items-center py-1">
       {/* Left Side - Octave Controls */}
-      <Tooltip message="Change keyboard octave up/down">
+      <Tooltip
+        message="Change keyboard octave up/down"
+        alignX="left"
+        placement="bottom"
+      >
         <div className="flex items-center bg-gray-700 rounded overflow-visible">
           <button
             onClick={() => setStartOctave(Math.max(0, startOctave - 1))}
@@ -230,7 +241,11 @@ export function BottomToolbar({
       {/* Right Side - Additional Controls */}
       <div className="flex items-center gap-2">
         {/* Enable computer keyboard */}
-        <Tooltip message="Enable/disable computer keyboard input">
+        <Tooltip
+          message="Enable/disable computer keyboard input"
+          alignX="right"
+          placement="bottom"
+        >
           <button
             onClick={toggleKbEnabled}
             className={`p-2 rounded transition-colors text-white ${
@@ -253,7 +268,11 @@ export function BottomToolbar({
         </Tooltip>
 
         {/* Show keyboard labels */}
-        <Tooltip message="Show/hide keyboard letter overlays">
+        <Tooltip
+          message="Show/hide keyboard letter overlays"
+          alignX="right"
+          placement="bottom"
+        >
           <button
             onClick={toggleShowKbLabels}
             className={`p-2 rounded transition-colors text-white ${
@@ -276,15 +295,21 @@ export function BottomToolbar({
         </Tooltip>
 
         {/* Full-screen toggle */}
-        <button
-          onClick={toggleFullScreen}
-          className={`${
-            isFullScreen ? "p-3" : "p-2"
-          } bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors`}
-          aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
+        <Tooltip
+          message={isFullScreen ? "Exit full screen" : "Enter full screen"}
+          alignX="right"
+          placement="bottom"
         >
-          {isFullScreen ? <Shrink size={24} /> : <Expand size={20} />}
-        </button>
+          <button
+            onClick={toggleFullScreen}
+            className={
+              "p-2 bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors"
+            }
+            aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
+          >
+            {isFullScreen ? <Shrink size={20} /> : <Expand size={20} />}
+          </button>
+        </Tooltip>
       </div>
     </div>
   );

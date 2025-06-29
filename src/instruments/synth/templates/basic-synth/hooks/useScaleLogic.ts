@@ -84,25 +84,27 @@ export function useScaleLogic(): UseScaleLogicReturn {
       note.replace(/\d+$/, "")
     );
 
-    const sortedNotes = [...new Set(noteNames)].sort((a, b) => {
-      const noteOrder = [
-        "C",
-        "C#",
-        "D",
-        "D#",
-        "E",
-        "F",
-        "F#",
-        "G",
-        "G#",
-        "A",
-        "A#",
-        "B",
-      ];
-      return noteOrder.indexOf(a) - noteOrder.indexOf(b);
-    });
+    // Deduplicate (across octaves) and place notes in chromatic order
+    const noteOrder = [
+      "C",
+      "C#",
+      "D",
+      "D#",
+      "E",
+      "F",
+      "F#",
+      "G",
+      "G#",
+      "A",
+      "A#",
+      "B",
+    ];
 
-    if (sortedNotes.length < 3) return "Unknown";
+    const uniqueNotes = [...new Set(noteNames)];
+
+    const sortedNotes = uniqueNotes.sort(
+      (a, b) => noteOrder.indexOf(a) - noteOrder.indexOf(b)
+    );
 
     const patterns: Record<string, string[][]> = {
       Major: [
@@ -179,7 +181,17 @@ export function useScaleLogic(): UseScaleLogicReturn {
 
     for (const [chordType, chordPatterns] of Object.entries(patterns)) {
       for (const pattern of chordPatterns) {
-        if (pattern.every((note) => sortedNotes.includes(note))) {
+        /*
+         * A match is valid only when the set of unique note names the user is
+         * holding matches the chord pattern *exactly* (ignoring octaves).
+         * This prevents situations where a correct triad is recognised even
+         * after extra, non-chord tones are added.
+         */
+        const patternMatchesExactly =
+          pattern.length === sortedNotes.length &&
+          pattern.every((note) => sortedNotes.includes(note));
+
+        if (patternMatchesExactly) {
           return `${pattern[0]} ${chordType}`;
         }
       }

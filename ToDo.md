@@ -8,6 +8,7 @@
 
 ## Development Todo
 
+- add Feature: when is user "right clicks" on a piano/synth key, the key should sustain infintely until the user presses it again via any touch or click input
 - Add Feature: When user is in "Scale Mode", color the root key and relative minor/major to point out to the user what is the root and relative min/maj
 - Add Feature: add a "blues scale" dropdown that handles blues scales for "scale mode"
 - Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost

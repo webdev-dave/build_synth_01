@@ -1,5 +1,12 @@
-import { useState, cloneElement, isValidElement } from "react";
-import { useRef, useLayoutEffect } from "react";
+import {
+  useState,
+  cloneElement,
+  isValidElement,
+  useRef,
+  useLayoutEffect,
+  useEffect,
+} from "react";
+import { createPortal } from "react-dom";
 
 interface TooltipProps {
   /** The element that triggers the tooltip */
@@ -8,49 +15,132 @@ interface TooltipProps {
   message: string;
   /** Placement of tooltip relative to trigger */
   placement?: "top" | "bottom" | "left" | "right";
+  /** Horizontal alignment of tooltip relative to trigger */
+  alignX?: "left" | "center" | "right";
 }
 
 export default function Tooltip({
   children,
   message,
   placement = "top",
+  alignX = "left",
 }: TooltipProps) {
   const [visible, setVisible] = useState(false);
+  const triggerRef = useRef<HTMLSpanElement>(null);
+  const [position, setPosition] = useState({ top: 0, left: 0 });
+  const [transform, setTransform] = useState<string>("translate(-50%, -100%)");
   const tooltipRef = useRef<HTMLSpanElement>(null);
 
-  // Ensure we can pass aria-describedby for accessibility
+  // Accessibility ID
   const tooltipId = `tooltip-${Math.random().toString(36).slice(2, 11)}`;
 
   const trigger = isValidElement(children)
     ? cloneElement(children, {
         "aria-describedby": tooltipId,
-      })
+      } as React.HTMLAttributes<HTMLElement>)
     : children;
 
-  const placementClasses = {
-    top: "bottom-full mb-1 left-1/2 -translate-x-1/2",
-    bottom: "top-full mt-1 left-1/2 -translate-x-1/2",
-    left: "right-full mr-1 top-1/2 -translate-y-1/2",
-    right: "left-full ml-1 top-1/2 -translate-y-1/2",
-  } as const;
+  // Calculate tooltip position when it becomes visible or on window resize
+  const calculatePosition = () => {
+    if (!triggerRef.current) return;
 
-  // Keep tooltip inside viewport
+    const rect = triggerRef.current.getBoundingClientRect();
+    let top = 0;
+    let left = 0;
+    let baseTransform = "";
+
+    const offset = 6;
+
+    switch (placement) {
+      case "bottom": {
+        top = rect.bottom + offset;
+        // horizontal alignment
+        if (alignX === "left") {
+          left = rect.left;
+          baseTransform = "translate(0, 0)";
+        } else if (alignX === "right") {
+          left = rect.right;
+          baseTransform = "translate(-100%, 0)";
+        } else {
+          left = rect.left + rect.width / 2;
+          baseTransform = "translate(-50%, 0)";
+        }
+        break;
+      }
+      case "left": {
+        left = rect.left - offset;
+        top = rect.top + rect.height / 2;
+        baseTransform = "translate(-100%, -50%)";
+        break;
+      }
+      case "right": {
+        left = rect.right + offset;
+        top = rect.top + rect.height / 2;
+        baseTransform = "translate(0, -50%)";
+        break;
+      }
+      case "top":
+      default: {
+        top = rect.top - offset;
+        // horizontal alignment
+        if (alignX === "left") {
+          left = rect.left;
+          baseTransform = "translate(0, -100%)";
+        } else if (alignX === "right") {
+          left = rect.right;
+          baseTransform = "translate(-100%, -100%)";
+        } else {
+          left = rect.left + rect.width / 2;
+          baseTransform = "translate(-50%, -100%)";
+        }
+        break;
+      }
+    }
+
+    setPosition({ top, left });
+    setTransform(baseTransform);
+  };
+
+  // Initial calculation when visible changes
   useLayoutEffect(() => {
-    if (!visible || !tooltipRef.current) return;
-    const rect = tooltipRef.current.getBoundingClientRect();
-    let offsetX = 0;
-    if (rect.left < 4) {
-      offsetX = 4 - rect.left;
-    } else if (rect.right > window.innerWidth - 4) {
-      offsetX = window.innerWidth - 4 - rect.right;
+    if (visible) {
+      calculatePosition();
     }
-    if (offsetX !== 0) {
-      tooltipRef.current.style.transform += ` translateX(${offsetX}px)`;
-    }
-  }, [visible]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, placement, alignX]);
+
+  // Auto-nudging removed per request
+
+  useEffect(() => {
+    if (!visible) return;
+    const handleResize = () => calculatePosition();
+    window.addEventListener("resize", handleResize);
+    window.addEventListener("scroll", handleResize, true);
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleResize, true);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, placement, alignX]);
+
+  // The actual tooltip element rendered via portal
+  const tooltipElement = (
+    <span
+      ref={tooltipRef}
+      id={tooltipId}
+      role="tooltip"
+      className={`pointer-events-none fixed z-[1000] whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white transition-opacity duration-100 ${
+        visible ? "opacity-100" : "opacity-0"
+      }`}
+      style={{ top: position.top, left: position.left, transform }}
+    >
+      {message}
+    </span>
+  );
 
   return (
     <span
+      ref={triggerRef}
       className="relative inline-block focus-visible:outline-none"
       onMouseEnter={() => setVisible(true)}
       onMouseLeave={() => setVisible(false)}
@@ -58,16 +148,7 @@ export default function Tooltip({
       onBlur={() => setVisible(false)}
     >
       {trigger}
-      <span
-        ref={tooltipRef}
-        id={tooltipId}
-        role="tooltip"
-        className={`pointer-events-none absolute z-50 whitespace-nowrap rounded bg-gray-900 px-2 py-1 text-xs text-white opacity-0 transition-opacity duration-200 ${
-          placementClasses[placement]
-        } ${visible ? "opacity-100" : "opacity-0"}`}
-      >
-        {message}
-      </span>
+      {visible && createPortal(tooltipElement, document.body)}
     </span>
   );
 }
