@@ -184,7 +184,9 @@ export default function SynthKeys({
 
   return (
     <div
-      className={`relative h-48 flex w-full ${isFullScreen ? "mb-0" : "mb-4"}`}
+      className={`relative h-48 flex w-full flex-shrink-0 ${
+        isFullScreen ? "mb-0" : "mb-4"
+      }`}
       style={{
         width: "100%",
         maxWidth: "100%",

@@ -21,6 +21,25 @@ export default function SynthKeyboard() {
   const [actx, setActx] = useState<AudioContext | null>(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(false);
 
+  // Disable body scroll & padding while in full-screen mode
+  useEffect(() => {
+    const originalOverflow = document.body.style.overflow;
+    const originalPadding = document.body.style.padding;
+
+    if (isFullScreen) {
+      document.body.style.overflow = "hidden";
+      document.body.style.padding = "0";
+    } else {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.padding = originalPadding;
+    }
+
+    return () => {
+      document.body.style.overflow = originalOverflow;
+      document.body.style.padding = originalPadding;
+    };
+  }, [isFullScreen]);
+
   // Initialize AudioContext when component mounts
   useEffect(() => {
     let mounted = true;
@@ -106,10 +125,11 @@ export default function SynthKeyboard() {
               ? "var(--bg-color, #1e3a5f)"
               : "rgb(10, 58, 79)",
             transition: "background-color 0.3s ease, height 0.3s ease",
-            overflow: "hidden",
+            overflowX: "hidden",
+            overflowY: isFullScreen ? "auto" : "hidden",
             display: isFullScreen ? "flex" : "block",
             flexDirection: isFullScreen ? "column" : "initial",
-            justifyContent: isFullScreen ? "center" : "initial",
+            justifyContent: isFullScreen ? "flex-start" : "initial",
             alignItems: isFullScreen ? "stretch" : "initial",
             height: isFullScreen ? "100vh" : "auto",
             borderRadius: "0.5rem",
