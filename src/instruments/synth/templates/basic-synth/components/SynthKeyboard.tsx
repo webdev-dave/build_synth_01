@@ -47,9 +47,9 @@ export default function SynthKeyboard() {
 
   // Compute the maximum number of octaves that can fit based on current wrapper width
   const computeMaxOctaves = useCallback((widthPx: number) => {
-    if (!widthPx || widthPx <= 0) return 2; // fallback ensures min 2
+    if (!widthPx || widthPx <= 0) return 2; // fallback keeps at least 2 for clamping
     const maxByWidth = Math.floor(widthPx / (7 * MIN_WHITE_KEY_WIDTH));
-    // Ensure at least 2 octaves are always possible (may overflow horizontally on very small screens)
+    // Cap at 5 octaves, but keep minimum 2 for default clamping logic
     return Math.max(2, Math.min(5, maxByWidth));
   }, []);
 

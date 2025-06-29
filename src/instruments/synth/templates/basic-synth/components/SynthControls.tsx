@@ -204,7 +204,7 @@ export function BottomToolbar({
   visibleOctaves = 2,
   setVisibleOctaves = () => {},
   maxVisibleOctaves = 5,
-  minVisibleOctaves = 2,
+  minVisibleOctaves = 1,
   kbOctaveOffset = 0,
   setKbOctaveOffset = () => {},
 }: BottomToolbarProps) {
