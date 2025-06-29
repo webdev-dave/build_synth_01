@@ -9,22 +9,26 @@ export default function useIsMobile(): boolean {
   const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
-    // Touch-only pointer devices (phones, tablets, many hybrid laptops)
+    // Touch-only pointer indicates possible phone/tablet
     const coarseMql = window.matchMedia("(pointer: coarse)");
+    // Use a reasonably generous width cutoff (phones in landscape are typically < 900px)
+    const narrowMql = window.matchMedia("(max-width: 899px)");
 
     const update = () => {
-      // Consider any coarse pointer device as mobile/touch-first
-      setIsMobile(coarseMql.matches);
+      // Treat as "mobile phone" only when device is touch-centric AND viewport is narrow
+      setIsMobile(coarseMql.matches && narrowMql.matches);
     };
 
     // Initial evaluation
     update();
 
-    // Listen for changes to the media query
+    // Listen for changes to either media query
     coarseMql.addEventListener("change", update);
+    narrowMql.addEventListener("change", update);
 
     return () => {
       coarseMql.removeEventListener("change", update);
+      narrowMql.removeEventListener("change", update);
     };
   }, []);
 
