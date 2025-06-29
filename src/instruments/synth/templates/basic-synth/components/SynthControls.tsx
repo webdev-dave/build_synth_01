@@ -259,44 +259,37 @@ export function BottomToolbar({
         </div>
       </Tooltip>
 
-      {/* Visible Octaves Controls (only on tablets / desktop) */}
-      {!isMobile && (
-        <Tooltip
-          message="Change the number of octaves displayed"
-          alignX="center"
-          placement="bottom"
-        >
-          <div className="flex items-center bg-gray-700 rounded ml-2 overflow-visible">
-            <button
-              onClick={() =>
-                setVisibleOctaves(
-                  Math.max(minVisibleOctaves, visibleOctaves - 1)
-                )
-              }
-              className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              disabled={visibleOctaves <= minVisibleOctaves}
-              aria-label="Show fewer octaves"
-            >
-              –
-            </button>
-            <span className="px-3 py-2 text-white bg-gray-700 font-medium">
-              {visibleOctaves} octave{visibleOctaves > 1 ? "s" : ""}
-            </span>
-            <button
-              onClick={() =>
-                setVisibleOctaves(
-                  Math.min(maxVisibleOctaves, visibleOctaves + 1)
-                )
-              }
-              className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              disabled={visibleOctaves >= maxVisibleOctaves}
-              aria-label="Show more octaves"
-            >
-              +
-            </button>
-          </div>
-        </Tooltip>
-      )}
+      <Tooltip
+        message="Change the number of octaves displayed"
+        alignX="center"
+        placement="bottom"
+      >
+        <div className="flex items-center bg-gray-700 rounded ml-2 overflow-visible">
+          <button
+            onClick={() =>
+              setVisibleOctaves(Math.max(minVisibleOctaves, visibleOctaves - 1))
+            }
+            className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={visibleOctaves <= minVisibleOctaves}
+            aria-label="Show fewer octaves"
+          >
+            –
+          </button>
+          <span className="px-3 py-2 text-white bg-gray-700 font-medium">
+            {visibleOctaves} octave{visibleOctaves > 1 ? "s" : ""}
+          </span>
+          <button
+            onClick={() =>
+              setVisibleOctaves(Math.min(maxVisibleOctaves, visibleOctaves + 1))
+            }
+            className="relative px-3 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={visibleOctaves >= maxVisibleOctaves}
+            aria-label="Show more octaves"
+          >
+            +
+          </button>
+        </div>
+      </Tooltip>
 
       {/* Right Side - Additional Controls */}
       <div className="flex items-center gap-2">
