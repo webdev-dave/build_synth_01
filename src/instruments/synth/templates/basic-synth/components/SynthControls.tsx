@@ -1,6 +1,7 @@
-import { Lock, Unlock, Expand, Shrink } from "lucide-react";
+import { Lock, Unlock, Expand, Shrink, Keyboard, Type } from "lucide-react";
 import { OscillatorType } from "../hooks/useAudioSynthesis";
 import { ScaleCombination } from "../hooks/useScaleLogic";
+import Tooltip from "@/components/Tooltip";
 
 interface TopToolbarProps {
   // Status display
@@ -22,6 +23,10 @@ interface BottomToolbarProps {
   setStartOctave: (octave: number) => void;
   isFullScreen: boolean;
   toggleFullScreen: () => void;
+  kbEnabled?: boolean;
+  toggleKbEnabled?: () => void;
+  showKbLabels?: boolean;
+  toggleShowKbLabels?: () => void;
 }
 
 export function TopToolbar({
@@ -68,43 +73,54 @@ export function TopToolbar({
       {/* Right Side - Piano Settings */}
       <div className="flex items-center gap-2">
         {/* Scale Controls */}
-        <select
-          value={selectedScale}
-          onChange={(e) => setSelectedScale(e.target.value as ScaleCombination)}
-          className="px-3 py-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
-          aria-label="Select musical scale"
-        >
-          <option value="none">No Scale</option>
-          <option value="A major">A Maj</option>
-          <option value="A minor">A Min</option>
-          <option value="A# major">A# Maj</option>
-          <option value="A# minor">A# Min</option>
-          <option value="B major">B Maj</option>
-          <option value="B minor">B Min</option>
-          <option value="C major">C Maj</option>
-          <option value="C minor">C Min</option>
-          <option value="C# major">C# Maj</option>
-          <option value="C# minor">C# Min</option>
-          <option value="D major">D Maj</option>
-          <option value="D minor">D Min</option>
-          <option value="D# major">D# Maj</option>
-          <option value="D# minor">D# Min</option>
-          <option value="E major">E Maj</option>
-          <option value="E minor">E Min</option>
-          <option value="F major">F Maj</option>
-          <option value="F minor">F Min</option>
-          <option value="F# major">F# Maj</option>
-          <option value="F# minor">F# Min</option>
-          <option value="G major">G Maj</option>
-          <option value="G minor">G Min</option>
-          <option value="G# major">G# Maj</option>
-          <option value="G# minor">G# Min</option>
-        </select>
+        <Tooltip message="Choose musical scale">
+          <select
+            value={selectedScale}
+            onChange={(e) =>
+              setSelectedScale(e.target.value as ScaleCombination)
+            }
+            className="px-3 py-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
+            aria-label="Select musical scale"
+          >
+            <option value="none">No Scale</option>
+            <option value="A major">A Maj</option>
+            <option value="A minor">A Min</option>
+            <option value="A# major">A# Maj</option>
+            <option value="A# minor">A# Min</option>
+            <option value="B major">B Maj</option>
+            <option value="B minor">B Min</option>
+            <option value="C major">C Maj</option>
+            <option value="C minor">C Min</option>
+            <option value="C# major">C# Maj</option>
+            <option value="C# minor">C# Min</option>
+            <option value="D major">D Maj</option>
+            <option value="D minor">D Min</option>
+            <option value="D# major">D# Maj</option>
+            <option value="D# minor">D# Min</option>
+            <option value="E major">E Maj</option>
+            <option value="E minor">E Min</option>
+            <option value="F major">F Maj</option>
+            <option value="F minor">F Min</option>
+            <option value="F# major">F# Maj</option>
+            <option value="F# minor">F# Min</option>
+            <option value="G major">G Maj</option>
+            <option value="G minor">G Min</option>
+            <option value="G# major">G# Maj</option>
+            <option value="G# minor">G# Min</option>
+          </select>
+        </Tooltip>
 
         {selectedScale !== "none" && (
-          <button
-            onClick={() => setAllowOutOfScale(!allowOutOfScale)}
-            className={`
+          <Tooltip
+            message={
+              allowOutOfScale
+                ? "Lock to scale notes only"
+                : "Unlock scale restriction"
+            }
+          >
+            <button
+              onClick={() => setAllowOutOfScale(!allowOutOfScale)}
+              className={`
               px-3 py-2 rounded transition-colors flex items-center gap-2 text-white text-sm
               ${
                 allowOutOfScale
@@ -112,40 +128,43 @@ export function TopToolbar({
                   : "bg-red-600 hover:bg-red-700"
               }
             `}
-            aria-label={
-              allowOutOfScale
-                ? `Scale is unlocked. All notes can be played. Click to lock to ${selectedScale} scale only`
-                : `Scale is locked to ${selectedScale}. Only scale notes can be played. Click to unlock`
-            }
-            aria-pressed={!allowOutOfScale}
-          >
-            {allowOutOfScale ? (
-              <Unlock
-                size={16}
-                aria-hidden="true"
-              />
-            ) : (
-              <Lock
-                size={16}
-                aria-hidden="true"
-              />
-            )}
-            <span>Scale</span>
-          </button>
+              aria-label={
+                allowOutOfScale
+                  ? `Scale is unlocked. All notes can be played. Click to lock to ${selectedScale} scale only`
+                  : `Scale is locked to ${selectedScale}. Only scale notes can be played. Click to unlock`
+              }
+              aria-pressed={!allowOutOfScale}
+            >
+              {allowOutOfScale ? (
+                <Unlock
+                  size={16}
+                  aria-hidden="true"
+                />
+              ) : (
+                <Lock
+                  size={16}
+                  aria-hidden="true"
+                />
+              )}
+              <span>Scale</span>
+            </button>
+          </Tooltip>
         )}
 
         {/* Wave Type Control */}
-        <select
-          value={waveType}
-          onChange={(e) => setWaveType(e.target.value as OscillatorType)}
-          className="px-3 py-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
-          aria-label="Select wave type for synthesizer sound"
-        >
-          <option value="sine">Sine</option>
-          <option value="square">Square</option>
-          <option value="sawtooth">Sawtooth</option>
-          <option value="triangle">Triangle</option>
-        </select>
+        <Tooltip message="Select oscillator wave shape">
+          <select
+            value={waveType}
+            onChange={(e) => setWaveType(e.target.value as OscillatorType)}
+            className="px-3 py-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
+            aria-label="Select wave type for synthesizer sound"
+          >
+            <option value="sine">Sine</option>
+            <option value="square">Square</option>
+            <option value="sawtooth">Sawtooth</option>
+            <option value="triangle">Triangle</option>
+          </select>
+        </Tooltip>
       </div>
     </div>
   );
@@ -156,42 +175,117 @@ export function BottomToolbar({
   setStartOctave,
   isFullScreen,
   toggleFullScreen,
+  kbEnabled = false,
+  toggleKbEnabled = () => {},
+  showKbLabels = false,
+  toggleShowKbLabels = () => {},
 }: BottomToolbarProps) {
   return (
     <div className="w-full flex justify-between items-center py-1">
       {/* Left Side - Octave Controls */}
-      <div className="flex items-center bg-gray-700 rounded overflow-hidden">
+      <Tooltip message="Change keyboard octave up/down">
+        <div className="flex items-center bg-gray-700 rounded overflow-visible">
+          <button
+            onClick={() => setStartOctave(Math.max(0, startOctave - 1))}
+            className="relative px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={startOctave === 0}
+            aria-label="Lower octave range"
+          >
+            ←
+            {showKbLabels && (
+              <>
+                <kbd className="absolute -top-1 -left-1 text-[10px] font-semibold bg-black text-white px-1 py-[1px] rounded shadow-inner select-none">
+                  Z
+                </kbd>
+                <kbd className="absolute -bottom-1 -left-1 text-[10px] font-semibold bg-black text-white px-1 py-[1px] rounded shadow-inner select-none">
+                  ←
+                </kbd>
+              </>
+            )}
+          </button>
+          <span className="px-4 py-2 text-white bg-gray-700 font-medium">
+            Octave {startOctave}-{startOctave + 1}
+          </span>
+          <button
+            onClick={() => setStartOctave(Math.min(7, startOctave + 1))}
+            className="relative px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={startOctave === 7}
+            aria-label="Higher octave range"
+          >
+            →
+            {showKbLabels && (
+              <>
+                <kbd className="absolute -top-1 -right-1 text-[10px] font-semibold bg-black text-white px-1 py-[1px] rounded shadow-inner select-none">
+                  X
+                </kbd>
+                <kbd className="absolute -bottom-1 -right-1 text-[10px] font-semibold bg-black text-white px-1 py-[1px] rounded shadow-inner select-none">
+                  →
+                </kbd>
+              </>
+            )}
+          </button>
+        </div>
+      </Tooltip>
+
+      {/* Right Side - Additional Controls */}
+      <div className="flex items-center gap-2">
+        {/* Enable computer keyboard */}
+        <Tooltip message="Enable/disable computer keyboard input">
+          <button
+            onClick={toggleKbEnabled}
+            className={`p-2 rounded transition-colors text-white ${
+              kbEnabled
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-700 hover:bg-gray-600"
+            }`}
+            aria-label={
+              kbEnabled
+                ? "Disable computer keyboard input"
+                : "Enable computer keyboard input"
+            }
+            aria-pressed={kbEnabled}
+          >
+            <Keyboard
+              size={20}
+              aria-hidden="true"
+            />
+          </button>
+        </Tooltip>
+
+        {/* Show keyboard labels */}
+        <Tooltip message="Show/hide keyboard letter overlays">
+          <button
+            onClick={toggleShowKbLabels}
+            className={`p-2 rounded transition-colors text-white ${
+              showKbLabels
+                ? "bg-blue-600 hover:bg-blue-700"
+                : "bg-gray-700 hover:bg-gray-600"
+            }`}
+            aria-label={
+              showKbLabels
+                ? "Hide computer key labels on piano"
+                : "Show computer key labels on piano"
+            }
+            aria-pressed={showKbLabels}
+          >
+            <Type
+              size={20}
+              aria-hidden="true"
+            />
+          </button>
+        </Tooltip>
+
+        {/* Full-screen toggle */}
         <button
-          onClick={() => setStartOctave(Math.max(0, startOctave - 1))}
-          className="px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          disabled={startOctave === 0}
-          aria-label="Lower octave range"
+          onClick={toggleFullScreen}
+          className={`${
+            isFullScreen ? "p-3" : "p-2"
+          } bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors`}
+          aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
         >
-          ←
-        </button>
-        <span className="px-4 py-2 text-white bg-gray-700 font-medium">
-          Octave {startOctave}-{startOctave + 1}
-        </span>
-        <button
-          onClick={() => setStartOctave(Math.min(7, startOctave + 1))}
-          className="px-4 py-2 bg-gray-600 text-white hover:bg-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          disabled={startOctave === 7}
-          aria-label="Higher octave range"
-        >
-          →
+          {isFullScreen ? <Shrink size={24} /> : <Expand size={20} />}
         </button>
       </div>
-
-      {/* Right Side - Layout Controls */}
-      <button
-        onClick={toggleFullScreen}
-        className={`${
-          isFullScreen ? "p-3" : "p-2"
-        } bg-gray-700 text-white rounded hover:bg-gray-600 focus:outline-none transition-colors`}
-        aria-label={isFullScreen ? "Exit full screen" : "Enter full screen"}
-      >
-        {isFullScreen ? <Shrink size={24} /> : <Expand size={20} />}
-      </button>
     </div>
   );
 }

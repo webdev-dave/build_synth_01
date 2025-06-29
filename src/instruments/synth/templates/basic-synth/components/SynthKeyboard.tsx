@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useAudioSynthesis } from "../hooks/useAudioSynthesis";
 import { useScaleLogic } from "../hooks/useScaleLogic";
 import { createSynthKeys } from "../utils/synthUtils";
@@ -9,6 +9,10 @@ import MusicTheoryPanel from "./MusicTheoryPanel";
 import SoundEngineeringPanel from "./SoundEngineeringPanel";
 import OrientationGuard from "@/components/wrappers/OrientationGuard";
 import PreventDefaultTouchWrapper from "@/components/wrappers/PreventDefaultTouchWrapper";
+import {
+  useComputerKeyboard,
+  buildNoteToCharMap,
+} from "../hooks/useComputerKeyboard";
 
 // Add this type declaration for Safari's webkitAudioContext
 interface WindowWithWebkit extends Window {
@@ -20,6 +24,8 @@ export default function SynthKeyboard() {
   const [isFullScreen, setIsFullScreen] = useState(false);
   const [actx, setActx] = useState<AudioContext | null>(null);
   const [hasAudioPermission, setHasAudioPermission] = useState(false);
+  const [kbEnabled, setKbEnabled] = useState(true);
+  const [showKbLabels, setShowKbLabels] = useState(false);
 
   // Disable body scroll & padding while in full-screen mode
   useEffect(() => {
@@ -76,6 +82,29 @@ export default function SynthKeyboard() {
     () => setHasAudioPermission(true), // Handle audio permission internally
     keys
   );
+
+  // Enable physical keyboard interaction when toggled
+  useComputerKeyboard(
+    kbEnabled,
+    keys,
+    audioSynthesis.handleNoteStart,
+    audioSynthesis.stopNote,
+    (delta: number) =>
+      setStartOctave((prev) => Math.min(7, Math.max(0, prev + delta)))
+  );
+
+  const noteToKeyCharMap = useMemo(() => buildNoteToCharMap(keys), [keys]);
+
+  // Helper to toggle label visibility and ensure keyboard input is enabled when turning on
+  const handleToggleShowLabels = () => {
+    setShowKbLabels((prev) => {
+      const next = !prev;
+      if (next && !kbEnabled) {
+        setKbEnabled(true);
+      }
+      return next;
+    });
+  };
 
   const toggleFullScreen = () => {
     setIsFullScreen((prevState) => !prevState);
@@ -169,6 +198,8 @@ export default function SynthKeyboard() {
             onNoteStart={audioSynthesis.handleNoteStart}
             onNoteStop={audioSynthesis.stopNote}
             isFullScreen={isFullScreen}
+            showKbLabels={showKbLabels}
+            noteToKeyCharMap={noteToKeyCharMap}
           />
 
           <BottomToolbar
@@ -176,6 +207,10 @@ export default function SynthKeyboard() {
             setStartOctave={setStartOctave}
             isFullScreen={isFullScreen}
             toggleFullScreen={toggleFullScreen}
+            kbEnabled={kbEnabled}
+            toggleKbEnabled={() => setKbEnabled((prev) => !prev)}
+            showKbLabels={showKbLabels}
+            toggleShowKbLabels={handleToggleShowLabels}
           />
 
           <div className="mt-16">

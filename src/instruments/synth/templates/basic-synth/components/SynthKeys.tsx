@@ -16,6 +16,8 @@ interface SynthKeysProps {
    * @default false
    */
   allowScroll?: boolean;
+  showKbLabels?: boolean;
+  noteToKeyCharMap?: Record<string, string>;
 }
 
 export default function SynthKeys({
@@ -28,6 +30,8 @@ export default function SynthKeys({
   onNoteStop,
   isFullScreen,
   allowScroll = false,
+  showKbLabels = false,
+  noteToKeyCharMap = {},
 }: SynthKeysProps) {
   // Use a Set to track multiple touched keys instead of a single key
   const currentTouchedKeys = useRef<Set<string>>(new Set());
@@ -318,6 +322,18 @@ export default function SynthKeys({
             >
               {key.note.replace("#", "\n#")}
             </span>
+            {showKbLabels && noteToKeyCharMap[key.note] && (
+              <kbd
+                className={`absolute text-[10px] font-semibold rounded-md shadow-inner select-none flex items-center justify-center w-5 h-5 ${
+                  key.isBlack
+                    ? "bg-white text-black top-1 right-1"
+                    : "bg-black text-white bottom-1 right-1 z-20"
+                }
+                `}
+              >
+                {noteToKeyCharMap[key.note]}
+              </kbd>
+            )}
           </button>
         );
       })}
