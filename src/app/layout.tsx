@@ -1,5 +1,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import { TooltipProvider } from "@/components/TooltipContext";
+import TooltipToggleButton from "@/components/TooltipToggleButton";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -71,7 +73,10 @@ export default function RootLayout({
         role="application"
         aria-label="Web-based synthesizer application"
       >
-        {children}
+        <TooltipProvider>
+          {children}
+          <TooltipToggleButton />
+        </TooltipProvider>
       </body>
     </html>
   );

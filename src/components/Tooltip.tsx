@@ -1,3 +1,5 @@
+"use client";
+
 import {
   useState,
   cloneElement,
@@ -5,8 +7,10 @@ import {
   useRef,
   useLayoutEffect,
   useEffect,
+  useId,
 } from "react";
 import { createPortal } from "react-dom";
+import { useTooltipConfig } from "./TooltipContext";
 
 interface TooltipProps {
   /** The element that triggers the tooltip */
@@ -17,6 +21,8 @@ interface TooltipProps {
   placement?: "top" | "bottom" | "left" | "right";
   /** Horizontal alignment of tooltip relative to trigger */
   alignX?: "left" | "center" | "right";
+  /** Show tooltip regardless of global toggle */
+  forceEnabled?: boolean;
 }
 
 export default function Tooltip({
@@ -24,15 +30,20 @@ export default function Tooltip({
   message,
   placement = "top",
   alignX = "left",
+  forceEnabled = false,
 }: TooltipProps) {
   const [visible, setVisible] = useState(false);
+  const [isKeyboardNav, setIsKeyboardNav] = useState(false);
+  const { enabled: tooltipsEnabled } = useTooltipConfig();
   const triggerRef = useRef<HTMLSpanElement>(null);
+  const longPressTimer = useRef<number | null>(null);
+  const LONG_PRESS_MS = 550;
   const [position, setPosition] = useState({ top: 0, left: 0 });
   const [transform, setTransform] = useState<string>("translate(-50%, -100%)");
   const tooltipRef = useRef<HTMLSpanElement>(null);
 
   // Accessibility ID
-  const tooltipId = `tooltip-${Math.random().toString(36).slice(2, 11)}`;
+  const tooltipId = useId();
 
   const trigger = isValidElement(children)
     ? cloneElement(children, {
@@ -123,6 +134,20 @@ export default function Tooltip({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [visible, placement, alignX]);
 
+  // Track last interaction method
+  useEffect(() => {
+    const handleKeyDown = () => setIsKeyboardNav(true);
+    const handlePointerDown = () => setIsKeyboardNav(false);
+
+    window.addEventListener("keydown", handleKeyDown, true);
+    window.addEventListener("pointerdown", handlePointerDown, true);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown, true);
+      window.removeEventListener("pointerdown", handlePointerDown, true);
+    };
+  }, []);
+
   // The actual tooltip element rendered via portal
   const tooltipElement = (
     <span
@@ -142,13 +167,50 @@ export default function Tooltip({
     <span
       ref={triggerRef}
       className="relative inline-block focus-visible:outline-none"
-      onMouseEnter={() => setVisible(true)}
-      onMouseLeave={() => setVisible(false)}
-      onFocus={() => setVisible(true)}
+      onPointerEnter={(e) => {
+        if (!tooltipsEnabled && !forceEnabled) return;
+        if (e.pointerType === "mouse") setVisible(true);
+      }}
+      onPointerLeave={(e) => {
+        if (!tooltipsEnabled && !forceEnabled) return;
+        if (e.pointerType === "mouse") setVisible(false);
+        if (e.pointerType !== "mouse") {
+          if (longPressTimer.current) {
+            clearTimeout(longPressTimer.current);
+            longPressTimer.current = null;
+          }
+          setVisible(false);
+        }
+      }}
+      onPointerDown={(e) => {
+        if (!tooltipsEnabled && !forceEnabled) return;
+        if (e.pointerType !== "mouse") {
+          // start long-press timer
+          longPressTimer.current = window.setTimeout(() => {
+            setVisible(true);
+          }, LONG_PRESS_MS);
+        }
+      }}
+      onPointerUp={(e) => {
+        if (!tooltipsEnabled && !forceEnabled) return;
+        if (longPressTimer.current) {
+          clearTimeout(longPressTimer.current);
+          longPressTimer.current = null;
+        }
+        if (e.pointerType !== "mouse") {
+          setVisible(false);
+        }
+      }}
+      onFocus={() => {
+        if (!tooltipsEnabled && !forceEnabled) return;
+        if (isKeyboardNav) setVisible(true);
+      }}
       onBlur={() => setVisible(false)}
     >
       {trigger}
-      {visible && createPortal(tooltipElement, document.body)}
+      {(tooltipsEnabled || forceEnabled) &&
+        visible &&
+        createPortal(tooltipElement, document.body)}
     </span>
   );
 }
