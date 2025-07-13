@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useCallback } from "react";
 
 export type TabType = "synth" | "pitch-detector";
 

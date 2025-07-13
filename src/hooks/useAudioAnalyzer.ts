@@ -26,7 +26,6 @@ export function useAudioAnalyzer(
 
   // Update frequencies for different purposes
   const AUDIO_LEVEL_UPDATE_RATE = 15; // 67ms - Smooth circle animation
-  const PITCH_DETECTION_RATE = 10; // 100ms - Maximum accuracy
 
   // Calculate simple audio level for visual feedback
   const calculateAudioLevel = useCallback(
