@@ -4,6 +4,7 @@ import { SynthKeyboard } from "../instruments";
 import TabNavigation, { TabType } from "../components/TabNavigation";
 import PitchDetector from "../components/PitchDetector";
 import { useSharedAudioContext } from "../hooks/useSharedAudioContext";
+import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
 
 export default function Home() {
   const [activeTab, setActiveTab] = useState<TabType>("synth");
@@ -25,11 +26,18 @@ export default function Home() {
     switch (activeTab) {
       case "synth":
         return (
-          <SynthKeyboard
-            audioContext={sharedAudio.audioContext}
-            hasAudioPermission={sharedAudio.hasAudioPermission}
-            initializeAudio={sharedAudio.initializeAudio}
-          />
+          <SelectiveOrientationGuard
+            requiredOrientation="landscape"
+            title="Please Rotate Your Device"
+            message="This synth works best in landscape mode"
+            icon="🎹"
+          >
+            <SynthKeyboard
+              audioContext={sharedAudio.audioContext}
+              hasAudioPermission={sharedAudio.hasAudioPermission}
+              initializeAudio={sharedAudio.initializeAudio}
+            />
+          </SelectiveOrientationGuard>
         );
       case "pitch-detector":
         return <PitchDetector />;

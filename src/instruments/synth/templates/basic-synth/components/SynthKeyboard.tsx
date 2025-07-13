@@ -7,7 +7,6 @@ import SynthKeys from "./SynthKeys";
 import { TopToolbar, BottomToolbar } from "./SynthControls";
 import MusicTheoryPanel from "./MusicTheoryPanel";
 import SoundEngineeringPanel from "./SoundEngineeringPanel";
-import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
 import PreventDefaultTouchWrapper from "@/components/wrappers/PreventDefaultTouchWrapper";
 import {
   useComputerKeyboard,
@@ -236,12 +235,7 @@ export default function SynthKeyboard({
           setWaveType={audioSynthesis.setWaveType}
         />
 
-        <SelectiveOrientationGuard
-          requiredOrientation="landscape"
-          title="Please Rotate Your Device"
-          message="This synth works best in landscape mode"
-          icon="🎹"
-        >
+
           <SynthKeys
             keys={keys}
             activeKeys={audioSynthesis.activeKeys}
@@ -271,7 +265,7 @@ export default function SynthKeyboard({
             kbOctaveOffset={kbOctaveOffset}
             setKbOctaveOffset={setKbOctaveOffset}
           />
-        </SelectiveOrientationGuard>
+        
 
         <div className="mt-16">
           <SoundEngineeringPanel waveType={audioSynthesis.waveType} />
