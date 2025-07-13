@@ -54,7 +54,7 @@ export function usePitchProcessor(
 
   // --- Lightweight YIN implementation for monophonic pitch ---
   function yinPitch(buffer: Float32Array, sampleRate: number): number | null {
-    const threshold = 0.3; // even more lenient; improves detection on low-level signals
+    const threshold = 0.1;
     const minFreq = 50;
     const maxFreq = 880;
     const minLag = Math.floor(sampleRate / maxFreq);
@@ -244,8 +244,6 @@ export function usePitchProcessor(
         // workletNode has no outputs, no need to connect further
         scriptNodeRef.current = workletNode as unknown as ScriptProcessorNode;
 
-        // -- worker creation removed (processing happens on main thread) --
-
         // Start rolling-window scheduler (every 2 seconds)
         if (!analysisIntervalRef.current) {
           analysisIntervalRef.current = setInterval(() => {
@@ -287,17 +285,8 @@ export function usePitchProcessor(
             timeDomainRef.current,
             audioContext!.sampleRate
           );
-          let finalFreq = freq;
-          // Fallback: simple autocorrelation if YIN failed
-          if (!finalFreq) {
-            finalFreq = autoCorrelatePitch(
-              timeDomainRef.current,
-              audioContext!.sampleRate
-            );
-          }
-
-          if (finalFreq) {
-            const midi = 69 + 12 * Math.log2(finalFreq / 440);
+          if (freq) {
+            const midi = 69 + 12 * Math.log2(freq / 440);
             setLatestPitchMidi(midi);
           }
         }, 100);
@@ -321,41 +310,8 @@ export function usePitchProcessor(
       clearInterval(analysisIntervalRef.current);
       analysisIntervalRef.current = null;
     }
-    // No worker to clean up after reverting
+    // Future: also stop Basic-Pitch worker/buffer if active
   }, [analyzer]);
-
-  // Simple autocorrelation pitch estimator (fallback)
-  function autoCorrelatePitch(
-    buf: Float32Array,
-    sampleRate: number
-  ): number | null {
-    const SIZE = buf.length;
-    let rms = 0;
-    for (let i = 0; i < SIZE; i++) {
-      const val = buf[i];
-      rms += val * val;
-    }
-    rms = Math.sqrt(rms / SIZE);
-    if (rms < 0.003) return null; // Too quiet
-
-    let bestOffset = -1;
-    let bestCorr = 0;
-    const MAX_LAG = Math.floor(sampleRate / 50); // 50 Hz low bound
-    const MIN_LAG = Math.floor(sampleRate / 880); // 880 Hz high bound
-
-    for (let lag = MIN_LAG; lag <= MAX_LAG; lag++) {
-      let corr = 0;
-      for (let i = 0; i < SIZE - lag; i++) {
-        corr += buf[i] * buf[i + lag];
-      }
-      if (corr > bestCorr) {
-        bestCorr = corr;
-        bestOffset = lag;
-      }
-    }
-    if (bestOffset === -1) return null;
-    return sampleRate / bestOffset;
-  }
 
   return {
     audioLevel: analyzer.audioLevel,
