@@ -1,7 +1,15 @@
 import { useCallback, useState, useRef } from "react";
 import { useAudioAnalyzer } from "./useAudioAnalyzer";
 import { useDetectionMode } from "@/components/DetectionModeContext";
-// Basic-Pitch heavy lifting now happens inside a Web Worker – keep the main thread snappy.
+import { getBasicPitchModel } from "@/utils/basicPitchLoader";
+// Suppress type warnings from dynamic Basic-Pitch helpers
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
+// @ts-ignore
+import {
+  outputToNotesPoly,
+  addPitchBendsToNoteEvents,
+  noteFramesToTime,
+} from "@spotify/basic-pitch";
 
 export interface BasicPitchNote {
   startTimeSeconds: number;
@@ -43,12 +51,10 @@ export function usePitchProcessor(
   const pitchDetectionTimerRef = useRef<NodeJS.Timeout | null>(null);
   const analysisIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const inferenceBusyRef = useRef<boolean>(false);
-  const workerRef = useRef<Worker | null>(null);
-  const nextRequestIdRef = useRef<number>(0);
 
   // --- Lightweight YIN implementation for monophonic pitch ---
   function yinPitch(buffer: Float32Array, sampleRate: number): number | null {
-    const threshold = 0.1;
+    const threshold = 0.3; // even more lenient; improves detection on low-level signals
     const minFreq = 50;
     const maxFreq = 880;
     const minLag = Math.floor(sampleRate / maxFreq);
@@ -118,43 +124,63 @@ export function usePitchProcessor(
 
   const runHighAccuracyInference = useCallback(
     async (audioCtx: AudioContext) => {
-      if (!bufferRef.current || !workerRef.current) return;
+      if (!bufferRef.current) return;
 
       // Copy circular buffer into linear array in correct time order
       const maxSamples = audioCtx.sampleRate * 10;
       const ordered = new Float32Array(maxSamples);
       const writeIdx = writeIndexRef.current;
+      // First part: from writeIdx to end
       ordered.set(bufferRef.current.subarray(writeIdx), 0);
+      // Second part: from start to writeIdx
       ordered.set(
         bufferRef.current.subarray(0, writeIdx),
         maxSamples - writeIdx
       );
 
-      // Resample to 22 050 Hz (Basic-Pitch requirement)
+      // Create AudioBuffer
       const audioBuf = audioCtx.createBuffer(
         1,
         maxSamples,
         audioCtx.sampleRate
       );
       audioBuf.copyToChannel(ordered, 0);
-      const compatibleBuf = await resampleTo22050(audioBuf);
 
-      // Extract mono PCM and transfer to worker
-      const pcm = compatibleBuf.getChannelData(0);
-      const pcmCopy = new Float32Array(pcm.length);
-      pcmCopy.set(pcm);
+      try {
+        inferenceBusyRef.current = true;
+        const model = await getBasicPitchModel();
 
-      const requestId = nextRequestIdRef.current++;
-      inferenceBusyRef.current = true;
-      workerRef.current.postMessage(
-        {
-          type: "inference",
-          id: requestId,
-          samples: pcmCopy.buffer,
-          sampleRate: compatibleBuf.sampleRate,
-        },
-        [pcmCopy.buffer]
-      );
+        // Ensure buffer is at 22050 Hz for Basic-Pitch
+        const compatibleBuf = await resampleTo22050(audioBuf);
+
+        const frames: number[][] = [];
+        const onsets: number[][] = [];
+        const contours: number[][] = [];
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
+        await (model as any).evaluateModel(
+          compatibleBuf,
+          (f: number[][], o: number[][], c: number[][]) => {
+            frames.push(...f);
+            onsets.push(...o);
+            contours.push(...c);
+          },
+          () => {}
+        );
+
+        const notes = noteFramesToTime(
+          addPitchBendsToNoteEvents(
+            contours,
+            outputToNotesPoly(frames, onsets, 0.25, 0.25, 5)
+          )
+        );
+
+        setLatestNotes(notes as BasicPitchNote[]);
+      } catch (err) {
+        console.error("Basic-Pitch inference error", err);
+      } finally {
+        inferenceBusyRef.current = false;
+      }
     },
     []
   );
@@ -218,27 +244,7 @@ export function usePitchProcessor(
         // workletNode has no outputs, no need to connect further
         scriptNodeRef.current = workletNode as unknown as ScriptProcessorNode;
 
-        // Lazily create & wire-up the Basic-Pitch worker
-        if (!workerRef.current) {
-          workerRef.current = new Worker(
-            new URL("../workers/basicPitch.worker.ts", import.meta.url),
-            { type: "module" }
-          );
-
-          workerRef.current.onmessage = (e) => {
-            const msg = e.data as {
-              type: string;
-              notes?: BasicPitchNote[];
-              message?: string;
-            };
-            if (msg.type === "result" && msg.notes) {
-              setLatestNotes(msg.notes);
-            } else if (msg.type === "error") {
-              console.error("Basic-Pitch worker error", msg.message);
-            }
-            inferenceBusyRef.current = false;
-          };
-        }
+        // -- worker creation removed (processing happens on main thread) --
 
         // Start rolling-window scheduler (every 2 seconds)
         if (!analysisIntervalRef.current) {
@@ -281,8 +287,17 @@ export function usePitchProcessor(
             timeDomainRef.current,
             audioContext!.sampleRate
           );
-          if (freq) {
-            const midi = 69 + 12 * Math.log2(freq / 440);
+          let finalFreq = freq;
+          // Fallback: simple autocorrelation if YIN failed
+          if (!finalFreq) {
+            finalFreq = autoCorrelatePitch(
+              timeDomainRef.current,
+              audioContext!.sampleRate
+            );
+          }
+
+          if (finalFreq) {
+            const midi = 69 + 12 * Math.log2(finalFreq / 440);
             setLatestPitchMidi(midi);
           }
         }, 100);
@@ -306,11 +321,41 @@ export function usePitchProcessor(
       clearInterval(analysisIntervalRef.current);
       analysisIntervalRef.current = null;
     }
-    if (workerRef.current) {
-      workerRef.current.terminate();
-      workerRef.current = null;
-    }
+    // No worker to clean up after reverting
   }, [analyzer]);
+
+  // Simple autocorrelation pitch estimator (fallback)
+  function autoCorrelatePitch(
+    buf: Float32Array,
+    sampleRate: number
+  ): number | null {
+    const SIZE = buf.length;
+    let rms = 0;
+    for (let i = 0; i < SIZE; i++) {
+      const val = buf[i];
+      rms += val * val;
+    }
+    rms = Math.sqrt(rms / SIZE);
+    if (rms < 0.003) return null; // Too quiet
+
+    let bestOffset = -1;
+    let bestCorr = 0;
+    const MAX_LAG = Math.floor(sampleRate / 50); // 50 Hz low bound
+    const MIN_LAG = Math.floor(sampleRate / 880); // 880 Hz high bound
+
+    for (let lag = MIN_LAG; lag <= MAX_LAG; lag++) {
+      let corr = 0;
+      for (let i = 0; i < SIZE - lag; i++) {
+        corr += buf[i] * buf[i + lag];
+      }
+      if (corr > bestCorr) {
+        bestCorr = corr;
+        bestOffset = lag;
+      }
+    }
+    if (bestOffset === -1) return null;
+    return sampleRate / bestOffset;
+  }
 
   return {
     audioLevel: analyzer.audioLevel,
