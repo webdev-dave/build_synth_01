@@ -115,7 +115,12 @@ export default function PitchDetector() {
             </Tooltip>
             <select
               id="detection-mode"
-              className="bg-gray-800 text-white border border-gray-600 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500"
+              disabled={pitchProcessor.isAnalyzing}
+              className={`bg-gray-800 text-white border border-gray-600 rounded px-3 py-1 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                pitchProcessor.isAnalyzing
+                  ? "opacity-50 cursor-not-allowed"
+                  : ""
+              }`}
               value={detectionMode}
               onChange={(e) =>
                 setDetectionMode(e.target.value as "standard" | "highAccuracy")

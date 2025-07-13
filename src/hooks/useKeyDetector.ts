@@ -24,11 +24,12 @@ export function useKeyDetector(
     detectorRef.current = new KeyDetector();
   }
 
-  // Reset histogram when analysis stops
+  // Reset histogram when analysis stops but keep the last detected key on screen
   useEffect(() => {
     if (!isActive) {
+      // Clear internal histogram so the next session starts fresh
       detectorRef.current?.reset();
-      setKeyState({ name: "–", confidence: 0 });
+      // Do NOT reset keyState here – we want to keep showing the last result
     }
   }, [isActive]);
 
