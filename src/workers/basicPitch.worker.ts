@@ -1,6 +1,7 @@
 /// <reference lib="webworker" />
 
 import { getBasicPitchModel } from "@/utils/basicPitchLoader";
+import type { BasicPitch } from "@spotify/basic-pitch";
 // eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore  Basic-Pitch helpers are JS-only
 import {
@@ -10,7 +11,7 @@ import {
 } from "@spotify/basic-pitch";
 
 // Lazily-loaded Basic-Pitch instance reused across requests
-let model: any = null;
+let model: BasicPitch | null = null;
 
 interface InferenceRequest {
   type: "inference";
