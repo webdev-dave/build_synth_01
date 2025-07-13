@@ -8,6 +8,7 @@
 
 ## Development Todo
 
+- if a user enters full screen mode on mobile devices while in landscape and then once in fs mode, rotates to portrait, there is a bug - the popup asking the user to use landscape mode doesn't actually block the user from playing the piano (and in general the popup that is intended to block the user looks ugly as hell)
 - Piano playing via computer keyboard input capabilities are lost in "mobile mode" on screens that are too wide. Fix this
 - when in locked mode, there is a bug that allows piano key input via computerkeyboard to bypass and play blocked notes that are out of current scale
 - add feature: transpose and play only white keys. user selects and scale they would like in "scale mode" and automatically, all the white keys play in the chosen scale (and all the black keys get the striped red blocked out indicators and they should not accept any sound input (or green stripes if "unlocked" and should still be able to play black keys))
