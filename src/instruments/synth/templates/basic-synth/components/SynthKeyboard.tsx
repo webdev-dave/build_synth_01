@@ -7,7 +7,7 @@ import SynthKeys from "./SynthKeys";
 import { TopToolbar, BottomToolbar } from "./SynthControls";
 import MusicTheoryPanel from "./MusicTheoryPanel";
 import SoundEngineeringPanel from "./SoundEngineeringPanel";
-import OrientationGuard from "@/components/wrappers/OrientationGuard";
+import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
 import PreventDefaultTouchWrapper from "@/components/wrappers/PreventDefaultTouchWrapper";
 import {
   useComputerKeyboard,
@@ -15,16 +15,21 @@ import {
 } from "../hooks/useComputerKeyboard";
 import useIsMobile from "@/hooks/useIsMobile";
 
-// Add this type declaration for Safari's webkitAudioContext
-interface WindowWithWebkit extends Window {
-  webkitAudioContext: typeof AudioContext;
+// AudioContext is now managed by parent component
+
+interface SynthKeyboardProps {
+  audioContext: AudioContext | null;
+  hasAudioPermission: boolean;
+  initializeAudio: () => Promise<void>;
 }
 
-export default function SynthKeyboard() {
+export default function SynthKeyboard({
+  audioContext,
+  hasAudioPermission,
+  initializeAudio,
+}: SynthKeyboardProps) {
   const [startOctave, setStartOctave] = useState<number>(4);
   const [isFullScreen, setIsFullScreen] = useState(false);
-  const [actx, setActx] = useState<AudioContext | null>(null);
-  const [hasAudioPermission, setHasAudioPermission] = useState(false);
   const isMobile = useIsMobile();
   const [kbEnabled, setKbEnabled] = useState<boolean>(() => !isMobile);
   const [showKbLabels, setShowKbLabels] = useState(false);
@@ -99,33 +104,7 @@ export default function SynthKeyboard() {
     };
   }, [isFullScreen]);
 
-  // Initialize AudioContext when component mounts
-  useEffect(() => {
-    let mounted = true;
-    let audioContext: AudioContext | null = null;
-
-    try {
-      // Properly typed AudioContext for both standard and webkit
-      const AudioContextClass =
-        window.AudioContext ||
-        (window as unknown as WindowWithWebkit).webkitAudioContext;
-
-      if (AudioContextClass && mounted) {
-        audioContext = new AudioContextClass();
-        audioContext.suspend(); // Start in suspended state
-        setActx(audioContext);
-      }
-    } catch (error) {
-      console.error("Error initializing AudioContext:", error);
-    }
-
-    return () => {
-      mounted = false;
-      if (audioContext) {
-        audioContext.close();
-      }
-    };
-  }, []);
+  // AudioContext is now managed by parent component
 
   // Ensure keyboard input stays disabled on mobile devices
   useEffect(() => {
@@ -143,8 +122,8 @@ export default function SynthKeyboard() {
 
   const scaleLogic = useScaleLogic();
   const audioSynthesis = useAudioSynthesis(
-    actx,
-    () => setHasAudioPermission(true), // Handle audio permission internally
+    audioContext,
+    () => {}, // Audio permission is now handled by parent component
     keys
   );
 
@@ -196,82 +175,73 @@ export default function SynthKeyboard() {
   };
 
   // Show loading state while AudioContext is initializing
-  if (!actx) {
+  if (!audioContext) {
     return (
-      <OrientationGuard
-        requiredOrientation="landscape"
-        title="Please Rotate Your Device"
-        message="This synth works best in landscape mode"
-        icon="🎹"
-      >
-        <div className="bg-synth-bg p-6 rounded-md border-2 text-center">
-          <div>Initializing Audio Context...</div>
-        </div>
-      </OrientationGuard>
+      <div className="bg-synth-bg p-6 rounded-md border-2 text-center">
+        <div>Initializing Audio Context...</div>
+      </div>
     );
   }
 
   return (
-    <OrientationGuard
-      requiredOrientation="landscape"
-      title="Please Rotate Your Device"
-      message="This synth works best in landscape mode"
-      icon="🎹"
-    >
-      <PreventDefaultTouchWrapper allowScroll={true}>
-        <div
-          className={`synth-wrapper ${isFullScreen ? "fullscreen-synth" : ""}`}
-          ref={wrapperRef}
-          style={{
-            width: isFullScreen ? "100vw" : "100%",
-            maxWidth: isFullScreen ? "100%" : "100%",
-            position: isFullScreen ? "fixed" : "relative",
-            left: isFullScreen ? "0" : "auto",
-            top: isFullScreen ? "0" : "auto",
-            right: isFullScreen ? "0" : "auto",
-            bottom: isFullScreen ? "0" : "auto",
-            zIndex: isFullScreen ? 50 : "auto",
-            padding: isFullScreen ? "0" : "1rem",
-            margin: isFullScreen ? "0" : "auto",
-            backgroundColor: isFullScreen
-              ? "var(--bg-color, #1e3a5f)"
-              : "rgb(10, 58, 79)",
-            transition: "background-color 0.3s ease, height 0.3s ease",
-            overflowX: "hidden",
-            overflowY: isFullScreen ? "auto" : "hidden",
-            display: isFullScreen ? "flex" : "block",
-            flexDirection: isFullScreen ? "column" : "initial",
-            justifyContent: isFullScreen ? "flex-start" : "initial",
-            alignItems: isFullScreen ? "stretch" : "initial",
-            height: isFullScreen ? "100vh" : "auto",
-            borderRadius: "0.5rem",
-          }}
-        >
-          {!hasAudioPermission && (
-            <AudioPermissionOverlay
-              onInitializeAudio={audioSynthesis.initializeAudio}
-            />
-          )}
-          <div className="mb-4">
-            <MusicTheoryPanel
-              selectedScale={scaleLogic.selectedScale}
-              activeKeys={audioSynthesis.activeKeys}
-              identifyChord={scaleLogic.identifyChord}
-            />
-          </div>
-
-          <TopToolbar
-            activeKeys={audioSynthesis.activeKeys}
-            activeNoteFreq={audioSynthesis.activeNoteFreq}
-            identifyChord={scaleLogic.identifyChord}
+    <PreventDefaultTouchWrapper allowScroll={true}>
+      <div
+        className={`synth-wrapper ${isFullScreen ? "fullscreen-synth" : ""}`}
+        ref={wrapperRef}
+        style={{
+          width: isFullScreen ? "100vw" : "100%",
+          maxWidth: isFullScreen ? "100%" : "100%",
+          position: isFullScreen ? "fixed" : "relative",
+          left: isFullScreen ? "0" : "auto",
+          top: isFullScreen ? "0" : "auto",
+          right: isFullScreen ? "0" : "auto",
+          bottom: isFullScreen ? "0" : "auto",
+          zIndex: isFullScreen ? 50 : "auto",
+          padding: isFullScreen ? "0" : "1rem",
+          margin: isFullScreen ? "0" : "auto",
+          backgroundColor: isFullScreen
+            ? "var(--bg-color, #1e3a5f)"
+            : "rgb(10, 58, 79)",
+          transition: "background-color 0.3s ease, height 0.3s ease",
+          overflowX: "hidden",
+          overflowY: isFullScreen ? "auto" : "hidden",
+          display: isFullScreen ? "flex" : "block",
+          flexDirection: isFullScreen ? "column" : "initial",
+          justifyContent: isFullScreen ? "flex-start" : "initial",
+          alignItems: isFullScreen ? "stretch" : "initial",
+          height: isFullScreen ? "100vh" : "auto",
+          borderRadius: "0.5rem",
+        }}
+      >
+        {!hasAudioPermission && (
+          <AudioPermissionOverlay onInitializeAudio={initializeAudio} />
+        )}
+        <div className="mb-4">
+          <MusicTheoryPanel
             selectedScale={scaleLogic.selectedScale}
-            setSelectedScale={scaleLogic.setSelectedScale}
-            allowOutOfScale={scaleLogic.allowOutOfScale}
-            setAllowOutOfScale={scaleLogic.setAllowOutOfScale}
-            waveType={audioSynthesis.waveType}
-            setWaveType={audioSynthesis.setWaveType}
+            activeKeys={audioSynthesis.activeKeys}
+            identifyChord={scaleLogic.identifyChord}
           />
+        </div>
 
+        <TopToolbar
+          activeKeys={audioSynthesis.activeKeys}
+          activeNoteFreq={audioSynthesis.activeNoteFreq}
+          identifyChord={scaleLogic.identifyChord}
+          selectedScale={scaleLogic.selectedScale}
+          setSelectedScale={scaleLogic.setSelectedScale}
+          allowOutOfScale={scaleLogic.allowOutOfScale}
+          setAllowOutOfScale={scaleLogic.setAllowOutOfScale}
+          waveType={audioSynthesis.waveType}
+          setWaveType={audioSynthesis.setWaveType}
+        />
+
+        <SelectiveOrientationGuard
+          requiredOrientation="landscape"
+          title="Please Rotate Your Device"
+          message="This synth works best in landscape mode"
+          icon="🎹"
+        >
           <SynthKeys
             keys={keys}
             activeKeys={audioSynthesis.activeKeys}
@@ -301,12 +271,12 @@ export default function SynthKeyboard() {
             kbOctaveOffset={kbOctaveOffset}
             setKbOctaveOffset={setKbOctaveOffset}
           />
+        </SelectiveOrientationGuard>
 
-          <div className="mt-16">
-            <SoundEngineeringPanel waveType={audioSynthesis.waveType} />
-          </div>
+        <div className="mt-16">
+          <SoundEngineeringPanel waveType={audioSynthesis.waveType} />
         </div>
-      </PreventDefaultTouchWrapper>
-    </OrientationGuard>
+      </div>
+    </PreventDefaultTouchWrapper>
   );
 }
