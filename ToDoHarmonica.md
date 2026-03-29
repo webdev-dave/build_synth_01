@@ -10,6 +10,10 @@
 - [ ] Test with real harmonica to confirm diagram matches actual playing
 
 ## Code Refactoring
+
+### Phase 1: PianoTheory.tsx Refactoring
+The largest component (513 lines) will be split into smaller, focused pieces: `InfoCard.tsx` (reusable UI), `PianoSVG.tsx` (pure SVG rendering), `PianoLegend.tsx` (legend display), and `TheoryExplanationCards.tsx` (bottom explanation sections). The main `PianoTheory.tsx` becomes a ~120-line orchestrator. This establishes patterns for Phase 2 (HarmonicaDiagram.tsx split) and Phase 3 (shared UI extraction).
+
 - [ ] Break down large components into smaller, reusable pieces
 - [ ] Extract shared logic into utility functions
 - [ ] Reduce file sizes for better maintainability
