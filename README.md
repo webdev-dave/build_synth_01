@@ -25,8 +25,25 @@ src/instruments/
 - **Basic Synthesizer Template**: A foundational synth with customizable waveforms
 - **Scale-aware Key Highlighting**: Visual feedback for musical scales
 - **Real-time Audio Synthesis**: Web Audio API-based sound generation
+- **Harmonica Lab**: Interactive position guide for diatonic blues harp with theory diagrams
 - **Responsive Design**: Optimized for landscape orientation
 - **Modular Architecture**: Easy to extend with new instruments
+- **Unified Navigation**: Hamburger menu for easy access to all tools
+
+## 🚧 Hidden Features (Beta)
+
+The following features are temporarily hidden due to ongoing development:
+
+### Key Detector (Hidden)
+
+Real-time musical key detection using microphone input. Currently hidden due to accuracy issues.
+
+**Status**: Needs improvement in detection algorithms before re-enabling.
+
+**To re-enable**:
+1. Uncomment the Key Detector entry in `src/lib/navigation.ts`
+2. Restore tab navigation logic in `src/app/page.tsx` (see archived code at bottom of file)
+3. The PitchDetector component and related hooks are still available in the codebase
 
 ## 🛠 Development Status
 

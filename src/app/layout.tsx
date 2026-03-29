@@ -3,6 +3,8 @@ import "./globals.css";
 import { TooltipProvider } from "@/components/TooltipContext";
 import TooltipToggleButton from "@/components/TooltipToggleButton";
 import { DetectionModeProvider } from "@/components/DetectionModeContext";
+import { AudioContextProvider } from "@/contexts";
+import { NavMenu } from "@/components/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -78,12 +80,15 @@ export default function RootLayout({
         role="application"
         aria-label="Web-based synthesizer application"
       >
-        <DetectionModeProvider>
-          <TooltipProvider>
-            {children}
-            <TooltipToggleButton />
-          </TooltipProvider>
-        </DetectionModeProvider>
+        <AudioContextProvider>
+          <DetectionModeProvider>
+            <TooltipProvider>
+              <NavMenu />
+              {children}
+              <TooltipToggleButton />
+            </TooltipProvider>
+          </DetectionModeProvider>
+        </AudioContextProvider>
       </body>
     </html>
   );

@@ -196,7 +196,7 @@ export default function SynthKeyboard({
           right: isFullScreen ? "0" : "auto",
           bottom: isFullScreen ? "0" : "auto",
           zIndex: isFullScreen ? 50 : "auto",
-          padding: isFullScreen ? "0" : "1rem",
+          padding: isFullScreen ? "0" : "1.5rem",
           margin: isFullScreen ? "0" : "auto",
           backgroundColor: isFullScreen
             ? "var(--bg-color, #1e3a5f)"
