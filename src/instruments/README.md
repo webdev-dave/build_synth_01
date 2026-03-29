@@ -73,15 +73,17 @@ variant-name/
 
 ## 🎹 Basic Synth Template (Implemented)
 
-The basic synth template provides the foundation for all keyboard-based synthesizers:
+The basic synth template provides the foundation for all keyboard-based synthesizers.
+
+**Location:** `src/instruments/synth/templates/basic-synth/`
 
 ### Core Features
 
-- **Keyboard Interface**: Piano-style key layout
-- **Audio Synthesis**: Oscillator-based sound generation
-- **Scale Logic**: Musical scale and chord detection
+- **Keyboard Interface**: Piano-style key layout with multi-octave support
+- **Audio Synthesis**: Oscillator-based sound generation (sine, square, sawtooth, triangle)
+- **Scale Logic**: Musical scale highlighting and chord detection
 - **Real-time Controls**: Wave type, scale selection, octave navigation
-- **Audio Permission**: Web Audio API permission handling
+- **Audio Permission**: Web Audio API permission handling with global context
 
 ### Components
 
@@ -98,6 +100,13 @@ The basic synth template provides the foundation for all keyboard-based synthesi
 ### Utils
 
 - `synthUtils.ts` - Synthesizer calculations and utilities
+
+### Shared Dependencies
+
+The synth template uses the shared music theory library at `src/lib/music/` for:
+- Note definitions and constants
+- Scale patterns and intervals
+- Chord detection utilities
 
 ## 🚀 Future Templates (Planned)
 

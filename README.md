@@ -1,120 +1,133 @@
 # Build Synth 01
 
-A modern web-based Digital Audio Workstation (DAW) built with Next.js and TypeScript, featuring a template-based instrument architecture.
+A modern web-based Digital Audio Workstation (DAW) built with Next.js and TypeScript, featuring a synthesizer and interactive music theory tools.
 
-## 🎹 Architecture Overview
-
-This DAW uses a **template-based architecture** where each instrument family has primitive templates that can spawn multiple variations:
-
-```
-src/instruments/
-├── synth/                    # Synthesizer family
-│   ├── templates/           # Primitive templates
-│   │   └── basic-synth/     # Basic synthesizer template
-│   ├── variants/            # Template variations (future)
-│   │   ├── piano/          # Piano variant of basic-synth
-│   │   └── organ/          # Organ variant of basic-synth
-│   └── index.ts            # Synth family exports
-└── drums/                   # Drum machine family (future)
-    ├── templates/
-    └── variants/
-```
-
-## 🚀 Current Features
-
-- **Basic Synthesizer Template**: A foundational synth with customizable waveforms
-- **Scale-aware Key Highlighting**: Visual feedback for musical scales
-- **Real-time Audio Synthesis**: Web Audio API-based sound generation
-- **Harmonica Lab**: Interactive position guide for diatonic blues harp with theory diagrams
-- **Responsive Design**: Optimized for landscape orientation
-- **Modular Architecture**: Easy to extend with new instruments
-- **Unified Navigation**: Hamburger menu for easy access to all tools
-
-## 🚧 Hidden Features (Beta)
-
-The following features are temporarily hidden due to ongoing development:
-
-### Key Detector (Hidden)
-
-Real-time musical key detection using microphone input. Currently hidden due to accuracy issues.
-
-**Status**: Needs improvement in detection algorithms before re-enabling.
-
-**To re-enable**:
-1. Uncomment the Key Detector entry in `src/lib/navigation.ts`
-2. Restore tab navigation logic in `src/app/page.tsx` (see archived code at bottom of file)
-3. The PitchDetector component and related hooks are still available in the codebase
-
-## 🛠 Development Status
-
-### ✅ Completed
-
-- Template-based architecture implementation
-- Basic synthesizer template with modular components
-- Audio synthesis with multiple waveforms
-- Scale logic and key highlighting
-- Responsive UI components
-
-### 🔄 In Progress
-
-- Component refactoring and optimization
-- Enhanced audio features
-
-### 📋 Planned
-
-- Piano and organ variants of the basic synthesizer
-- Drum machine templates and variants
-- Advanced synthesis features
-- Preset management system
-- Recording and playback capabilities
-
-## Live Demo
-
-Check out the live version here: [Synth-v01](https://synth-v01.netlify.app)
+**Live Demo:** [synth-v01.netlify.app](https://synth-v01.netlify.app)
 
 ## Features
 
-- Basic sound generation using an oscillator
+### Synthesizer
 - Piano keyboard with octave controls
-- Added Selectable musical scales with visual feedback to help PianoSynth users visualize the keys that belong in the selected scaled scale of the notes being played
-- Created a note/notes data window that displays data related to current note/notes being played. For example, if a single note is being played, the window displays the Hz Frequency of that note. If multiple notes are being played, the window will attempt to detect what chord is being played
+- Multiple waveform types (sine, square, sawtooth, triangle)
+- Scale-aware key highlighting with visual feedback
+- Real-time chord detection
+- Note/frequency data display
+- Responsive design optimized for landscape orientation
 
-## AI Feature Ideas
+### Harmonica Lab
+- Interactive position guide for diatonic blues harp (5 positions)
+- Visual harmonica diagram with blow/draw notes and bends
+- Scale degree indicators with Blues/Mixolydian toggle for 2nd position
+- Piano theory visualization with scale highlighting
+- Position calculation algorithm with full 12×5 reference matrix
+- "I know the song key" vs "I have a harp" lookup modes
 
-### AI Song Interpretation
+## Project Structure
 
-- Allow users to request AI to play their favorite songs through the synth's sound presets
-- Examples:
-  - Play "Blackbird" by The Beatles using the synth's flute preset
-  - Interpret classical piano pieces with different synth voices
-- Support batch processing of playlists
+```
+src/
+├── app/
+│   ├── page.tsx                 # Synth page
+│   └── harmonica-lab/           # Harmonica Lab page
+├── components/
+│   ├── harmonica/               # Harmonica Lab components
+│   │   ├── HarmonicaDiagram.tsx # Main diagram with notes/bends
+│   │   ├── PianoTheory.tsx      # Piano visualization
+│   │   ├── PositionCard.tsx     # Position selection cards
+│   │   ├── PositionMatrix.tsx   # 12×5 reference table
+│   │   └── ...                  # Other harmonica components
+│   └── navigation/              # Global navigation menu
+├── instruments/
+│   └── synth/
+│       └── templates/
+│           └── basic-synth/     # Synthesizer template
+│               ├── components/  # SynthKeyboard, SynthKeys, etc.
+│               ├── hooks/       # useAudioSynthesis, useScaleLogic
+│               └── utils/       # Synth utilities
+├── lib/
+│   ├── music/                   # Shared music theory library
+│   │   ├── constants.ts         # NOTES, DEGREE_NAMES
+│   │   ├── notes.ts             # Note utilities (transpose, enharmonic)
+│   │   ├── intervals.ts         # Interval calculations
+│   │   └── scales.ts            # Scale definitions
+│   ├── harmonica/               # Harmonica-specific logic
+│   │   ├── constants.ts         # POSITIONS, BENDS, note offsets
+│   │   ├── utils.ts             # Position calculations, scale checks
+│   │   └── types.ts             # TypeScript types
+│   └── navigation.ts            # Navigation config
+├── contexts/
+│   └── AudioContext.tsx         # Global audio context provider
+└── hooks/
+    └── useSharedAudioContext.ts # Audio context hook
+```
 
-### AI Scale Recognition
+## Architecture
 
-- Real-time scale detection from audio input (microphone)
-  - Automatically detect musical scale from live or streaming audio
-  - Visually highlight detected scale on piano keyboard
-  - Default to "unlocked" scale mode to allow experimentation
-  - Option to "lock" to detected scale once confirmed
-- Features:
-  - Works with live performances
-  - Compatible with streaming platforms
-  - Real-time scale updates as song progresses
-  - Handles key changes within songs
-  - Confidence indicator for scale detection accuracy
+### Template-Based Instruments
+The synth uses a template architecture where primitive templates can spawn multiple variants:
+- **Templates**: Core functionality (basic-synth, bass-synth, etc.)
+- **Variants**: Specialized instruments (piano, organ, strings)
 
-### AI Sound Design
+See `src/instruments/README.md` for detailed architecture documentation.
 
-- AI-powered preset generation and modification
-- Features:
-  - Generate random unique presets
-  - Create presets based on user descriptions
-  - Modify existing presets based on user feedback
-  - Accept natural language input for sound design (e.g., "make it more ethereal")
+### Shared Music Theory Library
+The `src/lib/music/` module provides reusable music theory utilities:
+- Note manipulation (transpose, enharmonic equivalents)
+- Scale definitions and intervals
+- Chord detection helpers
 
-### Implementation Notes
+### Harmonica Position System
+The `src/lib/harmonica/` module handles harmonica-specific logic:
+- 5 positions with scale intervals and colors
+- Blues scale vs modal scale calculations
+- Bend note positions and validation
+- Position calculation algorithm
 
-- Integration with music streaming platforms for source material
-- Natural language processing for sound design instructions
-- Machine learning models for sound synthesis and modification
-- Added "Tap to Enable Sound" modal
+## Hidden Features (Beta)
+
+### Key Detector
+Real-time musical key detection using microphone input. Currently hidden due to accuracy issues.
+
+**To re-enable:**
+1. Uncomment the Key Detector entry in `src/lib/navigation.ts`
+2. Restore tab navigation logic in `src/app/page.tsx`
+
+## Development
+
+```bash
+# Install dependencies
+npm install
+
+# Run development server
+npm run dev
+
+# Build for production
+npm run build
+```
+
+## Roadmap
+
+### In Progress
+- Component refactoring for better maintainability
+- Harmonica Lab code optimization
+
+### Planned
+- Piano and organ synth variants
+- Drum machine templates
+- Advanced synthesis features (filters, envelopes)
+- Preset management system
+- Recording and playback
+- MIDI input support
+
+### AI Feature Ideas
+- **Song Interpretation**: Play songs through synth presets via AI
+- **Scale Recognition**: Real-time scale detection from audio input
+- **Sound Design**: AI-powered preset generation from natural language
+
+## Tech Stack
+
+- **Framework**: Next.js 15 (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Audio**: Web Audio API
+- **Deployment**: Netlify
