@@ -8,7 +8,7 @@ import { HomeApps } from "@/components/home/HomeApps";
 import { HeroMap } from "@/components/home/HeroMap";
 
 export const metadata: Metadata = {
-  title: `${APP_NAME} — Web Music Tools`,
+  title: APP_NAME,
   description:
     "A collection of web-based music tools and instruments: a synth keyboard and a diatonic harmonica lab.",
 };

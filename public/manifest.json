@@ -1,7 +1,7 @@
 {
-  "name": "Synth-v01",
-  "short_name": "Synth-v01",
-  "description": "A simple web-based synthesizer application",
+  "name": "Instrumaps",
+  "short_name": "Instrumaps",
+  "description": "Interactive music-theory tools. Don't study theory. Play with it.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#222222",
