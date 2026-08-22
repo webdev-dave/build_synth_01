@@ -50,22 +50,25 @@ export function HomeApps() {
               variants={item}
               whileHover={{ y: -4 }}
               transition={{ type: "spring", stiffness: 300, damping: 22 }}
+              className="h-full"
             >
               <Link
                 href={app.href}
-                className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+                className="group block h-full rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
               >
-                <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                  <CardHeader>
+                <Card className="flex h-full flex-col transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
+                  <CardHeader className="flex-1">
                     <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-md border bg-muted/40 text-foreground">
                       <Icon className="h-5 w-5" strokeWidth={1.75} />
                     </div>
                     <CardTitle className="text-base">{app.label}</CardTitle>
                     {app.description && (
-                      <CardDescription>{app.description}</CardDescription>
+                      <CardDescription className="min-h-10">
+                        {app.description}
+                      </CardDescription>
                     )}
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="mt-auto">
                     <span className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
                       Open
                       <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -78,9 +81,9 @@ export function HomeApps() {
         })}
 
         {/* Coming soon */}
-        <motion.div variants={item}>
-          <Card className="flex h-full flex-col items-start justify-center border-dashed bg-transparent shadow-none">
-            <CardHeader>
+        <motion.div variants={item} className="h-full">
+          <Card className="flex h-full flex-col border-dashed bg-transparent shadow-none">
+            <CardHeader className="flex-1">
               <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-md border border-dashed text-muted-foreground">
                 <DrumMachineIcon className="h-5 w-5" strokeWidth={1.75} />
               </div>
@@ -90,10 +93,17 @@ export function HomeApps() {
                 </CardTitle>
                 <Badge variant="secondary">Soon</Badge>
               </div>
-              <CardDescription>
+              <CardDescription className="min-h-10">
                 Beats, rhythm, and groove tools are on the way.
               </CardDescription>
             </CardHeader>
+            {/* Spacer matches the "Open →" row height on active tool cards */}
+            <CardContent className="mt-auto" aria-hidden="true">
+              <span className="invisible inline-flex items-center gap-1 text-sm font-medium">
+                Open
+                <ArrowRight className="h-4 w-4" />
+              </span>
+            </CardContent>
           </Card>
         </motion.div>
       </motion.section>

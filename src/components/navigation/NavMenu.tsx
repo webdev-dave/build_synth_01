@@ -3,10 +3,16 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { ArrowLeft, AudioLines, Menu, X } from "lucide-react";
+import { ArrowLeft, ArrowRight, AudioLines, Menu, X } from "lucide-react";
 
-import { NAV_BAR_ITEMS, DRAWER_ITEMS, APP_NAME } from "@/lib/navigation";
+import {
+  NAV_BAR_ITEMS,
+  DRAWER_ITEMS,
+  APP_NAME,
+  isNavItemActive,
+} from "@/lib/navigation";
 import { getAppIcon } from "@/lib/appIcons";
+import { useBrowserHistoryNav } from "@/hooks/useBrowserHistoryNav";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -18,10 +24,14 @@ const navLinkClass = (active: boolean) =>
       : "text-muted-foreground hover:bg-accent hover:text-foreground"
   );
 
+const historyButtonClass =
+  "h-8 w-8 text-muted-foreground disabled:pointer-events-none disabled:opacity-35";
+
 export default function NavMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
   const router = useRouter();
+  const { canGoBack, canGoForward } = useBrowserHistoryNav();
 
   // Close menu when route changes
   useEffect(() => {
@@ -49,82 +59,98 @@ export default function NavMenu() {
     };
   }, [isOpen]);
 
-  const isActive = (href: string) => {
-    if (href === "/") return pathname === "/";
-    return pathname.startsWith(href);
-  };
-
   return (
     <>
       {/* Header bar */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-        <div className="mx-auto flex h-12 max-w-[1200px] items-center justify-between px-4">
-          {/* Logo/App name */}
-          <Link
-            href="/"
-            className="flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-foreground/80"
-          >
-            <AudioLines className="h-5 w-5" strokeWidth={1.75} />
-            <span>{APP_NAME}</span>
-          </Link>
-
-          {/* Desktop nav links (hidden on mobile) */}
-          <nav className="hidden items-center gap-1 md:flex">
-            <button
-              type="button"
-              onClick={() => router.back()}
-              className={navLinkClass(false)}
-              aria-label="Go back"
+        <div className="flex h-12 items-center justify-between px-3 sm:px-4">
+          <div className="flex items-center gap-3">
+            <Link
+              href="/"
+              className="flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-foreground/80"
             >
-              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
-              <span>Back</span>
-            </button>
-            {NAV_BAR_ITEMS.map((item) => {
-              const Icon = getAppIcon(item.id);
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className={navLinkClass(isActive(item.href))}
-                >
-                  <Icon className="h-4 w-4" strokeWidth={1.75} />
-                  <span>{item.label}</span>
-                </Link>
-              );
-            })}
-          </nav>
+              <AudioLines className="h-5 w-5" strokeWidth={1.75} />
+              <span>{APP_NAME}</span>
+            </Link>
 
-          {/* Hamburger button (mobile) */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(!isOpen)}
-            className="h-9 w-9 md:hidden"
-            aria-label="Toggle menu"
-            aria-expanded={isOpen}
-          >
-            {isOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </Button>
+            {/* Browser-style history controls: compact icon pair, like browser chrome */}
+            <div className="flex items-center gap-0.5 border-l border-border pl-2 sm:pl-3">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.back()}
+                disabled={!canGoBack}
+                className={historyButtonClass}
+                aria-label="Go back"
+                title="Back"
+              >
+                <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => router.forward()}
+                disabled={!canGoForward}
+                className={historyButtonClass}
+                aria-label="Go forward"
+                title="Forward"
+              >
+                <ArrowRight className="h-4 w-4" strokeWidth={1.75} />
+              </Button>
+            </div>
+          </div>
 
-          {/* Desktop hamburger for quick access */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => setIsOpen(!isOpen)}
-            className="hidden h-9 w-9 text-muted-foreground md:inline-flex"
-            aria-label="Toggle menu"
-            aria-expanded={isOpen}
-          >
-            {isOpen ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
+          <div className="flex items-center gap-1">
+            {NAV_BAR_ITEMS.length > 0 && (
+              <nav className="hidden items-center gap-1 md:flex">
+                {NAV_BAR_ITEMS.map((item) => {
+                  const Icon = getAppIcon(item.id);
+                  return (
+                    <Link
+                      key={item.id}
+                      href={item.href}
+                      className={navLinkClass(isNavItemActive(pathname, item))}
+                    >
+                      <Icon className="h-4 w-4" strokeWidth={1.75} />
+                      <span>{item.label}</span>
+                    </Link>
+                  );
+                })}
+              </nav>
             )}
-          </Button>
+
+            {/* Hamburger button (mobile) */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
+              className="h-9 w-9 md:hidden"
+              aria-label="Toggle menu"
+              aria-expanded={isOpen}
+            >
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+
+            {/* Desktop hamburger for quick access */}
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsOpen(!isOpen)}
+              className="hidden h-9 w-9 text-muted-foreground md:inline-flex"
+              aria-label="Toggle menu"
+              aria-expanded={isOpen}
+            >
+              {isOpen ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -167,33 +193,16 @@ export default function NavMenu() {
 
           {/* Nav items */}
           <nav className="space-y-1 p-4">
-            <button
-              type="button"
-              onClick={() => {
-                setIsOpen(false);
-                router.back();
-              }}
-              className="flex w-full items-center gap-3 rounded-lg p-3 text-left text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-            >
-              <ArrowLeft className="h-5 w-5 shrink-0" strokeWidth={1.75} />
-              <div>
-                <div className="font-medium text-foreground">Back</div>
-                <div className="mt-0.5 text-xs text-muted-foreground">
-                  Previous page
-                </div>
-              </div>
-            </button>
             {DRAWER_ITEMS.map((item) => {
               const Icon = getAppIcon(item.id);
-              // Active on either version, so the legacy page still highlights.
               return (
                 <Link
                   key={item.id}
-                  href={item.betaHref ?? item.href}
+                  href={item.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     "block rounded-lg p-3 transition-colors",
-                    isActive(item.href)
+                    isNavItemActive(pathname, item)
                       ? "bg-accent text-accent-foreground"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
                   )}
@@ -201,15 +210,8 @@ export default function NavMenu() {
                   <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
                     <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">
-                          {item.label}
-                        </span>
-                        {item.betaHref && (
-                          <span className="rounded-full border border-border px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
-                            beta
-                          </span>
-                        )}
+                      <div className="font-medium text-foreground">
+                        {item.label}
                       </div>
                       {item.description && (
                         <div className="mt-0.5 text-xs text-muted-foreground">

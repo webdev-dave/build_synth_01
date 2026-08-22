@@ -37,7 +37,7 @@ export default function Home() {
                 asChild
                 size="lg"
               >
-                <Link href="/synth">
+                <Link href="/synth/v2">
                   Open the Synth
                   <ArrowRight className="h-4 w-4" />
                 </Link>
@@ -47,7 +47,7 @@ export default function Home() {
                 size="lg"
                 variant="outline"
               >
-                <Link href="/harmonica-lab">Explore Harmonica Lab</Link>
+                <Link href="/harmonica-lab/v2">Explore Harmonica Lab</Link>
               </Button>
             </div>
           </div>
