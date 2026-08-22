@@ -1,6 +1,12 @@
 [build]
   command = "npm run build"
-  publish = ".next"
+  publish = "out"
 
-[[plugins]]
-  package = "@netlify/plugin-nextjs" 
+# The site now lives on Vercel at https://instrumaps.com.
+# Netlify is kept only to permanently redirect the old synth-v01.netlify.app
+# links to the new domain. Vercel ignores this file, so it has no effect there.
+[[redirects]]
+  from = "/*"
+  to = "https://instrumaps.com/:splat"
+  status = 301
+  force = true
