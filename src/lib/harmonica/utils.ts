@@ -4,7 +4,13 @@
 
 import type { Position, NoteClassification, PositionCalculation } from "./types";
 import { POSITIONS } from "./constants";
-import { transpose, getPlayingKey, getHarpNeeded } from "@/lib/music";
+import {
+  transpose,
+  getPlayingKey,
+  getHarpNeeded,
+  relativeMinor,
+  relativeMajor,
+} from "@/lib/music";
 
 /**
  * Calculate the interval from the position root to a note
@@ -106,6 +112,26 @@ export function getScaleDegreeOrdinal(
     case 3: return "3rd";
     default: return `${degree}th`;
   }
+}
+
+/**
+ * Relative-key sublabel for the position matrix.
+ *
+ * Only Ionian (1st) and Aeolian (4th) form the classical relative pair —
+ * same seven notes, tonics a minor 3rd apart. On one harp those are the
+ * same row: C harp 1st = C major, 4th = A minor.
+ *
+ * Mixolydian / Dorian / Phrygian are not that pair. Stamping ±3 on those
+ * tonics names a *different* scale (G Mixolydian is not relative to Em),
+ * so we leave those cells unlabeled.
+ */
+export function relativeKeyLabel(
+  playingKey: string,
+  position: Position
+): string | null {
+  if (position.pos === 1) return `${relativeMinor(playingKey)}m`;
+  if (position.pos === 4) return relativeMajor(playingKey);
+  return null;
 }
 
 /**

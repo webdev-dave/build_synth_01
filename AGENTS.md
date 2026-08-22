@@ -45,6 +45,20 @@ are places with relationships, and the app shows you the connections.
 - **Accent color is a spotlight, not a paint bucket.** We use orange only
   to demand attention (e.g. the muted-speaker pulse). One accent per view,
   and it should retire once it has done its job.
+- **The chromatic palette is two colors, each with a fixed meaning.**
+  When a view genuinely needs color beyond the neutrals, fall back to
+  these — don't invent new hues:
+  - **Burnt orange** — attention & warmth: the spotlight accent above.
+    Skew earthy and dark (Tailwind `orange-600`/`orange-700` territory,
+    ~`#ea580c`–`#c2410c`), not neon. Existing brighter oranges
+    (`orange-400`-ish pulses, the MIDI Lab playhead) should migrate toward
+    the burnt shade as they're next touched.
+  - **Green** — affirmation & liveness: something is on, connected, or
+    confirmed (e.g. a status dot). Keep it calm and small — a muted
+    emerald (~`emerald-500`/`600`), never large fills.
+
+  Meanings don't swap: orange asks for the user's eyes, green reassures
+  them. Everything else stays neutral so the music can be the color.
 - **Monospace for data.** Note names, Hz readouts, and anything
   machine-precise renders in the mono font — that's the
   "computer-sciency undertone."

@@ -96,6 +96,32 @@ export function useHeroAudio() {
     return release;
   }, []);
 
+  /**
+   * Schedule a lead note at an absolute AudioContext time — same voice and
+   * envelope as `noteOn`, but sample-accurately timed. Used by the MIDI Lab
+   * piano roll, which pre-schedules notes slightly ahead of the playhead.
+   */
+  const noteAt = useCallback((hz: number, when: number, durSec: number) => {
+    const ctx = ctxRef.current;
+    const bus = busRef.current;
+    if (!ctx || !bus) return;
+
+    const t = Math.max(when, ctx.currentTime);
+    const end = Math.max(t + 0.05, t + durSec - 0.25);
+    const osc = ctx.createOscillator();
+    osc.type = "triangle";
+    osc.frequency.value = hz;
+    const gain = ctx.createGain();
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(0.14, t + 0.02);
+    gain.gain.setValueAtTime(0.14, end);
+    gain.gain.exponentialRampToValueAtTime(0.0001, end + 0.4);
+    osc.connect(gain);
+    gain.connect(bus);
+    osc.start(t);
+    osc.stop(end + 0.45);
+  }, []);
+
   /** Soft sine pad: slow swell in, long tail out. Auto-releases. */
   const chordOn = useCallback((hzList: number[], sustainSec: number) => {
     const ctx = ctxRef.current;
@@ -124,6 +150,9 @@ export function useHeroAudio() {
     void ctxRef.current?.suspend();
   }, []);
 
+  /** The live context, for callers that schedule against its timeline. */
+  const getContext = useCallback(() => ctxRef.current, []);
+
   useEffect(
     () => () => {
       void ctxRef.current?.close();
@@ -131,5 +160,5 @@ export function useHeroAudio() {
     []
   );
 
-  return { ensureContext, noteOn, chordOn, suspend };
+  return { ensureContext, getContext, noteOn, noteAt, chordOn, suspend };
 }

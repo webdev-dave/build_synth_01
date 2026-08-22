@@ -33,6 +33,7 @@ export {
   isNoteInActiveScale,
   isAvoidNote,
   getScaleDegreeOrdinal,
+  relativeKeyLabel,
   posLabel,
   getPosition,
   getPositionDegreeOrdinal,

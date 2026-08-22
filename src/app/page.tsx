@@ -33,13 +33,20 @@ export default function Home() {
               experiment, and watch the theory map itself out.
             </p>
             <div className="mt-8 flex flex-wrap items-center gap-3">
-              <Button asChild size="lg">
+              <Button
+                asChild
+                size="lg"
+              >
                 <Link href="/synth">
                   Open the Synth
                   <ArrowRight className="h-4 w-4" />
                 </Link>
               </Button>
-              <Button asChild size="lg" variant="outline">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+              >
                 <Link href="/harmonica-lab">Explore Harmonica Lab</Link>
               </Button>
             </div>

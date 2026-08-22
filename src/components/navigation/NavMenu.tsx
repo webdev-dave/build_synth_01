@@ -2,17 +2,26 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { AudioLines, Menu, X } from "lucide-react";
+import { usePathname, useRouter } from "next/navigation";
+import { ArrowLeft, AudioLines, Menu, X } from "lucide-react";
 
-import { NAV_ITEMS, APP_NAME } from "@/lib/navigation";
+import { NAV_BAR_ITEMS, DRAWER_ITEMS, APP_NAME } from "@/lib/navigation";
 import { getAppIcon } from "@/lib/appIcons";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
+const navLinkClass = (active: boolean) =>
+  cn(
+    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
+    active
+      ? "bg-accent text-accent-foreground"
+      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+  );
+
 export default function NavMenu() {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
+  const router = useRouter();
 
   // Close menu when route changes
   useEffect(() => {
@@ -61,18 +70,22 @@ export default function NavMenu() {
 
           {/* Desktop nav links (hidden on mobile) */}
           <nav className="hidden items-center gap-1 md:flex">
-            {NAV_ITEMS.filter((item) => !item.hidden).map((item) => {
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className={navLinkClass(false)}
+              aria-label="Go back"
+            >
+              <ArrowLeft className="h-4 w-4" strokeWidth={1.75} />
+              <span>Back</span>
+            </button>
+            {NAV_BAR_ITEMS.map((item) => {
               const Icon = getAppIcon(item.id);
               return (
                 <Link
                   key={item.id}
                   href={item.href}
-                  className={cn(
-                    "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-sm font-medium transition-colors",
-                    isActive(item.href)
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                  )}
+                  className={navLinkClass(isActive(item.href))}
                 >
                   <Icon className="h-4 w-4" strokeWidth={1.75} />
                   <span>{item.label}</span>
@@ -154,7 +167,23 @@ export default function NavMenu() {
 
           {/* Nav items */}
           <nav className="space-y-1 p-4">
-            {NAV_ITEMS.filter((item) => !item.hidden).map((item) => {
+            <button
+              type="button"
+              onClick={() => {
+                setIsOpen(false);
+                router.back();
+              }}
+              className="flex w-full items-center gap-3 rounded-lg p-3 text-left text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ArrowLeft className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+              <div>
+                <div className="font-medium text-foreground">Back</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">
+                  Previous page
+                </div>
+              </div>
+            </button>
+            {DRAWER_ITEMS.map((item) => {
               const Icon = getAppIcon(item.id);
               return (
                 <Link

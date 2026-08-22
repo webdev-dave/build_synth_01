@@ -1,0 +1,36 @@
+---
+description: How Instrumaps is hosted and deployed (Vercel, locked main, Netlify redirect)
+alwaysApply: true
+---
+
+# Deployment model
+
+Live site: **https://instrumaps.com** (also `www` → apex 308). Hosted on
+**Vercel**, project `instrumaps`, team scope `elidovrichcoding-7145s-projects`,
+git-connected to `webdev-dave/build_synth_01`, production branch `main`.
+
+## ⚠️ Pushing to `main` does NOT deploy
+
+Auto-deploy on `main` is intentionally **disabled** via `vercel.json`
+(`git.deploymentEnabled.main = false`). Commits pile up on `main` without
+changing the live site. Never tell the user a push went live — verify with
+`vercel ls instrumaps --prod --scope elidovrichcoding-7145s-projects`.
+
+## Shipping to production (deliberate)
+
+- One-off manual deploy (keeps the lock):
+  `vercel --prod --scope elidovrichcoding-7145s-projects`
+  (manual CLI deploys ignore the git lock)
+- Re-enable auto-deploy: set `deploymentEnabled.main` to `true` in `vercel.json`
+  (or delete the file), then commit + push.
+
+## Other facts
+
+- Feature branches still auto-build as **preview** URLs — only `main` is locked.
+- Safety net: `vercel rollback <url|id>` / `vercel promote <url|id>`, or
+  Instant Rollback in the dashboard. Production keeps prior deployments.
+- App is currently a static export (`output: "export"`). Adding auth/DB means
+  dropping that and switching to server rendering.
+- Old `synth-v01.netlify.app` 301-redirects to `instrumaps.com` via
+  `netlify.toml`. That file affects **Netlify only** — Vercel ignores it. Do not
+  delete the Netlify site or the redirect for old links dies.

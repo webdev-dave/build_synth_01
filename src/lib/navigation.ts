@@ -10,6 +10,8 @@ export interface NavItem {
   href: string;
   description?: string;
   hidden?: boolean;
+  /** When false, omitted from the top bar (Back/Home). Still in the hamburger. Default true. */
+  inNav?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -26,6 +28,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "🎹",
     href: "/synth",
     description: "Web-based synthesizer keyboard",
+    inNav: false,
   },
   {
     id: "harmonica-lab",
@@ -33,6 +36,7 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "🚂",
     href: "/harmonica-lab",
     description: "Position guide & theory for diatonic harmonica",
+    inNav: false,
   },
   // TODO: Re-enable when accuracy is improved
   // {
@@ -54,3 +58,11 @@ export const APP_NAME = "Instrumaps";
 export const APPS: NavItem[] = NAV_ITEMS.filter(
   (item) => item.id !== "home" && !item.hidden
 );
+
+/** Top-bar links (Back is rendered separately). Currently Home only. */
+export const NAV_BAR_ITEMS: NavItem[] = NAV_ITEMS.filter(
+  (item) => !item.hidden && item.inNav !== false
+);
+
+/** Hamburger drawer: every visible destination, including apps hidden from the top bar. */
+export const DRAWER_ITEMS: NavItem[] = NAV_ITEMS.filter((item) => !item.hidden);

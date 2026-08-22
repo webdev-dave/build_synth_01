@@ -45,7 +45,7 @@ const NODE_POS: Record<string, MapNode> = Object.fromEntries([
   ...OUTER.map((n) => [n.id, n] as const),
 ]);
 const NODE_INDEX: Record<string, number> = Object.fromEntries(
-  OUTER.map((n, i) => [n.id, i])
+  OUTER.map((n, i) => [n.id, i]),
 );
 
 // Secondary edges between outer nodes, to read as a graph rather than a star.
@@ -152,11 +152,14 @@ export function HeroMap() {
       if (origin !== "key" && !mutedRef.current) {
         noteOn(NOTES[note].hz, beats * BEAT);
       }
-      window.setTimeout(() => {
-        setFlashes((fs) => fs.filter((f) => f.id !== id));
-      }, (beats * BEAT + 0.8) * 1000);
+      window.setTimeout(
+        () => {
+          setFlashes((fs) => fs.filter((f) => f.id !== id));
+        },
+        (beats * BEAT + 0.8) * 1000,
+      );
     },
-    [noteOn]
+    [noteOn],
   );
 
   /* Sequencer — melody and chord pad share one timeline. Each pass
@@ -171,20 +174,21 @@ export function HeroMap() {
         timers.push(
           window.setTimeout(
             () => fireNote(ev.note, ev.beats, "melody"),
-            offsetMs + ev.at * BEAT * 1000
-          )
+            offsetMs + ev.at * BEAT * 1000,
+          ),
         );
       }
       for (const chord of CHORDS) {
         timers.push(
-          window.setTimeout(() => {
-            if (!mutedRef.current) chordOn(chord.hz, chord.beats * BEAT);
-          }, offsetMs + chord.at * BEAT * 1000)
+          window.setTimeout(
+            () => {
+              if (!mutedRef.current) chordOn(chord.hz, chord.beats * BEAT);
+            },
+            offsetMs + chord.at * BEAT * 1000,
+          ),
         );
       }
-      timers.push(
-        window.setTimeout(() => scheduleLoop(0), offsetMs + loopMs)
-      );
+      timers.push(window.setTimeout(() => scheduleLoop(0), offsetMs + loopMs));
     };
 
     scheduleLoop(800);
@@ -219,7 +223,7 @@ export function HeroMap() {
         : noteOn(NOTES[note].hz);
       fireNote(note, 1, "key");
     },
-    [unlockAudio, markInteraction, noteOn, fireNote]
+    [unlockAudio, markInteraction, noteOn, fireNote],
   );
 
   const releaseKey = useCallback(() => {
@@ -234,7 +238,7 @@ export function HeroMap() {
       pressKey(note);
       window.setTimeout(releaseKey, 450);
     },
-    [pressKey, releaseKey]
+    [pressKey, releaseKey],
   );
 
   /* Clicking a map node plays its diatonic chord on the piano — a light
@@ -258,11 +262,11 @@ export function HeroMap() {
         setCenterDimmed(true);
         centerDimTimer.current = window.setTimeout(
           () => setCenterDimmed(false),
-          chordBeats * BEAT * 1000 + 100
+          chordBeats * BEAT * 1000 + 100,
         );
       }
     },
-    [unlockAudio, markInteraction, fireNote]
+    [unlockAudio, markInteraction, fireNote],
   );
 
   const nodeInteractionProps = (nodeId: string) => ({
@@ -309,9 +313,7 @@ export function HeroMap() {
      gets a steady glow. White glows layer under the black keys. */
   const renderKeyGlows = (kind: "white" | "black") => {
     const glows = flashes
-      .filter(
-        (f) => f.origin !== "key" && NOTES[f.note].key.kind === kind
-      )
+      .filter((f) => f.origin !== "key" && NOTES[f.note].key.kind === kind)
       .map((f) => {
         const rect = keyRect(NOTES[f.note].key);
         const duration = f.beats * BEAT + 0.3;
@@ -337,7 +339,11 @@ export function HeroMap() {
             fill="url(#key-glow)"
             initial={{ opacity: 0 }}
             animate={{ opacity: [0, 1, 0.75, 0] }}
-            transition={{ duration, times: [0, 0.08, 0.7, 1], ease: "easeInOut" }}
+            transition={{
+              duration,
+              times: [0, 0.08, 0.7, 1],
+              ease: "easeInOut",
+            }}
           />
         );
       });
@@ -354,7 +360,7 @@ export function HeroMap() {
           rx={rect.rx}
           fill="url(#key-glow)"
           opacity={0.9}
-        />
+        />,
       );
     }
     return glows;
@@ -372,7 +378,6 @@ export function HeroMap() {
     const alt = NOTES[f.note].alt;
     if (alt) alterations[alt.node] = alt.label;
   }
-
 
   const hitRect = (rect: KeyRect, note: NoteName) => (
     <rect
@@ -405,7 +410,10 @@ export function HeroMap() {
 
   return (
     <div className="relative w-full max-w-[440px]">
-      <svg viewBox="0 0 360 436" className="h-auto w-full">
+      <svg
+        viewBox="0 0 360 436"
+        className="h-auto w-full"
+      >
         <title>
           A map connecting the root note C to its scale tones, in sync with a
           playable piano keyboard above a beat sequencer
@@ -456,7 +464,7 @@ export function HeroMap() {
             >
               {f.glyph}
             </motion.text>
-          )
+          ),
         )}
 
         {/* Base edges: center -> outer */}
@@ -564,7 +572,10 @@ export function HeroMap() {
         {/* Outer nodes — click to hear the chord; labels morph to the
             accidental while it sounds */}
         {OUTER.map((n) => (
-          <g key={`node-${n.id}`} {...nodeInteractionProps(n.id)}>
+          <g
+            key={`node-${n.id}`}
+            {...nodeInteractionProps(n.id)}
+          >
             <circle
               cx={n.x}
               cy={n.y}
@@ -616,15 +627,27 @@ export function HeroMap() {
                 strokeWidth={1.5}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: [0, 0.85, 0.6, 0] }}
-                transition={{ duration, times: [0, 0.1, 0.7, 1], ease: "easeInOut" }}
+                transition={{
+                  duration,
+                  times: [0, 0.1, 0.7, 1],
+                  ease: "easeInOut",
+                }}
               />
             );
           })}
 
         <defs>
           {OUTER.map((n, i) => (
-            <clipPath key={`hzw-clip-${i}`} id={`hzw-${i}`}>
-              <rect x={n.x - 12} y={n.y + n.r + 16} width={24} height={9} />
+            <clipPath
+              key={`hzw-clip-${i}`}
+              id={`hzw-${i}`}
+            >
+              <rect
+                x={n.x - 12}
+                y={n.y + n.r + 16}
+                width={24}
+                height={9}
+              />
             </clipPath>
           ))}
           <clipPath id="hzw-center">
@@ -636,15 +659,33 @@ export function HeroMap() {
             />
           </clipPath>
           {/* Softens the travelling pulses from dots into glows */}
-          <filter id="pulse-glow" x="-100%" y="-100%" width="300%" height="300%">
+          <filter
+            id="pulse-glow"
+            x="-100%"
+            y="-100%"
+            width="300%"
+            height="300%"
+          >
             <feGaussianBlur stdDeviation="1.8" />
           </filter>
           {/* Keeps every key inside the rounded instrument body */}
           <clipPath id="kb-clip">
-            <rect x={KB.x} y={KB.y} width={KB.w} height={KB.h} rx={KB.rx} />
+            <rect
+              x={KB.x}
+              y={KB.y}
+              width={KB.w}
+              height={KB.h}
+              rx={KB.rx}
+            />
           </clipPath>
           {/* Pressed keys glow from the bottom, like light under the key */}
-          <linearGradient id="key-glow" x1="0" y1="0" x2="0" y2="1">
+          <linearGradient
+            id="key-glow"
+            x1="0"
+            y1="0"
+            x2="0"
+            y2="1"
+          >
             <stop
               offset="0"
               style={{ stopColor: "hsl(var(--foreground))" }}
@@ -753,7 +794,10 @@ export function HeroMap() {
             opacity={0.35}
           />
         ) : (
-          <g clipPath="url(#hzw-center)" opacity={0.45}>
+          <g
+            clipPath="url(#hzw-center)"
+            opacity={0.45}
+          >
             <motion.path
               d={wavePath(CENTER.x, CENTER.y + CENTER.r + 21.5)}
               fill="none"
@@ -926,7 +970,11 @@ export function HeroMap() {
             }}
           />
         )}
-        {muted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        {muted ? (
+          <VolumeX className="h-4 w-4" />
+        ) : (
+          <Volume2 className="h-4 w-4" />
+        )}
       </button>
     </div>
   );

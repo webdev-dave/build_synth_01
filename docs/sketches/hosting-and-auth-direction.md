@@ -1,16 +1,16 @@
 # Sketch: Hosting, Domain, and Auth Direction
 
-**Status:** sketch — not a committed plan  
-**Date:** 2026-08-22  
-**Context:** Domain purchased (`instrumaps.com` via Cloudflare Registrar). Site currently a static Next.js export. Direction is expanding toward accounts, data, lessons/blog, and possibly a lightweight DAW.
+**Status:** hosting/domain = DONE (live); auth = still a sketch  
+**Date:** 2026-08-22 (updated same day)  
+**Context:** Domain purchased (`instrumaps.com` via Cloudflare Registrar). Site is a static Next.js export, now live on Vercel at the custom domain. Direction is expanding toward accounts, data, lessons/blog, and possibly a lightweight DAW.
 
-This is a working note of the conversation so far. Promote to `docs/plans/` only after decisions harden.
+The hosting section below reflects the finished setup. The auth section is still a working note — promote a tightened version to `docs/plans/` when auth decisions harden.
 
 ---
 
 ## 1. What the product is becoming
 
-Today: a client-side music toy (synth + harmonica lab) on Next.js 15 with `output: "export"`. Live demo was `synth-v01.netlify.app`. Now also live on Vercel at `instrumaps-elidovrichcoding-7145s-projects.vercel.app`.
+Today: a client-side music toy (synth + harmonica lab) on Next.js 15 with `output: "export"`. **Live at https://instrumaps.com** (Vercel). Old `synth-v01.netlify.app` now 301-redirects here.
 
 Near-term / possible directions:
 
@@ -44,31 +44,55 @@ Cloudflare Pages still wins on: unlimited free bandwidth, cheaper at scale, no H
 
 Netlify: already worked; keep only as a 301 redirect host for old links.
 
-### Current hosting state (as of this sketch)
+### Current hosting state (DONE)
 
 | Item | Status |
 |------|--------|
-| Vercel project `instrumaps` | Created, linked to `webdev-dave/build_synth_01`, auto-deploy on `main` |
+| Vercel project `instrumaps` | Live. Linked to `webdev-dave/build_synth_01`. Team scope `elidovrichcoding-7145s-projects`. |
 | Next.js | Bumped 15.1.6 → 15.5.23 (Vercel blocked the old version: CVE-2025-66478) |
-| Production URL | https://instrumaps-elidovrichcoding-7145s-projects.vercel.app |
-| `netlify.toml` redirect to instrumaps.com | Written locally, **not pushed** until the new domain is live |
-| Custom domain + Cloudflare DNS | **Still to do in dashboards** |
+| Custom domain | `instrumaps.com` live over HTTPS; `www` → apex via 308 redirect (set in Vercel) |
+| Cloudflare DNS | `A @ 76.76.21.21` and `A www 76.76.21.21`, both **DNS only (grey cloud)**. Nameservers unchanged (Cloudflare). |
+| Old Netlify site | `synth-v01.netlify.app` 301-redirects to instrumaps.com via `netlify.toml`. **Builds stopped** on Netlify (see below). |
+| `main` auto-deploy | **Disabled** (locked) via `vercel.json` — see "Deploy control". |
 
-### Domain / DNS (remaining)
+### Domain / DNS (done — reference)
 
-Registrar stays **Cloudflare**. Hosting is **Vercel**. Do not change nameservers.
+Registrar stays **Cloudflare**; hosting is **Vercel**; nameservers unchanged.
 
-1. Vercel → `instrumaps` → Settings → Domains → add `instrumaps.com` and `www.instrumaps.com` (www redirects to apex).
-2. Cloudflare DNS, **DNS only (grey cloud)** — not proxied:
+Records that worked (Vercel's card recommended the plain A method):
 
-| Type | Name | Value |
-|------|------|-------|
-| A | `@` | `76.76.21.21` |
-| CNAME | `www` | `cname.vercel-dns.com` |
+| Type | Name | Value | Proxy |
+|------|------|-------|-------|
+| A | `@` | `76.76.21.21` | DNS only (grey) |
+| A | `www` | `76.76.21.21` | DNS only (grey) |
 
-Use whatever records Vercel shows if they differ. Orange-cloud proxy in front of Vercel often breaks SSL / causes redirect loops.
+Gotcha learned: right after setup, a resolver (phone hotspot) can lag and say
+"site can't be reached" while public DNS (1.1.1.1 / 8.8.8.8) already resolves.
+Fix = `ipconfig /flushdns` + wait, or temporarily set DNS to 1.1.1.1. Not a
+Cloudflare/Vercel problem. Orange-cloud proxy in front of Vercel would break SSL —
+keep it grey.
 
-After `instrumaps.com` is confirmed live: push the staged `netlify.toml` 301 so `synth-v01.netlify.app/*` → `https://instrumaps.com/:splat`.
+### Deploy control (Option A: locked main + rollback)
+
+`vercel.json` sets `git.deploymentEnabled.main = false`, so **pushing to `main`
+does NOT change the live site**. Production is frozen at the last deliberately
+shipped build.
+
+- Ship a new version: `vercel --prod --scope elidovrichcoding-7145s-projects`
+  (manual CLI deploys ignore the git lock), OR set `deploymentEnabled.main` to
+  `true` in `vercel.json` and push.
+- Feature branches still auto-build as preview URLs — only `main` is locked.
+- Safety net: `vercel rollback <url|id>` / `vercel promote <url|id>`, or Instant
+  Rollback in the dashboard.
+- Also captured as an always-apply Cursor rule: `.cursor/rules/deployment.mdc`.
+
+### Netlify (redirect only)
+
+Kept solely to forward old `synth-v01.netlify.app` links (only Netlify can
+redirect its own subdomain). **Builds are Stopped** (Site config → Build & deploy
+→ Stopped builds), so pushes no longer trigger Netlify builds; the last published
+deploy keeps serving the 301. Delete the Netlify site later (months out) once old
+links have faded — via General → Danger zone.
 
 ### Lock-in / leaving Vercel later
 
@@ -143,8 +167,9 @@ Alt if we go all-in on one BaaS: Supabase Auth + Supabase Postgres.
 
 Do not over-build. Each phase only when the feature is actually needed.
 
-**Phase 0 — now**  
-Domain on Vercel. Keep static export. Netlify redirect after DNS works.
+**Phase 0 — DONE**  
+Domain live on Vercel (`instrumaps.com`). Static export kept. Netlify redirect in
+place, Netlify builds stopped. `main` locked (manual/rollback deploys).
 
 **Phase 1 — content**  
 Blog + lesson pages (MDX + interactive React). Can stay mostly static.
@@ -166,17 +191,23 @@ Audio stays in the browser (Web Audio). Hosting only owns accounts, save, share,
 - Commercial vs hobby (affects Vercel Hobby vs Pro ~$20/mo)
 - Drizzle vs Prisma
 - Neon vs Supabase Postgres
-- Whether `www` is canonical or redirects to apex (lean: apex)
 - App title still “Synth-v01” — rename when the domain is the brand
+
+Resolved: `www` → apex (308) ✓ · host = Vercel ✓ · deploy control = locked main + rollback ✓
 
 ---
 
-## 6. Next actions (operational, not product)
+## 6. Next actions
 
-1. Add `instrumaps.com` + `www` in Vercel Domains
-2. Add Cloudflare DNS (grey cloud) as above
-3. Confirm HTTPS on the custom domain
-4. Push `netlify.toml` redirect
-5. Only then start an Auth.js spike on a branch
+Hosting/domain (Phase 0) is complete. Remaining, in rough order:
 
-When this sketch is accepted as the working plan, copy or move a tightened version into `docs/plans/`.
+- [ ] Rename app title "Synth-v01" → Instrumaps; update README live-demo link
+- [ ] Start an Auth.js + Google spike on a feature branch (preview URL)
+- [ ] Decide Drizzle vs Prisma, Neon vs Supabase Postgres (Phase 3)
+- [ ] Months out: delete the Netlify site once old links have faded
+
+Done: Next.js CVE bump, Vercel project + custom domain + HTTPS, `www`→apex,
+Cloudflare DNS, Netlify 301 redirect, Netlify builds stopped, `main` deploy lock,
+`.cursor/rules/deployment.mdc`.
+
+When auth decisions harden, copy a tightened version into `docs/plans/`.

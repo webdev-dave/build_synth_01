@@ -104,7 +104,7 @@ export type MelodyEvent = {
 export const MELODY: MelodyEvent[] = [
   { note: "D4", beats: 0.5, lyric: "Yes-" },
   { note: "C4", beats: 0.5, lyric: "-ter-" },
-  { note: "C4", beats: 2.5, lyric: "-day" },
+  { note: "C4", beats: 3.5, lyric: "-day" },
   { note: null, beats: 0.5 },
   { note: "E4", beats: 0.5, lyric: "all" },
   { note: "F#4", beats: 0.5, lyric: "my" },
@@ -112,18 +112,18 @@ export const MELODY: MelodyEvent[] = [
   { note: "A4", beats: 0.5, lyric: "-bles" },
   { note: "B4", beats: 0.5, lyric: "seemed" },
   { note: "C5", beats: 0.5, lyric: "so" },
-  { note: "B4", beats: 0.5, lyric: "far" },
-  { note: "A4", beats: 2, lyric: "a-way" },
-  { note: null, beats: 1 },
-  { note: "E4", beats: 1, lyric: "oh" },
-  { note: "A4", beats: 1, lyric: "I" },
+  { note: "B4", beats: 1, lyric: "far" },
+  { note: "A4", beats: 0.5, lyric: "a-" },
+  { note: "A4", beats: 3.5, lyric: "-way" },
+  { note: "A4", beats: 0.5, lyric: "oh" },
+  { note: "A4", beats: 0.5, lyric: "I" },
   { note: "G4", beats: 0.5, lyric: "be-" },
-  { note: "F4", beats: 1, lyric: "-lieve" },
+  { note: "F4", beats: 0.5, lyric: "-lieve" },
   { note: "E4", beats: 0.5, lyric: "in" },
   { note: "D4", beats: 0.5, lyric: "yes-" },
-  { note: "D4", beats: 0.5, lyric: "-ter-" },
-  { note: "C4", beats: 3, lyric: "-day" },
-  { note: null, beats: 2 },
+  { note: "F4", beats: 1, lyric: "-ter-" },
+  { note: "E4", beats: 2.5, lyric: "-day" },
+  { note: null, beats: 0.5 },
 ];
 
 /** Gentle ballad tempo — slower than the record, calmer for a hero. */
@@ -176,11 +176,12 @@ export type ChordEvent = {
  * Voiced low so the pad sits under the lead.
  */
 export const CHORDS: ChordEvent[] = [
-  { at: 0, beats: 3.5, name: "C", hz: [130.81, 164.81, 196.0] }, // C3 E3 G3
-  { at: 4, beats: 2, name: "Bm", hz: [123.47, 146.83, 185.0] }, // B2 D3 F♯3
-  { at: 6, beats: 2, name: "E7", hz: [164.81, 207.65, 246.94] }, // E3 G♯3 B3
-  { at: 8, beats: 2.5, name: "Am", hz: [110.0, 130.81, 164.81] }, // A2 C3 E3
-  { at: 10.5, beats: 2, name: "F", hz: [174.61, 220.0, 261.63] }, // F3 A3 C4
-  { at: 12.5, beats: 3, name: "G7", hz: [196.0, 246.94, 293.66] }, // G3 B3 D4
-  { at: 15.5, beats: 4, name: "C", hz: [130.81, 164.81, 196.0] }, // home
+  { at: 0, beats: 4, name: "C", hz: [130.81, 164.81, 196] }, // C3 E3 G3
+  { at: 4, beats: 2, name: "Bm7b5", hz: [123.47, 146.83, 185, 220] }, // B2 D3 F#3 A3
+  { at: 6, beats: 2, name: "E7", hz: [164.81, 207.65, 246.94, 293.66] }, // E3 G#3 B3 D4
+  { at: 8, beats: 3, name: "Am", hz: [110, 130.81, 164.81] }, // A2 C3 E3
+  { at: 11, beats: 1, name: "G", hz: [98, 123.47, 146.83] }, // G2 B2 D3
+  { at: 12, beats: 2, name: "F", hz: [87.31, 110, 130.81] }, // F2 A2 C3
+  { at: 14, beats: 2, name: "G7", hz: [98, 123.47, 146.83, 174.61] }, // G2 B2 D3 F3
+  { at: 16, beats: 4, name: "C", hz: [130.81, 164.81, 196] }, // C3 E3 G3
 ];
