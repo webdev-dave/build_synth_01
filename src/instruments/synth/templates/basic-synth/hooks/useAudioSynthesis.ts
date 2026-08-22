@@ -1,14 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { noteNumberToFrequency } from "../utils/synthUtils";
 import type { SynthKey } from "../utils/synthUtils";
 
 export type OscillatorType = "sine" | "square" | "sawtooth" | "triangle";
 
+interface ActiveVoice {
+  oscillator: OscillatorNode;
+  gain: GainNode;
+}
+
 interface UseAudioSynthesisReturn {
-  activeOscillators: Map<
-    string,
-    { oscillator: OscillatorNode; gain: GainNode }
-  >;
+  activeOscillators: Map<string, ActiveVoice>;
   activeKeys: Set<string>;
   activeNoteFreq: number | null;
   waveType: OscillatorType;
@@ -18,6 +20,9 @@ interface UseAudioSynthesisReturn {
   initializeAudio: () => Promise<void>;
 }
 
+/** Seconds of release ramp before the oscillator is torn down. */
+const RELEASE = 0.1;
+
 export function useAudioSynthesis(
   actx: AudioContext | null,
   onAudioPermissionGranted: () => void,
@@ -25,10 +30,26 @@ export function useAudioSynthesis(
 ): UseAudioSynthesisReturn {
   const [waveType, setWaveType] = useState<OscillatorType>("sine");
   const [activeNoteFreq, setActiveNoteFreq] = useState<number | null>(null);
-  const [activeOscillators, setActiveOscillators] = useState<
-    Map<string, { oscillator: OscillatorNode; gain: GainNode }>
-  >(new Map());
   const [activeKeys, setActiveKeys] = useState<Set<string>>(new Set());
+  const [activeOscillators, setActiveOscillators] = useState<
+    Map<string, ActiveVoice>
+  >(new Map());
+
+  /*
+   * The sounding voices live in a ref, not in state: note-off frequently
+   * arrives before React has committed the note-on render (a quick tap, or
+   * the gesture that unlocks the AudioContext). Reading state there would
+   * miss the voice and leave the oscillator running forever. State is kept
+   * only as a mirror for consumers that want to render voice count.
+   */
+  const voicesRef = useRef<Map<string, ActiveVoice>>(new Map());
+  const waveTypeRef = useRef(waveType);
+  const keysRef = useRef(keys);
+  keysRef.current = keys;
+
+  const publishVoices = useCallback(() => {
+    setActiveOscillators(new Map(voicesRef.current));
+  }, []);
 
   const initializeAudio = useCallback(async () => {
     if (!actx) return;
@@ -37,14 +58,18 @@ export function useAudioSynthesis(
   }, [actx, onAudioPermissionGranted]);
 
   const handleNoteStart = useCallback(
+    /*
+     * Async only to preserve the original signature — the body must stay
+     * synchronous so the voice is registered before any note-off can run.
+     */
     async (noteNumber: number, note: string) => {
-      if (!actx || activeOscillators.has(note)) return;
+      if (!actx || voicesRef.current.has(note)) return;
 
       const frequency = noteNumberToFrequency(noteNumber);
       const osc = actx.createOscillator();
       const gain = actx.createGain();
 
-      osc.type = waveType;
+      osc.type = waveTypeRef.current;
       osc.frequency.setValueAtTime(frequency, actx.currentTime);
       gain.gain.setValueAtTime(0.1, actx.currentTime);
 
@@ -52,80 +77,78 @@ export function useAudioSynthesis(
       gain.connect(actx.destination);
       osc.start();
 
-      setActiveOscillators((prev) => {
-        const newMap = new Map(prev);
-        newMap.set(note, { oscillator: osc, gain });
-        return newMap;
-      });
+      voicesRef.current.set(note, { oscillator: osc, gain });
+      publishVoices();
 
       setActiveKeys((prev) => {
-        const newSet = new Set(prev);
-        newSet.add(note);
-
-        if (newSet.size === 1) {
-          setActiveNoteFreq(frequency);
-        } else {
-          setActiveNoteFreq(null);
-        }
-
-        return newSet;
+        const next = new Set(prev);
+        next.add(note);
+        setActiveNoteFreq(next.size === 1 ? frequency : null);
+        return next;
       });
     },
-    [actx, waveType, activeOscillators]
+    [actx, publishVoices]
   );
 
   const stopNote = useCallback(
     (note: string) => {
-      if (!actx) return;
-      const noteData = activeOscillators.get(note);
-      if (noteData) {
-        const { oscillator, gain } = noteData;
+      const voice = voicesRef.current.get(note);
+      if (!actx || !voice) return;
 
-        gain.gain.linearRampToValueAtTime(0, actx.currentTime + 0.1);
+      const { oscillator, gain } = voice;
 
-        setTimeout(() => {
-          oscillator.stop();
-          setActiveOscillators((prev) => {
-            const newMap = new Map(prev);
-            newMap.delete(note);
-            return newMap;
-          });
-        }, 100);
+      // Free the slot immediately so a re-press during the release tail
+      // starts a fresh voice instead of being swallowed as "already sounding".
+      voicesRef.current.delete(note);
+      publishVoices();
 
-        setActiveKeys((prev) => {
-          const newSet = new Set(prev);
-          newSet.delete(note);
+      const now = actx.currentTime;
+      gain.gain.cancelScheduledValues(now);
+      gain.gain.setValueAtTime(gain.gain.value, now);
+      gain.gain.linearRampToValueAtTime(0, now + RELEASE);
+      oscillator.stop(now + RELEASE);
 
-          if (newSet.size === 1) {
-            const remainingNote = Array.from(newSet)[0];
-            const remainingNoteData = keys.find(
-              (k) => k.note === remainingNote
-            );
-            if (remainingNoteData) {
-              setActiveNoteFreq(
-                noteNumberToFrequency(remainingNoteData.noteNumber)
-              );
-            }
-          } else if (newSet.size === 0) {
-            setActiveNoteFreq(null);
-          }
+      setActiveKeys((prev) => {
+        const next = new Set(prev);
+        next.delete(note);
 
-          return newSet;
-        });
-      }
-    },
-    [activeOscillators, actx, keys]
-  );
+        if (next.size === 1) {
+          const remaining = keysRef.current.find((k) => k.note === [...next][0]);
+          setActiveNoteFreq(
+            remaining ? noteNumberToFrequency(remaining.noteNumber) : null
+          );
+        } else if (next.size === 0) {
+          setActiveNoteFreq(null);
+        }
 
-  const updateWaveType = useCallback(
-    (newWaveType: OscillatorType) => {
-      setWaveType(newWaveType);
-      activeOscillators.forEach(({ oscillator }) => {
-        oscillator.type = newWaveType;
+        return next;
       });
     },
-    [activeOscillators]
+    [actx, publishVoices]
   );
+
+  const updateWaveType = useCallback((newWaveType: OscillatorType) => {
+    waveTypeRef.current = newWaveType;
+    setWaveType(newWaveType);
+    voicesRef.current.forEach(({ oscillator }) => {
+      oscillator.type = newWaveType;
+    });
+  }, []);
+
+  // Never leave a note sounding after the instrument unmounts.
+  useEffect(() => {
+    const voices = voicesRef.current;
+    return () => {
+      voices.forEach(({ oscillator }) => {
+        try {
+          oscillator.stop();
+        } catch {
+          // Already stopped — nothing to clean up.
+        }
+      });
+      voices.clear();
+    };
+  }, []);
 
   return {
     activeOscillators,

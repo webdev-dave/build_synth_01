@@ -7,6 +7,17 @@ export interface SynthKey {
   isBlack: boolean;
 }
 
+/*
+ * Octave numbers follow scientific pitch notation, the same convention MIDI
+ * uses: C4 is middle C (MIDI 60, 261.63 Hz). The octave label and the Hz
+ * readout have to agree — the synth shows both at once.
+ */
+const MIDI_OCTAVE_OFFSET = 1;
+
+function midiNoteNumber(octave: number, semitone: number): number {
+  return (octave + MIDI_OCTAVE_OFFSET) * 12 + semitone;
+}
+
 // Generate synthesizer keys for a given starting octave and number of octaves to display.
 // `numOctaves` defaults to 2 to preserve the previous behaviour for existing callers.
 export function createSynthKeys(
@@ -40,7 +51,7 @@ export function createSynthKeys(
   ) {
     for (let i = 0; i < noteNames.length; i++) {
       const noteName = noteNames[i];
-      const noteNumber = octave * 12 + i;
+      const noteNumber = midiNoteNumber(octave, i);
       const frequency = 440 * Math.pow(2, (noteNumber - 69) / 12); // A4 = 440 Hz
       const isBlack = noteName.includes("#");
 
@@ -55,7 +66,7 @@ export function createSynthKeys(
 
   // Ensure the keyboard ends on the "C" key of the NEXT octave (common on real MIDI controllers)
   const finalOctave = startOctave + octavesToGenerate;
-  const finalCNoteNumber = finalOctave * 12; // C is index 0 of the octave
+  const finalCNoteNumber = midiNoteNumber(finalOctave, 0); // C is index 0 of the octave
   const finalCFrequency = 440 * Math.pow(2, (finalCNoteNumber - 69) / 12);
 
   keys.push({
@@ -96,7 +107,7 @@ export function noteNameToNumber(noteName: string): number {
   const [, note, octaveStr] = match;
   const octave = parseInt(octaveStr);
 
-  return octave * 12 + (noteMap[note] || 0);
+  return midiNoteNumber(octave, noteMap[note] || 0);
 }
 
 // Get the base note name without octave

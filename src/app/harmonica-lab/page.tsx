@@ -5,6 +5,7 @@ import { useState, useMemo } from "react";
 import { calculateAllPositions } from "@/lib/harmonica";
 import type { ScaleMode } from "@/lib/harmonica";
 
+import { BetaBanner } from "@/components/BetaBanner";
 import {
   KeySelector,
   ModeToggle,
@@ -36,6 +37,12 @@ export default function HarmonicaLab() {
   return (
     <div className="min-h-screen bg-[#0a0a0f] text-[#e8e6e1] font-serif px-4 py-5">
       <div className="max-w-[640px] lg:max-w-[900px] xl:max-w-[1100px] mx-auto">
+        <BetaBanner
+          href="/harmonica-lab/v2"
+          toolName="Harmonica Lab"
+          className="mb-5"
+        />
+
         {/* Header */}
         <div className="text-center mb-6">
           <h1 className="text-[22px] font-bold tracking-wider uppercase text-[#f5f0e8] m-0 leading-tight">

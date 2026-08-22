@@ -3,6 +3,7 @@
 import { SynthKeyboard } from "../../instruments";
 import { useSharedAudioContext } from "../../hooks/useSharedAudioContext";
 import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
+import { BetaBanner } from "@/components/BetaBanner";
 
 // TODO: Key Detector feature is temporarily hidden due to accuracy issues.
 // The feature can be re-enabled by:
@@ -15,6 +16,13 @@ export default function SynthPage() {
 
   return (
     <main className="min-h-[calc(100vh-60px)] bg-[rgb(10,58,79)]">
+      <div className="px-4 pt-4">
+        <BetaBanner
+          href="/synth/v2"
+          toolName="Synth"
+          className="mx-auto max-w-5xl"
+        />
+      </div>
       <SelectiveOrientationGuard
         requiredOrientation="landscape"
         title="Please Rotate Your Device"

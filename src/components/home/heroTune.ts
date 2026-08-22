@@ -102,27 +102,29 @@ export type MelodyEvent = {
  *  oh I believe in yesterday."
  */
 export const MELODY: MelodyEvent[] = [
+  { note: null, beats: 1.0 },
   { note: "D4", beats: 0.5, lyric: "Yes-" },
   { note: "C4", beats: 0.5, lyric: "-ter-" },
-  { note: "C4", beats: 3.5, lyric: "-day" },
-  { note: null, beats: 0.5 },
+  { note: "C4", beats: 2.0, lyric: "-day" },
+  { note: null, beats: 1.0 },
   { note: "E4", beats: 0.5, lyric: "all" },
   { note: "F#4", beats: 0.5, lyric: "my" },
   { note: "G#4", beats: 0.5, lyric: "trou-" },
   { note: "A4", beats: 0.5, lyric: "-bles" },
   { note: "B4", beats: 0.5, lyric: "seemed" },
   { note: "C5", beats: 0.5, lyric: "so" },
-  { note: "B4", beats: 1, lyric: "far" },
+  { note: "B4", beats: 2.0, lyric: "far" },
   { note: "A4", beats: 0.5, lyric: "a-" },
-  { note: "A4", beats: 3.5, lyric: "-way" },
-  { note: "A4", beats: 0.5, lyric: "oh" },
-  { note: "A4", beats: 0.5, lyric: "I" },
-  { note: "G4", beats: 0.5, lyric: "be-" },
-  { note: "F4", beats: 0.5, lyric: "-lieve" },
-  { note: "E4", beats: 0.5, lyric: "in" },
-  { note: "D4", beats: 0.5, lyric: "yes-" },
-  { note: "F4", beats: 1, lyric: "-ter-" },
-  { note: "E4", beats: 2.5, lyric: "-day" },
+  { note: "A4", beats: 1.5, lyric: "-way" },
+  { note: "A4", beats: 0.5, lyric: "Now" },
+  { note: "A4", beats: 0.5, lyric: "it" },
+  { note: "G4", beats: 0.5, lyric: "looks" },
+  { note: "F4", beats: 0.5, lyric: "as" },
+  { note: "E4", beats: 0.5, lyric: "though" },
+  { note: "D4", beats: 0.5, lyric: "they're" },
+  { note: "F4", beats: 1.0, lyric: "here" },
+  { note: "E4", beats: 2.0, lyric: "to" },
+  { note: "E4", beats: 1.5, lyric: "stay" },
   { note: null, beats: 0.5 },
 ];
 
@@ -177,7 +179,7 @@ export type ChordEvent = {
  */
 export const CHORDS: ChordEvent[] = [
   { at: 0, beats: 4, name: "C", hz: [130.81, 164.81, 196] }, // C3 E3 G3
-  { at: 4, beats: 2, name: "Bm7b5", hz: [123.47, 146.83, 185, 220] }, // B2 D3 F#3 A3
+  { at: 4, beats: 2, name: "Bm7", hz: [123.47, 146.83, 185, 220] }, // B2 D3 F#3 A3
   { at: 6, beats: 2, name: "E7", hz: [164.81, 207.65, 246.94, 293.66] }, // E3 G#3 B3 D4
   { at: 8, beats: 3, name: "Am", hz: [110, 130.81, 164.81] }, // A2 C3 E3
   { at: 11, beats: 1, name: "G", hz: [98, 123.47, 146.83] }, // G2 B2 D3

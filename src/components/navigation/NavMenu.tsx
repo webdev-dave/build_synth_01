@@ -185,10 +185,11 @@ export default function NavMenu() {
             </button>
             {DRAWER_ITEMS.map((item) => {
               const Icon = getAppIcon(item.id);
+              // Active on either version, so the legacy page still highlights.
               return (
                 <Link
                   key={item.id}
-                  href={item.href}
+                  href={item.betaHref ?? item.href}
                   onClick={() => setIsOpen(false)}
                   className={cn(
                     "block rounded-lg p-3 transition-colors",
@@ -200,8 +201,15 @@ export default function NavMenu() {
                   <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
                     <div>
-                      <div className="font-medium text-foreground">
-                        {item.label}
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {item.label}
+                        </span>
+                        {item.betaHref && (
+                          <span className="rounded-full border border-border px-1.5 py-px font-mono text-[9px] uppercase tracking-wide text-muted-foreground">
+                            beta
+                          </span>
+                        )}
                       </div>
                       {item.description && (
                         <div className="mt-0.5 text-xs text-muted-foreground">

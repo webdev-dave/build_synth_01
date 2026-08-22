@@ -12,6 +12,12 @@ export interface NavItem {
   hidden?: boolean;
   /** When false, omitted from the top bar (Back/Home). Still in the hamburger. Default true. */
   inNav?: boolean;
+  /**
+   * Redesigned v2 route, while it is in beta. The hamburger sends people here
+   * so the beta gets real use; `href` stays the legacy page it replaces.
+   * Drop this field once v2 becomes the page at `href`.
+   */
+  betaHref?: string;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -29,6 +35,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/synth",
     description: "Web-based synthesizer keyboard",
     inNav: false,
+    betaHref: "/synth/v2",
   },
   {
     id: "harmonica-lab",
@@ -37,6 +44,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/harmonica-lab",
     description: "Position guide & theory for diatonic harmonica",
     inNav: false,
+    betaHref: "/harmonica-lab/v2",
   },
   // TODO: Re-enable when accuracy is improved
   // {
