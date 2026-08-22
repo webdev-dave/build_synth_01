@@ -1,125 +1,64 @@
-"use client";
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
-import { SynthKeyboard } from "../instruments";
-import { useSharedAudioContext } from "../hooks/useSharedAudioContext";
-import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
+import { APP_NAME } from "@/lib/navigation";
+import { Button } from "@/components/ui/button";
+import { HomeApps } from "@/components/home/HomeApps";
+import { HeroMap } from "@/components/home/HeroMap";
 
-// TODO: Key Detector feature is temporarily hidden due to accuracy issues.
-// The feature can be re-enabled by:
-// 1. Uncommenting the Key Detector entry in src/lib/navigation.ts
-// 2. Restoring the tab navigation logic below
-// 3. Re-adding the PitchDetector component rendering
-//
-// Original implementation preserved in git history and can be restored
-// when the key detection accuracy is improved.
+export const metadata: Metadata = {
+  title: `${APP_NAME} — Web Music Tools`,
+  description:
+    "A collection of web-based music tools and instruments: a synth keyboard and a diatonic harmonica lab.",
+};
 
 export default function Home() {
-  const sharedAudio = useSharedAudioContext();
-
   return (
-    <main className="min-h-[calc(100vh-60px)] bg-[rgb(10,58,79)]">
-      <SelectiveOrientationGuard
-        requiredOrientation="landscape"
-        title="Please Rotate Your Device"
-        message="This synth works best in landscape mode"
-        icon="🎹"
-      >
-        <SynthKeyboard
-          audioContext={sharedAudio.audioContext}
-          hasAudioPermission={sharedAudio.hasAudioPermission}
-          initializeAudio={sharedAudio.initializeAudio}
-        />
-      </SelectiveOrientationGuard>
+    <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
+      <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+        {/* Hero */}
+        <section className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
+          <div className="max-w-xl">
+            <p className="mb-3 text-sm font-medium text-muted-foreground">
+              {APP_NAME}
+            </p>
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+              Don&apos;t study theory.
+              <br />
+              Play with it.
+            </h1>
+            <p className="mt-4 text-base leading-relaxed text-muted-foreground">
+              The fastest way to understand music is to make some. Play, listen,
+              experiment, and watch the theory map itself out.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <Button asChild size="lg">
+                <Link href="/synth">
+                  Open the Synth
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+              </Button>
+              <Button asChild size="lg" variant="outline">
+                <Link href="/harmonica-lab">Explore Harmonica Lab</Link>
+              </Button>
+            </div>
+          </div>
+
+          {/* Animated node-graph */}
+          <div className="mt-6 flex justify-center lg:mt-0 lg:justify-end">
+            <HeroMap />
+          </div>
+        </section>
+
+        {/* Tools */}
+        <section className="mt-20">
+          <h2 className="mb-5 text-sm font-medium text-muted-foreground">
+            All tools
+          </h2>
+          <HomeApps />
+        </section>
+      </div>
     </main>
   );
 }
-
-/*
- * ============================================================================
- * ARCHIVED: Key Detector Tab Navigation Logic
- * ============================================================================
- * The following code has been commented out but preserved for future use.
- * Re-enable when key detection accuracy is improved.
- * ============================================================================
- *
- * import { useState, useCallback, useEffect } from "react";
- * import TabNavigation, { TabType } from "../components/TabNavigation";
- * import PitchDetector from "../components/PitchDetector";
- *
- * // Hash Routing Configuration
- * // Supported URLs:
- * // - #synth, #play, #piano -> Play Synth tab
- * // - #key-detector, #pitch-detector -> Key Detector tab
- * // - No hash or unknown hash -> Defaults to Play Synth tab
- *
- * function getTabFromHash(): TabType {
- *   const hash = window.location.hash.replace("#", "");
- *   switch (hash) {
- *     case "key-detector":
- *     case "pitch-detector":
- *       return "pitch-detector";
- *     case "synth":
- *     case "play":
- *     case "piano":
- *       return "synth";
- *     default:
- *       return "synth";
- *   }
- * }
- *
- * function updateHashFromTab(tab: TabType) {
- *   const hashMap: Record<TabType, string> = {
- *     synth: "synth",
- *     "pitch-detector": "key-detector",
- *   };
- *   window.location.hash = hashMap[tab];
- * }
- *
- * // In Home component:
- * const [activeTab, setActiveTab] = useState<TabType>("synth");
- *
- * useEffect(() => {
- *   const initialTab = getTabFromHash();
- *   setActiveTab(initialTab);
- * }, []);
- *
- * useEffect(() => {
- *   const handleHashChange = () => {
- *     const newTab = getTabFromHash();
- *     setActiveTab(newTab);
- *   };
- *   window.addEventListener("hashchange", handleHashChange);
- *   return () => window.removeEventListener("hashchange", handleHashChange);
- * }, []);
- *
- * useEffect(() => {
- *   const currentHashTab = getTabFromHash();
- *   if (currentHashTab !== activeTab) {
- *     updateHashFromTab(activeTab);
- *   }
- * }, [activeTab]);
- *
- * const handleTabCleanup = useCallback((previousTab: TabType) => {
- *   if (previousTab === "synth") {
- *     console.log("Cleaning up synth tab");
- *   } else if (previousTab === "pitch-detector") {
- *     console.log("Cleaning up pitch detector tab");
- *   }
- * }, []);
- *
- * const handleTabChange = useCallback((newTab: TabType) => {
- *   setActiveTab(newTab);
- * }, []);
- *
- * // In JSX:
- * <TabNavigation
- *   activeTab={activeTab}
- *   onTabChange={handleTabChange}
- *   onTabCleanup={handleTabCleanup}
- * />
- *
- * // Render based on activeTab:
- * {activeTab === "pitch-detector" ? <PitchDetector /> : <SynthKeyboard ... />}
- *
- * ============================================================================
- */

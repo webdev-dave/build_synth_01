@@ -1,10 +1,15 @@
 "use client";
+import { usePathname } from "next/navigation";
 import { HelpCircle } from "lucide-react";
 import { useTooltipConfig } from "./TooltipContext";
 import Tooltip from "./Tooltip";
 
 export default function TooltipToggleButton() {
   const { enabled, toggle } = useTooltipConfig();
+  const pathname = usePathname();
+
+  // The homepage has no helper tooltips — only show the toggle on app pages.
+  if (pathname === "/") return null;
 
   return (
     <div className="fixed bottom-3 right-3 z-[1001]">

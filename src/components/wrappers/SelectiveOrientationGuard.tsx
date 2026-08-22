@@ -54,7 +54,7 @@ export default function SelectiveOrientationGuard({
 
       {/* Conditionally render overlay on top when orientation is incorrect */}
       {needsOverlay && (
-        <div className="absolute inset-0 flex items-center justify-center p-4 z-50 bg-black/80 rounded-lg">
+        <div className="absolute inset-0 flex items-center justify-center p-4 z-30 bg-black/80 rounded-lg">
           <div className="bg-gray-800 p-6 rounded-lg shadow-lg max-w-sm w-full text-center">
             <div className="text-4xl mb-4">{icon}</div>
             <h3 className="text-lg font-bold mb-2 text-white">{title}</h3>

@@ -14,10 +14,17 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   {
+    id: "home",
+    label: "Home",
+    icon: "🏠",
+    href: "/",
+    description: "Browse all apps & tools",
+  },
+  {
     id: "synth",
     label: "Play Synth",
     icon: "🎹",
-    href: "/",
+    href: "/synth",
     description: "Web-based synthesizer keyboard",
   },
   {
@@ -38,4 +45,12 @@ export const NAV_ITEMS: NavItem[] = [
   // },
 ];
 
-export const APP_NAME = "Synth Lab";
+export const APP_NAME = "Instrumaps";
+
+/**
+ * Apps/tools shown as widgets on the homepage.
+ * Derived from NAV_ITEMS, excluding the Home entry and any hidden items.
+ */
+export const APPS: NavItem[] = NAV_ITEMS.filter(
+  (item) => item.id !== "home" && !item.hidden
+);

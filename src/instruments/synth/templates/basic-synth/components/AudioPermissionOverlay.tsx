@@ -6,7 +6,7 @@ export default function AudioPermissionOverlay({
   onInitializeAudio,
 }: AudioPermissionOverlayProps) {
   return (
-    <div className="fixed inset-0 flex items-center justify-center bg-gray-900/70 z-[60]">
+    <div className="absolute inset-0 flex items-center justify-center rounded-[0.5rem] bg-gray-900/70 z-40">
       <div className="bg-gray-800 p-8 rounded-lg shadow-lg max-w-md w-full mx-4 text-center">
         <div className="text-4xl mb-4">🔊</div>
         <h2 className="text-xl font-bold mb-4 text-white">
