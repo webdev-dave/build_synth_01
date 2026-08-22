@@ -58,7 +58,8 @@ const LINKS: [MapNode, MapNode][] = [
 const FLOATS = [
   { glyph: "♪", x: 128, y: 48, size: 14, delay: 0 },
   { glyph: "♭", x: 262, y: 226, size: 13, delay: 1.2 },
-  { glyph: "♫", x: 322, y: 34, size: 15, delay: 2.1 },
+  // Kept clear of the top-right corner, where the sound toggle overlays.
+  { glyph: "♫", x: 268, y: 30, size: 15, delay: 2.1 },
   { glyph: "♯", x: 34, y: 230, size: 13, delay: 0.7 },
   { glyph: "♬", x: 150, y: 288, size: 14, delay: 1.7 },
   { glyph: "♩", x: 296, y: 300, size: 12, delay: 2.6 },
@@ -408,8 +409,12 @@ export function HeroMap() {
     />
   );
 
+  /* On desktop the map is also capped by viewport height so the full
+     artwork — piano and sequencer included — always clears the fold with
+     air below. 0.826 is the SVG aspect ratio (360/436); the 9rem budget
+     covers the nav, page padding, and breathing room above and beneath. */
   return (
-    <div className="relative w-full max-w-[440px]">
+    <div className="relative w-full max-w-[440px] lg:max-w-[min(440px,calc((100svh_-_9rem)*0.826))]">
       <svg
         viewBox="0 0 360 436"
         className="h-auto w-full"
@@ -617,22 +622,35 @@ export function HeroMap() {
                 opacity={0.6}
               />
             ) : (
-              <motion.circle
-                key={`ring-${f.id}`}
-                cx={n.x}
-                cy={n.y}
-                r={n.r + 1}
-                fill="none"
-                className="stroke-foreground"
-                strokeWidth={1.5}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.85, 0.6, 0] }}
-                transition={{
-                  duration,
-                  times: [0, 0.1, 0.7, 1],
-                  ease: "easeInOut",
-                }}
-              />
+              <g key={`ring-${f.id}`}>
+                <motion.circle
+                  cx={n.x}
+                  cy={n.y}
+                  r={n.r + 1}
+                  fill="none"
+                  className="stroke-foreground"
+                  strokeWidth={1.5}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.85, 0.6, 0] }}
+                  transition={{
+                    duration,
+                    times: [0, 0.1, 0.7, 1],
+                    ease: "easeInOut",
+                  }}
+                />
+                {/* Fainter cousin of the center's throb — the node exhales
+                    once as its note sounds */}
+                <motion.circle
+                  cx={n.x}
+                  cy={n.y}
+                  fill="none"
+                  className="stroke-foreground"
+                  strokeWidth={1}
+                  initial={{ r: n.r, opacity: 0.22 }}
+                  animate={{ r: n.r + 14, opacity: 0 }}
+                  transition={{ duration: 0.9, ease: "easeOut" }}
+                />
+              </g>
             );
           })}
 
@@ -700,14 +718,15 @@ export function HeroMap() {
         </defs>
 
         {/* Frequency readouts — appear on a node while its note sounds,
-            with a tiny scrolling wave (speed scales with pitch) */}
+            with a tiny scrolling wave (speed scales with pitch). The center
+            obeys the same rule: no sound, no readout. */}
         {nodeFlashes
-          .filter((f) => flashNodeId(f) !== CENTER.id)
           .map((f) => {
             const info = NOTES[f.note];
             const nodeId = flashNodeId(f)!;
             const n = NODE_POS[nodeId];
-            const clipIndex = NODE_INDEX[nodeId];
+            const clipId =
+              nodeId === CENTER.id ? "hzw-center" : `hzw-${NODE_INDEX[nodeId]}`;
             const label = `${info.hz.toFixed(1)} Hz`;
             const y = n.y + n.r + 13;
             const waveY = y + 7.5;
@@ -733,7 +752,7 @@ export function HeroMap() {
                   fill="none"
                   className="stroke-muted-foreground"
                   strokeWidth={1}
-                  clipPath={`url(#hzw-${clipIndex})`}
+                  clipPath={`url(#${clipId})`}
                   opacity={0.4}
                 />
               </g>
@@ -751,7 +770,7 @@ export function HeroMap() {
                   {label}
                 </motion.text>
                 <motion.g
-                  clipPath={`url(#hzw-${clipIndex})`}
+                  clipPath={`url(#${clipId})`}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: [0, 0.75, 0.75, 0] }}
                   transition={envelope}
@@ -773,46 +792,6 @@ export function HeroMap() {
               </g>
             );
           })}
-
-        {/* Center frequency readout + wave — the tonic is always sounding */}
-        <text
-          x={CENTER.x}
-          y={CENTER.y + CENTER.r + 14}
-          textAnchor="middle"
-          className="fill-muted-foreground font-mono text-[9px]"
-          opacity={0.55}
-        >
-          {`${CENTER.hz.toFixed(1)} Hz`}
-        </text>
-        {reduce ? (
-          <path
-            d={wavePath(CENTER.x, CENTER.y + CENTER.r + 21.5)}
-            fill="none"
-            className="stroke-muted-foreground"
-            strokeWidth={1}
-            clipPath="url(#hzw-center)"
-            opacity={0.35}
-          />
-        ) : (
-          <g
-            clipPath="url(#hzw-center)"
-            opacity={0.45}
-          >
-            <motion.path
-              d={wavePath(CENTER.x, CENTER.y + CENTER.r + 21.5)}
-              fill="none"
-              className="stroke-muted-foreground"
-              strokeWidth={1}
-              initial={{ x: 0 }}
-              animate={{ x: 12 }}
-              transition={{
-                duration: waveScrollDuration(CENTER.hz),
-                ease: "linear",
-                repeat: Infinity,
-              }}
-            />
-          </g>
-        )}
 
         {/* Center node — click to hear the tonic chord. Its ring fades
             while a chord without C sounds. */}
@@ -952,8 +931,8 @@ export function HeroMap() {
         aria-label={muted ? "Turn sound on" : "Turn sound off"}
         className={
           muted
-            ? "absolute -top-8 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-orange-500/70 bg-orange-500/10 text-orange-400 transition-colors hover:bg-orange-500/20 hover:text-orange-300"
-            : "absolute -top-8 right-0 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+            ? "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-orange-500/70 bg-orange-500/10 text-orange-400 transition-colors hover:bg-orange-500/20 hover:text-orange-300"
+            : "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
         }
       >
         {muted && !reduce && (

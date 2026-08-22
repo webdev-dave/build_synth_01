@@ -16,14 +16,16 @@ export const metadata: Metadata = {
 export default function Home() {
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
-      <div className="mx-auto max-w-5xl px-6 py-16 sm:py-20">
+      <div className="mx-auto max-w-5xl px-6 py-10 sm:py-12">
         {/* Hero */}
         <section className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
           <div className="max-w-xl">
             <p className="mb-3 text-sm font-medium text-muted-foreground">
               {APP_NAME}
             </p>
-            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl">
+            {/* Shrinks with viewport height in step with the hero map,
+                so short desktop windows scale both halves consistently. */}
+            <h1 className="text-4xl font-semibold tracking-tight sm:text-5xl lg:text-[min(3rem,7svh)]">
               Don&apos;t study theory.
               <br />
               Play with it.
