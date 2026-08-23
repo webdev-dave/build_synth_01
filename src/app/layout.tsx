@@ -2,7 +2,6 @@ import { Geist, Geist_Mono } from "next/font/google";
 import Link from "next/link";
 import "./globals.css";
 import { TooltipProvider } from "@/components/TooltipContext";
-import TooltipToggleButton from "@/components/TooltipToggleButton";
 import { DetectionModeProvider } from "@/components/DetectionModeContext";
 import { AudioContextProvider } from "@/contexts";
 import { NavMenu } from "@/components/navigation";
@@ -103,7 +102,6 @@ export default function RootLayout({
                   </div>
                 </div>
               </footer>
-              <TooltipToggleButton />
             </TooltipProvider>
           </DetectionModeProvider>
         </AudioContextProvider>

@@ -4,6 +4,7 @@ import { SynthKeyboard } from "../../instruments";
 import { useSharedAudioContext } from "../../hooks/useSharedAudioContext";
 import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientationGuard";
 import { BetaBanner } from "@/components/BetaBanner";
+import TooltipToggleButton from "@/components/TooltipToggleButton";
 
 // TODO: Key Detector feature is temporarily hidden due to accuracy issues.
 // The feature can be re-enabled by:
@@ -35,6 +36,7 @@ export default function SynthPage() {
           initializeAudio={sharedAudio.initializeAudio}
         />
       </SelectiveOrientationGuard>
+      <TooltipToggleButton />
     </main>
   );
 }

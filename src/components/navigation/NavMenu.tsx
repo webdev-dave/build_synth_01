@@ -227,9 +227,13 @@ export default function NavMenu() {
 
           {/* Footer */}
           <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
-            <p className="text-center text-xs text-muted-foreground">
-              More tools coming soon
-            </p>
+            <Link
+              href="/about"
+              onClick={() => setIsOpen(false)}
+              className="block text-center text-xs text-muted-foreground transition-colors hover:text-foreground"
+            >
+              About the developer
+            </Link>
           </div>
         </div>
       </div>
