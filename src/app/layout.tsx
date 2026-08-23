@@ -5,6 +5,7 @@ import TooltipToggleButton from "@/components/TooltipToggleButton";
 import { DetectionModeProvider } from "@/components/DetectionModeContext";
 import { AudioContextProvider } from "@/contexts";
 import { NavMenu } from "@/components/navigation";
+import { APP_NAME } from "@/lib/navigation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -76,7 +77,7 @@ export default function RootLayout({
         <title>Instrumaps</title>
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-svh flex-col antialiased`}
         role="application"
         aria-label="Web-based synthesizer application"
       >
@@ -85,6 +86,17 @@ export default function RootLayout({
             <TooltipProvider>
               <NavMenu />
               {children}
+              {/* mt-auto pins the footer to the viewport bottom on short
+                  pages; the inner pt-24 guarantees generous air between
+                  the content and the footer rule either way. */}
+              <footer className="mt-auto pt-24">
+                <div className="border-t border-border/60 px-6 py-4">
+                  <p className="mx-auto max-w-5xl text-center font-mono text-xs text-muted-foreground">
+                    © {new Date().getFullYear()} {APP_NAME} · All rights
+                    reserved
+                  </p>
+                </div>
+              </footer>
               <TooltipToggleButton />
             </TooltipProvider>
           </DetectionModeProvider>

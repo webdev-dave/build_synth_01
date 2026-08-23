@@ -25,7 +25,7 @@ export const NAV_ITEMS: NavItem[] = [
   },
   {
     id: "synth",
-    label: "Play Synth",
+    label: "WebSynth",
     icon: "🎹",
     href: "/synth/v2",
     description: "Web-based synthesizer keyboard",

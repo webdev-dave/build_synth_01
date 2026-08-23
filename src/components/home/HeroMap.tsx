@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { RotateCcw, Volume2, VolumeX } from "lucide-react";
+import { Pointer, RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 import {
   BEAT,
@@ -69,6 +69,12 @@ const BAR = BEAT * 4;
 
 /* How many times the demo tune plays per run before resting. */
 const DEMO_PASSES = 2;
+
+/* Discoverability ticker — a departure-board line under the instrument
+   inviting the visitor to play. It keeps rolling at tempo (motion follows
+   music) until the first interaction retires it for good. */
+const TICKER_TEXT = "tap the keys · tap a node to hear its chord";
+const TICKER_BARS_PER_PASS = 3;
 
 /* Step sequencer: 8 eighth-note steps ticking like a metronome under the
    tune. Steps 1 and 5 (beats 1 & 3) are accented, drum-machine style. */
@@ -139,6 +145,24 @@ export function HeroMap() {
      Only the replay button starts another run of DEMO_PASSES. */
   const [demoPlaying, setDemoPlaying] = useState(true);
 
+  /* First key press or node tap retires the invitation ticker forever. */
+  const [hasInteracted, setHasInteracted] = useState(false);
+  const tickerWindowRef = useRef<HTMLDivElement>(null);
+  const tickerTextRef = useRef<HTMLSpanElement>(null);
+  /* The marquee needs real pixel widths (enter from the window's right
+     edge, exit fully left), so it starts invisible until measured. */
+  const [tickerDims, setTickerDims] = useState<{
+    win: number;
+    text: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (reduce) return;
+    const win = tickerWindowRef.current?.offsetWidth ?? 0;
+    const text = tickerTextRef.current?.scrollWidth ?? 0;
+    if (win && text) setTickerDims({ win, text });
+  }, [reduce]);
+
   const [pressed, setPressed] = useState<NoteName | null>(null);
   const pressedRef = useRef<NoteName | null>(null);
   const releaseAudioRef = useRef<(() => void) | null>(null);
@@ -168,13 +192,18 @@ export function HeroMap() {
 
   /* Sequencer — melody and chord pad share one timeline. Each pass
      schedules every event of one loop, then re-arms itself until the run
-     of DEMO_PASSES is spent. */
+     of DEMO_PASSES is spent. Only audible passes count toward the run:
+     while muted the demo loops on, so unmuting late never lands on a
+     stage that has already gone quiet. */
   useEffect(() => {
     if (!demoPlaying) return;
     const timers: number[] = [];
     const loopMs = TOTAL_BEATS * BEAT * 1000;
 
     const scheduleLoop = (offsetMs: number, pass: number) => {
+      /* Captured at (near) pass start — a pass only counts if the user
+         could hear it from the top. */
+      const audible = !mutedRef.current;
       for (const ev of MELODY_TIMED) {
         timers.push(
           window.setTimeout(
@@ -195,7 +224,8 @@ export function HeroMap() {
       }
       timers.push(
         window.setTimeout(() => {
-          if (pass + 1 < DEMO_PASSES) scheduleLoop(0, pass + 1);
+          const counted = audible ? pass + 1 : pass;
+          if (counted < DEMO_PASSES) scheduleLoop(0, counted);
           else setDemoPlaying(false);
         }, offsetMs + loopMs),
       );
@@ -206,9 +236,10 @@ export function HeroMap() {
   }, [demoPlaying, fireNote, chordOn]);
 
   /* Any playing by the visitor ends the demo run for good — it only comes
-     back via the replay button. */
+     back via the replay button. It also retires the invitation ticker. */
   const markInteraction = useCallback(() => {
     setDemoPlaying(false);
+    setHasInteracted(true);
   }, []);
 
   /* Playing the piano or a node is itself a user gesture — that click may
@@ -729,78 +760,77 @@ export function HeroMap() {
         {/* Frequency readouts — appear on a node while its note sounds,
             with a tiny scrolling wave (speed scales with pitch). The center
             obeys the same rule: no sound, no readout. */}
-        {nodeFlashes
-          .map((f) => {
-            const info = NOTES[f.note];
-            const nodeId = flashNodeId(f)!;
-            const n = NODE_POS[nodeId];
-            const clipId =
-              nodeId === CENTER.id ? "hzw-center" : `hzw-${NODE_INDEX[nodeId]}`;
-            const label = `${info.hz.toFixed(1)} Hz`;
-            const y = n.y + n.r + 13;
-            const waveY = y + 7.5;
-            const duration = f.beats * BEAT + 0.3;
-            const envelope = {
-              duration,
-              times: [0, 0.12, 0.7, 1],
-              ease: "easeInOut" as const,
-            };
-            return reduce ? (
-              <g key={`hz-${f.id}`}>
-                <text
-                  x={n.x}
-                  y={y}
-                  textAnchor="middle"
-                  className="fill-muted-foreground font-mono text-[9px]"
-                  opacity={0.7}
-                >
-                  {label}
-                </text>
-                <path
+        {nodeFlashes.map((f) => {
+          const info = NOTES[f.note];
+          const nodeId = flashNodeId(f)!;
+          const n = NODE_POS[nodeId];
+          const clipId =
+            nodeId === CENTER.id ? "hzw-center" : `hzw-${NODE_INDEX[nodeId]}`;
+          const label = `${info.hz.toFixed(1)} Hz`;
+          const y = n.y + n.r + 13;
+          const waveY = y + 7.5;
+          const duration = f.beats * BEAT + 0.3;
+          const envelope = {
+            duration,
+            times: [0, 0.12, 0.7, 1],
+            ease: "easeInOut" as const,
+          };
+          return reduce ? (
+            <g key={`hz-${f.id}`}>
+              <text
+                x={n.x}
+                y={y}
+                textAnchor="middle"
+                className="fill-muted-foreground font-mono text-[9px]"
+                opacity={0.7}
+              >
+                {label}
+              </text>
+              <path
+                d={wavePath(n.x, waveY)}
+                fill="none"
+                className="stroke-muted-foreground"
+                strokeWidth={1}
+                clipPath={`url(#${clipId})`}
+                opacity={0.4}
+              />
+            </g>
+          ) : (
+            <g key={`hz-${f.id}`}>
+              <motion.text
+                x={n.x}
+                y={y}
+                textAnchor="middle"
+                className="fill-muted-foreground font-mono text-[9px]"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.9, 0.9, 0] }}
+                transition={envelope}
+              >
+                {label}
+              </motion.text>
+              <motion.g
+                clipPath={`url(#${clipId})`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: [0, 0.75, 0.75, 0] }}
+                transition={envelope}
+              >
+                <motion.path
                   d={wavePath(n.x, waveY)}
                   fill="none"
                   className="stroke-muted-foreground"
                   strokeWidth={1}
-                  clipPath={`url(#${clipId})`}
-                  opacity={0.4}
+                  initial={{ x: 0 }}
+                  animate={{ x: 12 }}
+                  transition={{
+                    duration: waveScrollDuration(info.hz),
+                    ease: "linear",
+                    repeat: Infinity,
+                  }}
                 />
-              </g>
-            ) : (
-              <g key={`hz-${f.id}`}>
-                <motion.text
-                  x={n.x}
-                  y={y}
-                  textAnchor="middle"
-                  className="fill-muted-foreground font-mono text-[9px]"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.9, 0.9, 0] }}
-                  transition={envelope}
-                >
-                  {label}
-                </motion.text>
-                <motion.g
-                  clipPath={`url(#${clipId})`}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.75, 0.75, 0] }}
-                  transition={envelope}
-                >
-                  <motion.path
-                    d={wavePath(n.x, waveY)}
-                    fill="none"
-                    className="stroke-muted-foreground"
-                    strokeWidth={1}
-                    initial={{ x: 0 }}
-                    animate={{ x: 12 }}
-                    transition={{
-                      duration: waveScrollDuration(info.hz),
-                      ease: "linear",
-                      repeat: Infinity,
-                    }}
-                  />
-                </motion.g>
-              </g>
-            );
-          })}
+              </motion.g>
+            </g>
+          );
+        })}
 
         {/* Center node — click to hear the tonic chord. Its ring fades
             while a chord without C sounds. */}
@@ -894,13 +924,15 @@ export function HeroMap() {
           {BLACK_NOTES.map((note, i) => hitRect(blackKey(i), note))}
         </g>
 
-        {/* Step sequencer — 8 eighth-note steps ticking across the bar */}
+        {/* Step sequencer — 8 eighth-note steps ticking across the bar.
+            It only ticks while the demo tune plays: a beating metronome
+            over a silent, resting map would be a lie. */}
         {Array.from({ length: STEP_COUNT }, (_, i) => {
           const cx = STEP_X0 + i * STEP_SPACING;
           const accent = ACCENTS.includes(i);
           const baseR = accent ? 3.5 : 2.5;
           const baseOpacity = accent ? 0.55 : 0.3;
-          return reduce ? (
+          return reduce || !demoPlaying ? (
             <circle
               key={`step-${i}`}
               cx={cx}
@@ -931,6 +963,59 @@ export function HeroMap() {
           );
         })}
       </svg>
+
+      {/* Invitation ticker — departure-board style. Scrolls twice at tempo,
+          parks as a static line, and fades out for good the moment the
+          visitor plays. Fixed height so retiring never shifts the layout. */}
+      <div
+        aria-hidden
+        className="mt-1.5 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground"
+      >
+        <AnimatePresence>
+          {!hasInteracted && (
+            <motion.div
+              ref={tickerWindowRef}
+              className="min-w-0 flex-1 overflow-hidden"
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.3 }}
+            >
+              {reduce ? (
+                /* Reduced motion: the message rests centered under the
+                   piano instead of scrolling. */
+                <span className="flex items-center justify-center gap-2">
+                  <Pointer className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <span className="truncate">{TICKER_TEXT}</span>
+                </span>
+              ) : (
+                /* The finger icon rides along as the leading "car" of the
+                   scrolling message, which loops until interaction. */
+                <motion.span
+                  ref={tickerTextRef}
+                  className="inline-flex items-center gap-2 whitespace-nowrap"
+                  initial={{ x: 0, opacity: 0 }}
+                  animate={
+                    tickerDims
+                      ? {
+                          opacity: 1,
+                          x: [tickerDims.win, -tickerDims.text],
+                        }
+                      : undefined
+                  }
+                  transition={{
+                    duration: TICKER_BARS_PER_PASS * BAR,
+                    ease: "linear",
+                    repeat: Infinity,
+                    delay: 0.8,
+                  }}
+                >
+                  <Pointer className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  {TICKER_TEXT}
+                </motion.span>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       {/* Sound toggle — muted by default; the pulse invites the click that
           doubles as the browser's audio-consent gesture */}

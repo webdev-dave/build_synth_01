@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Play Synth — Web Synthesizer",
+  title: "WebSynth — Web Synthesizer",
   description: "A web-based synthesizer keyboard you can play in your browser.",
 };
 

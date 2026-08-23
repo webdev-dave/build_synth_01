@@ -28,7 +28,7 @@ export default function TabNavigation({
   );
 
   const tabs = [
-    { id: "synth" as const, label: "🎹 Play Synth", icon: "🎹" },
+    { id: "synth" as const, label: "🎹 WebSynth", icon: "🎹" },
     { id: "pitch-detector" as const, label: "🎤 Key Detector", icon: "🎤" },
   ];
 
