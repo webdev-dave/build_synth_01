@@ -454,6 +454,37 @@ export function SynthV2() {
           </Toggle>
         </Field>
 
+        <Field
+          label="Range"
+          onLabelClick={() => toggleConcept("range")}
+          labelSelected={conceptId === "range"}
+        >
+          <Stepper
+            value={`${visibleOctaves} oct`}
+            onDecrement={() => {
+              setVisibleOctaves((v) => Math.max(1, v - 1));
+              touchConcept("range");
+            }}
+            onIncrement={() => {
+              setVisibleOctaves((v) =>
+                Math.min(MAX_OCTAVES, maxFitOctaves, v + 1),
+              );
+              touchConcept("range");
+            }}
+            decrementDisabled={visibleOctaves <= 1}
+            incrementDisabled={
+              visibleOctaves >= Math.min(MAX_OCTAVES, maxFitOctaves)
+            }
+            decrementLabel="Fewer octaves"
+            incrementLabel="More octaves"
+          />
+          {maxFitOctaves < MAX_OCTAVES && visibleOctaves >= maxFitOctaves && (
+            <span className="font-mono text-[11px] text-muted-foreground">
+              max for this screen
+            </span>
+          )}
+        </Field>
+
         {!isMobile && (
           <Field
             label="Computer keys"
