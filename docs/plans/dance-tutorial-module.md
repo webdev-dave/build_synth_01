@@ -56,6 +56,79 @@ philosophy forbids.
 
 ---
 
+## Prior art & positioning (researched Aug 2026)
+
+There's an established online-dance-learning space, but **nothing found does
+exactly this** — the market splits into two buckets and our concept sits in the
+gap between them.
+
+### Bucket 1 — Video course platforms (watch a pro)
+
+- **[X Dance TV](https://xdance.tv/west-coast-swing-on-demand/)** — closest to
+  our niche. Has an *"interactive"* WCS series (side passes, rolling passes,
+  sugar pushes, whips, wrap in/out, the anchor) where you click to drill the
+  leader's footwork, follower technique, or a specific part of a pattern. But
+  it's **filmed lessons behind a membership**, not a synthesized beat-synced
+  visual.
+
+### Bucket 2 — Practice/companion apps (bring your own song/video)
+
+- **[DanceTime Deluxe](https://www.dancetimedeluxe.com/)** — most relevant to
+  us: a "Rhythm mode" with built-in dance patterns + **instructor counting**
+  (Normal `1234…` vs Bar `1234…2234…`), variable tempo, 26 styles.
+- **[Show Me the Counts](https://showmethecounts.com/)** — loop/slow any song,
+  AI stem separation to isolate the bass/congas driving the count
+  (salsa/bachata/kizomba/zouk).
+- **[Dance Drill](https://mwm.ai/apps/dance-drill/6759819098)** — AI pose
+  estimation scores you vs. a reference video, with a **pulsing beat visualizer
+  + 8-count overlay**.
+- **[SyncStep](https://apps.apple.com/us/app/syncstep/id6755161749) /
+  [DanceBeat](https://apps.apple.com/us/app/dancebeat/id6757979636) /
+  [Coreofi](https://www.coreofi.com/)** — record yourself, ghost-overlay /
+  side-by-side compare against a reference, frame scrubbing, auto BPM.
+
+### The gap we fill
+
+Every product above either (a) shows a **video of a human**, or (b) operates on
+a **song/video the user already has**. **None animate the *abstract footwork +
+count pattern itself*** — "here's a sugar push, watch the feet light up on 3&4"
+over a synthesized groove, no video, no upload. That's the harmonica-lab /
+music-theory-visualizer approach applied to dance: make the invisible timing
+structure **visible and playable**. DanceTime Deluxe counts out loud and Dance
+Drill overlays an 8-count, but neither draws the *step pattern as an interactive
+map tied to the beat*. That specific thing appears genuinely open.
+
+### Business framing (honest)
+
+- **As a standalone business it's a tough, crowded, low-willingness-to-pay
+  market** — many incumbents are free and already own "practice with your music"
+  and "score my dancing"; video platforms own "teach me the moves." A new
+  dance-only app fighting those is hard.
+- **As an Instrumaps feature it's promising and cheap.** It reinforces the
+  existing thesis ("don't study theory, play with it"), reuses our beat engine /
+  audio / visual-honesty DNA, and broadens the audience (dancers) at low marginal
+  cost — a feature, not a startup.
+- **SEO / top-of-funnel wedge.** Long-tail queries ("west coast swing sugar push
+  count", "WCS anchor step timing") are rankable with a free crawlable visual
+  (same play as `harmonica-lab-seo.md`) — a discovery channel, not a paywall.
+- **Differentiator to lean on:** free, instant, browser-based, no upload, teaches
+  the *structure* (count + footwork map) rather than being another video player.
+  Defensible precisely because the incumbents don't do it.
+
+### Inspiration worth stealing
+
+- **Dance Drill's** pulsing border + 8-count overlay → validates the
+  `CountTimeline` on-the-beat highlight.
+- **DanceTime Deluxe's** Normal-vs-Bar counting → model for displaying rolling
+  count vs. bar position.
+- **X Dance's** click-to-drill-a-part structure → mirrors our lesson-track +
+  `PatternPicker` idea.
+- **SMTC / DanceBeat's** slow-to-60%-then-speed-up loop → our `TempoControl`, and
+  a strong Phase-4 "bring your own song" (stem separation / pose AI is a much
+  bigger lift, rightly out of scope).
+
+---
+
 ## Constraints to respect
 
 - **Static export** (`output: "export"` → Vercel). Dynamic lesson routes need

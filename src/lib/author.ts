@@ -13,4 +13,8 @@ export const AUTHOR = {
     label: "YouTube",
     href: "https://www.youtube.com/@virtual_kretshmeh",
   },
+  instagram: {
+    label: "Instagram",
+    href: "https://www.instagram.com/abztract_travels/",
+  },
 } as const;

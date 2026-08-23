@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
-import { Github, Youtube, createLucideIcon, type LucideIcon } from "lucide-react";
+import {
+  Github,
+  Instagram,
+  Youtube,
+  createLucideIcon,
+  type LucideIcon,
+} from "lucide-react";
 
 import { AUTHOR } from "@/lib/author";
 import { APP_NAME } from "@/lib/navigation";
@@ -139,6 +145,16 @@ export default function AboutPage() {
             >
               <Youtube />
               {AUTHOR.youtube.label}
+            </a>
+          </Button>
+          <Button asChild variant="outline">
+            <a
+              href={AUTHOR.instagram.href}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Instagram />
+              {AUTHOR.instagram.label}
             </a>
           </Button>
         </div>
