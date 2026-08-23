@@ -29,7 +29,10 @@ import {
   useComputerKeyboard,
   buildNoteToCharMap,
 } from "../templates/basic-synth/hooks/useComputerKeyboard";
-import { createSynthKeys } from "../templates/basic-synth/utils/synthUtils";
+import {
+  createSynthKeysFromRange,
+  noteNameToNumber,
+} from "../templates/basic-synth/utils/synthUtils";
 import { KeyboardV2 } from "./KeyboardV2";
 import { SYNTH_CONCEPTS, type SynthConceptId } from "./synthConcepts";
 import { LearnPanel } from "@/components/learn/LearnPanel";
@@ -64,18 +67,43 @@ export function SynthV2() {
   const [startOctave, setStartOctave] = useState(4);
   const [visibleOctaves, setVisibleOctaves] = useState(2);
 
+  // Scale selection — root and type both start unset so the dropdown
+  // doesn't look like C is already the key. (Declared before the keyboard
+  // window because the scale root anchors it.)
+  const { setSelectedScale, isNoteInScale, identifyChord } = useScaleLogic();
+  const [scaleRoot, setScaleRoot] = useState<ScaleRoot | null>(null);
+  const [scaleType, setScaleType] = useState<ScaleType>("none");
+  const [lockToScale, setLockToScale] = useState(false);
+  const [showNumbers, setShowNumbers] = useState(false);
+  const hasScale = scaleRoot !== null && scaleType !== "none";
+
+  /*
+   * Picking a scale re-frames the keyboard around its root: the window runs
+   * root-to-root so the degrees read 1–7 left to right and both ends land on
+   * home base. A C-anchored octave can't even hold some scales in full
+   * (D major's 7th, C#, sits above the top C). With no scale the window is
+   * C-anchored as on a real piano.
+   */
+  const anchorName = scaleRoot ?? "C";
+  const anchorPc = NOTES_SHARP.indexOf(anchorName);
+  // A piano row can't start or end on a black key, so a black-key root
+  // borrows the white key below as a lead-in (and the one above as lead-out).
+  const anchorIsBlack = anchorName.includes("#");
+
   // How many octaves the keyboard area can hold at a playable key width.
-  // n octaves render 7n + 1 white keys (the trailing C).
+  // n octaves render 7n + 1 white keys (the trailing root), plus one more
+  // when a black-key root adds its lead-in/lead-out whites.
   const { ref: keyboardAreaRef, width: keyboardWidth } =
     useElementWidth<HTMLDivElement>();
   const maxFitOctaves = useMemo(() => {
     if (keyboardWidth === null) return MAX_OCTAVES; // not measured yet
+    const edgeWhites = anchorIsBlack ? 2 : 1;
     const whitesThatFit = Math.floor(keyboardWidth / MIN_WHITE_KEY_PX);
     return Math.max(
       1,
-      Math.min(MAX_OCTAVES, Math.floor((whitesThatFit - 1) / 7)),
+      Math.min(MAX_OCTAVES, Math.floor((whitesThatFit - edgeWhites) / 7)),
     );
-  }, [keyboardWidth]);
+  }, [keyboardWidth, anchorIsBlack]);
 
   // Auto-shrink the range when the screen can't fit it (and keep the
   // stepper from pushing past capacity — see incrementDisabled below).
@@ -85,13 +113,23 @@ export function SynthV2() {
     setVisibleOctaves((v) => Math.min(v, maxFitOctaves));
   }, [maxFitOctaves]);
 
+  const anchorMidi = noteNameToNumber(`${anchorName}${startOctave}`);
+  const windowStart = anchorIsBlack ? anchorMidi - 1 : anchorMidi;
+  const windowTop = anchorMidi + 12 * visibleOctaves;
+  const windowEnd = anchorIsBlack ? windowTop + 1 : windowTop;
   const keys = useMemo(
-    () => createSynthKeys(startOctave, visibleOctaves),
-    [startOctave, visibleOctaves],
+    () => createSynthKeysFromRange(windowStart, windowEnd),
+    [windowStart, windowEnd],
   );
 
-  // Keep the top key at or below C8 — the highest note on a grand piano.
-  const maxStartOctave = Math.max(0, 8 - visibleOctaves);
+  // Keep the top key at or below C8 (MIDI 108) — the highest note on a
+  // grand piano. Solves windowEnd ≤ 108 for the anchor's octave number.
+  const maxStartOctave = Math.max(
+    0,
+    Math.floor((108 - anchorPc - (anchorIsBlack ? 1 : 0)) / 12) -
+      1 -
+      visibleOctaves,
+  );
   useEffect(() => {
     setStartOctave((o) => Math.min(o, maxStartOctave));
   }, [maxStartOctave]);
@@ -104,15 +142,6 @@ export function SynthV2() {
     handleNoteStart,
     stopNote,
   } = useAudioSynthesis(audioContext, () => {}, keys);
-
-  // Scale selection — root and type both start unset so the dropdown
-  // doesn't look like C is already the key.
-  const { setSelectedScale, isNoteInScale, identifyChord } = useScaleLogic();
-  const [scaleRoot, setScaleRoot] = useState<ScaleRoot | null>(null);
-  const [scaleType, setScaleType] = useState<ScaleType>("none");
-  const [lockToScale, setLockToScale] = useState(false);
-  const [showDegrees, setShowDegrees] = useState(false);
-  const hasScale = scaleRoot !== null && scaleType !== "none";
 
   /*
    * Playing a key IS the audio consent gesture: unlock on first note instead
@@ -163,8 +192,8 @@ export function SynthV2() {
     });
   }, [scaleRoot, scaleType]);
 
-  // On the keys themselves the degrees are opt-in; the readout always has them.
-  const scaleDegrees = showDegrees ? degreeMap : null;
+  // On the keys themselves the numbers are opt-in; the readout always has them.
+  const scaleDegrees = showNumbers ? degreeMap : null;
 
   // Computer keyboard (desktop only). Letters stay off by default — they
   // compete with the note names for the same space and most players don't
@@ -196,9 +225,10 @@ export function SynthV2() {
 
   /*
    * Learning panel: one shared area below the synth showing the mini-lesson
-   * for the last concept clicked. Labels open/toggle it; functional controls
-   * (steppers, toggles, selects) only refresh an already-open panel, so
-   * simply playing with the synth never forces the panel open.
+   * for the last concept clicked. Labels open/toggle it — as does the numbers
+   * overlay, since showing the numbers is itself the lesson. The remaining
+   * functional controls (steppers, sound toggles, selects) only refresh an
+   * already-open panel, so simply playing with the synth never forces it open.
    */
   const [conceptId, setConceptId] = useState<SynthConceptId | null>(null);
   const toggleConcept = useCallback(
@@ -327,7 +357,7 @@ export function SynthV2() {
           labelSelected={conceptId === "octave"}
         >
           <Stepper
-            value={`C${startOctave}`}
+            value={`${anchorName}${startOctave}`}
             onDecrement={() => {
               adjustOctave(-1);
               touchConcept("octave");
@@ -341,37 +371,6 @@ export function SynthV2() {
             decrementLabel="Octave down"
             incrementLabel="Octave up"
           />
-        </Field>
-
-        <Field
-          label="Range"
-          onLabelClick={() => toggleConcept("range")}
-          labelSelected={conceptId === "range"}
-        >
-          <Stepper
-            value={`${visibleOctaves} oct`}
-            onDecrement={() => {
-              setVisibleOctaves((v) => Math.max(1, v - 1));
-              touchConcept("range");
-            }}
-            onIncrement={() => {
-              setVisibleOctaves((v) =>
-                Math.min(MAX_OCTAVES, maxFitOctaves, v + 1),
-              );
-              touchConcept("range");
-            }}
-            decrementDisabled={visibleOctaves <= 1}
-            incrementDisabled={
-              visibleOctaves >= Math.min(MAX_OCTAVES, maxFitOctaves)
-            }
-            decrementLabel="Fewer octaves"
-            incrementLabel="More octaves"
-          />
-          {maxFitOctaves < MAX_OCTAVES && visibleOctaves >= maxFitOctaves && (
-            <span className="font-mono text-[11px] text-muted-foreground">
-              max for this screen
-            </span>
-          )}
         </Field>
 
         <Field
@@ -389,12 +388,18 @@ export function SynthV2() {
                 setScaleRoot(null);
                 setScaleType("none");
                 setLockToScale(false);
-                setShowDegrees(false);
+                setShowNumbers(false);
                 return;
               }
               setScaleRoot(next as ScaleRoot);
-              // Picking a root is the on-switch; default to major.
-              if (scaleType === "none") setScaleType("major");
+              // Picking a root is the on-switch: default to major and turn the
+              // numbers on, so the scale arrives already labeled 1–7. Only on
+              // first activation, so re-picking a root won't override a manual
+              // toggle-off. Clearing the scale (above) removes them again.
+              if (scaleType === "none") {
+                setScaleType("major");
+                setShowNumbers(true);
+              }
             }}
             className="h-[30px] rounded-md border border-input bg-background px-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
@@ -436,14 +441,16 @@ export function SynthV2() {
             lock
           </Toggle>
           <Toggle
-            pressed={showDegrees}
+            pressed={showNumbers}
             onClick={() => {
-              setShowDegrees((v) => !v);
-              touchConcept("scale-degrees");
+              setShowNumbers((v) => !v);
+              // Showing the numbers IS the lesson, so open the panel (unlike
+              // the sound toggles, which only refresh an already-open one).
+              toggleConcept("scale-numbers");
             }}
             disabled={!hasScale}
           >
-            degrees
+            numbers
           </Toggle>
         </Field>
 
@@ -490,10 +497,10 @@ export function SynthV2() {
           {" · "}
           {scaleNotes.join("  ")}
           {" · "}
-          {showDegrees ? (
+          {showNumbers ? (
             <>
-              <span className="text-emerald-600">1–7</span> mark the scale
-              degrees
+              <span className="text-emerald-600">1–7</span> number each note
+              (its scale degree)
             </>
           ) : (
             <>

@@ -195,9 +195,11 @@ export function KeyboardV2({
               {inScale &&
                 !active &&
                 (degree !== null ? (
+                  // Number rides inside a green ball so its contrast is the
+                  // same on every key, black or white. The ball is the marker.
                   <span
                     className={cn(
-                      "pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[11px] leading-none text-emerald-700",
+                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 font-mono text-[10px] leading-none text-white",
                       degree === 1 && "font-bold",
                     )}
                   >
@@ -284,16 +286,17 @@ export function KeyboardV2({
               {inScale &&
                 !active &&
                 (degree !== null ? (
+                  // Same green ball as the white keys — one shared marker.
                   <span
                     className={cn(
-                      "pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] leading-none text-emerald-500",
+                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 font-mono text-[10px] leading-none text-white",
                       degree === 1 && "font-bold",
                     )}
                   >
                     {degree}
                   </span>
                 ) : (
-                  <span className="pointer-events-none absolute bottom-8 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-emerald-500" />
+                  <span className="pointer-events-none absolute bottom-8 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-emerald-600" />
                 ))}
               {disabled && (
                 <span className="pointer-events-none absolute bottom-8 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-red-500" />

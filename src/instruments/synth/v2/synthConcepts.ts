@@ -13,7 +13,7 @@ export type SynthConceptId =
   | "range"
   | "scale"
   | "scale-lock"
-  | "scale-degrees"
+  | "scale-numbers"
   | "frequency"
   | "chord"
   | "computer-keys";
@@ -34,6 +34,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
     body: [
       "A scale is a small family of notes — usually 7 of the 12 available — chosen so they sound good together. Melodies and chords in a song mostly stay inside one scale, which is why it's also called the song's key.",
       "What gives a scale its character is the spacing between its notes: a step of one key is a half step, two keys is a whole step. The major scale's pattern (whole-whole-half-whole-whole-whole-half) is why C major is exactly the white keys from C to C.",
+      "Picking a scale re-frames the keyboard around its root, so the scale reads left to right from 1 up to 7 — and both ends land on home base.",
     ],
     lessonSlug: "scales",
   },
@@ -46,12 +47,13 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
     ],
     lessonSlug: "scales",
   },
-  "scale-degrees": {
-    id: "scale-degrees",
-    title: "Scale degrees",
+  "scale-numbers": {
+    id: "scale-numbers",
+    title: "Numbers (scale degrees)",
     body: [
-      "Degrees number a scale's notes 1–7 starting from its root: in C major, C is 1, D is 2, and so on. The numbers matter because they transfer — a melody written as degrees (1-1-5-5-6-6-5) can be played in any key.",
-      "Degree 1 is home base; phrases that end there feel finished. Chords are named the same way — the \"five chord\" is built on degree 5.",
+      "These numbers are the scale degrees: each note labeled by its position in the scale, 1 through 7 counting up from the root. In C major, C is 1, D is 2, E is 3; switch to G major and that same 1-2-3 lands on G, A, B.",
+      "A letter like E only names a pitch — on its own it says nothing about how it will feel. Its number tells you its job: 1 is home, where phrases come to rest; 4 and 5 are the strong pillars; 7 is the restless note that leans up into 1. Play 7 then 1 and you can hear the pull. That role holds in every key — the letter doesn't.",
+      'Because the roles travel, melodies do too: "Happy Birthday" is 1-1-2-1-4-3 whether you sing it in C or in F. The numbers are the tune; the letters just follow whichever key you pick. Chords are named this way as well — the "five chord" is built on degree 5.',
     ],
     lessonSlug: "scale-degrees",
   },
@@ -60,7 +62,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
     title: "Waveforms",
     body: [
       "The waveform is the shape the speaker traces as it vibrates, and it decides the tone color: a sine is a pure whistle, a square is hollow like an old video game, a sawtooth is bright and buzzy, a triangle sits between sine and square.",
-      "All four shapes at the same key play the same pitch — what changes is the mix of quieter overtones stacked on top of it. That mix is what your ear reads as \"different instrument\".",
+      'All four shapes at the same key play the same pitch — what changes is the mix of quieter overtones stacked on top of it. That mix is what your ear reads as "different instrument".',
     ],
     lessonSlug: "waveforms",
   },
@@ -105,7 +107,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
     title: "Playing with the computer keyboard",
     body: [
       "The home row (A S D F …) maps to the white keys and the row above (W E T Y …) to the black keys, mirroring the piano layout. Z and X shift the whole keyboard down or up an octave.",
-      "Turn on \"show letters\" to print each key's letter on the keyboard while you learn the mapping.",
+      'Turn on "show letters" to print each key\'s letter on the keyboard while you learn the mapping.',
     ],
   },
 };

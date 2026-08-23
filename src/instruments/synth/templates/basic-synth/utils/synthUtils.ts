@@ -18,27 +18,49 @@ function midiNoteNumber(octave: number, semitone: number): number {
   return (octave + MIDI_OCTAVE_OFFSET) * 12 + semitone;
 }
 
+const NOTE_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+];
+
+// Generate keys for an arbitrary MIDI note range, both ends inclusive.
+// Lets the keyboard window anchor anywhere (e.g. at a scale root), not just C.
+export function createSynthKeysFromRange(
+  startNoteNumber: number,
+  endNoteNumber: number,
+): SynthKey[] {
+  const keys: SynthKey[] = [];
+  for (let n = startNoteNumber; n <= endNoteNumber; n++) {
+    const noteName = NOTE_NAMES[n % 12];
+    const octave = Math.floor(n / 12) - MIDI_OCTAVE_OFFSET;
+    keys.push({
+      note: `${noteName}${octave}`,
+      noteNumber: n,
+      frequency: 440 * Math.pow(2, (n - 69) / 12),
+      isBlack: noteName.includes("#"),
+    });
+  }
+  return keys;
+}
+
 // Generate synthesizer keys for a given starting octave and number of octaves to display.
 // `numOctaves` defaults to 2 to preserve the previous behaviour for existing callers.
 export function createSynthKeys(
   startOctave: number,
-  numOctaves: number = 2
+  numOctaves: number = 2,
 ): SynthKey[] {
   const keys: SynthKey[] = [];
-  const noteNames = [
-    "C",
-    "C#",
-    "D",
-    "D#",
-    "E",
-    "F",
-    "F#",
-    "G",
-    "G#",
-    "A",
-    "A#",
-    "B",
-  ];
+  const noteNames = NOTE_NAMES;
 
   // Clamp numOctaves to a sensible range (1-10) to avoid accidental gigantic arrays.
   const octavesToGenerate = Math.max(1, Math.min(10, numOctaves));
