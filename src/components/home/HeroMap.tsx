@@ -1026,7 +1026,7 @@ export function HeroMap() {
           piano on desktop. Fixed height so retiring never shifts layout. */}
       <div
         aria-hidden
-        className="order-first mb-8 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground lg:order-none lg:mb-0 lg:mt-1.5"
+        className="order-first mb-6 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground lg:order-none lg:mb-0 lg:mt-1.5"
       >
         <AnimatePresence>
           {!hasInteracted && (
@@ -1040,7 +1040,7 @@ export function HeroMap() {
                 /* Reduced motion: the message rests centered instead of
                    scrolling. */
                 <span className="flex items-center justify-center gap-2">
-                  <Pointer className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <Pointer className="h-3.5 w-3.5 shrink-0 rotate-180 opacity-70 lg:rotate-0" />
                   <span className="truncate">{TICKER_TEXT}</span>
                 </span>
               ) : (
@@ -1065,7 +1065,7 @@ export function HeroMap() {
                     delay: 0.8,
                   }}
                 >
-                  <Pointer className="h-3.5 w-3.5 shrink-0 opacity-70" />
+                  <Pointer className="h-3.5 w-3.5 shrink-0 rotate-180 opacity-70 lg:rotate-0" />
                   {TICKER_TEXT}
                 </motion.span>
               )}

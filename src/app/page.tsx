@@ -18,7 +18,7 @@ export default function Home() {
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-6 py-10 sm:py-12">
         {/* Hero */}
-        <section className="grid items-center gap-10 lg:grid-cols-2 lg:gap-12">
+        <section className="grid items-center gap-6 lg:grid-cols-2 lg:gap-12">
           <div className="max-w-xl">
             <p className="mb-3 text-sm font-medium text-muted-foreground">
               {APP_NAME}
@@ -55,7 +55,7 @@ export default function Home() {
           </div>
 
           {/* Animated node-graph */}
-          <div className="mt-6 flex justify-center lg:mt-0 lg:justify-end">
+          <div className="flex justify-center lg:justify-end">
             <HeroMap />
           </div>
         </section>
