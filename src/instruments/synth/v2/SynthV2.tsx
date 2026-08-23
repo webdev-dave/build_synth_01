@@ -14,6 +14,7 @@ import { Card } from "@/components/ui/card";
 import { NOTES_SHARP } from "@/lib/music";
 import { useSharedAudioContext } from "@/hooks/useSharedAudioContext";
 import useIsMobile from "@/hooks/useIsMobile";
+import { useElementWidth } from "@/hooks/useElementWidth";
 
 import {
   useAudioSynthesis,
@@ -40,6 +41,17 @@ const SCALE_PATTERNS: Record<Exclude<ScaleType, "none">, number[]> = {
   minor: [0, 2, 3, 5, 7, 8, 10],
 };
 
+const MAX_OCTAVES = 4;
+
+/*
+ * The thinnest a white key gets before we drop an octave instead — roughly
+ * the two-octave density the keyboard used to enforce with a fixed 560px
+ * min-width. The keyboard never overflow-scrolls: its keys are touch-none
+ * (a swipe is a glide, not a scroll), so on mobile an overflowing keyboard
+ * is simply unreachable. Fewer, same-sized keys beat hidden ones.
+ */
+const MIN_WHITE_KEY_PX = 36;
+
 /**
  * v2 synth: the same pure Web Audio engine (oscillator → gain → speakers,
  * no external audio libraries) under a redesigned, theme-token UI.
@@ -51,9 +63,31 @@ export function SynthV2() {
 
   const [startOctave, setStartOctave] = useState(4);
   const [visibleOctaves, setVisibleOctaves] = useState(2);
+
+  // How many octaves the keyboard area can hold at a playable key width.
+  // n octaves render 7n + 1 white keys (the trailing C).
+  const { ref: keyboardAreaRef, width: keyboardWidth } =
+    useElementWidth<HTMLDivElement>();
+  const maxFitOctaves = useMemo(() => {
+    if (keyboardWidth === null) return MAX_OCTAVES; // not measured yet
+    const whitesThatFit = Math.floor(keyboardWidth / MIN_WHITE_KEY_PX);
+    return Math.max(
+      1,
+      Math.min(MAX_OCTAVES, Math.floor((whitesThatFit - 1) / 7)),
+    );
+  }, [keyboardWidth]);
+
+  // Auto-shrink the range when the screen can't fit it (and keep the
+  // stepper from pushing past capacity — see incrementDisabled below).
+  // Below one octave we stop dropping range and let the keys themselves
+  // shrink: a scrollable keyboard is useless when keys eat the swipe.
+  useEffect(() => {
+    setVisibleOctaves((v) => Math.min(v, maxFitOctaves));
+  }, [maxFitOctaves]);
+
   const keys = useMemo(
     () => createSynthKeys(startOctave, visibleOctaves),
-    [startOctave, visibleOctaves]
+    [startOctave, visibleOctaves],
   );
 
   // Keep the top key at or below C8 — the highest note on a grand piano.
@@ -100,12 +134,12 @@ export function SynthV2() {
       hasAudioPermission,
       initializeAudio,
       handleNoteStart,
-    ]
+    ],
   );
 
   useEffect(() => {
     setSelectedScale(
-      hasScale && scaleRoot ? `${scaleRoot} ${scaleType}` : "none"
+      hasScale && scaleRoot ? `${scaleRoot} ${scaleType}` : "none",
     );
   }, [scaleRoot, scaleType, hasScale, setSelectedScale]);
 
@@ -113,7 +147,7 @@ export function SynthV2() {
     if (!scaleRoot || scaleType === "none") return [];
     const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
     return SCALE_PATTERNS[scaleType].map(
-      (iv) => NOTES_SHARP[(rootIdx + iv) % 12]
+      (iv) => NOTES_SHARP[(rootIdx + iv) % 12],
     );
   }, [scaleRoot, scaleType]);
 
@@ -141,12 +175,12 @@ export function SynthV2() {
   const adjustOctave = useCallback(
     (delta: number) =>
       setStartOctave((o) => Math.max(0, Math.min(maxStartOctave, o + delta))),
-    [maxStartOctave]
+    [maxStartOctave],
   );
   useComputerKeyboard(kbActive, keys, startNote, stopNote, adjustOctave);
   const keyLabels = useMemo(
     () => (kbActive && showKeyLabels ? buildNoteToCharMap(keys) : null),
-    [kbActive, showKeyLabels, keys]
+    [kbActive, showKeyLabels, keys],
   );
 
   // Readout
@@ -155,7 +189,7 @@ export function SynthV2() {
   const singleNoteDegree = useMemo(() => {
     if (!singleNote || !degreeMap) return null;
     const pitchClass = NOTES_SHARP.indexOf(
-      singleNote.replace(/\d+$/, "") as ScaleRoot
+      singleNote.replace(/\d+$/, "") as ScaleRoot,
     );
     return pitchClass === -1 ? null : degreeMap[pitchClass];
   }, [singleNote, degreeMap]);
@@ -169,11 +203,11 @@ export function SynthV2() {
   const [conceptId, setConceptId] = useState<SynthConceptId | null>(null);
   const toggleConcept = useCallback(
     (id: SynthConceptId) => setConceptId((c) => (c === id ? null : id)),
-    []
+    [],
   );
   const touchConcept = useCallback(
     (id: SynthConceptId) => setConceptId((c) => (c === null ? null : id)),
-    []
+    [],
   );
   const selectedConcept = useMemo(() => {
     if (!conceptId) return null;
@@ -239,15 +273,15 @@ export function SynthV2() {
               "h-2 w-2 rounded-full",
               hasAudioPermission
                 ? "bg-emerald-600"
-                : "bg-orange-600 motion-safe:animate-pulse"
+                : "bg-orange-600 motion-safe:animate-pulse",
             )}
           />
           {hasAudioPermission ? "sound on" : "sound off — play a key to enable"}
         </div>
       </Card>
 
-      {/* Keyboard */}
-      <Card className="overflow-x-auto p-3">
+      {/* Keyboard — never overflow-scrolls; range and key width adapt instead */}
+      <Card ref={keyboardAreaRef} className="p-3">
         <KeyboardV2
           keys={keys}
           activeKeys={activeKeys}
@@ -321,14 +355,23 @@ export function SynthV2() {
               touchConcept("range");
             }}
             onIncrement={() => {
-              setVisibleOctaves((v) => Math.min(4, v + 1));
+              setVisibleOctaves((v) =>
+                Math.min(MAX_OCTAVES, maxFitOctaves, v + 1),
+              );
               touchConcept("range");
             }}
             decrementDisabled={visibleOctaves <= 1}
-            incrementDisabled={visibleOctaves >= 4}
+            incrementDisabled={
+              visibleOctaves >= Math.min(MAX_OCTAVES, maxFitOctaves)
+            }
             decrementLabel="Fewer octaves"
             incrementLabel="More octaves"
           />
+          {maxFitOctaves < MAX_OCTAVES && visibleOctaves >= maxFitOctaves && (
+            <span className="font-mono text-[11px] text-muted-foreground">
+              max for this screen
+            </span>
+          )}
         </Field>
 
         <Field
@@ -512,7 +555,7 @@ function Field({
             "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
             labelSelected
               ? "text-foreground decoration-solid"
-              : "text-muted-foreground hover:text-foreground"
+              : "text-muted-foreground hover:text-foreground",
           )}
         >
           {label}
@@ -557,7 +600,7 @@ function Segmented<T extends string>({
             "disabled:pointer-events-none disabled:opacity-40",
             value === o.value
               ? "bg-secondary text-secondary-foreground"
-              : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+              : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
           )}
         >
           {o.label}
@@ -636,7 +679,7 @@ function Toggle({
         "disabled:pointer-events-none disabled:opacity-40",
         pressed
           ? "bg-secondary text-secondary-foreground"
-          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground"
+          : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
       )}
     >
       {children}

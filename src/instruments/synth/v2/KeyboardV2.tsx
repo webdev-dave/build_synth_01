@@ -68,7 +68,7 @@ export function KeyboardV2({
 
   const isDisabled = useCallback(
     (k: SynthKey) => hasScale && lockToScale && !isNoteInScale(k.noteNumber),
-    [hasScale, lockToScale, isNoteInScale]
+    [hasScale, lockToScale, isNoteInScale],
   );
 
   const pressKey = (e: React.PointerEvent, k: SynthKey) => {
@@ -124,7 +124,11 @@ export function KeyboardV2({
       // Long-pressing a key must not open the browser context menu (Android)
       // or the copy/share callout (iOS) — holding a note is normal playing.
       onContextMenu={(e) => e.preventDefault()}
-      className="relative h-44 min-w-[560px] touch-none select-none [-webkit-touch-callout:none] sm:h-52"
+      // No min-width: the parent decides how many octaves fit, and below a
+      // single octave the keys shrink rather than overflow — touch-none keys
+      // swallow swipes, so a horizontally scrollable keyboard is unreachable
+      // on mobile.
+      className="relative h-44 touch-none select-none [-webkit-touch-callout:none] sm:h-52"
     >
       <div className="flex h-full">
         {whiteKeys.map((k) => {
@@ -155,12 +159,12 @@ export function KeyboardV2({
                 "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 focus-visible:ring-offset-background",
                 active
                   ? "border-orange-800 bg-orange-700"
-                    : outOfScale
+                  : outOfScale
                     ? // Out-of-key whites fade toward gray so the scale shape
                       // reads at a glance, even while still playable.
                       "bg-neutral-400 hover:bg-neutral-300"
                     : "bg-neutral-100 hover:bg-white",
-                disabled && "cursor-not-allowed hover:bg-neutral-400"
+                disabled && "cursor-not-allowed hover:bg-neutral-400",
               )}
             >
               {/* Fixed-height text band, so the dot above it never shifts. */}
@@ -173,7 +177,7 @@ export function KeyboardV2({
                         ? "text-orange-100"
                         : outOfScale
                           ? "text-neutral-600"
-                          : "text-neutral-500"
+                          : "text-neutral-500",
                     )}
                   >
                     {label}
@@ -182,7 +186,7 @@ export function KeyboardV2({
                 <span
                   className={cn(
                     "font-mono text-[11px] font-medium leading-none",
-                    active ? "text-orange-100" : "text-neutral-700"
+                    active ? "text-orange-100" : "text-neutral-700",
                   )}
                 >
                   {noteName}
@@ -194,7 +198,7 @@ export function KeyboardV2({
                   <span
                     className={cn(
                       "pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[11px] leading-none text-emerald-700",
-                      degree === 1 && "font-bold"
+                      degree === 1 && "font-bold",
                     )}
                   >
                     {degree}
@@ -246,7 +250,7 @@ export function KeyboardV2({
                       // faded whites) so the whole key reads as chromatic.
                       "border-neutral-500 bg-neutral-600 hover:bg-neutral-500"
                     : "border-neutral-700 bg-neutral-900 hover:bg-neutral-800",
-                disabled && "cursor-not-allowed hover:bg-neutral-600"
+                disabled && "cursor-not-allowed hover:bg-neutral-600",
               )}
             >
               <span className="pointer-events-none absolute inset-x-0 bottom-1.5 flex h-6 flex-col items-center justify-end gap-0.5">
@@ -258,7 +262,7 @@ export function KeyboardV2({
                         ? "text-orange-100"
                         : outOfScale
                           ? "text-neutral-800"
-                          : "text-neutral-400"
+                          : "text-neutral-400",
                     )}
                   >
                     {label}
@@ -271,7 +275,7 @@ export function KeyboardV2({
                       ? "text-orange-100"
                       : outOfScale
                         ? "text-neutral-900"
-                        : "text-neutral-300"
+                        : "text-neutral-300",
                   )}
                 >
                   {noteName}
@@ -283,7 +287,7 @@ export function KeyboardV2({
                   <span
                     className={cn(
                       "pointer-events-none absolute bottom-8 left-1/2 -translate-x-1/2 font-mono text-[10px] leading-none text-emerald-500",
-                      degree === 1 && "font-bold"
+                      degree === 1 && "font-bold",
                     )}
                   >
                     {degree}
