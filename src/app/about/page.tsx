@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import {
   Github,
   Instagram,
+  Mail,
   Youtube,
   createLucideIcon,
   type LucideIcon,
@@ -31,6 +31,8 @@ export const metadata: Metadata = {
 };
 
 export default function AboutPage() {
+  const mailto = `mailto:${AUTHOR.email}?subject=${encodeURIComponent("Instrumaps")}`;
+
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
@@ -81,12 +83,12 @@ export default function AboutPage() {
               on the list. I&apos;m on the hunt for a good-quality used
               accordion, so if you&apos;d like to gift one or sell me one — or
               know a guy who knows a guy — please{" "}
-              <Link
-                href="/contact"
+              <a
+                href="#reach-out"
                 className="text-foreground underline-offset-4 hover:underline"
               >
                 reach out
-              </Link>
+              </a>
               . As I keep studying theory and picking up new instruments, this
               will keep growing right alongside me.
             </p>
@@ -116,48 +118,60 @@ export default function AboutPage() {
           </figcaption>
         </figure>
 
-        <div className="mt-8 flex flex-wrap items-center gap-3">
-          <Button asChild variant="outline">
-            <a
-              href={AUTHOR.github.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Github />
-              {AUTHOR.github.label}
-            </a>
-          </Button>
-          <Button asChild variant="outline">
-            <a
-              href={AUTHOR.linkedin.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Linkedin />
-              {AUTHOR.linkedin.label}
-            </a>
-          </Button>
-          <Button asChild variant="outline">
-            <a
-              href={AUTHOR.youtube.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Youtube />
-              {AUTHOR.youtube.label}
-            </a>
-          </Button>
-          <Button asChild variant="outline">
-            <a
-              href={AUTHOR.instagram.href}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Instagram />
-              {AUTHOR.instagram.label}
-            </a>
-          </Button>
-        </div>
+        <section
+          id="reach-out"
+          aria-label="Reach out"
+          className="mt-8 scroll-mt-20"
+        >
+          <div className="flex flex-wrap items-center gap-3">
+            <Button asChild variant="outline">
+              <a href={mailto}>
+                <Mail />
+                Email
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <a
+                href={AUTHOR.github.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Github />
+                {AUTHOR.github.label}
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <a
+                href={AUTHOR.linkedin.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Linkedin />
+                {AUTHOR.linkedin.label}
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <a
+                href={AUTHOR.youtube.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Youtube />
+                {AUTHOR.youtube.label}
+              </a>
+            </Button>
+            <Button asChild variant="outline">
+              <a
+                href={AUTHOR.instagram.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Instagram />
+                {AUTHOR.instagram.label}
+              </a>
+            </Button>
+          </div>
+        </section>
       </div>
     </main>
   );
