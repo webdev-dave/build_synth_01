@@ -60,6 +60,114 @@
 }
 
 /*
+ * Homepage hero starfield mask.
+ * The sky is at full strength in open space and dims into soft "holes"
+ * over the two overlaid components — the hero text block and the
+ * instrument map — whose positions differ per breakpoint. Two stacked
+ * radial gradients (one hole each) are combined with
+ * mask-composite: intersect, so each hole dims independently and
+ * everywhere else stays fully visible.
+ */
+.hero-star-mask {
+      /* Mobile: text at the top-left, map in the lower half. The final
+         linear layer fades the overhang below the hero out to nothing. */
+      mask-image:
+        radial-gradient(
+          ellipse 62% 28% at 38% 18%,
+          rgba(0, 0, 0, 0.3) 0%,
+          rgba(0, 0, 0, 0.6) 55%,
+          #000 100%
+        ),
+    radial-gradient(
+      ellipse 64% 46% at 50% 68%,
+      rgba(0, 0, 0, 0.4) 0%,
+      rgba(0, 0, 0, 0.65) 60%,
+      #000 100%
+    ),
+    linear-gradient(to bottom, #000 calc(100% - 6rem), transparent 100%);
+  mask-composite: intersect;
+  -webkit-mask-composite: source-in;
+}
+
+@media (min-width: 640px) {
+  .hero-star-mask {
+    /* Tablet: same stacked layout, but the map no longer fills the
+       width — the dimming holes narrow to the centered artwork and
+       the left-aligned text, so the open flanks keep their stars. */
+    mask-image:
+      radial-gradient(
+        ellipse 48% 28% at 32% 18%,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.6) 55%,
+        #000 100%
+      ),
+      radial-gradient(
+        ellipse 36% 40% at 50% 66%,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(0, 0, 0, 0.65) 55%,
+        #000 100%
+      ),
+      linear-gradient(to bottom, #000 calc(100% - 6rem), transparent 100%);
+  }
+}
+
+@media (min-width: 1024px) {
+  .hero-star-mask {
+    /* Desktop: text mid-left (vertically centered), map in the right
+       column. Both holes hug their content — the page's top strip,
+       left margin, and the band below the buttons stay at full
+       strength. */
+    mask-image:
+      radial-gradient(
+        ellipse 22% 22% at 27% 46%,
+        rgba(0, 0, 0, 0.3) 0%,
+        rgba(0, 0, 0, 0.6) 55%,
+        #000 100%
+      ),
+      radial-gradient(
+        ellipse 42% 60% at 76% 52%,
+        rgba(0, 0, 0, 0.28) 0%,
+        rgba(0, 0, 0, 0.55) 60%,
+        #000 100%
+      ),
+      linear-gradient(to bottom, #000 calc(100% - 10rem), transparent 100%);
+  }
+}
+
+/*
+ * Hero starfield twinkle (inspired by the classic canvas starfield):
+ * every eligible star breathes continuously at its own random duration
+ * and phase, carried as per-element CSS variables. CSS-driven so
+ * hundreds of stars can shimmer without any per-frame JS. This
+ * deliberately deviates from tempo-derived motion — an ambient sky
+ * reads organic precisely because the stars are NOT in sync.
+ */
+/* Stars hold near full brightness for most of the cycle and take one
+   brief, shallow dip — a glimmer, not a pulse. */
+@keyframes hero-star-twinkle {
+  0%,
+  38%,
+  62%,
+  100% {
+    opacity: var(--tw-max, 0.3);
+  }
+  50% {
+    opacity: var(--tw-min, 0.05);
+  }
+}
+
+.hero-star-twinkle {
+  animation: hero-star-twinkle var(--tw-dur, 7s) ease-in-out infinite;
+  animation-delay: var(--tw-delay, 0s);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-star-twinkle {
+    animation: none;
+  }
+}
+
+/*
  * Cheat sheet print / "Save as PDF" view.
  * Scoped with :has(.cheatsheet) so printing other routes is unchanged.
  * Isolates the harmonica Full Matrix and repaints it light-on-white so it

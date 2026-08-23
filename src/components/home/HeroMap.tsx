@@ -862,7 +862,9 @@ export function HeroMap() {
             </motion.text>
           </g>
 
-          {/* --- Keyboard: one continuous instrument body --- */}
+          {/* --- Keyboard: one continuous instrument body. No outline —
+            the surface floats in the starfield like everything else,
+            defined only by its own brightness. --- */}
           <g clipPath="url(#kb-clip)">
             {/* White-key base — a single surface, not separate buttons */}
             <rect
@@ -871,6 +873,17 @@ export function HeroMap() {
               width={KB.w}
               height={KB.h}
               className="fill-muted"
+            />
+            {/* Lift over the muted base so the instrument reads clearly
+              brighter than the sky behind it — the white keys skew
+              toward actual white */}
+            <rect
+              x={KB.x}
+              y={KB.y}
+              width={KB.w}
+              height={KB.h}
+              className="fill-foreground"
+              opacity={0.16}
             />
 
             {/* White-key glows (under seams and black keys) */}
@@ -908,18 +921,6 @@ export function HeroMap() {
             {/* Black-key glows (over the black keys) */}
             {renderKeyGlows("black")}
           </g>
-
-          {/* Body outline */}
-          <rect
-            x={KB.x}
-            y={KB.y}
-            width={KB.w}
-            height={KB.h}
-            rx={KB.rx}
-            fill="none"
-            className="stroke-border"
-            strokeWidth={1.5}
-          />
 
           {/* Invisible hit targets — whites first, blacks on top */}
           <g className="touch-none">
@@ -1023,16 +1024,35 @@ export function HeroMap() {
       {/* Invitation ticker — departure-board style, rolling until the
           first interaction fades it out for good. Above the map on mobile
           (where the map sits below the fold-adjacent text), below the
-          piano on desktop. Fixed height so retiring never shifts layout. */}
+          piano on desktop. Fixed height so retiring never shifts layout.
+          In the stacked layout, when the hero buttons fit on one row
+          (~480px+), the ticker escapes the centered map column and sits
+          centered beneath the button group at the page's left edge; the
+          margin calc cancels the column's centering offset. */}
       <div
         aria-hidden
-        className="order-first mb-6 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground lg:order-none lg:mb-0 lg:mt-1.5"
+        className="order-first mb-6 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground min-[480px]:max-lg:ml-[calc(1.5rem_-_(100vw_-_100%)/2)] min-[480px]:max-lg:w-[26rem] min-[480px]:max-lg:max-w-full lg:order-none lg:mb-0 lg:mt-1.5"
       >
         <AnimatePresence>
           {!hasInteracted && (
             <motion.div
               ref={tickerWindowRef}
-              className="min-w-0 flex-1 overflow-hidden"
+              className="min-w-0 flex-1 overflow-hidden rounded-full"
+              /* A soft background-colored halo fades the starfield
+                 around and beneath the rolling message so it stays
+                 readable; it retires together with the ticker. The mask
+                 dissolves the scrolling text before it reaches the
+                 window edges — a wider runway on the left, where it
+                 exits, so it never dies right at the page edge. */
+              style={{
+                background:
+                  "linear-gradient(to right, transparent, hsl(var(--background) / 0.85) 12%, hsl(var(--background) / 0.85) 88%, transparent)",
+                boxShadow: "0 0 14px 10px hsl(var(--background) / 0.6)",
+                maskImage:
+                  "linear-gradient(to right, transparent 2%, black 20%, black 94%, transparent 100%)",
+                WebkitMaskImage:
+                  "linear-gradient(to right, transparent 2%, black 20%, black 94%, transparent 100%)",
+              }}
               exit={{ opacity: 0 }}
               transition={{ duration: reduce ? 0 : 0.3 }}
             >

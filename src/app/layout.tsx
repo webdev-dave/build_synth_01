@@ -1,4 +1,5 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import Link from "next/link";
 import "./globals.css";
 import { TooltipProvider } from "@/components/TooltipContext";
 import TooltipToggleButton from "@/components/TooltipToggleButton";
@@ -91,10 +92,15 @@ export default function RootLayout({
                   the content and the footer rule either way. */}
               <footer className="mt-auto pt-24">
                 <div className="border-t border-border/60 px-6 py-4">
-                  <p className="mx-auto max-w-5xl text-center font-mono text-xs text-muted-foreground">
-                    © {new Date().getFullYear()} {APP_NAME} · All rights
-                    reserved
-                  </p>
+                  <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2 text-center font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:text-left">
+                    <Link
+                      href="/about"
+                      className="transition-colors hover:text-foreground md:order-2 md:text-right"
+                    >
+                      About the developer
+                    </Link>
+                    <p className="md:order-1">© {new Date().getFullYear()} {APP_NAME}</p>
+                  </div>
                 </div>
               </footer>
               <TooltipToggleButton />
