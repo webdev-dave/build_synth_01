@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
-import { Volume2, VolumeX } from "lucide-react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { RotateCcw, Volume2, VolumeX } from "lucide-react";
 
 import {
   BEAT,
@@ -66,6 +66,9 @@ const FLOATS = [
 ];
 
 const BAR = BEAT * 4;
+
+/* How many times the demo tune plays per run before resting. */
+const DEMO_PASSES = 2;
 
 /* Step sequencer: 8 eighth-note steps ticking like a metronome under the
    tune. Steps 1 and 5 (beats 1 & 3) are accented, drum-machine style. */
@@ -131,10 +134,10 @@ export function HeroMap() {
   const [flashes, setFlashes] = useState<Flash[]>([]);
   const flashSeq = useRef(0);
 
-  /* "auto" = attract mode (melody loops); "user" = visitor is playing,
-     melody yields the stage and returns after 8s of quiet. */
-  const [mode, setMode] = useState<"auto" | "user">("auto");
-  const idleTimer = useRef<number | null>(null);
+  /* The demo tune plays DEMO_PASSES times and then rests. It also rests the
+     moment the visitor starts playing, and it stays quiet — no auto-return.
+     Only the replay button starts another run of DEMO_PASSES. */
+  const [demoPlaying, setDemoPlaying] = useState(true);
 
   const [pressed, setPressed] = useState<NoteName | null>(null);
   const pressedRef = useRef<NoteName | null>(null);
@@ -164,13 +167,14 @@ export function HeroMap() {
   );
 
   /* Sequencer — melody and chord pad share one timeline. Each pass
-     schedules every event of one loop, then re-arms itself. */
+     schedules every event of one loop, then re-arms itself until the run
+     of DEMO_PASSES is spent. */
   useEffect(() => {
-    if (mode !== "auto") return;
+    if (!demoPlaying) return;
     const timers: number[] = [];
     const loopMs = TOTAL_BEATS * BEAT * 1000;
 
-    const scheduleLoop = (offsetMs: number) => {
+    const scheduleLoop = (offsetMs: number, pass: number) => {
       for (const ev of MELODY_TIMED) {
         timers.push(
           window.setTimeout(
@@ -189,17 +193,22 @@ export function HeroMap() {
           ),
         );
       }
-      timers.push(window.setTimeout(() => scheduleLoop(0), offsetMs + loopMs));
+      timers.push(
+        window.setTimeout(() => {
+          if (pass + 1 < DEMO_PASSES) scheduleLoop(0, pass + 1);
+          else setDemoPlaying(false);
+        }, offsetMs + loopMs),
+      );
     };
 
-    scheduleLoop(800);
+    scheduleLoop(800, 0);
     return () => timers.forEach((t) => window.clearTimeout(t));
-  }, [mode, fireNote, chordOn]);
+  }, [demoPlaying, fireNote, chordOn]);
 
+  /* Any playing by the visitor ends the demo run for good — it only comes
+     back via the replay button. */
   const markInteraction = useCallback(() => {
-    setMode("user");
-    if (idleTimer.current) window.clearTimeout(idleTimer.current);
-    idleTimer.current = window.setTimeout(() => setMode("auto"), 8000);
+    setDemoPlaying(false);
   }, []);
 
   /* Playing the piano or a node is itself a user gesture — that click may
@@ -499,10 +508,10 @@ export function HeroMap() {
           />
         ))}
 
-        {/* Center radar ping — a soft metronome tick on beat one. Attract
-            mode only: while the user plays, a ring swelling from C would
+        {/* Center radar ping — a soft metronome tick on beat one. Demo
+            only: while the user plays, a ring swelling from C would
             falsely suggest C is sounding. */}
-        {!reduce && mode === "auto" && (
+        {!reduce && demoPlaying && (
           <motion.circle
             cx={CENTER.x}
             cy={CENTER.y}
@@ -955,6 +964,25 @@ export function HeroMap() {
           <Volume2 className="h-4 w-4" />
         )}
       </button>
+
+      {/* Replay — appears once the demo run has rested (finished its passes
+          or yielded to the visitor). Sound still follows the mute toggle. */}
+      <AnimatePresence>
+        {!demoPlaying && (
+          <motion.button
+            type="button"
+            onClick={() => setDemoPlaying(true)}
+            aria-label="Replay the demo tune"
+            className="absolute right-0 top-11 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduce ? 0 : 0.35 }}
+          >
+            <RotateCcw className="h-4 w-4" />
+          </motion.button>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

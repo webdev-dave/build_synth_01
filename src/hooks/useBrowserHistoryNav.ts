@@ -34,34 +34,43 @@ export function useBrowserHistoryNav(): HistoryAvailability {
   });
 
   const sync = useCallback(() => {
-    const fromApi = readNavigationApi();
-    if (fromApi) {
-      setAvailability(fromApi);
-      return;
-    }
+    const next =
+      readNavigationApi() ??
+      ({
+        canGoBack:
+          indexRef.current > 0 ||
+          (typeof window !== "undefined" && window.history.length > 1),
+        canGoForward: indexRef.current < stackRef.current.length - 1,
+      } satisfies HistoryAvailability);
 
-    setAvailability({
-      canGoBack:
-        indexRef.current > 0 ||
-        (typeof window !== "undefined" && window.history.length > 1),
-      canGoForward: indexRef.current < stackRef.current.length - 1,
-    });
+    // Bail out when nothing changed so we never schedule a redundant update
+    // (browsers can fire `currententrychange` mid-commit, when React is
+    // running `useInsertionEffect` and forbids scheduling updates).
+    setAvailability((prev) =>
+      prev.canGoBack === next.canGoBack &&
+      prev.canGoForward === next.canGoForward
+        ? prev
+        : next,
+    );
   }, []);
 
   useEffect(() => {
+    // Defer to a microtask so updates land after React's commit phase.
+    const deferredSync = () => queueMicrotask(sync);
+
     const onPopState = () => {
       fromPopStateRef.current = true;
-      queueMicrotask(sync);
+      deferredSync();
     };
 
     window.addEventListener("popstate", onPopState);
 
     const nav = (window as Window & { navigation?: EventTarget }).navigation;
-    nav?.addEventListener("currententrychange", sync);
+    nav?.addEventListener("currententrychange", deferredSync);
 
     return () => {
       window.removeEventListener("popstate", onPopState);
-      nav?.removeEventListener("currententrychange", sync);
+      nav?.removeEventListener("currententrychange", deferredSync);
     };
   }, [sync]);
 

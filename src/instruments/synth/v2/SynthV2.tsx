@@ -188,8 +188,10 @@ export function SynthV2() {
 
   return (
     <div className="space-y-4">
-      {/* Readout strip */}
-      <Card className="flex flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3">
+      {/* Readout strip — on mobile the status always sits on its own row.
+          Content-dependent wrapping would change the card's height as notes
+          play, bouncing the keyboard below it. */}
+      <Card className="flex flex-col items-start gap-y-2 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:gap-x-6">
         <button
           type="button"
           aria-label="Explain this readout"

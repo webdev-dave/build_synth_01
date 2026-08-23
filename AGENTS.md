@@ -103,8 +103,10 @@ are places with relationships, and the app shows you the connections.
 ## 6. Interaction
 
 - **Attract mode.** Ambient demos yield the stage the moment the user
-  interacts, and return after a short idle period (the hero uses 8s).
-  Never fight the user for control; never leave the stage dead either.
+ interacts, and don't barge back in — a demo plays a bounded run (the
+ hero plays its tune twice) and then rests behind a quiet replay
+ affordance. Never fight the user for control; never leave the stage
+ dead either — resting views keep a visible way to bring the demo back.
 - **Everything interactive looks interactive** — hover states, cursor
   changes — and is keyboard-accessible (`tabIndex`, Enter/Space handlers,
   `aria-label`s), including SVG elements.
