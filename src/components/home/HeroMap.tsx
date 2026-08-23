@@ -73,7 +73,7 @@ const DEMO_PASSES = 2;
 /* Discoverability ticker — a departure-board line under the instrument
    inviting the visitor to play. It keeps rolling at tempo (motion follows
    music) until the first interaction retires it for good. */
-const TICKER_TEXT = "tap the keys · tap a node to hear its chord";
+const TICKER_TEXT = "tap a node to hear its chord · tap the keys";
 const TICKER_BARS_PER_PASS = 3;
 
 /* Step sequencer: 8 eighth-note steps ticking like a metronome under the
@@ -454,522 +454,579 @@ export function HeroMap() {
      air below. 0.826 is the SVG aspect ratio (360/436); the 9rem budget
      covers the nav, page padding, and breathing room above and beneath. */
   return (
-    <div className="relative w-full max-w-[440px] lg:max-w-[min(440px,calc((100svh_-_9rem)*0.826))]">
-      <svg
-        viewBox="0 0 360 436"
-        className="h-auto w-full"
-      >
-        <title>
-          A map connecting the root note C to its scale tones, in sync with a
-          playable piano keyboard above a beat sequencer
-        </title>
+    <div className="flex w-full max-w-[440px] flex-col lg:max-w-[min(440px,calc((100svh_-_9rem)*0.826))]">
+      {/* Artwork wrapper — the overlay buttons anchor to the map itself,
+          since on mobile the outer column starts with the ticker. */}
+      <div className="relative">
+        <svg
+          viewBox="0 0 360 436"
+          className="h-auto w-full"
+        >
+          <title>
+            A map connecting the root note C to its scale tones, in sync with a
+            playable piano keyboard above a beat sequencer
+          </title>
 
-        {/* Radar-style guide rings */}
-        {[70, 112, 150].map((r) => (
-          <circle
-            key={r}
-            cx={CENTER.x}
-            cy={CENTER.y}
-            r={r}
-            fill="none"
-            className="stroke-border"
-            strokeOpacity={0.35}
-          />
-        ))}
+          {/* Radar-style guide rings */}
+          {[70, 112, 150].map((r) => (
+            <circle
+              key={r}
+              cx={CENTER.x}
+              cy={CENTER.y}
+              r={r}
+              fill="none"
+              className="stroke-border"
+              strokeOpacity={0.35}
+            />
+          ))}
 
-        {/* Floating notation glyphs */}
-        {FLOATS.map((f) =>
-          reduce ? (
-            <text
-              key={`float-${f.glyph}-${f.x}`}
-              x={f.x}
-              y={f.y}
-              fontSize={f.size}
-              textAnchor="middle"
-              className="fill-muted-foreground"
-              opacity={0.35}
-            >
-              {f.glyph}
-            </text>
-          ) : (
-            <motion.text
-              key={`float-${f.glyph}-${f.x}`}
-              x={f.x}
-              fontSize={f.size}
-              textAnchor="middle"
-              className="fill-muted-foreground"
-              initial={{ y: f.y, opacity: 0.25 }}
-              animate={{ y: [f.y, f.y - 7, f.y], opacity: [0.25, 0.5, 0.25] }}
-              transition={{
-                duration: 4.5 + f.delay,
-                ease: "easeInOut",
-                repeat: Infinity,
-                delay: f.delay,
-              }}
-            >
-              {f.glyph}
-            </motion.text>
-          ),
-        )}
+          {/* Floating notation glyphs */}
+          {FLOATS.map((f) =>
+            reduce ? (
+              <text
+                key={`float-${f.glyph}-${f.x}`}
+                x={f.x}
+                y={f.y}
+                fontSize={f.size}
+                textAnchor="middle"
+                className="fill-muted-foreground"
+                opacity={0.35}
+              >
+                {f.glyph}
+              </text>
+            ) : (
+              <motion.text
+                key={`float-${f.glyph}-${f.x}`}
+                x={f.x}
+                fontSize={f.size}
+                textAnchor="middle"
+                className="fill-muted-foreground"
+                initial={{ y: f.y, opacity: 0.25 }}
+                animate={{ y: [f.y, f.y - 7, f.y], opacity: [0.25, 0.5, 0.25] }}
+                transition={{
+                  duration: 4.5 + f.delay,
+                  ease: "easeInOut",
+                  repeat: Infinity,
+                  delay: f.delay,
+                }}
+              >
+                {f.glyph}
+              </motion.text>
+            ),
+          )}
 
-        {/* Base edges: center -> outer */}
-        {OUTER.map((n) => (
-          <line
-            key={`edge-${n.id}`}
-            x1={CENTER.x}
-            y1={CENTER.y}
-            x2={n.x}
-            y2={n.y}
-            className="stroke-border"
-            strokeWidth={1.5}
-          />
-        ))}
+          {/* Base edges: center -> outer */}
+          {OUTER.map((n) => (
+            <line
+              key={`edge-${n.id}`}
+              x1={CENTER.x}
+              y1={CENTER.y}
+              x2={n.x}
+              y2={n.y}
+              className="stroke-border"
+              strokeWidth={1.5}
+            />
+          ))}
 
-        {/* Secondary edges */}
-        {LINKS.map(([a, b]) => (
-          <line
-            key={`link-${a.id}-${b.id}`}
-            x1={a.x}
-            y1={a.y}
-            x2={b.x}
-            y2={b.y}
-            className="stroke-border"
-            strokeWidth={1.5}
-            strokeOpacity={0.6}
-          />
-        ))}
+          {/* Secondary edges */}
+          {LINKS.map(([a, b]) => (
+            <line
+              key={`link-${a.id}-${b.id}`}
+              x1={a.x}
+              y1={a.y}
+              x2={b.x}
+              y2={b.y}
+              className="stroke-border"
+              strokeWidth={1.5}
+              strokeOpacity={0.6}
+            />
+          ))}
 
-        {/* Center radar ping — a soft metronome tick on beat one. Demo
+          {/* Center radar ping — a soft metronome tick on beat one. Demo
             only: while the user plays, a ring swelling from C would
             falsely suggest C is sounding. */}
-        {!reduce && demoPlaying && (
-          <motion.circle
-            cx={CENTER.x}
-            cy={CENTER.y}
-            className="fill-foreground"
-            initial={{ r: CENTER.r, opacity: 0.14 }}
-            animate={{ r: [CENTER.r, 150], opacity: [0.14, 0] }}
-            transition={{
-              duration: BAR * 0.75,
-              ease: "easeOut",
-              repeat: Infinity,
-              repeatDelay: BAR * 0.25,
-            }}
-          />
-        )}
+          {!reduce && demoPlaying && (
+            <motion.circle
+              cx={CENTER.x}
+              cy={CENTER.y}
+              className="fill-foreground"
+              initial={{ r: CENTER.r, opacity: 0.14 }}
+              animate={{ r: [CENTER.r, 150], opacity: [0.14, 0] }}
+              transition={{
+                duration: BAR * 0.75,
+                ease: "easeOut",
+                repeat: Infinity,
+                repeatDelay: BAR * 0.25,
+              }}
+            />
+          )}
 
-        {/* Travelling pulses — melody notes flow center→node, played keys
+          {/* Travelling pulses — melody notes flow center→node, played keys
             flow key→node (the note you press climbs up into the map) */}
-        {!reduce &&
-          nodeFlashes.map((f) => {
-            const nodeId = flashNodeId(f)!;
-            const target = NODE_POS[nodeId];
-            const isCenter = nodeId === CENTER.id;
+          {!reduce &&
+            nodeFlashes.map((f) => {
+              const nodeId = flashNodeId(f)!;
+              const target = NODE_POS[nodeId];
+              const isCenter = nodeId === CENTER.id;
 
-            if (f.origin === "melody" && isCenter) {
-              // Tonic sounding: the center throbs instead of travelling.
+              if (f.origin === "melody" && isCenter) {
+                // Tonic sounding: the center throbs instead of travelling.
+                return (
+                  <motion.circle
+                    key={`pulse-${f.id}`}
+                    cx={CENTER.x}
+                    cy={CENTER.y}
+                    fill="none"
+                    className="stroke-foreground"
+                    strokeWidth={1.5}
+                    initial={{ r: CENTER.r, opacity: 0.4 }}
+                    animate={{ r: CENTER.r + 18, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: "easeOut" }}
+                  />
+                );
+              }
+
+              const rect = keyRect(NOTES[f.note].key);
+              const keyPoint = { x: rect.x + rect.w / 2, y: KB.y };
+              /* melody: center → node · key press: key → node ·
+               node chord: node → key (the chord rains down onto the piano) */
+              const [from, to] =
+                f.origin === "key"
+                  ? [keyPoint, target]
+                  : f.origin === "node"
+                    ? [target, keyPoint]
+                    : [{ x: CENTER.x, y: CENTER.y }, target];
               return (
                 <motion.circle
                   key={`pulse-${f.id}`}
-                  cx={CENTER.x}
-                  cy={CENTER.y}
-                  fill="none"
-                  className="stroke-foreground"
-                  strokeWidth={1.5}
-                  initial={{ r: CENTER.r, opacity: 0.4 }}
-                  animate={{ r: CENTER.r + 18, opacity: 0 }}
-                  transition={{ duration: 0.9, ease: "easeOut" }}
+                  r={5}
+                  className="fill-foreground"
+                  filter="url(#pulse-glow)"
+                  initial={{ cx: from.x, cy: from.y, opacity: 0 }}
+                  animate={{
+                    cx: [from.x, to.x],
+                    cy: [from.y, to.y],
+                    opacity: [0, 0.55, 0.55, 0],
+                  }}
+                  transition={{
+                    duration: 0.7,
+                    times: [0, 0.25, 0.8, 1],
+                    ease: "easeInOut",
+                  }}
                 />
               );
-            }
+            })}
 
-            const rect = keyRect(NOTES[f.note].key);
-            const keyPoint = { x: rect.x + rect.w / 2, y: KB.y };
-            /* melody: center → node · key press: key → node ·
-               node chord: node → key (the chord rains down onto the piano) */
-            const [from, to] =
-              f.origin === "key"
-                ? [keyPoint, target]
-                : f.origin === "node"
-                  ? [target, keyPoint]
-                  : [{ x: CENTER.x, y: CENTER.y }, target];
-            return (
-              <motion.circle
-                key={`pulse-${f.id}`}
-                r={5}
-                className="fill-foreground"
-                filter="url(#pulse-glow)"
-                initial={{ cx: from.x, cy: from.y, opacity: 0 }}
-                animate={{
-                  cx: [from.x, to.x],
-                  cy: [from.y, to.y],
-                  opacity: [0, 0.55, 0.55, 0],
-                }}
-                transition={{
-                  duration: 0.7,
-                  times: [0, 0.25, 0.8, 1],
-                  ease: "easeInOut",
-                }}
-              />
-            );
-          })}
-
-        {/* Outer nodes — click to hear the chord; labels morph to the
+          {/* Outer nodes — click to hear the chord; labels morph to the
             accidental while it sounds */}
-        {OUTER.map((n) => (
-          <g
-            key={`node-${n.id}`}
-            {...nodeInteractionProps(n.id)}
-          >
-            <circle
-              cx={n.x}
-              cy={n.y}
-              r={n.r}
-              className="fill-card stroke-border transition-colors hover:stroke-foreground/50"
-              strokeWidth={1.5}
-            />
-            <text
-              x={n.x}
-              y={n.y}
-              textAnchor="middle"
-              dominantBaseline="central"
-              className={
-                alterations[n.id]
-                  ? "fill-foreground font-mono text-[13px]"
-                  : "fill-muted-foreground font-mono text-[13px]"
-              }
+          {OUTER.map((n) => (
+            <g
+              key={`node-${n.id}`}
+              {...nodeInteractionProps(n.id)}
             >
-              {alterations[n.id] ?? n.id}
-            </text>
-          </g>
-        ))}
-
-        {/* Node rings — brighten while their note sounds */}
-        {nodeFlashes
-          .filter((f) => flashNodeId(f) !== CENTER.id)
-          .map((f) => {
-            const n = NODE_POS[flashNodeId(f)!];
-            const duration = f.beats * BEAT + 0.3;
-            return reduce ? (
               <circle
-                key={`ring-${f.id}`}
                 cx={n.x}
                 cy={n.y}
-                r={n.r + 1}
-                fill="none"
-                className="stroke-foreground"
+                r={n.r}
+                className="fill-card stroke-border transition-colors hover:stroke-foreground/50"
                 strokeWidth={1.5}
-                opacity={0.6}
               />
-            ) : (
-              <g key={`ring-${f.id}`}>
-                <motion.circle
+              <text
+                x={n.x}
+                y={n.y}
+                textAnchor="middle"
+                dominantBaseline="central"
+                className={
+                  alterations[n.id]
+                    ? "fill-foreground font-mono text-[13px]"
+                    : "fill-muted-foreground font-mono text-[13px]"
+                }
+              >
+                {alterations[n.id] ?? n.id}
+              </text>
+            </g>
+          ))}
+
+          {/* Node rings — brighten while their note sounds */}
+          {nodeFlashes
+            .filter((f) => flashNodeId(f) !== CENTER.id)
+            .map((f) => {
+              const n = NODE_POS[flashNodeId(f)!];
+              const duration = f.beats * BEAT + 0.3;
+              return reduce ? (
+                <circle
+                  key={`ring-${f.id}`}
                   cx={n.x}
                   cy={n.y}
                   r={n.r + 1}
                   fill="none"
                   className="stroke-foreground"
                   strokeWidth={1.5}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: [0, 0.85, 0.6, 0] }}
-                  transition={{
-                    duration,
-                    times: [0, 0.1, 0.7, 1],
-                    ease: "easeInOut",
-                  }}
+                  opacity={0.6}
                 />
-                {/* Fainter cousin of the center's throb — the node exhales
+              ) : (
+                <g key={`ring-${f.id}`}>
+                  <motion.circle
+                    cx={n.x}
+                    cy={n.y}
+                    r={n.r + 1}
+                    fill="none"
+                    className="stroke-foreground"
+                    strokeWidth={1.5}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: [0, 0.85, 0.6, 0] }}
+                    transition={{
+                      duration,
+                      times: [0, 0.1, 0.7, 1],
+                      ease: "easeInOut",
+                    }}
+                  />
+                  {/* Fainter cousin of the center's throb — the node exhales
                     once as its note sounds */}
-                <motion.circle
-                  cx={n.x}
-                  cy={n.y}
-                  fill="none"
-                  className="stroke-foreground"
-                  strokeWidth={1}
-                  initial={{ r: n.r, opacity: 0.22 }}
-                  animate={{ r: n.r + 14, opacity: 0 }}
-                  transition={{ duration: 0.9, ease: "easeOut" }}
-                />
-              </g>
-            );
-          })}
+                  <motion.circle
+                    cx={n.x}
+                    cy={n.y}
+                    fill="none"
+                    className="stroke-foreground"
+                    strokeWidth={1}
+                    initial={{ r: n.r, opacity: 0.22 }}
+                    animate={{ r: n.r + 14, opacity: 0 }}
+                    transition={{ duration: 0.9, ease: "easeOut" }}
+                  />
+                </g>
+              );
+            })}
 
-        <defs>
-          {OUTER.map((n, i) => (
-            <clipPath
-              key={`hzw-clip-${i}`}
-              id={`hzw-${i}`}
-            >
+          <defs>
+            {OUTER.map((n, i) => (
+              <clipPath
+                key={`hzw-clip-${i}`}
+                id={`hzw-${i}`}
+              >
+                <rect
+                  x={n.x - 12}
+                  y={n.y + n.r + 16}
+                  width={24}
+                  height={9}
+                />
+              </clipPath>
+            ))}
+            <clipPath id="hzw-center">
               <rect
-                x={n.x - 12}
-                y={n.y + n.r + 16}
+                x={CENTER.x - 12}
+                y={CENTER.y + CENTER.r + 17}
                 width={24}
                 height={9}
               />
             </clipPath>
-          ))}
-          <clipPath id="hzw-center">
-            <rect
-              x={CENTER.x - 12}
-              y={CENTER.y + CENTER.r + 17}
-              width={24}
-              height={9}
+            {/* Softens the travelling pulses from dots into glows */}
+            <filter
+              id="pulse-glow"
+              x="-100%"
+              y="-100%"
+              width="300%"
+              height="300%"
+            >
+              <feGaussianBlur stdDeviation="1.8" />
+            </filter>
+            {/* Keeps every key inside the rounded instrument body */}
+            <clipPath id="kb-clip">
+              <rect
+                x={KB.x}
+                y={KB.y}
+                width={KB.w}
+                height={KB.h}
+                rx={KB.rx}
+              />
+            </clipPath>
+            {/* Pressed keys glow from the bottom, like light under the key */}
+            <linearGradient
+              id="key-glow"
+              x1="0"
+              y1="0"
+              x2="0"
+              y2="1"
+            >
+              <stop
+                offset="0"
+                style={{ stopColor: "hsl(var(--foreground))" }}
+                stopOpacity={0.04}
+              />
+              <stop
+                offset="1"
+                style={{ stopColor: "hsl(var(--foreground))" }}
+                stopOpacity={0.55}
+              />
+            </linearGradient>
+          </defs>
+
+          {/* Frequency readouts — appear on a node while its note sounds,
+            with a tiny scrolling wave (speed scales with pitch). The center
+            obeys the same rule: no sound, no readout. */}
+          {nodeFlashes.map((f) => {
+            const info = NOTES[f.note];
+            const nodeId = flashNodeId(f)!;
+            const n = NODE_POS[nodeId];
+            const clipId =
+              nodeId === CENTER.id ? "hzw-center" : `hzw-${NODE_INDEX[nodeId]}`;
+            const label = `${info.hz.toFixed(1)} Hz`;
+            const y = n.y + n.r + 13;
+            const waveY = y + 7.5;
+            const duration = f.beats * BEAT + 0.3;
+            const envelope = {
+              duration,
+              times: [0, 0.12, 0.7, 1],
+              ease: "easeInOut" as const,
+            };
+            return reduce ? (
+              <g key={`hz-${f.id}`}>
+                <text
+                  x={n.x}
+                  y={y}
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-mono text-[9px]"
+                  opacity={0.7}
+                >
+                  {label}
+                </text>
+                <path
+                  d={wavePath(n.x, waveY)}
+                  fill="none"
+                  className="stroke-muted-foreground"
+                  strokeWidth={1}
+                  clipPath={`url(#${clipId})`}
+                  opacity={0.4}
+                />
+              </g>
+            ) : (
+              <g key={`hz-${f.id}`}>
+                <motion.text
+                  x={n.x}
+                  y={y}
+                  textAnchor="middle"
+                  className="fill-muted-foreground font-mono text-[9px]"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.9, 0.9, 0] }}
+                  transition={envelope}
+                >
+                  {label}
+                </motion.text>
+                <motion.g
+                  clipPath={`url(#${clipId})`}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: [0, 0.75, 0.75, 0] }}
+                  transition={envelope}
+                >
+                  <motion.path
+                    d={wavePath(n.x, waveY)}
+                    fill="none"
+                    className="stroke-muted-foreground"
+                    strokeWidth={1}
+                    initial={{ x: 0 }}
+                    animate={{ x: 12 }}
+                    transition={{
+                      duration: waveScrollDuration(info.hz),
+                      ease: "linear",
+                      repeat: Infinity,
+                    }}
+                  />
+                </motion.g>
+              </g>
+            );
+          })}
+
+          {/* Center node — click to hear the tonic chord. Its ring fades
+            while a chord without C sounds. */}
+          <g {...nodeInteractionProps(CENTER.id)}>
+            <motion.circle
+              cx={CENTER.x}
+              cy={CENTER.y}
+              r={CENTER.r}
+              className="fill-background stroke-foreground"
+              strokeWidth={2}
+              initial={false}
+              animate={{ strokeOpacity: centerDimmed ? 0.12 : 0.55 }}
+              transition={{ duration: reduce ? 0 : 0.25 }}
             />
-          </clipPath>
-          {/* Softens the travelling pulses from dots into glows */}
-          <filter
-            id="pulse-glow"
-            x="-100%"
-            y="-100%"
-            width="300%"
-            height="300%"
-          >
-            <feGaussianBlur stdDeviation="1.8" />
-          </filter>
-          {/* Keeps every key inside the rounded instrument body */}
-          <clipPath id="kb-clip">
+            <motion.text
+              x={CENTER.x}
+              y={CENTER.y}
+              textAnchor="middle"
+              dominantBaseline="central"
+              className="fill-foreground font-mono text-[17px] font-semibold"
+              initial={false}
+              animate={{ opacity: centerDimmed ? 0.35 : 1 }}
+              transition={{ duration: reduce ? 0 : 0.25 }}
+            >
+              {CENTER.id}
+            </motion.text>
+          </g>
+
+          {/* --- Keyboard: one continuous instrument body --- */}
+          <g clipPath="url(#kb-clip)">
+            {/* White-key base — a single surface, not separate buttons */}
             <rect
               x={KB.x}
               y={KB.y}
               width={KB.w}
               height={KB.h}
-              rx={KB.rx}
+              className="fill-muted"
             />
-          </clipPath>
-          {/* Pressed keys glow from the bottom, like light under the key */}
-          <linearGradient
-            id="key-glow"
-            x1="0"
-            y1="0"
-            x2="0"
-            y2="1"
-          >
-            <stop
-              offset="0"
-              style={{ stopColor: "hsl(var(--foreground))" }}
-              stopOpacity={0.04}
-            />
-            <stop
-              offset="1"
-              style={{ stopColor: "hsl(var(--foreground))" }}
-              stopOpacity={0.55}
-            />
-          </linearGradient>
-        </defs>
 
-        {/* Frequency readouts — appear on a node while its note sounds,
-            with a tiny scrolling wave (speed scales with pitch). The center
-            obeys the same rule: no sound, no readout. */}
-        {nodeFlashes.map((f) => {
-          const info = NOTES[f.note];
-          const nodeId = flashNodeId(f)!;
-          const n = NODE_POS[nodeId];
-          const clipId =
-            nodeId === CENTER.id ? "hzw-center" : `hzw-${NODE_INDEX[nodeId]}`;
-          const label = `${info.hz.toFixed(1)} Hz`;
-          const y = n.y + n.r + 13;
-          const waveY = y + 7.5;
-          const duration = f.beats * BEAT + 0.3;
-          const envelope = {
-            duration,
-            times: [0, 0.12, 0.7, 1],
-            ease: "easeInOut" as const,
-          };
-          return reduce ? (
-            <g key={`hz-${f.id}`}>
-              <text
-                x={n.x}
-                y={y}
-                textAnchor="middle"
-                className="fill-muted-foreground font-mono text-[9px]"
-                opacity={0.7}
-              >
-                {label}
-              </text>
-              <path
-                d={wavePath(n.x, waveY)}
-                fill="none"
-                className="stroke-muted-foreground"
-                strokeWidth={1}
-                clipPath={`url(#${clipId})`}
-                opacity={0.4}
+            {/* White-key glows (under seams and black keys) */}
+            {renderKeyGlows("white")}
+
+            {/* Seams between white keys */}
+            {[1, 2, 3, 4, 5, 6, 7].map((i) => (
+              <line
+                key={`seam-${i}`}
+                x1={KB.x + i * WKEY_W}
+                y1={KB.y}
+                x2={KB.x + i * WKEY_W}
+                y2={KB.y + KB.h}
+                className="stroke-background"
+                strokeWidth={2}
               />
-            </g>
-          ) : (
-            <g key={`hz-${f.id}`}>
-              <motion.text
-                x={n.x}
-                y={y}
-                textAnchor="middle"
-                className="fill-muted-foreground font-mono text-[9px]"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.9, 0.9, 0] }}
-                transition={envelope}
-              >
-                {label}
-              </motion.text>
-              <motion.g
-                clipPath={`url(#${clipId})`}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: [0, 0.75, 0.75, 0] }}
-                transition={envelope}
-              >
-                <motion.path
-                  d={wavePath(n.x, waveY)}
-                  fill="none"
-                  className="stroke-muted-foreground"
-                  strokeWidth={1}
-                  initial={{ x: 0 }}
-                  animate={{ x: 12 }}
-                  transition={{
-                    duration: waveScrollDuration(info.hz),
-                    ease: "linear",
-                    repeat: Infinity,
-                  }}
+            ))}
+
+            {/* Black keys — solid, flush to the top, rounded at the bottom */}
+            {BLACK_BOUNDARIES.map((_, i) => {
+              const k = blackKey(i);
+              return (
+                <rect
+                  key={`bk-${i}`}
+                  x={k.x}
+                  y={k.y}
+                  width={k.w}
+                  height={k.h}
+                  rx={k.rx}
+                  className="fill-background"
                 />
-              </motion.g>
-            </g>
-          );
-        })}
+              );
+            })}
 
-        {/* Center node — click to hear the tonic chord. Its ring fades
-            while a chord without C sounds. */}
-        <g {...nodeInteractionProps(CENTER.id)}>
-          <motion.circle
-            cx={CENTER.x}
-            cy={CENTER.y}
-            r={CENTER.r}
-            className="fill-background stroke-foreground"
-            strokeWidth={2}
-            initial={false}
-            animate={{ strokeOpacity: centerDimmed ? 0.12 : 0.55 }}
-            transition={{ duration: reduce ? 0 : 0.25 }}
-          />
-          <motion.text
-            x={CENTER.x}
-            y={CENTER.y}
-            textAnchor="middle"
-            dominantBaseline="central"
-            className="fill-foreground font-mono text-[17px] font-semibold"
-            initial={false}
-            animate={{ opacity: centerDimmed ? 0.35 : 1 }}
-            transition={{ duration: reduce ? 0 : 0.25 }}
-          >
-            {CENTER.id}
-          </motion.text>
-        </g>
+            {/* Black-key glows (over the black keys) */}
+            {renderKeyGlows("black")}
+          </g>
 
-        {/* --- Keyboard: one continuous instrument body --- */}
-        <g clipPath="url(#kb-clip)">
-          {/* White-key base — a single surface, not separate buttons */}
+          {/* Body outline */}
           <rect
             x={KB.x}
             y={KB.y}
             width={KB.w}
             height={KB.h}
-            className="fill-muted"
+            rx={KB.rx}
+            fill="none"
+            className="stroke-border"
+            strokeWidth={1.5}
           />
 
-          {/* White-key glows (under seams and black keys) */}
-          {renderKeyGlows("white")}
+          {/* Invisible hit targets — whites first, blacks on top */}
+          <g className="touch-none">
+            {WHITE_NOTES.map((note, i) => hitRect(whiteKey(i), note))}
+            {BLACK_NOTES.map((note, i) => hitRect(blackKey(i), note))}
+          </g>
 
-          {/* Seams between white keys */}
-          {[1, 2, 3, 4, 5, 6, 7].map((i) => (
-            <line
-              key={`seam-${i}`}
-              x1={KB.x + i * WKEY_W}
-              y1={KB.y}
-              x2={KB.x + i * WKEY_W}
-              y2={KB.y + KB.h}
-              className="stroke-background"
-              strokeWidth={2}
-            />
-          ))}
-
-          {/* Black keys — solid, flush to the top, rounded at the bottom */}
-          {BLACK_BOUNDARIES.map((_, i) => {
-            const k = blackKey(i);
-            return (
-              <rect
-                key={`bk-${i}`}
-                x={k.x}
-                y={k.y}
-                width={k.w}
-                height={k.h}
-                rx={k.rx}
-                className="fill-background"
+          {/* Step sequencer — 8 eighth-note steps ticking across the bar.
+            It only ticks while the demo tune plays: a beating metronome
+            over a silent, resting map would be a lie. */}
+          {Array.from({ length: STEP_COUNT }, (_, i) => {
+            const cx = STEP_X0 + i * STEP_SPACING;
+            const accent = ACCENTS.includes(i);
+            const baseR = accent ? 3.5 : 2.5;
+            const baseOpacity = accent ? 0.55 : 0.3;
+            return reduce || !demoPlaying ? (
+              <circle
+                key={`step-${i}`}
+                cx={cx}
+                cy={STEP_Y}
+                r={baseR}
+                className={accent ? "fill-foreground" : "fill-muted-foreground"}
+                opacity={baseOpacity}
+              />
+            ) : (
+              <motion.circle
+                key={`step-${i}`}
+                cx={cx}
+                cy={STEP_Y}
+                className={accent ? "fill-foreground" : "fill-muted-foreground"}
+                initial={{ r: baseR, opacity: baseOpacity }}
+                animate={{
+                  r: [baseR, baseR + 1.5, baseR],
+                  opacity: [baseOpacity, 1, baseOpacity],
+                }}
+                transition={{
+                  duration: 0.3,
+                  ease: "easeOut",
+                  repeat: Infinity,
+                  repeatDelay: BAR - 0.3,
+                  delay: i * STEP_TIME,
+                }}
               />
             );
           })}
+        </svg>
 
-          {/* Black-key glows (over the black keys) */}
-          {renderKeyGlows("black")}
-        </g>
-
-        {/* Body outline */}
-        <rect
-          x={KB.x}
-          y={KB.y}
-          width={KB.w}
-          height={KB.h}
-          rx={KB.rx}
-          fill="none"
-          className="stroke-border"
-          strokeWidth={1.5}
-        />
-
-        {/* Invisible hit targets — whites first, blacks on top */}
-        <g className="touch-none">
-          {WHITE_NOTES.map((note, i) => hitRect(whiteKey(i), note))}
-          {BLACK_NOTES.map((note, i) => hitRect(blackKey(i), note))}
-        </g>
-
-        {/* Step sequencer — 8 eighth-note steps ticking across the bar.
-            It only ticks while the demo tune plays: a beating metronome
-            over a silent, resting map would be a lie. */}
-        {Array.from({ length: STEP_COUNT }, (_, i) => {
-          const cx = STEP_X0 + i * STEP_SPACING;
-          const accent = ACCENTS.includes(i);
-          const baseR = accent ? 3.5 : 2.5;
-          const baseOpacity = accent ? 0.55 : 0.3;
-          return reduce || !demoPlaying ? (
-            <circle
-              key={`step-${i}`}
-              cx={cx}
-              cy={STEP_Y}
-              r={baseR}
-              className={accent ? "fill-foreground" : "fill-muted-foreground"}
-              opacity={baseOpacity}
-            />
-          ) : (
-            <motion.circle
-              key={`step-${i}`}
-              cx={cx}
-              cy={STEP_Y}
-              className={accent ? "fill-foreground" : "fill-muted-foreground"}
-              initial={{ r: baseR, opacity: baseOpacity }}
-              animate={{
-                r: [baseR, baseR + 1.5, baseR],
-                opacity: [baseOpacity, 1, baseOpacity],
-              }}
+        {/* Sound toggle — muted by default; the pulse invites the click that
+          doubles as the browser's audio-consent gesture */}
+        <button
+          type="button"
+          onClick={toggleMute}
+          aria-label={muted ? "Turn sound on" : "Turn sound off"}
+          className={
+            muted
+              ? "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-orange-500/70 bg-orange-500/10 text-orange-400 transition-colors hover:bg-orange-500/20 hover:text-orange-300"
+              : "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+          }
+        >
+          {muted && !reduce && (
+            <motion.span
+              aria-hidden
+              className="absolute inset-0 rounded-full border border-orange-400/80"
+              initial={{ scale: 1, opacity: 0 }}
+              animate={{ scale: [1, 1.5], opacity: [0.55, 0] }}
               transition={{
-                duration: 0.3,
+                duration: 1.8,
                 ease: "easeOut",
                 repeat: Infinity,
-                repeatDelay: BAR - 0.3,
-                delay: i * STEP_TIME,
+                repeatDelay: 0.9,
               }}
             />
-          );
-        })}
-      </svg>
+          )}
+          {muted ? (
+            <VolumeX className="h-4 w-4" />
+          ) : (
+            <Volume2 className="h-4 w-4" />
+          )}
+        </button>
 
-      {/* Invitation ticker — departure-board style. Scrolls twice at tempo,
-          parks as a static line, and fades out for good the moment the
-          visitor plays. Fixed height so retiring never shifts the layout. */}
+        {/* Replay — appears once the demo run has rested (finished its passes
+          or yielded to the visitor). Sound still follows the mute toggle. */}
+        <AnimatePresence>
+          {!demoPlaying && (
+            <motion.button
+              type="button"
+              onClick={() => setDemoPlaying(true)}
+              aria-label="Replay the demo tune"
+              className="absolute right-0 top-11 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: reduce ? 0 : 0.35 }}
+            >
+              <RotateCcw className="h-4 w-4" />
+            </motion.button>
+          )}
+        </AnimatePresence>
+      </div>
+
+      {/* Invitation ticker — departure-board style, rolling until the
+          first interaction fades it out for good. Above the map on mobile
+          (where the map sits below the fold-adjacent text), below the
+          piano on desktop. Fixed height so retiring never shifts layout. */}
       <div
         aria-hidden
-        className="mt-1.5 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground"
+        className="order-first mb-8 flex h-5 items-center gap-2 px-1 font-mono text-[11px] text-muted-foreground lg:order-none lg:mb-0 lg:mt-1.5"
       >
         <AnimatePresence>
           {!hasInteracted && (
@@ -980,8 +1037,8 @@ export function HeroMap() {
               transition={{ duration: reduce ? 0 : 0.3 }}
             >
               {reduce ? (
-                /* Reduced motion: the message rests centered under the
-                   piano instead of scrolling. */
+                /* Reduced motion: the message rests centered instead of
+                   scrolling. */
                 <span className="flex items-center justify-center gap-2">
                   <Pointer className="h-3.5 w-3.5 shrink-0 opacity-70" />
                   <span className="truncate">{TICKER_TEXT}</span>
@@ -1016,58 +1073,6 @@ export function HeroMap() {
           )}
         </AnimatePresence>
       </div>
-
-      {/* Sound toggle — muted by default; the pulse invites the click that
-          doubles as the browser's audio-consent gesture */}
-      <button
-        type="button"
-        onClick={toggleMute}
-        aria-label={muted ? "Turn sound on" : "Turn sound off"}
-        className={
-          muted
-            ? "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-orange-500/70 bg-orange-500/10 text-orange-400 transition-colors hover:bg-orange-500/20 hover:text-orange-300"
-            : "absolute right-0 top-0 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
-        }
-      >
-        {muted && !reduce && (
-          <motion.span
-            aria-hidden
-            className="absolute inset-0 rounded-full border border-orange-400/80"
-            initial={{ scale: 1, opacity: 0 }}
-            animate={{ scale: [1, 1.5], opacity: [0.55, 0] }}
-            transition={{
-              duration: 1.8,
-              ease: "easeOut",
-              repeat: Infinity,
-              repeatDelay: 0.9,
-            }}
-          />
-        )}
-        {muted ? (
-          <VolumeX className="h-4 w-4" />
-        ) : (
-          <Volume2 className="h-4 w-4" />
-        )}
-      </button>
-
-      {/* Replay — appears once the demo run has rested (finished its passes
-          or yielded to the visitor). Sound still follows the mute toggle. */}
-      <AnimatePresence>
-        {!demoPlaying && (
-          <motion.button
-            type="button"
-            onClick={() => setDemoPlaying(true)}
-            aria-label="Replay the demo tune"
-            className="absolute right-0 top-11 flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-muted-foreground transition-colors hover:text-foreground"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: reduce ? 0 : 0.35 }}
-          >
-            <RotateCcw className="h-4 w-4" />
-          </motion.button>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
