@@ -14,6 +14,7 @@ export type SynthConceptId =
   | "scale"
   | "scale-lock"
   | "scale-numbers"
+  | "relative-keys"
   | "frequency"
   | "chord"
   | "computer-keys";
@@ -56,6 +57,15 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       'Because the roles travel, melodies do too: "Happy Birthday" is 1-1-2-1-4-3 whether you sing it in C or in F. The numbers are the tune; the letters just follow whichever key you pick. Chords are named this way as well — the "five chord" is built on degree 5.',
     ],
     lessonSlug: "scale-degrees",
+  },
+  "relative-keys": {
+    id: "relative-keys",
+    title: "Relative major & minor",
+    body: [
+      "Every major scale has a twin made of the exact same seven notes: its relative minor, whose root sits three half steps below the major root (the relative minor of C major is A minor). Seen from the other side, every minor scale has a relative major. Neither scale adds or removes a note; they only disagree about which note is home.",
+      "That choice of home is what sets the mood: resolve to C and the family sounds bright and settled; treat A as home and the very same notes turn melancholy. Click the relative key next to the Scale label and watch — the marked notes stay put while the keyboard re-frames and the numbers shuffle around the new 1.",
+    ],
+    lessonSlug: "scales",
   },
   waveform: {
     id: "waveform",

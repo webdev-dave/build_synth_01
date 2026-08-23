@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
@@ -11,7 +12,7 @@ import { Minus, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
-import { NOTES_SHARP } from "@/lib/music";
+import { NOTES_SHARP, niceNote } from "@/lib/music";
 import { useSharedAudioContext } from "@/hooks/useSharedAudioContext";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useElementWidth } from "@/hooks/useElementWidth";
@@ -113,6 +114,34 @@ export function SynthV2() {
     setVisibleOctaves((v) => Math.min(v, maxFitOctaves));
   }, [maxFitOctaves]);
 
+  // Screen-cap hint: only after a click on the greyed plus, not merely
+  // because the range is already at capacity.
+  const atScreenCap =
+    maxFitOctaves < MAX_OCTAVES && visibleOctaves >= maxFitOctaves;
+  const [showMaxFitHint, setShowMaxFitHint] = useState(false);
+  const maxFitHintTimer = useRef<number | null>(null);
+  const flashMaxFitHint = useCallback(() => {
+    setShowMaxFitHint(true);
+    if (maxFitHintTimer.current !== null) {
+      window.clearTimeout(maxFitHintTimer.current);
+    }
+    maxFitHintTimer.current = window.setTimeout(() => {
+      setShowMaxFitHint(false);
+      maxFitHintTimer.current = null;
+    }, 2500);
+  }, []);
+  useEffect(() => {
+    if (!atScreenCap) setShowMaxFitHint(false);
+  }, [atScreenCap]);
+  useEffect(
+    () => () => {
+      if (maxFitHintTimer.current !== null) {
+        window.clearTimeout(maxFitHintTimer.current);
+      }
+    },
+    [],
+  );
+
   const anchorMidi = noteNameToNumber(`${anchorName}${startOctave}`);
   const windowStart = anchorIsBlack ? anchorMidi - 1 : anchorMidi;
   const windowTop = anchorMidi + 12 * visibleOctaves;
@@ -172,12 +201,30 @@ export function SynthV2() {
     );
   }, [scaleRoot, scaleType, hasScale, setSelectedScale]);
 
-  const scaleNotes = useMemo(() => {
-    if (!scaleRoot || scaleType === "none") return [];
+  // Root-first note names of the current scale ("D E F♯ G A B C♯"),
+  // for the lesson intro.
+  const scaleNoteNames = useMemo(() => {
+    if (!scaleRoot || scaleType === "none") return null;
     const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
-    return SCALE_PATTERNS[scaleType].map(
-      (iv) => NOTES_SHARP[(rootIdx + iv) % 12],
-    );
+    return SCALE_PATTERNS[scaleType]
+      .map((iv) => niceNote(NOTES_SHARP[(rootIdx + iv) % 12]))
+      .join(" ");
+  }, [scaleRoot, scaleType]);
+
+  // Every key has a twin sharing the same seven notes: the relative minor
+  // sits 3 half steps below the major root (equivalently, +9 in pitch class).
+  const relativeScale = useMemo(() => {
+    if (!scaleRoot || scaleType === "none") return null;
+    const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
+    return scaleType === "major"
+      ? {
+          root: NOTES_SHARP[(rootIdx + 9) % 12] as ScaleRoot,
+          type: "minor" as const,
+        }
+      : {
+          root: NOTES_SHARP[(rootIdx + 3) % 12] as ScaleRoot,
+          type: "major" as const,
+        };
   }, [scaleRoot, scaleType]);
 
   // Pitch class (0–11) → 1-based scale degree, or null for chromatic notes.
@@ -242,13 +289,30 @@ export function SynthV2() {
   const selectedConcept = useMemo(() => {
     if (!conceptId) return null;
     const c = SYNTH_CONCEPTS[conceptId];
+    // The scale lesson opens with the user's actual selection when there is
+    // one — the generic explanation lands better anchored to what's on screen.
+    const body =
+      c.id === "scale" && hasScale && scaleNoteNames && relativeScale
+        ? [
+            `Your current scale is ${scaleRoot} ${scaleType}, made of ${scaleNoteNames}. ` +
+              `Its relative ${relativeScale.type} is ${relativeScale.root} ${relativeScale.type} — the exact same seven notes; the two keys only disagree about which note is home.`,
+            ...c.body,
+          ]
+        : c.body;
     return {
       id: c.id,
       title: c.title,
-      body: c.body,
+      body,
       lessonHref: c.lessonSlug ? `/lessons/${c.lessonSlug}` : undefined,
     };
-  }, [conceptId]);
+  }, [
+    conceptId,
+    hasScale,
+    scaleRoot,
+    scaleType,
+    scaleNoteNames,
+    relativeScale,
+  ]);
 
   return (
     <div className="space-y-4">
@@ -325,230 +389,248 @@ export function SynthV2() {
         />
       </Card>
 
-      {/* Controls */}
-      <Card className="flex flex-wrap gap-x-10 gap-y-5 px-4 py-4 sm:px-5">
-        <Field
-          label="Waveform"
-          onLabelClick={() => toggleConcept("waveform")}
-          labelSelected={conceptId === "waveform"}
-        >
-          <Segmented
-            ariaLabel="Waveform"
-            value={waveType}
-            onChange={(w) => {
-              setWaveType(w);
-              touchConcept("waveform");
-            }}
-            options={WAVE_TYPES.map((w) => ({
-              value: w,
-              label: (
-                <span className="flex items-center gap-1.5">
-                  <WaveGlyph type={w} />
-                  <span className="hidden sm:inline">{w}</span>
-                </span>
-              ),
-            }))}
-          />
-        </Field>
-
-        <Field
-          label="Octave"
-          onLabelClick={() => toggleConcept("octave")}
-          labelSelected={conceptId === "octave"}
-        >
-          <Stepper
-            value={`${anchorName}${startOctave}`}
-            onDecrement={() => {
-              adjustOctave(-1);
-              touchConcept("octave");
-            }}
-            onIncrement={() => {
-              adjustOctave(1);
-              touchConcept("octave");
-            }}
-            decrementDisabled={startOctave <= 0}
-            incrementDisabled={startOctave >= maxStartOctave}
-            decrementLabel="Octave down"
-            incrementLabel="Octave up"
-          />
-        </Field>
-
-        <Field
-          label="Scale"
-          onLabelClick={() => toggleConcept("scale")}
-          labelSelected={conceptId === "scale"}
-        >
-          <select
-            aria-label="Scale root"
-            value={scaleRoot ?? ""}
-            onChange={(e) => {
-              const next = e.target.value;
-              touchConcept("scale");
-              if (next === "") {
-                setScaleRoot(null);
-                setScaleType("none");
-                setLockToScale(false);
-                setShowNumbers(false);
-                return;
-              }
-              setScaleRoot(next as ScaleRoot);
-              // Picking a root is the on-switch: default to major and turn the
-              // numbers on, so the scale arrives already labeled 1–7. Only on
-              // first activation, so re-picking a root won't override a manual
-              // toggle-off. Clearing the scale (above) removes them again.
-              if (scaleType === "none") {
-                setScaleType("major");
-                setShowNumbers(true);
-              }
-            }}
-            className="h-[30px] rounded-md border border-input bg-background px-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            <option value="">—</option>
-            {NOTES_SHARP.map((n) => (
-              <option key={n} value={n}>
-                {n}
-              </option>
-            ))}
-          </select>
-          <Segmented
-            ariaLabel="Scale type"
-            value={scaleType}
-            onChange={(t) => {
-              setScaleType(t);
-              touchConcept("scale");
-            }}
-            options={[
-              {
-                value: "major" as ScaleType,
-                label: "major",
-                disabled: scaleRoot === null,
-              },
-              {
-                value: "minor" as ScaleType,
-                label: "minor",
-                disabled: scaleRoot === null,
-              },
-            ]}
-          />
-          <Toggle
-            pressed={lockToScale}
-            onClick={() => {
-              setLockToScale((v) => !v);
-              touchConcept("scale-lock");
-            }}
-            disabled={!hasScale}
-          >
-            lock
-          </Toggle>
-          <Toggle
-            pressed={showNumbers}
-            onClick={() => {
-              setShowNumbers((v) => !v);
-              // Showing the numbers IS the lesson, so open the panel (unlike
-              // the sound toggles, which only refresh an already-open one).
-              toggleConcept("scale-numbers");
-            }}
-            disabled={!hasScale}
-          >
-            numbers
-          </Toggle>
-        </Field>
-
-        <Field
-          label="Range"
-          onLabelClick={() => toggleConcept("range")}
-          labelSelected={conceptId === "range"}
-        >
-          <Stepper
-            value={`${visibleOctaves} oct`}
-            onDecrement={() => {
-              setVisibleOctaves((v) => Math.max(1, v - 1));
-              touchConcept("range");
-            }}
-            onIncrement={() => {
-              setVisibleOctaves((v) =>
-                Math.min(MAX_OCTAVES, maxFitOctaves, v + 1),
-              );
-              touchConcept("range");
-            }}
-            decrementDisabled={visibleOctaves <= 1}
-            incrementDisabled={
-              visibleOctaves >= Math.min(MAX_OCTAVES, maxFitOctaves)
-            }
-            decrementLabel="Fewer octaves"
-            incrementLabel="More octaves"
-          />
-          {maxFitOctaves < MAX_OCTAVES && visibleOctaves >= maxFitOctaves && (
-            <span className="font-mono text-[11px] text-muted-foreground">
-              max for this screen
-            </span>
+      {/*
+       * Waveform/Scale × Octave/Range. Flex-wrap lets the right-hand
+       * pair start at different x positions (Scale is wider than
+       * Waveform); a 2-col grid keeps Octave and Range on one line.
+       * Queried on the card so this follows the synth's width, not
+       * the viewport. Computer keys span both columns so its hint
+       * string doesn't shove the steppers further right.
+       */}
+      <Card className="[container-type:inline-size] px-4 py-4 sm:px-5">
+        <div
+          className={cn(
+            "flex flex-wrap gap-x-10 gap-y-5",
+            "[@container(min-width:32rem)]:grid [@container(min-width:32rem)]:grid-cols-[auto_auto] [@container(min-width:32rem)]:items-start [@container(min-width:32rem)]:justify-start",
           )}
-        </Field>
-
-        {!isMobile && (
+        >
           <Field
-            label="Computer keys"
-            onLabelClick={() => toggleConcept("computer-keys")}
-            labelSelected={conceptId === "computer-keys"}
+            label="Waveform"
+            onLabelClick={() => toggleConcept("waveform")}
+            labelSelected={conceptId === "waveform"}
           >
-            <Toggle
-              pressed={kbEnabled}
-              onClick={() => {
-                setKbEnabled((v) => !v);
-                touchConcept("computer-keys");
+            <Segmented
+              ariaLabel="Waveform"
+              value={waveType}
+              onChange={(w) => {
+                setWaveType(w);
+                touchConcept("waveform");
               }}
+              options={WAVE_TYPES.map((w) => ({
+                value: w,
+                label: (
+                  <span className="flex items-center gap-1.5">
+                    <WaveGlyph type={w} />
+                    <span className="hidden sm:inline">{w}</span>
+                  </span>
+                ),
+              }))}
+            />
+          </Field>
+
+          <Field
+            label="Octave"
+            onLabelClick={() => toggleConcept("octave")}
+            labelSelected={conceptId === "octave"}
+          >
+            <Stepper
+              value={`${anchorName}${startOctave}`}
+              onDecrement={() => {
+                adjustOctave(-1);
+                touchConcept("octave");
+              }}
+              onIncrement={() => {
+                adjustOctave(1);
+                touchConcept("octave");
+              }}
+              decrementDisabled={startOctave <= 0}
+              incrementDisabled={startOctave >= maxStartOctave}
+              decrementLabel="Octave down"
+              incrementLabel="Octave up"
+            />
+          </Field>
+
+          <Field
+            label="Scale"
+            onLabelClick={() => toggleConcept("scale")}
+            labelSelected={conceptId === "scale"}
+            labelExtra={
+              hasScale && relativeScale ? (
+                // Names the relationship precisely: the relative major/minor
+                // shares every note. Clicking swaps — the marked keys stay
+                // put while the keyboard re-frames around the new home base.
+                // ml-auto pins it to the right edge of the scale section.
+                <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                  <span aria-hidden>·</span>
+                  <button
+                    type="button"
+                    title={`${relativeScale.root} ${relativeScale.type} has the same notes — click to switch`}
+                    aria-label={`Switch to the relative ${relativeScale.type}, ${relativeScale.root} ${relativeScale.type}`}
+                    onClick={() => {
+                      setScaleRoot(relativeScale.root);
+                      setScaleType(relativeScale.type);
+                      touchConcept("relative-keys");
+                    }}
+                    className={cn(
+                      "cursor-pointer rounded-sm underline underline-offset-4 transition-colors",
+                      "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                    )}
+                  >
+                    relative {relativeScale.type}:{" "}
+                    <span className="font-semibold text-foreground">
+                      {relativeScale.root}
+                    </span>
+                  </button>
+                </span>
+              ) : null
+            }
+          >
+            <select
+              aria-label="Scale root"
+              value={scaleRoot ?? ""}
+              onChange={(e) => {
+                const next = e.target.value;
+                touchConcept("scale");
+                if (next === "") {
+                  setScaleRoot(null);
+                  setScaleType("none");
+                  setLockToScale(false);
+                  setShowNumbers(false);
+                  return;
+                }
+                setScaleRoot(next as ScaleRoot);
+                // Picking a root is the on-switch: default to major and turn the
+                // numbers on, so the scale arrives already labeled 1–7. Only on
+                // first activation, so re-picking a root won't override a manual
+                // toggle-off. Clearing the scale (above) removes them again.
+                if (scaleType === "none") {
+                  setScaleType("major");
+                  setShowNumbers(true);
+                }
+              }}
+              className="h-[30px] rounded-md border border-input bg-background px-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              {kbEnabled ? "on" : "off"}
+              <option value="">—</option>
+              {NOTES_SHARP.map((n) => (
+                <option key={n} value={n}>
+                  {n}
+                </option>
+              ))}
+            </select>
+            <Segmented
+              ariaLabel="Scale type"
+              value={scaleType}
+              onChange={(t) => {
+                setScaleType(t);
+                touchConcept("scale");
+              }}
+              options={[
+                {
+                  value: "major" as ScaleType,
+                  label: "major",
+                  disabled: scaleRoot === null,
+                },
+                {
+                  value: "minor" as ScaleType,
+                  label: "minor",
+                  disabled: scaleRoot === null,
+                },
+              ]}
+            />
+            <Toggle
+              pressed={lockToScale}
+              onClick={() => {
+                setLockToScale((v) => !v);
+                touchConcept("scale-lock");
+              }}
+              disabled={!hasScale}
+            >
+              lock
             </Toggle>
             <Toggle
-              pressed={showKeyLabels}
+              pressed={showNumbers}
               onClick={() => {
-                setShowKeyLabels((v) => !v);
-                touchConcept("computer-keys");
+                setShowNumbers((v) => !v);
+                // Showing the numbers IS the lesson, so open the panel (unlike
+                // the sound toggles, which only refresh an already-open one).
+                toggleConcept("scale-numbers");
               }}
-              disabled={!kbActive}
+              disabled={!hasScale}
             >
-              show letters
+              numbers
             </Toggle>
-            {kbActive && (
-              <span className="font-mono text-[11px] text-muted-foreground">
-                A–&apos; white · W–P black · Z/X octave
+          </Field>
+
+          <Field
+            label="Range"
+            onLabelClick={() => toggleConcept("range")}
+            labelSelected={conceptId === "range"}
+          >
+            <Stepper
+              value={`${visibleOctaves} oct`}
+              onDecrement={() => {
+                setVisibleOctaves((v) => Math.max(1, v - 1));
+                touchConcept("range");
+              }}
+              onIncrement={() => {
+                setVisibleOctaves((v) =>
+                  Math.min(MAX_OCTAVES, maxFitOctaves, v + 1),
+                );
+                touchConcept("range");
+              }}
+              decrementDisabled={visibleOctaves <= 1}
+              incrementDisabled={
+                visibleOctaves >= Math.min(MAX_OCTAVES, maxFitOctaves)
+              }
+              onIncrementLocked={atScreenCap ? flashMaxFitHint : undefined}
+              decrementLabel="Fewer octaves"
+              incrementLabel="More octaves"
+            />
+            {showMaxFitHint && (
+              <span
+                role="status"
+                className="font-mono text-[11px] text-muted-foreground"
+              >
+                max for this screen
               </span>
             )}
           </Field>
-        )}
-      </Card>
 
-      {/* Scale readout: marked keys carry a dot on the keyboard */}
-      {hasScale && (
-        <p className="px-1 font-mono text-xs text-muted-foreground">
-          <span className="text-foreground">
-            {scaleRoot} {scaleType}
-          </span>
-          {" · "}
-          {scaleNotes.join("  ")}
-          {" · "}
-          {showNumbers ? (
-            <>
-              <span className="text-emerald-600">1–7</span> number each note
-              (its scale degree)
-            </>
-          ) : (
-            <>
-              <span className="inline-block h-2 w-2 translate-y-px rounded-full bg-emerald-600" />{" "}
-              in the scale
-            </>
-          )}{" "}
-          · grayed keys are outside
-          {lockToScale && (
-            <>
-              {" · "}
-              <span className="inline-block h-2 w-2 translate-y-px rounded-full bg-red-500" />{" "}
-              locked
-            </>
+          {!isMobile && (
+            <Field
+              className="[@container(min-width:32rem)]:col-span-2"
+              label="Computer keys"
+              onLabelClick={() => toggleConcept("computer-keys")}
+              labelSelected={conceptId === "computer-keys"}
+            >
+              <Toggle
+                pressed={kbEnabled}
+                onClick={() => {
+                  setKbEnabled((v) => !v);
+                  touchConcept("computer-keys");
+                }}
+              >
+                {kbEnabled ? "on" : "off"}
+              </Toggle>
+              <Toggle
+                pressed={showKeyLabels}
+                onClick={() => {
+                  setShowKeyLabels((v) => !v);
+                  touchConcept("computer-keys");
+                }}
+                disabled={!kbActive}
+              >
+                show letters
+              </Toggle>
+              {kbActive && (
+                <span className="font-mono text-[11px] text-muted-foreground">
+                  A–&apos; white · W–P black · Z/X octave
+                </span>
+              )}
+            </Field>
           )}
-        </p>
-      )}
+        </div>
+      </Card>
 
       {/* Learning area — shared, shows the last concept clicked */}
       <LearnPanel
@@ -573,36 +655,44 @@ function Field({
   children,
   onLabelClick,
   labelSelected,
+  labelExtra,
+  className,
 }: {
   label: string;
   children: ReactNode;
   /** When set, the label becomes a button that opens the learning panel. */
   onLabelClick?: () => void;
   labelSelected?: boolean;
+  /** Small status content rendered inline next to the label. */
+  labelExtra?: ReactNode;
+  className?: string;
 }) {
   return (
-    <div className="space-y-1.5">
-      {onLabelClick ? (
-        <button
-          type="button"
-          onClick={onLabelClick}
-          aria-expanded={labelSelected}
-          aria-label={`What is "${label}"?`}
-          className={cn(
-            "rounded-sm text-[11px] font-medium uppercase tracking-wider underline decoration-dotted underline-offset-4 transition-colors",
-            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-            labelSelected
-              ? "text-foreground decoration-solid"
-              : "text-muted-foreground hover:text-foreground",
-          )}
-        >
-          {label}
-        </button>
-      ) : (
-        <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
-          {label}
-        </div>
-      )}
+    <div className={cn("space-y-1.5", className)}>
+      <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+        {onLabelClick ? (
+          <button
+            type="button"
+            onClick={onLabelClick}
+            aria-expanded={labelSelected}
+            aria-label={`What is "${label}"?`}
+            className={cn(
+              "rounded-sm text-[11px] font-medium uppercase tracking-wider underline decoration-dotted underline-offset-4 transition-colors",
+              "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+              labelSelected
+                ? "text-foreground decoration-solid"
+                : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            {label}
+          </button>
+        ) : (
+          <div className="text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+            {label}
+          </div>
+        )}
+        {labelExtra}
+      </div>
       <div className="flex flex-wrap items-center gap-2">{children}</div>
     </div>
   );
@@ -654,6 +744,7 @@ function Stepper({
   onIncrement,
   decrementDisabled,
   incrementDisabled,
+  onIncrementLocked,
   decrementLabel,
   incrementLabel,
 }: {
@@ -662,9 +753,12 @@ function Stepper({
   onIncrement: () => void;
   decrementDisabled?: boolean;
   incrementDisabled?: boolean;
+  /** Soft-lock the plus: greyed out, but a click still fires (for a hint). */
+  onIncrementLocked?: () => void;
   decrementLabel: string;
   incrementLabel: string;
 }) {
+  const incrementSoftLocked = Boolean(incrementDisabled && onIncrementLocked);
   const btn =
     "px-2 py-1.5 text-muted-foreground transition-colors hover:bg-accent/50 hover:text-foreground disabled:pointer-events-none disabled:opacity-40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring";
   return (
@@ -684,9 +778,14 @@ function Stepper({
       <button
         type="button"
         aria-label={incrementLabel}
-        onClick={onIncrement}
-        disabled={incrementDisabled}
-        className={btn}
+        aria-disabled={incrementSoftLocked || undefined}
+        onClick={incrementSoftLocked ? onIncrementLocked : onIncrement}
+        disabled={incrementDisabled && !incrementSoftLocked}
+        className={cn(
+          btn,
+          incrementSoftLocked &&
+            "cursor-not-allowed opacity-40 hover:bg-transparent hover:text-muted-foreground",
+        )}
       >
         <Plus className="h-3.5 w-3.5" />
       </button>
