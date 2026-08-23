@@ -113,6 +113,12 @@ const blackKey = (i: number): KeyRect => ({
 const keyRect = (pos: KeyPos): KeyRect =>
   pos.kind === "white" ? whiteKey(pos.index) : blackKey(pos.index);
 
+/* Grab apron: pointer input is accepted a little beyond the keys, so a
+   glide that starts just beside or above the piano still plays as the
+   finger reaches it. Full viewBox width, stopping clear of the map
+   nodes above and the step sequencer below. */
+const KB_APRON = { x: 0, y: KB.y - 12, w: 360, h: KB.h + 22 };
+
 /* Tiny oscilloscope wave shown beside a sounding node's Hz readout.
    36px of sine (period 12px); scrolling +12px loops seamlessly inside a
    24px clip window. Scroll speed scales with the note's actual pitch. */
@@ -251,6 +257,8 @@ export function HeroMap() {
     setMuted(false);
   }, [ensureContext]);
 
+  const svgRef = useRef<SVGSVGElement>(null);
+
   const pressKey = useCallback(
     (note: NoteName) => {
       if (pressedRef.current.has(note)) return;
@@ -293,6 +301,123 @@ export function HeroMap() {
     },
     [pressKey, releaseKey],
   );
+
+  /* --- Touch / mouse keyboard input ---------------------------------
+     Each active pointer (finger or held mouse button) is tracked by id
+     and hit-tested against the key geometry on every move. This is what
+     makes multi-touch and glissando work: per-key enter/leave events are
+     unreliable on touch (iOS pins a touch pointer to the element it
+     started on), and releases must be per-finger — lifting one finger
+     must not silence a note another finger is still holding. */
+  const pointerNotes = useRef<Map<number, NoteName | null>>(new Map());
+
+  /* Which key sits under a client-space point. Black keys win overlaps,
+     matching their painted stacking order. */
+  const noteAtPoint = useCallback(
+    (clientX: number, clientY: number): NoteName | null => {
+      const svg = svgRef.current;
+      if (!svg) return null;
+      const box = svg.getBoundingClientRect();
+      if (box.width === 0) return null;
+      // The viewBox scales uniformly (w-full h-auto), so one ratio maps
+      // client px back to SVG user units.
+      const scale = 360 / box.width;
+      const x = (clientX - box.left) * scale;
+      const y = (clientY - box.top) * scale;
+
+      for (let i = 0; i < BLACK_NOTES.length; i++) {
+        const r = blackKey(i);
+        if (x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h) {
+          return BLACK_NOTES[i];
+        }
+      }
+      if (
+        x >= KB.x &&
+        x <= KB.x + KB.w &&
+        y >= KB.y &&
+        y <= KB.y + KB.h
+      ) {
+        const i = Math.min(7, Math.max(0, Math.floor((x - KB.x) / WKEY_W)));
+        return WHITE_NOTES[i];
+      }
+      return null;
+    },
+    [],
+  );
+
+  /* Move a pointer onto a key (or off all keys with null). The old note
+     only releases if no other pointer is still holding it. */
+  const setPointerNote = useCallback(
+    (pointerId: number, note: NoteName | null) => {
+      const prev = pointerNotes.current.get(pointerId);
+      if (prev === note) return;
+      pointerNotes.current.set(pointerId, note);
+      if (prev) {
+        let stillHeld = false;
+        pointerNotes.current.forEach((n, id) => {
+          if (id !== pointerId && n === prev) stillHeld = true;
+        });
+        if (!stillHeld) releaseKey(prev);
+      }
+      if (note) pressKey(note);
+    },
+    [pressKey, releaseKey],
+  );
+
+  /* Fires anywhere on the key group, apron included. The pointer is
+     tracked even when it lands beside the keys (note = null), so the
+     glide starts sounding the moment it reaches one. */
+  const handleKeyboardPointerDown = useCallback(
+    (e: React.PointerEvent) => {
+      e.preventDefault();
+      setPointerNote(e.pointerId, noteAtPoint(e.clientX, e.clientY));
+    },
+    [noteAtPoint, setPointerNote],
+  );
+
+  /* Moves and releases are handled at the window so a glide keeps
+     working when the finger drifts off the keys (or off the SVG), and a
+     lift is never missed. Only pointers that went down on a key are
+     tracked, so page scrolling elsewhere is untouched. */
+  useEffect(() => {
+    const move = (e: PointerEvent) => {
+      if (!pointerNotes.current.has(e.pointerId)) return;
+      setPointerNote(e.pointerId, noteAtPoint(e.clientX, e.clientY));
+    };
+    const end = (e: PointerEvent) => {
+      if (!pointerNotes.current.has(e.pointerId)) return;
+      setPointerNote(e.pointerId, null);
+      pointerNotes.current.delete(e.pointerId);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+    };
+  }, [noteAtPoint, setPointerNote]);
+
+  /* A horizontal glide across the keys reads to some browsers as a
+     swipe-back / swipe-forward navigation gesture. touch-action: none
+     should stop that, but Chromium ignores touch-action on SVG child
+     elements, so we also preventDefault the raw touch events on the key
+     group. This needs native non-passive listeners — React registers
+     touch handlers as passive, where preventDefault is a no-op. */
+  const keysGroupRef = useRef<SVGGElement>(null);
+
+  useEffect(() => {
+    const el = keysGroupRef.current;
+    if (!el) return;
+    const block = (e: TouchEvent) => e.preventDefault();
+    el.addEventListener("touchstart", block, { passive: false });
+    el.addEventListener("touchmove", block, { passive: false });
+    return () => {
+      el.removeEventListener("touchstart", block);
+      el.removeEventListener("touchmove", block);
+    };
+  }, []);
 
   /* Clicking a map node plays its diatonic chord on the piano — a light
      strum, each tone flashing its own node and dropping a pulse to its key. */
@@ -338,10 +463,6 @@ export function HeroMap() {
       }
     },
   });
-
-  // We no longer need global pointerup/cancel listeners because
-  // pointerleave, pointerup, and pointercancel on the keys themselves
-  // handle releases robustly, even for multi-touch and sliding.
 
   /* Unmuting is the user gesture browsers require before audio may play —
      the AudioContext is created right here in the click handler. */
@@ -429,6 +550,9 @@ export function HeroMap() {
     if (alt) alterations[alt.node] = alt.label;
   }
 
+  /* Per-key rects exist for keyboard access (focus + Enter/Space); all
+     pointer input is handled by the group so fingers can roll freely
+     between keys. */
   const hitRect = (rect: KeyRect, note: NoteName) => (
     <rect
       key={`hit-${note}`}
@@ -441,17 +565,6 @@ export function HeroMap() {
       role="button"
       tabIndex={0}
       aria-label={`Play ${note}`}
-      onPointerDown={(e) => {
-        e.preventDefault();
-        e.currentTarget.releasePointerCapture?.(e.pointerId);
-        pressKey(note);
-      }}
-      onPointerEnter={(e) => {
-        if (e.buttons > 0) pressKey(note);
-      }}
-      onPointerLeave={() => releaseKey(note)}
-      onPointerUp={() => releaseKey(note)}
-      onPointerCancel={() => releaseKey(note)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();
@@ -470,15 +583,16 @@ export function HeroMap() {
       {/* Artwork wrapper — the overlay buttons anchor to the map itself,
           since on mobile the outer column starts with the ticker. */}
       <div className="relative">
+        {/* Described via aria-label rather than a <title> element so the
+            graphic keeps its accessible name without a native hover
+            tooltip appearing over the map. */}
         <svg
+          ref={svgRef}
           viewBox="0 0 360 436"
           className="h-auto w-full"
+          role="img"
+          aria-label="A map connecting the root note C to its scale tones, in sync with a playable piano keyboard above a beat sequencer"
         >
-          <title>
-            A map connecting the root note C to its scale tones, in sync with a
-            playable piano keyboard above a beat sequencer
-          </title>
-
           {/* Radar-style guide rings */}
           {[70, 112, 150].map((r) => (
             <circle
@@ -934,8 +1048,23 @@ export function HeroMap() {
             {renderKeyGlows("black")}
           </g>
 
-          {/* Invisible hit targets — whites first, blacks on top */}
-          <g className="touch-none">
+          {/* Invisible hit targets — whites first, blacks on top.
+            touch-action: none keeps the browser from claiming the touch
+            for scrolling, so glides stay on the keys. */}
+          <g
+            ref={keysGroupRef}
+            className="touch-none select-none"
+            style={{ touchAction: "none" }}
+            onPointerDown={handleKeyboardPointerDown}
+          >
+            {/* Apron — catches glides that start just off the keys */}
+            <rect
+              x={KB_APRON.x}
+              y={KB_APRON.y}
+              width={KB_APRON.w}
+              height={KB_APRON.h}
+              fill="transparent"
+            />
             {WHITE_NOTES.map((note, i) => hitRect(whiteKey(i), note))}
             {BLACK_NOTES.map((note, i) => hitRect(blackKey(i), note))}
           </g>

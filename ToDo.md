@@ -16,7 +16,7 @@ harden.
 
 | Plan | File | What it is | Build status | Ranking |
 |------|------|------------|--------------|---------|
-| IP, copyright, trademark & licensing (security tightening) | [docs/plans/ip-copyright-trademark-licensing.md](docs/plans/ip-copyright-trademark-licensing.md) | Repo/legal layer: LICENSE, secret scan, trademark ™, repo rename | **Not started.** Status: planning (2026-08-22). No `LICENSE` yet. | **1 — highest** |
+| IP, copyright, trademark & licensing (security tightening) | [docs/plans/ip-copyright-trademark-licensing.md](docs/plans/ip-copyright-trademark-licensing.md) | Repo/legal layer: LICENSE, secret scan, trademark ™, repo rename | **Not started.** Status: planning (2026-08-22). No `LICENSE` yet. | **2** |
 | Interactive Scale Lessons | [docs/plans/lessons-module.md](docs/plans/lessons-module.md) | `/lessons` blog of interactive scale/mode pages + reusable widgets | **Partial.** Index + `[slug]` routes and registry exist; all lessons still "Soon". Widgets (keyboard, comparer, etc.) and real content are unbuilt. | not specified |
 | Harmonica Key Finder — SEO & LLM | [docs/plans/harmonica-lab-seo.md](docs/plans/harmonica-lab-seo.md) | Instrument-first hub `/harmonica` + Key Finder + Cross Harp Chart; migrate lab | **Not started.** Spec says sketch first — don't build yet. Site-wide `metadataBase` already exists; sitemap/robots/JSON-LD and new routes do not. | not specified (doc: hold on build) |
 | Contact & Licensing pages | [docs/plans/contact-and-licensing.md](docs/plans/contact-and-licensing.md) | `/contact` form, `/usage`, `/pricing` stub, footer wiring | **Partial.** `/contact` is a `mailto:` stub. `/usage` and `/pricing` do not exist. Decisions locked. | not specified |
@@ -26,13 +26,24 @@ harden.
 
 ---
 
+## Admin / off-site — inventory
+
+Tasks that live outside the codebase (accounts, tooling, services).
+
+| Item | What it is | Status | Ranking |
+|------|------------|--------|---------|
+| Create a new Cursor account | Set up a fresh Cursor account and sign the IDE into it (carry over settings/subscription as needed). | **Not started.** | **1 — highest (most urgent)** |
+| Reroute WebDev Dave portfolio → Instrumaps | Point the WebDev Dave portfolio site/domain at this site. Instrumaps beats every old portfolio project by a mile; the old ones are from beginner-dev days and should be retired/redirected. | **Not started.** | **4** |
+
+---
+
 ## Fixes — inventory
 
 Live-site / product defects that are not a plan or sketch.
 
 | Item | File | What it is | Build status | Ranking |
 |------|------|------------|--------------|---------|
-| Hero demo: "Yesterday" musical errors | [src/components/home/heroTune.ts](src/components/home/heroTune.ts) | Homepage attract-mode plays the opening of the Beatles' *Yesterday* (transposed F→C). The line still has serious musical errors — embarrassing on a music-theory site. | **Open.** Tune data and playback exist; the notes/harmony are wrong. | **2** |
+| Hero demo: "Yesterday" musical errors | [src/components/home/heroTune.ts](src/components/home/heroTune.ts) | Homepage attract-mode plays the opening of the Beatles' *Yesterday* (transposed F→C). The line still has serious musical errors — embarrassing on a music-theory site. | **Open.** Tune data and playback exist; the notes/harmony are wrong. | **3** |
 
 ---
 
@@ -55,8 +66,10 @@ Ranked items first (**most urgent → next**). Everything below that is
 
 | Item | Kind | Next slice | Local order | Ranking |
 |------|------|------------|-------------|---------|
-| IP / security tightening | plan | Phase 1 secret scan + dep license audit; then proprietary `LICENSE` + README; then repo rename; ™ on the wordmark | in-doc weekend fast-path | **1 — highest** |
-| Hero demo: "Yesterday" | fix | Correct the notes/harmony in `heroTune.ts` so the homepage demo of *Yesterday* is musically honest. Listen through the attract-mode phrase and fix wrong pitches, durations, and chords. | not specified | **2** |
+| Create a new Cursor account | admin | Create the account, sign the IDE into it, and carry over settings/subscription as needed. | not specified | **1 — highest** |
+| IP / security tightening | plan | Phase 1 secret scan + dep license audit; then proprietary `LICENSE` + README; then repo rename; ™ on the wordmark | in-doc weekend fast-path | **2** |
+| Hero demo: "Yesterday" | fix | Correct the notes/harmony in `heroTune.ts` so the homepage demo of *Yesterday* is musically honest. Listen through the attract-mode phrase and fix wrong pitches, durations, and chords. | not specified | **3** |
+| Reroute WebDev Dave portfolio → Instrumaps | admin | Point the WebDev Dave portfolio domain/link at instrumaps.com and retire/redirect the old beginner-era portfolio projects, since this site outclasses them by a mile. | not specified | **4** |
 | Dance tutorial | plan | Phase 0 content research (lock WCS counts), then Phase 1 + `GroovePlayer` + `CountTimeline` + Lesson 0 | suggested first milestone in-doc | not specified |
 | Buy me a coffee | plan | Off-site: create BMC page, test a $1 tip, then Phase 1 (`AUTHOR.coffee` + shared link) | in-doc: do not code until the URL exists | not specified |
 | Harmonica SEO | plan | Phase 0 keyword/Q&A research; then hub + Key Finder + Cross Harp Chart + crawlable FAQ | in-doc "if only three things": pages+FAQ, then JSON-LD, then sitemap/canonical | not specified |
