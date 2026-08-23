@@ -43,6 +43,14 @@ export default function AboutPage() {
           <h1 className="mt-2 text-2xl font-semibold tracking-tight">
             {AUTHOR.name}
           </h1>
+          <p className="mt-2 text-sm">
+            <a
+              href="#reach-out"
+              className="text-foreground underline decoration-muted-foreground/50 underline-offset-4 transition-colors hover:decoration-foreground"
+            >
+              Work with me
+            </a>
+          </p>
           <div className="mt-4 max-w-xl space-y-4 text-sm leading-relaxed text-muted-foreground">
             <p>
               This project started the way most of my projects do: I learn by
@@ -105,7 +113,7 @@ export default function AboutPage() {
             priority
           />
           <figcaption className="mt-2 font-mono text-xs text-muted-foreground">
-            Setting up for a set in the woods. Photo by{" "}
+            Setting up for a DJ set in the woods. Photo by{" "}
             <a
               href="https://www.instagram.com/marrker"
               target="_blank"
@@ -121,9 +129,17 @@ export default function AboutPage() {
         <section
           id="reach-out"
           aria-label="Reach out"
-          className="mt-8 scroll-mt-20"
+          className="mt-14 scroll-mt-20 border-t border-border/60 pt-10"
         >
-          <div className="flex flex-wrap items-center gap-3">
+          <h2 className="text-lg font-semibold tracking-tight text-foreground">
+            Work with me
+          </h2>
+          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+            Whether you want to connect, talk through a possible collaboration,
+            hire me for a project, or browse a portfolio of my other work — pick
+            whichever channel below works best for you.
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
             <Button asChild variant="outline">
               <a href={mailto}>
                 <Mail />

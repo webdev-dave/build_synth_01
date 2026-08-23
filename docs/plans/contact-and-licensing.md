@@ -17,6 +17,30 @@ how they're allowed to use the tools:
 These are **content/info pages**, not app tools, so they live in the footer
 rather than the app-focused top nav.
 
+## ⚠️ Coordinate with the About page (added Aug 2026)
+
+The `/about` page has since grown its own **"Work with me"** section — a
+`#reach-out` anchor (linked from below the name and from the accordion story)
+with an intro line and a row of channel buttons (Email · GitHub · LinkedIn ·
+YouTube · Instagram). That currently *is* the de-facto contact surface.
+
+When we build the real `/contact` page below, treat the two as one system, not
+two competing "contact me" spots:
+
+- **Gut the placeholder `/contact`.** The current `src/app/contact/page.tsx` is
+  a throwaway stub (single `mailto:` button). Replace it wholesale with the real
+  form described below — don't try to preserve it.
+- **Then re-think the About page's "Work with me" block.** Once a proper form
+  exists, decide the division of labor so we're not saying "reach out" twice:
+  - Option A — About keeps the social channels (personal: follow / see other
+    work) and points its primary CTA at `/contact` for structured inquiries
+    (hire / collaborate / license).
+  - Option B — About keeps a light "email me / socials" row and `/contact` owns
+    everything with a reason selector.
+  - Either way: **one clear primary path per intent**, no duplicated `mailto:`
+    entry points drifting out of sync. Re-word the About intro line to match
+    whatever split we choose.
+
 ## Constraints to respect
 
 - App uses `output: "export"` (static export → Vercel). **There is no server to
@@ -48,6 +72,8 @@ rather than the app-focused top nav.
 
 ## Phase 1 — Contact page
 
+- [ ] **Gut the existing `/contact` stub first** — the current single-`mailto:`
+      button page is a placeholder; rebuild it from scratch as below.
 - [ ] `src/app/contact/page.tsx` — calm single-column layout mirroring
       `src/app/lessons/page.tsx` (max-w container, header with a `Mail` Lucide
       icon, muted intro line).
@@ -81,6 +107,9 @@ rather than the app-focused top nav.
       `src/app/layout.tsx` (keep the top nav app-only).
 - [ ] Reuse shadcn `Card` / `Button` / `Badge`; `Mail` from Lucide. No new
       runtime deps unless the form tool requires one.
+- [ ] **Re-think the About page's "Work with me" section** (see coordination
+      note above): pick Option A or B, wire its CTA accordingly, and re-word the
+      intro line so About and `/contact` don't both claim to be the contact spot.
 - [ ] `npx tsc --noEmit` for types; lint the touched files.
 
 ---
