@@ -78,7 +78,8 @@ this defines *what* we ingest first and *why this repertoire*.
 
 - `SongDocument` canonical type in `src/lib/song/` — **does not exist yet.**
 - ABC parsing (`abcjs`, MIT) and MIDI parsing (`@tonejs/midi`) — **not installed
-  yet** (`@spotify/basic-pitch` is, but that's the audio funnel, not needed here).
+  yet**. `@spotify/basic-pitch` is not in the app (removed with the Key
+  Detector); re-add it only if we build the audio funnel. Not needed here.
 - App is a **static export** (`output: "export"`, Vercel). The scraper/build step
   runs **offline as a Node script** (mirroring the existing `midi-extract.mts` /
   `midi-inspect.mts` tooling), emitting static JSON artifacts checked into the
@@ -359,7 +360,7 @@ composition/lyric.**
 | Nav registration | `src/lib/navigation.ts` |
 | Existing MIDI tooling to mirror (Track A) | `midi-extract.mts`, `midi-inspect.mts` |
 | Music theory / transpose (playback) | `src/lib/music/` |
-| Audio funnel (installed, not used here) | `src/utils/basicPitchLoader.ts` (`@spotify/basic-pitch`) |
+| Audio funnel (not installed; re-add if needed) | `@spotify/basic-pitch` |
 | To create (Track A) | `src/lib/song/types.ts`, `scripts/scrape-klezmer-abc.mts`, `data/klezmer/` |
 | To create (Track B) | `src/app/(songs\|learn)/`, `src/components/songs/`, `data/songs/*.json` |
 

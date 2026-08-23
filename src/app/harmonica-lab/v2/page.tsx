@@ -33,7 +33,7 @@ export default function HarmonicaLabV2Page() {
             className="inline-flex items-center gap-1.5 rounded-md px-2 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
             <Undo2 className="h-3.5 w-3.5" />
-            Classic version
+            Original version
           </Link>
         </header>
 

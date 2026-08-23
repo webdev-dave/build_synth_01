@@ -26,7 +26,8 @@ const Linkedin: LucideIcon = createLucideIcon("LinkedinBoxed", [
 ]);
 
 export const metadata: Metadata = {
-  title: `About the developer — ${APP_NAME}`,
+  // The Instrumaps suffix is appended by the root title.template.
+  title: "About the developer",
   description: `${AUTHOR.name} started ${APP_NAME} to learn music theory by building — and kept going so other musicians and tinkerers could play with it too.`,
 };
 

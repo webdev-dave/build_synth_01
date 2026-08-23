@@ -6,7 +6,8 @@ import { APP_NAME } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: `Contact — ${APP_NAME}`,
+  // The Instrumaps suffix is appended by the root title.template.
+  title: "Contact",
   description: `Write ${AUTHOR.name} about ${APP_NAME} — an idea, a collaboration, or a used accordion.`,
 };
 

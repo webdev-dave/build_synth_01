@@ -163,9 +163,9 @@ export function HeroMap() {
     if (win && text) setTickerDims({ win, text });
   }, [reduce]);
 
-  const [pressed, setPressed] = useState<NoteName | null>(null);
-  const pressedRef = useRef<NoteName | null>(null);
-  const releaseAudioRef = useRef<(() => void) | null>(null);
+  const [pressed, setPressed] = useState<Set<NoteName>>(new Set());
+  const pressedRef = useRef<Set<NoteName>>(new Set());
+  const releaseAudioRefs = useRef<Map<NoteName, () => void>>(new Map());
 
   /* While a chord that doesn't contain C sounds, the center node loses its
      ring — its ever-present border would otherwise imply C is playing.
@@ -253,31 +253,43 @@ export function HeroMap() {
 
   const pressKey = useCallback(
     (note: NoteName) => {
-      if (pressedRef.current === note) return;
+      if (pressedRef.current.has(note)) return;
       unlockAudio();
       markInteraction();
-      pressedRef.current = note;
-      setPressed(note);
-      releaseAudioRef.current?.();
-      releaseAudioRef.current = mutedRef.current
-        ? null
-        : noteOn(NOTES[note].hz);
+      
+      const newSet = new Set(pressedRef.current);
+      newSet.add(note);
+      pressedRef.current = newSet;
+      setPressed(newSet);
+      
+      const release = mutedRef.current ? null : noteOn(NOTES[note].hz);
+      if (release) {
+        releaseAudioRefs.current.set(note, release);
+      }
       fireNote(note, 1, "key");
     },
     [unlockAudio, markInteraction, noteOn, fireNote],
   );
 
-  const releaseKey = useCallback(() => {
-    pressedRef.current = null;
-    setPressed(null);
-    releaseAudioRef.current?.();
-    releaseAudioRef.current = null;
+  const releaseKey = useCallback((note: NoteName) => {
+    if (!pressedRef.current.has(note)) return;
+    
+    const newSet = new Set(pressedRef.current);
+    newSet.delete(note);
+    pressedRef.current = newSet;
+    setPressed(newSet);
+    
+    const release = releaseAudioRefs.current.get(note);
+    if (release) {
+      release();
+      releaseAudioRefs.current.delete(note);
+    }
   }, []);
 
   const tapKey = useCallback(
     (note: NoteName) => {
       pressKey(note);
-      window.setTimeout(releaseKey, 450);
+      window.setTimeout(() => releaseKey(note), 450);
     },
     [pressKey, releaseKey],
   );
@@ -327,14 +339,9 @@ export function HeroMap() {
     },
   });
 
-  useEffect(() => {
-    window.addEventListener("pointerup", releaseKey);
-    window.addEventListener("pointercancel", releaseKey);
-    return () => {
-      window.removeEventListener("pointerup", releaseKey);
-      window.removeEventListener("pointercancel", releaseKey);
-    };
-  }, [releaseKey]);
+  // We no longer need global pointerup/cancel listeners because
+  // pointerleave, pointerup, and pointercancel on the keys themselves
+  // handle releases robustly, even for multi-touch and sliding.
 
   /* Unmuting is the user gesture browsers require before audio may play —
      the AudioContext is created right here in the click handler. */
@@ -389,21 +396,23 @@ export function HeroMap() {
         );
       });
 
-    if (pressed && NOTES[pressed].key.kind === kind) {
-      const rect = keyRect(NOTES[pressed].key);
-      glows.push(
-        <rect
-          key="pressed"
-          x={rect.x}
-          y={rect.y}
-          width={rect.w}
-          height={rect.h}
-          rx={rect.rx}
-          fill="url(#key-glow)"
-          opacity={0.9}
-        />,
-      );
-    }
+    pressed.forEach((note) => {
+      if (NOTES[note].key.kind === kind) {
+        const rect = keyRect(NOTES[note].key);
+        glows.push(
+          <rect
+            key={`pressed-${note}`}
+            x={rect.x}
+            y={rect.y}
+            width={rect.w}
+            height={rect.h}
+            rx={rect.rx}
+            fill="url(#key-glow)"
+            opacity={0.9}
+          />,
+        );
+      }
+    });
     return glows;
   };
 
@@ -438,8 +447,11 @@ export function HeroMap() {
         pressKey(note);
       }}
       onPointerEnter={(e) => {
-        if (e.buttons & 1) pressKey(note);
+        if (e.buttons > 0) pressKey(note);
       }}
+      onPointerLeave={() => releaseKey(note)}
+      onPointerUp={() => releaseKey(note)}
+      onPointerCancel={() => releaseKey(note)}
       onKeyDown={(e) => {
         if (e.key === "Enter" || e.key === " ") {
           e.preventDefault();

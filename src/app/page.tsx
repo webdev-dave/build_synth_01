@@ -9,9 +9,11 @@ import { HeroMap } from "@/components/home/HeroMap";
 import { StarfieldBackground } from "@/components/home/StarfieldBackground";
 
 export const metadata: Metadata = {
-  title: APP_NAME,
+  // Home lives in the root segment, so title.template doesn't apply here —
+  // spell out the full branded title.
+  title: `${APP_NAME} — interactive music-theory tools`,
   description:
-    "A collection of web-based music tools and instruments: a synth keyboard and a diatonic harmonica lab.",
+    "A collection of interactive music-theory tools and instruments: a synth keyboard and a diatonic harmonica lab. Don't study theory. Play with it.",
 };
 
 export default function Home() {

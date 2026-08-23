@@ -1,8 +1,12 @@
-# Build Synth 01
+# Instrumaps
 
-A modern web-based Digital Audio Workstation (DAW) built with Next.js and TypeScript, featuring a synthesizer and interactive music theory tools.
+**Instrumaps** is a collection of interactive, web-based music theory tools and instruments. 
 
-**Live Demo:** [synth-v01.netlify.app](https://synth-v01.netlify.app)
+It started as a personal project to learn music theory by translating it into code. The goal is to make abstract musical concepts—like scales, chords, and harmonica positions—tangible and playable. Instead of reading about theory, you can see it mapped out and hear it in real-time.
+
+*Don't study theory. Play with it.*
+
+**Live Demo:** [instrumaps.com](https://instrumaps.com)
 
 ## Features
 
@@ -83,15 +87,6 @@ The `src/lib/harmonica/` module handles harmonica-specific logic:
 - Bend note positions and validation
 - Position calculation algorithm
 
-## Hidden Features (Beta)
-
-### Key Detector
-Real-time musical key detection using microphone input. Currently hidden due to accuracy issues.
-
-**To re-enable:**
-1. Uncomment the Key Detector entry in `src/lib/navigation.ts`
-2. Restore tab navigation logic in `src/app/page.tsx`
-
 ## Development
 
 ```bash
@@ -130,4 +125,4 @@ npm run build
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
 - **Audio**: Web Audio API
-- **Deployment**: Netlify
+- **Deployment**: Vercel

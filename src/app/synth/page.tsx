@@ -6,12 +6,6 @@ import SelectiveOrientationGuard from "@/components/wrappers/SelectiveOrientatio
 import { BetaBanner } from "@/components/BetaBanner";
 import TooltipToggleButton from "@/components/TooltipToggleButton";
 
-// TODO: Key Detector feature is temporarily hidden due to accuracy issues.
-// The feature can be re-enabled by:
-// 1. Uncommenting the Key Detector entry in src/lib/navigation.ts
-// 2. Restoring the tab navigation logic (preserved in git history)
-// 3. Re-adding the PitchDetector component rendering
-
 export default function SynthPage() {
   const sharedAudio = useSharedAudioContext();
 

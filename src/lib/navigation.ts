@@ -39,15 +39,6 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Position guide & theory for diatonic harmonica",
     inNav: false,
   },
-  // TODO: Re-enable when accuracy is improved
-  // {
-  //   id: "key-detector",
-  //   label: "Key Detector",
-  //   icon: "🎤",
-  //   href: "/#key-detector",
-  //   description: "Real-time musical key detection",
-  //   hidden: true,
-  // },
 ];
 
 export const APP_NAME = "Instrumaps";

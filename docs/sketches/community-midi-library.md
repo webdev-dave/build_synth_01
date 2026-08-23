@@ -106,10 +106,10 @@ Each funnel is an adapter → `SongDocument`. Ordered by ease:
 2. **MusicXML upload** — every notation app (MuseScore, Finale, Sibelius)
    exports it. Parse client-side (JS parser) or via a small serverless
    function running `music21`.
-3. **Audio file / mic → notes** via `@spotify/basic-pitch` — **already
-   installed** (`src/utils/basicPitchLoader.ts`). Works best on solo
-   instrument / clear melody; tag `confidence` accordingly and say so in the
-   UI.
+3. **Audio file / mic → notes** via `@spotify/basic-pitch` — not in the
+   app today (removed with the Key Detector). Re-add the package if/when
+   this funnel ships. Works best on solo instrument / clear melody; tag
+   `confidence` accordingly and say so in the UI.
 
 Also in this phase: a simple **song viewer** (piano-roll or VexFlow staff)
 so users can see what came out of a funnel before playing it.

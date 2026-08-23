@@ -96,15 +96,15 @@ synth.triggerAttackRelease(["C4", "E4", "G4"], "8n");
 
 | Tool | What it does | Open | Embed | Effort | Fit |
 | --- | --- | :--: | :--: | :--: | --- |
-| [@spotify/basic-pitch](https://github.com/spotify/basic-pitch-ts) | Audio → MIDI, polyphonic, pitch bends (**already installed**) | 🟢 | ✅ Apache-2.0 | ⭐⭐ | Song interpretation, harp-from-recording |
-| [essentia.js](https://github.com/MTG/essentia.js) | ~200 MIR algos (key, BPM, chroma) via WASM | 🟢 | ⚠️ **AGPL-3.0** (commercial license for closed products) | ⭐⭐⭐ | Fix the hidden key detector properly |
-| [CREPE](https://github.com/marl/crepe) / [pitchy](https://github.com/ianprime0509/pitchy) | Monophonic pitch tracking | 🟢 | ✅ MIT | ⭐⭐ | Tuner, key detector, harp/vocal pitch |
+| [@spotify/basic-pitch](https://github.com/spotify/basic-pitch-ts) | Audio → MIDI, polyphonic, pitch bends (**not installed** — re-add if we build that funnel) | 🟢 | ✅ Apache-2.0 | ⭐⭐ | Song interpretation, harp-from-recording |
+| [essentia.js](https://github.com/MTG/essentia.js) | ~200 MIR algos (key, BPM, chroma) via WASM | 🟢 | ⚠️ **AGPL-3.0** (commercial license for closed products) | ⭐⭐⭐ | Key / BPM / chroma analysis |
+| [CREPE](https://github.com/marl/crepe) / [pitchy](https://github.com/ianprime0509/pitchy) | Monophonic pitch tracking | 🟢 | ✅ MIT | ⭐⭐ | Tuner, harp/vocal pitch |
 | [Meyda](https://meyda.js.org/) | Real-time Web Audio feature extraction | 🟢 | ✅ MIT | ⭐ | Lightweight live analysis |
 | [Demucs (web/ONNX)](https://github.com/bakkot/demucs-js) | Stem separation (vocals/drums/bass/other) | 🟢 | ✅ MIT (model) | ⭐⭐⭐ | ~170MB ONNX, WebGPU; isolate-a-line |
 | [Whisper via transformers.js](https://github.com/huggingface/transformers.js) | Audio → lyrics/text in browser | 🟢 | ✅ Apache-2.0 (models vary) | ⭐⭐⭐ | Lyrics alongside transcription |
 | [Moises](https://moises.ai/) / [LANDR](https://www.landr.com/) | Hosted stems / mastering | 🟡 | ❌ API/ToS | ⭐⭐⭐ | Shortcut if you don't want to ship ONNX |
 
-**Example — audio → MIDI (pattern we already have via `basicPitchLoader.ts`):**
+**Example — audio → MIDI (re-add `@spotify/basic-pitch` if we build this funnel):**
 
 ```ts
 const { BasicPitch } = await import("@spotify/basic-pitch");
@@ -262,12 +262,12 @@ and **Tone.js** later, each on its own merits.
 2. tonal — stop hand-rolling theory
 3. AudioWorklet — latency / click-pop (ToDo)
 4. smplr / SF2 — instruments that sound real (70s organ)
-5. CREPE/pitchy (or essentia.js ⚠️AGPL) — revive the key detector
+5. CREPE/pitchy (or essentia.js ⚠️AGPL) — pitch tracking if we ever want a tuner
 6. VexFlow — show the chord/scale we already compute
 7. Magenta.js — first generative feature that still plays our synth
 
 **Medium-term (matches roadmap):**
-8. basic-pitch pipeline (already started) — song/mic → light keys → retarget scale → play
+8. basic-pitch pipeline (not in the app; re-add the package) — song/mic → light keys → retarget scale → play
 9. In-browser Demucs — karaoke / isolate a line
 10. LLM tool-calling over existing hooks
 11. Lyria RealTime — backing band that respects the scale dropdown

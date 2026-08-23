@@ -1,47 +1,67 @@
-## Research Music Theory and Logic
+# ToDo — plan & sketch tracking
 
-- Research Synth full-screen mode funct
-- Research the concept of different sound wave shapes/types
-- Research the underlying theory of Major/Minor scales and how to use logic to predict which notes are in a given scale
-- Research the logic used by the "note playing" data window on the bottom piano menu to detect what chord is playing
-- Research how multi-touch input support logic works
+Source of truth for inventory, build status, and what to implement next.
+The specs themselves live in `docs/plans/` and `docs/sketches/`; this file
+tracks them. Ranked items are ordered **most urgent / important → least**.
+Unranked items stay **not specified** — do not treat their list order as
+priority.
 
-## Development Todo
+Update this file when a plan or sketch is added, shipped, blocked, or
+re-ranked. Promote a tightened sketch into `docs/plans/` when decisions
+harden.
 
-- if a user enters full screen mode on mobile devices while in landscape and then once in fs mode, rotates to portrait, there is a bug - the popup asking the user to use landscape mode doesn't actually block the user from playing the piano (and in general the popup that is intended to block the user looks ugly as hell)
-- Piano playing via computer keyboard input capabilities are lost in "mobile mode" on screens that are too wide. Fix this
-- when in locked mode, there is a bug that allows piano key input via computerkeyboard to bypass and play blocked notes that are out of current scale
-- add feature: transpose and play only white keys. user selects and scale they would like in "scale mode" and automatically, all the white keys play in the chosen scale (and all the black keys get the striped red blocked out indicators and they should not accept any sound input (or green stripes if "unlocked" and should still be able to play black keys))
-- add Feature: when is user "right clicks" on a piano/synth key, the key should sustain infintely until the user presses it again via any touch or click input
-- Add Feature: accept midi input for midi devices
-- Add Feature: When user is in "Scale Mode", color the root key and relative minor/major to point out to the user what is the root and relative min/maj
-- Add Feature: add a "blues scale" dropdown that handles blues scales for "scale mode"
-- Fix: when in full screen and the cell phone rotates from landscape to portrait, all synth presets get lost
-- Re-arrange key/scale dropdown so that next to each scale the matching minor/major is also shown in the list (for example: Cmaj (Amin) )
-- start to compartmentalize the PianoKeyboard.tsx code into more manageable files and folders (e.g. separate the piano key logic from the scale selection logic etc.)
-- Add a selectChord feature. This will be an add on to the selectScale feature. If a user is in a "selected scale" then there should be another dropdown that will allow them to select a chord from that scale. The effect of selecting a chord should be as follows. The keys in the selected chord should be colored orange. Additionally, next to the chord dropdown, there will be a play/pause button that will play the chord sound if a user selects "play". The chord should automatically stop playing if any new key input is pressed by an app user
-- Fix: fix issue with piano keyButtons remaining "visually" pressed (darker grey than the other keys) after being functionally released
-- Fix: issues with piano key sizing and alignment:
-  - some white piano keys being slightly wider than others
-  - black piano keys aren't truly centered on the white keys
-- Fix: Windows tablet triple-finger touch gesture interferes with chord playing by triggering the task switcher overlay
-- Get app to work on mobile safari browsers (may already be working now that we added the "Tap to Enable Sound" modal)
-- Figure out workaround to get app to work on touch devices without using the "Tap to Enable Sound" modal (currently, without it, first mobile touch doesn't do anything, the second press triggers the initially pressed note and remains pressed even after the finger is lifted and other notes are pressed)
-- create a mapping of computer keyboard => virtual piano
-- Optimize audio latency
-  - Reduce delay between key press and sound playback
-- Reduce click/pop sounds on note abrupt end
-- Sound Bank/Library
-  - 70s Organ
+---
 
-## Additional Features
+## Plans — inventory
 
-- Add a white noise oscillator that can be used offline (and play in the background)
-- Add ability to toggle between Western piano scale and Maqam-Rast (Arabian) scales
-  - Western: Standard 12-tone equal temperament
-  - Maqam-Rast: Traditional Middle Eastern scale with quarter tones
-- Key Conversion: Process songs (via YouTube/Spotify links) and play them back in any requested key
-  - Input: Song URL or audio file
-  - Output: Same song transposed to user's chosen key
-  - Support for both major and minor key conversions
-- Allow user to use a midi keyboard to play the piano
+| Plan | File | What it is | Build status | Ranking |
+|------|------|------------|--------------|---------|
+| IP, copyright, trademark & licensing (security tightening) | [docs/plans/ip-copyright-trademark-licensing.md](docs/plans/ip-copyright-trademark-licensing.md) | Repo/legal layer: LICENSE, secret scan, trademark ™, repo rename | **Not started.** Status: planning (2026-08-22). No `LICENSE` yet. | **1 — highest** |
+| Interactive Scale Lessons | [docs/plans/lessons-module.md](docs/plans/lessons-module.md) | `/lessons` blog of interactive scale/mode pages + reusable widgets | **Partial.** Index + `[slug]` routes and registry exist; all lessons still "Soon". Widgets (keyboard, comparer, etc.) and real content are unbuilt. | not specified |
+| Harmonica Key Finder — SEO & LLM | [docs/plans/harmonica-lab-seo.md](docs/plans/harmonica-lab-seo.md) | Instrument-first hub `/harmonica` + Key Finder + Cross Harp Chart; migrate lab | **Not started.** Spec says sketch first — don't build yet. Site-wide `metadataBase` already exists; sitemap/robots/JSON-LD and new routes do not. | not specified (doc: hold on build) |
+| Contact & Licensing pages | [docs/plans/contact-and-licensing.md](docs/plans/contact-and-licensing.md) | `/contact` form, `/usage`, `/pricing` stub, footer wiring | **Partial.** `/contact` is a `mailto:` stub. `/usage` and `/pricing` do not exist. Decisions locked. | not specified |
+| Buy Me a Coffee (tips) | [docs/plans/buy-me-a-coffee.md](docs/plans/buy-me-a-coffee.md) | Footer + `/about` link to a BMC creator page | **Not started.** Blocked on off-site BMC account + live URL. | not specified (doc: **do not build yet**) |
+| Yiddish / Jewish music (dataset + learn-through-song) | [docs/plans/klezmer-yiddish-dataset.md](docs/plans/klezmer-yiddish-dataset.md) | Track A: klezmer melody corpus. Track B: lyric+audio language module | **Not started.** Blocked on `SongDocument` (`src/lib/song/` does not exist). Track B is exploration. | not specified |
+| Interactive Dance Tutorial | [docs/plans/dance-tutorial-module.md](docs/plans/dance-tutorial-module.md) | `/dance` beat-synced footwork lessons; first style West Coast Swing | **Not started.** Spec says sketch first — not a build order to start blindly. | not specified (doc: hold on build) |
+
+---
+
+## Fixes — inventory
+
+Live-site / product defects that are not a plan or sketch.
+
+| Item | File | What it is | Build status | Ranking |
+|------|------|------------|--------------|---------|
+| Hero demo: "Yesterday" musical errors | [src/components/home/heroTune.ts](src/components/home/heroTune.ts) | Homepage attract-mode plays the opening of the Beatles' *Yesterday* (transposed F→C). The line still has serious musical errors — embarrassing on a music-theory site. | **Open.** Tune data and playback exist; the notes/harmony are wrong. | **2** |
+
+---
+
+## Sketches — inventory
+
+Sketches are **not committed work** and **not a decided direction** unless
+a doc says otherwise.
+
+| Sketch | File | What it is | Status | Ranking |
+|--------|------|------------|--------|---------|
+| Universal song ingestion → community MIDI library | [docs/sketches/community-midi-library.md](docs/sketches/community-midi-library.md) | Users funnel MIDI/ABC/MusicXML/audio into one `SongDocument`; later a shared, curated library | **Exploration.** Not a decided direction. No `src/lib/song/` yet. Parent of the klezmer dataset plan. | not specified |
+| Hosting, domain, and auth | [docs/sketches/hosting-and-auth-direction.md](docs/sketches/hosting-and-auth-direction.md) | Vercel + `instrumaps.com` + deploy lock; later Auth.js / DB | **Split.** Hosting/domain = done (live). Auth = still a sketch. Promote a tightened auth version to `docs/plans/` when it hardens. | not specified |
+
+---
+
+## Next to implement
+
+Ranked items first (**most urgent → next**). Everything below that is
+**not specified**.
+
+| Item | Kind | Next slice | Local order | Ranking |
+|------|------|------------|-------------|---------|
+| IP / security tightening | plan | Phase 1 secret scan + dep license audit; then proprietary `LICENSE` + README; then repo rename; ™ on the wordmark | in-doc weekend fast-path | **1 — highest** |
+| Hero demo: "Yesterday" | fix | Correct the notes/harmony in `heroTune.ts` so the homepage demo of *Yesterday* is musically honest. Listen through the attract-mode phrase and fix wrong pitches, durations, and chords. | not specified | **2** |
+| Dance tutorial | plan | Phase 0 content research (lock WCS counts), then Phase 1 + `GroovePlayer` + `CountTimeline` + Lesson 0 | suggested first milestone in-doc | not specified |
+| Buy me a coffee | plan | Off-site: create BMC page, test a $1 tip, then Phase 1 (`AUTHOR.coffee` + shared link) | in-doc: do not code until the URL exists | not specified |
+| Harmonica SEO | plan | Phase 0 keyword/Q&A research; then hub + Key Finder + Cross Harp Chart + crawlable FAQ | in-doc "if only three things": pages+FAQ, then JSON-LD, then sitemap/canonical | not specified |
+| Klezmer / Yiddish | plan | Track A: Phase A0 (`SongDocument` + `SongEntry`) + scrape ~20 abcnotation tunes and play one. Track B: Phase B0 one-song YouTube + lyric sync spike. Either track can go first. | in-doc ingestion priority for Track A; B0 for Track B | not specified |
+| Lessons module | plan | Finish Phase 1 leftovers (nav entry, layout) + Phase 2 widgets + Blues lesson as the format proof | suggested first milestone in-doc | not specified |
+| Contact & licensing | plan | Rebuild `/contact` (gut the stub), then `/usage`, `/pricing` stub, footer + About "Work with me" split | Phases 1 → 4 in-doc | not specified |
+| Community MIDI library | sketch | Only if/when we choose to start: `src/lib/song/` types → `@tonejs/midi` upload adapter → play a `SongDocument` on the existing synth → transpose. Parallel experiment: publish a small personal MIDI catalog. | Phases 0 → 5 are lowest-hanging fruit → hardest (options, not a chosen path) | not specified |
+| Hosting / auth | sketch | Hosting Phase 0 is done. Remaining (in-doc "rough order"): rename leftover "Synth-v01" copy / README demo link → Auth.js + Google spike on a feature branch → decide Drizzle vs Prisma, Neon vs Supabase → months out, delete the Netlify redirect site. | in-doc: remaining actions in rough order | not specified |
