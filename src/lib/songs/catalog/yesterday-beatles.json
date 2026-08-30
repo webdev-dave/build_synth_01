@@ -9,6 +9,12 @@
     ],
     "provenance": "midi",
     "confidence": 1,
+    "origin": {
+      "filename": "beatles-yesterday.mid",
+      "localPath": "C:/Users/elido/Downloads/beatles-yesterday.mid",
+      "collection": "user drop",
+      "ingestedAt": "2026-08-30"
+    },
     "sources": [
       {
         "role": "melody",

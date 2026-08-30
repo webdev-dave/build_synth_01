@@ -15,6 +15,24 @@ export type SongTrack = {
   notes: SongNote[];
 };
 
+/** Where a sourced MIDI came from — used to avoid ingesting the same file twice. */
+export type SongOrigin = {
+  /** Listing or article page. */
+  url?: string;
+  /** Original filename as published or downloaded (not `arrangement.mid`). */
+  filename?: string;
+  /** Direct URL of the `.mid` if we have one. */
+  fileUrl?: string;
+  /** Local path we copied from (Downloads, etc.). */
+  localPath?: string;
+  /** Site or set name, e.g. FreeSheetMusic.net · Klezmer Folktunes. */
+  collection?: string;
+  /** Version, arranger, or why this is a second copy of a known title. */
+  note?: string;
+  /** ISO date the file was ingested (YYYY-MM-DD). */
+  ingestedAt?: string;
+};
+
 export type SongDocumentMeta = {
   title: string;
   artist?: string;
@@ -25,6 +43,7 @@ export type SongDocumentMeta = {
   provenance: "midi" | "abc" | "musicxml" | "audio" | "omr" | "manual";
   confidence: number;
   sources?: { role: SongTrackRole; file: string }[];
+  origin?: SongOrigin;
 };
 
 /**

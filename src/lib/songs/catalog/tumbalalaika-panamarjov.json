@@ -9,6 +9,13 @@
     ],
     "provenance": "midi",
     "confidence": 1,
+    "origin": {
+      "filename": "tumbalalaika_[panamarjov_oleg].mid",
+      "localPath": "C:/Users/elido/Downloads/tumbalalaika_[panamarjov_oleg].mid",
+      "collection": "user drop",
+      "note": "Version B of Tumbalalaika. Version A is the split voice + piano pair.",
+      "ingestedAt": "2026-08-30"
+    },
     "sources": [
       {
         "role": "melody",

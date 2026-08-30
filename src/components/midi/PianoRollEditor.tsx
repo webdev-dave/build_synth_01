@@ -28,6 +28,19 @@ interface PianoRollElement extends HTMLElement {
   cursor: number;
   markstart: number;
   markend: number;
+  /*
+   * The element copies HTML attributes into these properties ONCE at mount
+   * (no attributeChangedCallback), so all post-mount view changes must go
+   * through the properties — setAttribute would silently do nothing.
+   */
+  width: number;
+  xrange: number;
+  yrange: number;
+  xoffset: number;
+  yoffset: number;
+  kbwidth: number;
+  yruler: number;
+  grid: number;
   timer?: number;
   tick1: number;
   actx?: AudioContext;
@@ -79,6 +92,7 @@ export type PianoRollHandle = {
   redo(): void;
   zoomX(factor: number): void;
   zoomY(factor: number): void;
+  transpose(semitones: number): void;
 };
 
 type Props = {
@@ -262,15 +276,13 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         el.redraw();
         elRef.current = el;
 
-        // Make the canvas responsive
+        // Make the canvas responsive (width property triggers layout+redraw)
         const resizeObserver = new ResizeObserver((entries) => {
           for (const entry of entries) {
             if (el) {
               const newWidth = entry.contentRect.width;
               if (newWidth > 0) {
-                el.setAttribute("width", String(newWidth));
-                if (el.layout) el.layout();
-                el.redraw();
+                el.width = newWidth;
               }
             }
           }
@@ -290,15 +302,17 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
           const rect = el!.getBoundingClientRect();
           const y = e.clientY - rect.top;
           const x = e.clientX - rect.left;
-          const kbwidth = Number(el!.getAttribute("kbwidth")) || 32;
-          const yruler = Number(el!.getAttribute("yruler")) || 24;
+          const kbwidth = el!.kbwidth || 32;
+          const yruler = el!.yruler || 24;
 
           if (y <= RULER_PX) {
             if (x > yruler + kbwidth) {
               const graphWidth = rect.width - yruler - kbwidth;
-              let tick = ((x - yruler - kbwidth) / graphWidth) * Number(el!.getAttribute("xrange"));
-              // Snap to the nearest 16th note (1 tick)
-              tick = Math.round(tick);
+              let tick =
+                el!.xoffset +
+                ((x - yruler - kbwidth) / graphWidth) * el!.xrange;
+              // Snap to the nearest tick
+              tick = Math.max(0, Math.round(tick));
               
               if (e.shiftKey) {
                 // Shift-click sets the loop end
@@ -326,8 +340,8 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
             }
           } else if (x > yruler && x <= yruler + kbwidth) {
             // Clicked on the piano keyboard area
-            const yrange = Number(el!.getAttribute("yrange"));
-            const yoffset = Number(el!.getAttribute("yoffset"));
+            const yrange = el!.yrange;
+            const yoffset = el!.yoffset;
             const steph = (rect.height - RULER_PX) / yrange;
             const n = Math.floor(yoffset - (y - rect.height) / steph);
             
@@ -351,21 +365,22 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         document.addEventListener("pointerup", clearPressedKey);
         document.addEventListener("pointercancel", clearPressedKey);
         
-        // Custom wheel handler for zooming and scrolling
+        // Custom wheel handler for zooming and scrolling.
+        // All view changes go through element properties (setAttribute is a
+        // no-op after mount); property sets trigger the element's own redraw.
         el.addEventListener("wheel", (e) => {
           const rect = el!.getBoundingClientRect();
           const x = e.clientX - rect.left;
-          const y = e.clientY - rect.top;
-          const kbwidth = Number(el!.getAttribute("kbwidth")) || 32;
-          const yruler = Number(el!.getAttribute("yruler")) || 24;
+          const kbwidth = el!.kbwidth || 32;
+          const yruler = el!.yruler || 24;
 
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
-            
+
             if (x > yruler + kbwidth) {
-               let xrange = Number(el!.getAttribute("xrange"));
-               let xoffset = Number(el!.getAttribute("xoffset"));
-               
+               let xrange = el!.xrange;
+               let xoffset = el!.xoffset;
+
                const graphWidth = rect.width - yruler - kbwidth;
                const mouseTick = xoffset + ((x - yruler - kbwidth) / graphWidth) * xrange;
 
@@ -376,60 +391,46 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
                   xoffset = mouseTick - (mouseTick - xoffset) * 1.15;
                   xrange *= 1.15;
                }
-               
-               // Prevent zooming out past the maximum song bounds plus an extra 8 bars
-               const timebase = Number(el!.getAttribute("timebase")) || 8;
-               const maxTicks = Number(el!.getAttribute("markend")) + (timebase * 8);
-               if (xrange > maxTicks) {
-                  xrange = maxTicks;
-               }
-               
-               el!.setAttribute("xrange", String(Math.max(4, xrange)));
-               el!.setAttribute("xoffset", String(xoffset)); // allow negative xoffset if scrolling left
-               
+
+               // Prevent zooming out past the song bounds plus an extra 8 bars
+               const maxTicks = el!.markend + el!.timebase * 8;
+               xrange = Math.max(4, Math.min(xrange, maxTicks));
+
+               el!.xrange = xrange;
+               el!.xoffset = Math.max(0, xoffset);
+
                // Save custom zoom state
                if (customZoomRef.current) {
-                   customZoomRef.current.xrange = Math.max(4, xrange);
+                   customZoomRef.current.xrange = xrange;
                } else {
-                   customZoomRef.current = { xrange: Math.max(4, xrange), yrange: Number(el!.getAttribute("yrange")) || 16 };
+                   customZoomRef.current = { xrange, yrange: el!.yrange || 16 };
                }
-               
-               el!.redraw();
             }
           } else {
              // Scroll panning (Vertical & Horizontal)
              e.preventDefault();
-             
-             let xrange = Number(el!.getAttribute("xrange"));
-             let xoffset = Number(el!.getAttribute("xoffset"));
-             let yrange = Number(el!.getAttribute("yrange"));
-             let yoffset = Number(el!.getAttribute("yoffset"));
-             
+
              const graphWidth = rect.width - yruler - kbwidth;
              const graphHeight = rect.height - RULER_PX;
-             
-             // Convert pixel delta to tick/note delta
-             // DeltaX pans horizontally
-             if (e.deltaX !== 0) {
-                 const dx = (e.deltaX / graphWidth) * xrange;
-                 xoffset += dx;
+
+             const panX = e.shiftKey
+               ? e.deltaY || e.deltaX
+               : e.deltaX;
+             const panY = e.shiftKey ? 0 : e.deltaY;
+
+             if (panX !== 0) {
+                 const dx = (panX / graphWidth) * el!.xrange;
+                 el!.xoffset = Math.max(0, el!.xoffset + dx);
              }
-             
-             // DeltaY pans vertically (scrolling down moves view down, so yoffset decreases)
-             if (e.deltaY !== 0) {
-                 const dy = (e.deltaY / graphHeight) * yrange;
-                 yoffset -= dy;
-                 // Clamp yoffset so we don't scroll infinitely into empty MIDI space
-                 yoffset = Math.max(yrange, Math.min(127, yoffset));
+
+             // Wheel without Shift pans vertically (down moves the view down).
+             if (panY !== 0) {
+                 const dy = (panY / graphHeight) * el!.yrange;
+                 el!.yoffset = Math.max(
+                   0,
+                   Math.min(128 - el!.yrange, el!.yoffset - dy),
+                 );
              }
-             
-             el!.setAttribute("xoffset", String(xoffset));
-             el!.setAttribute("yoffset", String(yoffset));
-             
-             // If user pans manually, we might want to track that so we don't snap them back if they load a new song,
-             // but per instructions we only care about persisting the ZOOM preferences, not necessarily the pan position.
-             
-             el!.redraw();
           }
         }, { passive: false });
         
@@ -463,7 +464,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
 
     useEffect(() => {
       if (elRef.current) {
-        elRef.current.setAttribute("editmode", isDeleteMode ? "eraser" : "dragpoly");
+        elRef.current.editmode = isDeleteMode ? "eraser" : "dragpoly";
       }
     }, [isDeleteMode]);
 
@@ -480,16 +481,12 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       if (elRef.current) {
         const barTicks = ticksPerBar([beatsPerBar, beatUnit]);
         elRef.current.timebase = barTicks;
-        elRef.current.tempo = rollPlaybackTempo(bpm, barTicks);
-        elRef.current.setAttribute("timebase", String(barTicks));
-        elRef.current.setAttribute("xrange", String(bars * barTicks));
-        elRef.current.setAttribute(
-          "grid",
-          String(beatUnit === 8 ? 1 : TICKS_PER_BEAT),
-        );
-        elRef.current.redraw();
+        elRef.current.grid = beatUnit === 8 ? 1 : TICKS_PER_BEAT;
+        // Explicitly changing Bars/Meter re-frames the view to that many bars.
+        elRef.current.xrange = bars * barTicks;
+        elRef.current.xoffset = 0;
       }
-    }, [bars, beatsPerBar, beatUnit, bpm]);
+    }, [bars, beatsPerBar, beatUnit]);
 
     useImperativeHandle(ref, () => ({
       getMelody() {
@@ -528,7 +525,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         if (!el) return;
         el.stop();
         el.sequence = seedSeqRef.current.map((ev) => ({ ...ev }));
-        el.markend = seedTicksRef.current;
+        el.markend = Math.max(1, seedTicksRef.current);
         el.locate(0);
         if (el.clearHistory) el.clearHistory();
         if (el.saveState) el.saveState();
@@ -537,51 +534,42 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       zoomX(factor: number) {
         const el = elRef.current;
         if (!el) return;
-        let xrange = Number(el.getAttribute("xrange"));
-        let xoffset = Number(el.getAttribute("xoffset"));
-        const viewCenter = xoffset + xrange / 2;
-        xrange *= factor;
-        
-        // Prevent zooming out past the maximum song bounds plus an extra 8 bars
-        const timebase = Number(el.getAttribute("timebase")) || 8;
-        const maxTicks = Number(el.getAttribute("markend")) + (timebase * 8); 
-        
-        if (xrange > maxTicks) {
-           xrange = maxTicks;
-        }
-        
-        xoffset = viewCenter - xrange / 2;
-        el.setAttribute("xrange", String(Math.max(4, xrange)));
-        el.setAttribute("xoffset", String(xoffset));
-        el.redraw();
-        
-        // Save to user preferences
+        const viewCenter = el.xoffset + el.xrange / 2;
+        // Prevent zooming out past the song bounds plus an extra 8 bars
+        const maxTicks = el.markend + el.timebase * 8;
+        const xrange = Math.max(4, Math.min(el.xrange * factor, maxTicks));
+        el.xrange = xrange;
+        el.xoffset = Math.max(0, viewCenter - xrange / 2);
+
         if (customZoomRef.current) {
-            customZoomRef.current.xrange = Math.max(4, xrange);
+            customZoomRef.current.xrange = xrange;
         } else {
-            customZoomRef.current = { xrange: Math.max(4, xrange), yrange: Number(el.getAttribute("yrange")) || 16 };
+            customZoomRef.current = { xrange, yrange: el.yrange || 16 };
         }
       },
       zoomY(factor: number) {
         const el = elRef.current;
         if (!el) return;
-        let yrange = Number(el.getAttribute("yrange"));
-        let yoffset = Number(el.getAttribute("yoffset"));
-        const viewCenter = yoffset - yrange / 2;
-        yrange *= factor;
-        yrange = Math.max(4, Math.min(127, yrange));
-        yoffset = viewCenter + yrange / 2;
-        yoffset = Math.max(yrange, Math.min(127, yoffset));
-        el.setAttribute("yrange", String(yrange));
-        el.setAttribute("yoffset", String(yoffset));
-        el.redraw();
-        
-        // Save to user preferences
+        const viewCenter = el.yoffset + el.yrange / 2;
+        const yrange = Math.max(4, Math.min(64, el.yrange * factor));
+        el.yrange = yrange;
+        el.yoffset = Math.max(0, Math.min(128 - yrange, viewCenter - yrange / 2));
+
         if (customZoomRef.current) {
             customZoomRef.current.yrange = yrange;
         } else {
-            customZoomRef.current = { xrange: Number(el.getAttribute("xrange")) || 64, yrange: yrange };
+            customZoomRef.current = { xrange: el.xrange || 64, yrange };
         }
+      },
+      transpose(semitones: number) {
+        const el = elRef.current;
+        if (!el) return;
+        el.sequence = el.sequence.map((ev) => ({
+          ...ev,
+          n: Math.max(0, Math.min(127, ev.n + semitones)),
+        }));
+        if (el.saveState) el.saveState();
+        el.redraw();
       },
     }));
 

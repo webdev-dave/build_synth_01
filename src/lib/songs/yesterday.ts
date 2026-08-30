@@ -5,7 +5,7 @@ import {
   type ChordEvent,
   type MelodyEvent,
 } from "@/components/home/heroTune";
-import type { SongEntry } from "./types";
+import { YESTERDAY_LABELS, type SongEntry } from "./types";
 
 /** Same low pad voicings the hero uses, so v2 can share them without edits. */
 const VOICE = {
@@ -25,6 +25,11 @@ export const yesterdayV1: SongEntry = {
   id: "yesterday-v1",
   title: "Yesterday v1",
   subtitle: "Homepage hero — 5-bar draft",
+  labels: YESTERDAY_LABELS,
+  source: {
+    collection: "instrumaps",
+    note: "Handwritten hero draft — not sourced MIDI.",
+  },
   bpm: BPM,
   bars: 8,
   melody: MELODY,
@@ -78,6 +83,11 @@ export const yesterdayV2: SongEntry = {
   id: "yesterday-v2",
   title: "Yesterday v2",
   subtitle: "8-bar form, pickup on beat 4",
+  labels: YESTERDAY_LABELS,
+  source: {
+    collection: "instrumaps",
+    note: "Handwritten draft — not sourced MIDI.",
+  },
   bpm: BPM,
   bars: 8,
   melody: YESTERDAY_V2_MELODY,

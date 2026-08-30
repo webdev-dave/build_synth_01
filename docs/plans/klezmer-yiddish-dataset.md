@@ -145,8 +145,23 @@ Target: hundreds of tunes as the **core parseable corpus**.
 - [ ] **Gan HaLev z'mirot** (`ganhalev.org`) — 4-voice MIDIs with **separate files
       per voice part**. Ideal for extracting a clean single melody line. `[FREE]`
 - [ ] Parse via `@tonejs/midi` → `SongDocument` (provenance `midi`, confidence 1.0).
-- [ ] Secondary hubs as gap-fill, per-item: Jewish Music WebCenter (index), Great
-      Jewish Music, FreeSheetMusic.net folk/world page.
+- [x] **FreeSheetMusic.net Klezmer Folktunes** (2026-08-30) — listing
+      <https://www.freesheetmusic.net/music/worldfolk/klezmer.html>
+      ingested into the Piano Roll catalog (`npm run ingest-klezmer-page`).
+      Same `.mid` listed twice was skipped; different files of a related
+      title were kept as named versions. **Do not re-scrape this page**
+      unless new filenames appear.
+- [ ] **FreeSheetMusic.net — other pages (next).** The klezmer listing is one
+      endpoint. Same site, same `Midi | Pdf` pattern. Explore before adding
+      new sources:
+      - Hub: <https://www.freesheetmusic.net/music/worldfolk/>
+      - Siblings: Belgian, Celtic, Folk Songs from Around the World,
+        Popular Folk, Guitar, Irish, Russian, Scottish
+        (`/music/worldfolk/{belgian,celtic,around-the-world,popular,guitar,irish,russian,scottish}`)
+      - Broader site: `/music/{bach,beethoven,christmas,oneills,haydn,…}`
+      Lead-sheet MIDIs; not all are PD; keep `meta.origin` (listing URL +
+      original filename). Only use `KLEZMER_LABELS` for Jewish/Yiddish
+      repertoire.
 
 ## Phase A4 — Gap-fill from notation exports (license-gated)
 
@@ -412,9 +427,20 @@ Tags: `[FREE]` `[PAID]` `[OPEN-DATA]` | Formats: MIDI, MusicXML, ABC, PDF, AUDIO
   **separate files per voice part**. **Good for isolating clean single melody lines.**
 - **MIDI DB** — Jewish & Hebrew `[FREE demos / PAID pro]`
   <https://www.mididb.com/genres/jewish-midi/> — Hava Nagila, Bashana Haba'ah, etc.
-- **FreeSheetMusic.net** — folk/world page `[FREE]`
-  <https://www.freesheetmusic.net/Folk2.html> — large Israeli/Yiddish/Hebrew MIDI
-  library + Yiddish song archive (100+ lead-sheet PDFs w/ lyrics).
+- **FreeSheetMusic.net** `[FREE]` — lead-sheet MIDI + PDF listings.
+  - **Klezmer Folktunes (ingested 2026-08-30):**
+    <https://www.freesheetmusic.net/music/worldfolk/klezmer.html>
+    Piano Roll catalog + `scripts/ingest-klezmer-page.ts`. Do not treat this
+    page as a new source.
+  - **Worldfolk hub (explore next):**
+    <https://www.freesheetmusic.net/music/worldfolk/>
+    Belgian, Celtic, around-the-world, popular, guitar, Irish, Russian,
+    Scottish — same listing pattern as klezmer.
+  - Other site sections: `/music/bach`, `/music/beethoven`, `/music/christmas`,
+    O'Neill's, etc. Older bookmark <https://www.freesheetmusic.net/Folk2.html>
+    is superseded by `/music/worldfolk/`.
+  - Formats: MIDI + PDF per tune. Treble lead sheets, not full band charts.
+    Per-item license still required for shipping.
 - **BitMidi** `[FREE]` <https://bitmidi.com> (search titles; in-browser preview)
 - **FreeMidi.org** `[FREE]` <https://freemidi.org>
 

@@ -9,6 +9,12 @@
     ],
     "provenance": "midi",
     "confidence": 1,
+    "origin": {
+      "filename": "tumbalalaika_voice_vo_abm.mid, tumbalalaika_voice_pn_abm.mid",
+      "collection": "user drop",
+      "note": "Split voice + piano MIDI. Version B is tumbalalaika_[panamarjov_oleg].mid.",
+      "ingestedAt": "2026-08-30"
+    },
     "sources": [
       {
         "role": "melody",

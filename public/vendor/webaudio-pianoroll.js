@@ -30,10 +30,10 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 height:             {type:Number, value:320, observer:'layout'},
                 timebase:           {type:Number, value:16, observer:'layout'},
                 editmode:           {type:String, value:"dragpoly"},
-                xrange:             {type:Number, value:16, observer:'layout'},
-                yrange:             {type:Number, value:16, observer:'layout'},
-                xoffset:            {type:Number, value:0, observer:'layout'},
-                yoffset:            {type:Number, value:60, observer:'layout'},
+                xrange:             {type:Number, value:16, observer:'redraw'},
+                yrange:             {type:Number, value:16, observer:'redraw'},
+                xoffset:            {type:Number, value:0, observer:'redraw'},
+                yoffset:            {type:Number, value:60, observer:'redraw'},
                 grid:               {type:Number, value:4},
                 snap:               {type:Number, value:1},
                 wheelzoom:          {type:Number, value:0},
@@ -170,16 +170,22 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 while(this.timestack.length>1 && current>=this.timestack[1][0]){
                     this.timestack.shift();
                 }
-                this.cursor=this.timestack[0][1]+(current-this.timestack[0][0])/this.timestack[0][2];
-                
-                // Auto-scroll logic (page scroll to keep playhead visible)
+                // The initial timestack seed has a 0 time-scale; dividing by it
+                // yields Infinity and (before this guard) froze the tab via the
+                // unbounded grid-draw loops. Hold the cursor still until a real
+                // entry takes over.
+                const ts0=this.timestack[0];
+                this.cursor=ts0[2] ? ts0[1]+(current-ts0[0])/ts0[2] : ts0[1];
+
+                // Auto-scroll to keep the playhead visible.
                 let didScroll = false;
-                if (this.cursor > this.xoffset + this.xrange * 0.95 || this.cursor < this.xoffset) {
+                if (isFinite(this.cursor) &&
+                    (this.cursor > this.xoffset + this.xrange * 0.95 || this.cursor < this.xoffset)) {
+                    // Property set triggers the redraw observer.
                     this.xoffset = Math.max(0, this.cursor - this.xrange * 0.05);
-                    this.redraw();
                     didScroll = true;
                 }
-                
+
                 if (!didScroll) {
                     this.redrawMarker();
                 }
@@ -191,7 +197,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     if(!e || e.t>=this.markend){
                         this.timestack.push([this.time1,this.markstart,this.tick2time]);
                         const p=this.findNextEv(this.markstart);
-                        this.time1+=p.dt*this.tick2time;
+                        this.time1+=Math.max(1, p.dt)*this.tick2time;
                         this.index1=p.i;
                     }
                     else{
@@ -208,7 +214,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                             this.time1+=(this.markend-this.tick1)*this.tick2time;
                             const p=this.findNextEv(this.markstart);
                             this.timestack.push([this.time1,this.markstart,this.tick2time]);
-                            this.time1+=p.dt*this.tick2time;
+                            this.time1+=Math.max(1, p.dt)*this.tick2time;
                             this.index1=p.i;
                         }
                         else
@@ -1217,6 +1223,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             for(let t=0;;t+=this.grid){
                 let x=this.stepw*(t-this.xoffset)+this.yruler+this.kbwidth;
+                if(!isFinite(x)) break; // never loop forever on bad offsets
                 this.ctx.fillRect(x|0,this.xruler,1,this.sheight);
                 if(x>=this.width)
                     break;
@@ -1237,6 +1244,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.fillStyle=this.colrulerfg;
                 for(let t=0;;t+=this.timebase){
                     let x=(t-this.xoffset)*this.stepw+this.yruler+this.kbwidth;
+                    if(!isFinite(x)) break; // never loop forever on bad offsets
                     this.ctx.fillRect(x,0,1,this.xruler);
                     this.ctx.fillText(t/this.timebase+1,x+4,this.xruler-8);
                     if(x>=this.width)

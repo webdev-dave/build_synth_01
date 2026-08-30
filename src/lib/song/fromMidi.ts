@@ -128,6 +128,7 @@ export function ingestMidiTracks(
       provenance: "midi",
       confidence: 1,
       sources: sources.length ? sources : undefined,
+      origin: meta.origin,
     },
     tracks,
   };
@@ -175,6 +176,7 @@ export function ingestMidiFile(
       sources: sourceFile
         ? [{ role: tracks[0].role, file: sourceFile }]
         : undefined,
+      origin: meta.origin,
     },
     tracks,
   };

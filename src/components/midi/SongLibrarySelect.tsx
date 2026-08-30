@@ -95,7 +95,7 @@ export function SongLibrarySelect({ songs, selectedId, onSelect }: Props) {
                 if (song) pick(song);
               }
             }}
-            placeholder="Search or paste a title…"
+            placeholder="Search title or label…"
             className="w-full border-b border-border bg-transparent px-3 py-2 font-mono text-sm outline-none placeholder:text-muted-foreground"
             aria-label="Search song library"
             aria-autocomplete="list"
@@ -104,7 +104,7 @@ export function SongLibrarySelect({ songs, selectedId, onSelect }: Props) {
           <ul
             id="song-library-list"
             role="listbox"
-            className="max-h-56 overflow-auto py-1"
+            className="max-h-80 overflow-auto py-1"
           >
             {filtered.length === 0 ? (
               <li className="px-3 py-2 text-sm text-muted-foreground">
@@ -128,6 +128,16 @@ export function SongLibrarySelect({ songs, selectedId, onSelect }: Props) {
                     {song.subtitle ? (
                       <span className="text-xs text-muted-foreground">
                         {song.subtitle}
+                      </span>
+                    ) : null}
+                    {song.labels.length > 0 ? (
+                      <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                        {song.labels.join(" · ")}
+                      </span>
+                    ) : null}
+                    {song.source?.filename ? (
+                      <span className="font-mono text-[10px] text-muted-foreground/80">
+                        {song.source.filename}
                       </span>
                     ) : null}
                   </button>

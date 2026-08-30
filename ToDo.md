@@ -59,6 +59,9 @@ a doc says otherwise.
 
 ---
 
+Piano Roll day-to-day list: [ToDo-piano-roll.md](ToDo-piano-roll.md)
+(default song, pan/zoom, transpose↔scale, track picker).
+
 ## Next to implement
 
 Ranked items first (**most urgent → next**). Everything below that is

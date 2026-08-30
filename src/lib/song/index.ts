@@ -2,6 +2,7 @@ export type {
   SongDocument,
   SongDocumentMeta,
   SongNote,
+  SongOrigin,
   SongTrack,
   SongTrackRole,
 } from "./types";

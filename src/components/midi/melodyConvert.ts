@@ -139,6 +139,82 @@ export function sequenceToMelody(
   };
 }
 
+import type { ScaleCombination, ScaleRoot } from "@/instruments/synth/templates/basic-synth/hooks/useScaleLogic";
+
+export function detectKey(sequence: SequenceEvent[]): ScaleCombination | "unknown" {
+  if (!sequence || sequence.length === 0) return "unknown";
+
+  const counts = new Array(12).fill(0);
+  for (const ev of sequence) {
+    counts[((ev.n % 12) + 12) % 12]++;
+  }
+
+  // Count how many notes from the sequence fit into each major/minor scale
+  let bestScale: ScaleCombination | "unknown" = "unknown";
+  let bestScore = -1;
+
+  const majorPattern = [0, 2, 4, 5, 7, 9, 11];
+  const minorPattern = [0, 2, 3, 5, 7, 8, 10];
+
+  for (let rootPc = 0; rootPc < 12; rootPc++) {
+    let majorScore = 0;
+    let minorScore = 0;
+    let totalNotes = 0;
+
+    for (let pc = 0; pc < 12; pc++) {
+      if (counts[pc] > 0) {
+        totalNotes += counts[pc];
+        const interval = (pc - rootPc + 12) % 12;
+        if (majorPattern.includes(interval)) majorScore += counts[pc];
+        if (minorPattern.includes(interval)) minorScore += counts[pc];
+      }
+    }
+
+    const rootName = PITCH_NAMES[rootPc] as ScaleRoot;
+
+    // Prefer scales where all notes fit perfectly
+    if (majorScore === totalNotes && totalNotes > bestScore) {
+      bestScore = majorScore;
+      bestScale = `${rootName} major`;
+    }
+    if (minorScore === totalNotes && totalNotes > bestScore) {
+      bestScore = minorScore;
+      bestScale = `${rootName} minor`;
+    }
+  }
+  
+  // If no perfect fit, fall back to best partial fit (at least 80% of notes)
+  if (bestScale === "unknown") {
+      for (let rootPc = 0; rootPc < 12; rootPc++) {
+        let majorScore = 0;
+        let minorScore = 0;
+        let totalNotes = 0;
+    
+        for (let pc = 0; pc < 12; pc++) {
+          if (counts[pc] > 0) {
+            totalNotes += counts[pc];
+            const interval = (pc - rootPc + 12) % 12;
+            if (majorPattern.includes(interval)) majorScore += counts[pc];
+            if (minorPattern.includes(interval)) minorScore += counts[pc];
+          }
+        }
+    
+        const rootName = PITCH_NAMES[rootPc] as ScaleRoot;
+    
+        if (majorScore / totalNotes > 0.8 && majorScore > bestScore) {
+          bestScore = majorScore;
+          bestScale = `${rootName} major`;
+        }
+        if (minorScore / totalNotes > 0.8 && minorScore > bestScore) {
+          bestScore = minorScore;
+          bestScale = `${rootName} minor`;
+        }
+      }
+  }
+
+  return bestScale;
+}
+
 /** Render an export as the `MELODY` literal ready to paste into heroTune.ts. */
 export function melodyToCode(result: MelodyExport): string {
   const warnings: string[] = [];

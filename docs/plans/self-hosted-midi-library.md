@@ -63,8 +63,14 @@ track picker). That's a feature: the library makes the roll a real editor.
 | MIDI parse | `@tonejs/midi` is a dependency; only used in `analyze_midi.ts`, not in the app. |
 | Canonical song type | `src/lib/song/` **does not exist**. Sketch proposes `SongDocument`. |
 | Backend / DB / auth | None. App is `output: "export"` (static). Adding a shared library means dropping that — see hosting sketch. |
-| Shared catalog | None. No `public/midi/` seed set. |
-| Agent / search | None. |
+| Shared catalog | **Seed exists.** Piano Roll Song picker loads `src/lib/songs/` JSON (`SongDocument`). Klezmer page from FreeSheetMusic.net is ingested; other pages on that site are the next harvest. `public/midi/<id>/` holds source copies. |
+| Agent / search | Song picker search (title, labels, source filename). No finder agent yet. |
+
+**FreeSheetMusic.net (populate-the-library):** klezmer listing is done —
+<https://www.freesheetmusic.net/music/worldfolk/klezmer.html>. Explore the
+rest of [Worldfolk](https://www.freesheetmusic.net/music/worldfolk/) and
+other `/music/…` sections before inventing new sources. Agents: see
+`.cursor/rules/midi-ingest.mdc`.
 
 Piano-roll limits that this plan has to break (or the library will feel
 broken):
@@ -193,7 +199,8 @@ Prefer official APIs and collections that already tag licenses:
 | [Wikimedia Commons](https://commons.wikimedia.org/) (MIDI) | Machine-readable licenses | Mixed, license per file | Commons API |
 | [Internet Archive](https://archive.org/) MIDI items | Item-level rights metadata | Mixed collections | IA search API |
 | [The Session](https://thesession.org/) | JSON API, folk/trad, CC-BY-NC | Jigs, reels, airs | Official JSON |
-| [abcnotation.com](https://abcnotation.com/) | Already the klezmer source | Folk / trad | ABC → MIDI / `SongDocument` |
+| [abcnotation.com](https://abcnotation.com/) | Already the klezmer ABC source | Folk / trad | ABC → MIDI / `SongDocument` |
+| [FreeSheetMusic.net](https://www.freesheetmusic.net/music/worldfolk/) | Lead-sheet MIDI listings; klezmer page **already in the Piano Roll catalog** | Folk / trad / classical sections | HTML listing → `.mid`; see ingest rule |
 | [KernScores](https://kern.humdrum.org/) | Scholarly, mostly PD | Classical / folk | Humdrum / MIDI export |
 | BitMidi (if ToS allows) | Large public `.mid` index | Mixed; **license per file is messy** | Site search only if permitted |
 | MuseScore **official API** (if we get access) | Licensed scores, MIDI export | User + licensed catalog | API; **no HTML scrape** |

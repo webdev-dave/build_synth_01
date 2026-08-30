@@ -20,19 +20,21 @@ import {
   type SongEntry,
 } from "@/lib/songs";
 import { useSharedAudioContext } from "@/hooks/useSharedAudioContext";
-import { useAudioSynthesis, type OscillatorType } from "@/instruments/synth/templates/basic-synth/hooks/useAudioSynthesis";
+import { useAudioSynthesis } from "@/instruments/synth/templates/basic-synth/hooks/useAudioSynthesis";
 import { WaveGlyph } from "@/instruments/synth/v2/SynthV2";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { melodyToCode, midiToHz, midiToPitchName } from "./melodyConvert";
+import { melodyToCode, midiToHz, midiToPitchName, detectKey, melodyToSequence } from "./melodyConvert";
 import { PianoRollEditor, type PianoRollHandle } from "./PianoRollEditor";
 import { type SequenceEvent } from "./melodyConvert";
 import { SongLibrarySelect } from "./SongLibrarySelect";
 
 import { LearnPanel, type LearnPanelConcept } from "@/components/learn/LearnPanel";
-import { useScaleLogic } from "@/instruments/synth/templates/basic-synth/hooks/useScaleLogic";
+import { useScaleLogic, type ScaleCombination } from "@/instruments/synth/templates/basic-synth/hooks/useScaleLogic";
 import { ScaleSelector } from "@/components/music/ScaleSelector";
+
+const PITCH_NAMES = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
   basics: {
@@ -40,7 +42,7 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
     title: "Piano Roll Basics",
     body: [
       "Drag on empty space to draw a note. Drag a painted note to move it, or drag its edges to change its duration.",
-      "Scroll your mouse wheel while holding Ctrl/Cmd to zoom in and out of the workspace."
+      "The roll is a camera over the grid, not a page with scrollbars. Wheel pans up and down; Shift+wheel (or a sideways trackpad swipe) pans left and right. Ctrl/Cmd+wheel zooms.",
     ],
   },
   eraser: {
@@ -88,7 +90,7 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
     title: "Song Library",
     body: [
       "Open the Song dropdown to load a catalog melody onto the roll. Type or paste in the search field to filter titles.",
-      "Yesterday has three options: v2 (working draft), v1 (homepage hero), and a Beatles MIDI arrangement. Tumbalalaika has two MIDI versions. Bei Mir Bist Du Schön is a lead sheet.",
+      "Yesterday has three options (labels: pop, rock, folk). The rest of the catalog is tagged jewish, klezmer, yiddish — including the FreeSheetMusic.net klezmer page. Type a title, label, or original filename to filter. Same .mid is stored once; a different file of the same title is a named version.",
     ],
   },
 };
@@ -205,6 +207,34 @@ export function MidiLab() {
     flashCopied("json");
   };
 
+  const transposeNotesAndScale = useCallback(
+    (semitones: number) => {
+      rollRef.current?.transpose(semitones);
+      if (selectedScale === "none") return;
+      const [root, type] = selectedScale.split(" ");
+      const i = PITCH_NAMES.indexOf(root);
+      if (i < 0) return;
+      const nextRoot = PITCH_NAMES[(i + semitones + 120) % 12];
+      setSelectedScale(`${nextRoot} ${type}` as ScaleCombination);
+    },
+    [selectedScale, setSelectedScale],
+  );
+
+  const handleScaleChange = useCallback((newScale: ScaleCombination) => {
+    if (selectedScale !== "none" && newScale !== "none") {
+       const oldRoot = PITCH_NAMES.indexOf(selectedScale.split(" ")[0]);
+       const newRoot = PITCH_NAMES.indexOf(newScale.split(" ")[0]);
+       let diff = newRoot - oldRoot;
+       // Shortest path transposition
+       if (diff > 6) diff -= 12;
+       if (diff < -6) diff += 12;
+       if (diff !== 0) {
+          rollRef.current?.transpose(diff);
+       }
+    }
+    setSelectedScale(newScale);
+  }, [selectedScale, setSelectedScale]);
+
   const loadSong = (next: SongEntry) => {
     if (next.id === song.id) return;
     if (
@@ -223,6 +253,16 @@ export function MidiLab() {
     setCanUndo(false);
     setCanRedo(false);
     setConceptId("library");
+    
+    // Key detection
+    const nextSeq = next.document ? documentToRollView(next.document)?.sequence || [] : melodyToSequence(next.melody);
+    const detected = detectKey(nextSeq);
+    if (detected !== "unknown") {
+      setSelectedScale(detected);
+      setAllowOutOfScale(true);
+    } else {
+      setSelectedScale("none");
+    }
   };
 
   const reset = () => {
@@ -494,11 +534,33 @@ export function MidiLab() {
             <div className="mr-2">
               <ScaleSelector
                 selectedScale={selectedScale}
-                onScaleChange={setSelectedScale}
+                onScaleChange={handleScaleChange}
                 allowOutOfScale={allowOutOfScale}
                 onAllowOutOfScaleChange={setAllowOutOfScale}
                 variant="shadcn"
               />
+            </div>
+            
+            <div className="flex items-center gap-1 bg-card rounded-md border border-input p-0.5 mr-2">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+                onClick={() => transposeNotesAndScale(-1)}
+                title="Transpose down one semitone (updates the scale)"
+              >
+                -1
+              </Button>
+              <div className="text-xs text-muted-foreground uppercase font-semibold px-1">Transpose</div>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-8 px-2 text-xs font-medium text-muted-foreground hover:text-foreground"
+                onClick={() => transposeNotesAndScale(1)}
+                title="Transpose up one semitone (updates the scale)"
+              >
+                +1
+              </Button>
             </div>
 
             <Button variant="outline" onClick={reset}>
