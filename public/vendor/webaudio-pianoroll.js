@@ -171,7 +171,19 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     this.timestack.shift();
                 }
                 this.cursor=this.timestack[0][1]+(current-this.timestack[0][0])/this.timestack[0][2];
-                this.redrawMarker();
+                
+                // Auto-scroll logic (page scroll to keep playhead visible)
+                let didScroll = false;
+                if (this.cursor > this.xoffset + this.xrange * 0.95 || this.cursor < this.xoffset) {
+                    this.xoffset = Math.max(0, this.cursor - this.xrange * 0.05);
+                    this.redraw();
+                    didScroll = true;
+                }
+                
+                if (!didScroll) {
+                    this.redrawMarker();
+                }
+
                 while(current+this.preload>=this.time1){
                     this.time0=this.time1;
                     this.tick0=this.tick1;
@@ -410,12 +422,12 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             for(let i=0;i<l;++i){
                 const ev=this.sequence[i];
                 if((ht.n|0)==ev.n){
-                    if(ev.f && Math.abs(ev.t-ht.t)*this.stepw<8){
+                    if(Math.abs(ev.t-ht.t)*this.stepw<8){
                         ht.m="B";
                         ht.i=i;
                         return ht;
                     }
-                    if(ev.f && Math.abs(ev.t+ev.g-ht.t)*this.stepw<8){
+                    if(Math.abs(ev.t+ev.g-ht.t)*this.stepw<8){
                         ht.m="E";
                         ht.i=i;
                         return ht;
@@ -578,10 +590,20 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             else if(ht.m=="E"){
                 const ev = this.sequence[ht.i];
+                if (!ev.f) {
+                    this.clearSel();
+                    ev.f = 1;
+                    if (this.onNoteSelect) this.onNoteSelect(ev);
+                }
                 this.dragging={o:"D", m:"E", i:ht.i, t:ev.t, g:ev.g, ev:this.selectedNotes()};
             }
             else if(ht.m=="B"){
                 const ev = this.sequence[ht.i];
+                if (!ev.f) {
+                    this.clearSel();
+                    ev.f = 1;
+                    if (this.onNoteSelect) this.onNoteSelect(ev);
+                }
                 this.dragging={o:"D", m:"B", i:ht.i, t:ev.t, g:ev.g, ev:this.selectedNotes()};
             }
             else if(ht.m=="s"&&ht.t>=0){
@@ -590,12 +612,14 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.sequence.push({t:t, n:ht.n|0, g:1, f:1});
                 this.dragging={o:"D",m:"E",i:this.sequence.length-1, t:t, g:1, ev:[{t:t,g:1,ev:this.sequence[this.sequence.length-1]}]};
                 this.redraw();
+                if (this.onNoteSelect) this.onNoteSelect(this.sequence[this.sequence.length-1]);
             }
         };
         this.editEraserDown=function(pos){
             const ht=this.hitTest(pos);
             if(ht.m=="N" || ht.m=="n" || ht.m=="E" || ht.m=="B"){
                 this.delNote(ht.i);
+                if (this.onNoteSelect) this.onNoteSelect(null);
                 this.dragging={o:"X",m:"0"}; 
                 this.redraw();
             } else {
@@ -607,6 +631,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             if(this.dragging.o=="X"){
                 if(ht.m=="N" || ht.m=="n" || ht.m=="E" || ht.m=="B"){
                     this.delNote(ht.i);
+                    if (this.onNoteSelect) this.onNoteSelect(null);
                     this.redraw();
                 }
             } else if (this.dragging.o=="A"){
@@ -643,10 +668,11 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         const list=this.dragging.ev;
                         for(let i = list.length - 1; i >= 0; --i){
                             const ev = list[i].ev;
-                            ev.t = list[i].t + dt;
-                            ev.g = list[i].g - dt;
-                            if(ev.g <= 0)
-                                ev.g = 1;
+                            let currentDt = dt;
+                            if(currentDt >= list[i].g)
+                                currentDt = list[i].g - 1; // Prevent crossing the end edge
+                            ev.t = list[i].t + currentDt;
+                            ev.g = list[i].g - currentDt;
                             if(this.editmove=="dragmono")
                                 this.delAreaNote(ev.t,ev.g);
                         }
@@ -730,6 +756,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.kb = this.elem.children[1];
             this.ctx=this.canvas.getContext("2d");
             this.kbimg=this.elem.children[1];
+            this.kbimg.style.display = "none"; // Hide SVG keyboard
             this.markstartimg=this.elem.children[2];
             this.markendimg=this.elem.children[3];
             this.cursorimg=this.elem.children[4];
@@ -1047,6 +1074,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.selAreaNote(this.dragging.t1,this.dragging.t2,this.dragging.n1,this.dragging.n2);
                 if (this.editmode === "eraser") {
                     this.delSelectedNote();
+                    if (this.onNoteSelect) this.onNoteSelect(null);
                 } else {
                     // Check if a single note was selected by the box
                     const selected = this.sequence.filter(e => e.f);
@@ -1240,83 +1268,93 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.kbimg.style.backgroundPosition="0px "+(this.sheight+this.steph*this.yoffset)+"px";
         };
         this.redrawKeyboard=function(){
-            if(this.yruler){
-                this.ctx.textAlign="right";
-                this.ctx.font=(this.steph/2)+"px 'sans-serif'";
-                this.ctx.fillStyle=this.colortab.kbwh;
-                this.ctx.fillRect(1,this.xruler,this.yruler,this.sheight);
-                for(y=0;y<128;++y){
-                    const ys=this.height-this.steph*(y-this.yoffset);
-                    const ysemi=y%12;
-                    const fsemi=this.semiflag[ysemi];
-                    
-                    let inScale = true;
-                    if (this.hasScale && this.isNoteInScale) {
-                        inScale = this.isNoteInScale(y);
-                    }
-                    
-                    // White key base logic
+            if(!this.kbwidth) return;
+            
+            // Draw keyboard base background (white)
+            this.ctx.fillStyle = "#ffffff";
+            this.ctx.fillRect(this.yruler, this.xruler, this.kbwidth, this.sheight);
+            
+            for(let y=0; y<128; ++y){
+                const ys = this.height - this.steph * (y - this.yoffset);
+                if (ys < this.xruler || ys - this.steph > this.height) continue;
+                
+                const ysemi = y % 12;
+                const fsemi = this.semiflag[ysemi];
+                
+                let inScale = true;
+                if (this.hasScale && this.isNoteInScale) {
+                    inScale = this.isNoteInScale(y);
+                }
+                
+                // White keys
+                if (!(fsemi & 1)) {
                     if (!inScale) {
                         this.ctx.fillStyle = this.lockToScale ? "#8c8c8c" : "#b3b3b3";
-                        this.ctx.fillRect(1, ys, this.yruler, -this.steph);
-                    } else if (this.hasScale) {
-                        // In scale white key gets a subtle tint
-                        this.ctx.fillStyle = "#ffffff";
-                        this.ctx.fillRect(1, ys, this.yruler, -this.steph);
+                        this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, -this.steph);
                     }
                     
                     if (this.pressedKey === y) {
-                        this.ctx.fillStyle = "rgba(234, 88, 12, 0.4)"; // burnt orange highlight for white key
-                        this.ctx.fillRect(0, ys, this.yruler, -this.steph);
+                        this.ctx.fillStyle = "rgba(234, 88, 12, 0.4)"; 
+                        this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, -this.steph);
                     }
 
-                    // Green dot for in-scale keys (matching SynthV2)
+                    // Green dot for in-scale keys
                     if (this.hasScale && inScale) {
-                        this.ctx.fillStyle = "#059669"; // emerald-600
+                        this.ctx.fillStyle = "#059669";
                         this.ctx.beginPath();
-                        // Draw dot on the far left of the key
-                        if (fsemi & 1) {
-                            // black key dot
-                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
-                        } else {
-                            // white key dot
-                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
-                        }
+                        this.ctx.arc(this.yruler + this.kbwidth - 8, ys - this.steph/2, 3, 0, Math.PI * 2);
                         this.ctx.fill();
                     }
 
-                    this.ctx.fillStyle=this.colortab.kbbk;
-                    if(fsemi&1){
-                        if (!inScale) {
-                           this.ctx.fillStyle = this.lockToScale ? "#404040" : "#262626";
-                        }
-                        
-                        if (this.pressedKey === y) {
-                            this.ctx.fillStyle = "rgba(234, 88, 12, 0.9)"; // burnt orange highlight for black key
-                        }
-                        this.ctx.fillRect(0,ys,this.yruler/2,-this.steph);
-                        
-                        // Redraw the dot so it's on top of the black key
-                        if (this.hasScale && inScale) {
-                            this.ctx.fillStyle = "#059669";
-                            this.ctx.beginPath();
-                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
-                            this.ctx.fill();
-                        }
-                        
-                        this.ctx.fillStyle=this.colortab.kbbk;
-                        this.ctx.fillRect(0,(ys-this.steph/2)|0,this.yruler,-1);
-                    }
-                    if(fsemi&2)
-                        this.ctx.fillRect(0,ys|0,this.yruler,-1);
-                    if(fsemi&4) {
-                        this.ctx.fillStyle = (!inScale && this.lockToScale) ? "#737373" : "#000000";
-                        this.ctx.fillText("C"+(((y/12)|0)+this.octadj),this.yruler-4,ys-4);
+                    // Key border (for E-F and B-C)
+                    if (fsemi & 2) {
+                        this.ctx.fillStyle = "#000000";
+                        this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, 1); // 1px line at the bottom of C and F
                     }
                 }
-                this.ctx.fillStyle=this.colortab.kbbk;
-                this.ctx.fillRect(this.yruler,this.xruler,1,this.sheight);
             }
+            
+            // Black keys drawn after white keys
+            for(let y=0; y<128; ++y){
+                const ys = this.height - this.steph * (y - this.yoffset);
+                if (ys < this.xruler || ys - this.steph > this.height) continue;
+                
+                const ysemi = y % 12;
+                const fsemi = this.semiflag[ysemi];
+                
+                let inScale = true;
+                if (this.hasScale && this.isNoteInScale) {
+                    inScale = this.isNoteInScale(y);
+                }
+                
+                if (fsemi & 1) {
+                    this.ctx.fillStyle = "#000000";
+                    if (!inScale) {
+                        this.ctx.fillStyle = this.lockToScale ? "#404040" : "#262626";
+                    }
+                    
+                    if (this.pressedKey === y) {
+                        this.ctx.fillStyle = "rgba(234, 88, 12, 0.9)";
+                    }
+                    this.ctx.fillRect(this.yruler, ys|0, this.kbwidth * 0.6, -this.steph);
+                    
+                    // Black key borders separating adjacent white keys underneath it
+                    this.ctx.fillStyle = "#000000";
+                    this.ctx.fillRect(this.yruler, (ys-this.steph/2)|0, this.kbwidth, 1);
+
+                    // Green dot for black keys
+                    if (this.hasScale && inScale) {
+                        this.ctx.fillStyle = "#059669";
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.yruler + this.kbwidth * 0.6 - 6, ys - this.steph/2, 2.5, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    }
+                }
+            }
+            
+            // Right border for the keyboard
+            this.ctx.fillStyle = "#000000";
+            this.ctx.fillRect(this.yruler + this.kbwidth - 1, this.xruler, 1, this.sheight);
         };
         this.redrawAreaSel=function(){
             if(this.dragging && this.dragging.o=="A"){
@@ -1332,16 +1370,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.stepw = this.swidth/this.xrange;
             this.steph = this.sheight/this.yrange;
             
-            if (this.pressedKey !== undefined && this.pressedKey !== null) {
-                const ys = this.height - this.steph * (this.pressedKey - this.yoffset);
-                this.kbhighlight.style.display = "block";
-                this.kbhighlight.style.top = ys + "px";
-                this.kbhighlight.style.height = this.steph + "px";
-                this.kbhighlight.style.width = this.kbwidth + "px";
-                this.kbhighlight.style.left = this.yruler + "px";
-            } else {
-                this.kbhighlight.style.display = "none";
-            }
+            this.kbhighlight.style.display = "none";
             
             this.redrawGrid();
             const l=this.sequence.length;
@@ -1367,6 +1396,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.fillRect(x,y2,x2-x,1);
             }
             this.redrawYRuler();
+            this.redrawKeyboard();
             this.redrawXRuler();
             this.redrawMarker();
             this.redrawAreaSel();

@@ -10,7 +10,9 @@ import type { MelodyEvent, NoteName } from "@/components/home/heroTune";
  * the final rest.
  */
 
-export const TICKS_PER_BEAT = 2;
+import { TICKS_PER_BEAT } from "@/lib/song/ticks";
+
+export { TICKS_PER_BEAT };
 
 export type SequenceEvent = { t: number; g: number; n: number; f?: number };
 
@@ -38,6 +40,25 @@ export const noteToMidi = (note: NoteName): number =>
 
 export const midiToNote = (n: number): NoteName | null =>
   NOTE_ORDER[n - MIDI_C4] ?? null;
+
+const PITCH_NAMES = [
+  "C",
+  "C#",
+  "D",
+  "D#",
+  "E",
+  "F",
+  "F#",
+  "G",
+  "G#",
+  "A",
+  "A#",
+  "B",
+] as const;
+
+/** Scientific pitch for any MIDI number (C4 = 60). */
+export const midiToPitchName = (n: number): string =>
+  `${PITCH_NAMES[((n % 12) + 12) % 12]}${Math.floor(n / 12) - 1}`;
 
 export const midiToHz = (n: number): number =>
   440 * Math.pow(2, (n - 69) / 12);

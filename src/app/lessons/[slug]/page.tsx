@@ -70,10 +70,10 @@ export default async function LessonPage({ params }: LessonPageProps) {
           Until then, the best way to build intuition is to play:
         </p>
         <Link
-          href="/synth/v2"
+          href={lesson.tryHref ?? "/synth/v2"}
           className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
         >
-          Open the synth
+          {lesson.tryLabel ?? "Open the synth"}
           <ArrowRight className="h-3.5 w-3.5" />
         </Link>
       </div>

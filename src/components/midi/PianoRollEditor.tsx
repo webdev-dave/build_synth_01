@@ -17,6 +17,8 @@ import {
   type SequenceEvent,
 } from "./melodyConvert";
 import { loadPianoRoll } from "./pianoRollLoader";
+import { ticksPerBar } from "@/lib/music/timeSignatures";
+import { rollPlaybackTempo } from "@/lib/song/ticks";
 import { cn } from "@/lib/utils";
 
 /** The slice of the <webaudio-pianoroll> element API this wrapper uses. */
@@ -39,6 +41,7 @@ interface PianoRollElement extends HTMLElement {
     tick?: number
   ): void;
   stop(): void;
+  timebase: number;
   editmode: string;
   hasScale: boolean;
   lockToScale: boolean;
@@ -74,12 +77,21 @@ export type PianoRollHandle = {
   deleteSelected(): void;
   undo(): void;
   redo(): void;
+  zoomX(factor: number): void;
+  zoomY(factor: number): void;
 };
 
 type Props = {
   initialMelody: MelodyEvent[];
+  /** When set, painted onto the roll instead of converting `initialMelody`. */
+  initialSequence?: SequenceEvent[];
   bpm: number;
   bars?: number;
+  beatsPerBar?: number;
+  /** Bottom number of the time signature (4 = quarter gets the beat). */
+  beatUnit?: number;
+  pitchMin?: number;
+  pitchRange?: number;
   isDeleteMode?: boolean;
   hasScale?: boolean;
   lockToScale?: boolean;
@@ -122,18 +134,24 @@ const CURSOR_SRC = svgSrc(
 const MARKSTART_SRC = svgSrc(`<path fill="#737373" d="M0,1 24,1 0,23 z"/>`);
 const MARKEND_SRC = svgSrc(`<path fill="#737373" d="M0,1 24,1 24,23 z"/>`);
 
-/** Pitch range locked to C4–C5 (MIDI 60–72) — 13 rows, matching NOTES. */
-const Y_OFFSET = 60;
-const Y_RANGE = 13;
+/** Hero default: C4–C5 (MIDI 60–72). MIDI songs pass their own range. */
+const DEFAULT_PITCH_MIN = 60;
+const DEFAULT_PITCH_RANGE = 13;
 const ROW_PX = 26;
+const COMPACT_ROW_PX = 16;
 const RULER_PX = 24;
 
 export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
   function PianoRollEditor(props, ref) {
     const {
       initialMelody,
+      initialSequence,
       bpm,
       bars = 8,
+      beatsPerBar = 4,
+      beatUnit = 4,
+      pitchMin = DEFAULT_PITCH_MIN,
+      pitchRange = DEFAULT_PITCH_RANGE,
       isDeleteMode = false,
       hasScale = false,
       lockToScale = false,
@@ -146,6 +164,16 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
     const containerRef = useRef<HTMLDivElement>(null);
     const elRef = useRef<PianoRollElement | null>(null);
     const initialRef = useRef(initialMelody);
+    const seedSequence = initialSequence ?? melodyToSequence(initialMelody);
+    const seedSeqRef = useRef(seedSequence);
+    // Keep track of user's custom zoom level so we can preserve it across song loads
+    const customZoomRef = useRef<{ xrange: number; yrange: number } | null>(null);
+    const seedTicks = initialSequence
+      ? seedSequence.reduce((m, ev) => Math.max(m, ev.t + ev.g), 0)
+      : melodyTotalTicks(initialMelody);
+    const seedTicksRef = useRef(seedTicks);
+    const DEFAULT_VISIBLE_ROWS = 16;
+    const editorHeight = RULER_PX + DEFAULT_VISIBLE_ROWS * ROW_PX;
     const previewRef = useRef(onPreviewNote);
     const selectRef = useRef(onNoteSelected);
     const historyRef = useRef(onHistoryChange);
@@ -170,23 +198,39 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
 
       void loadPianoRoll().then(() => {
         if (cancelled) return;
-        const melody = initialRef.current;
-        const totalTicks = melodyTotalTicks(melody);
-        // View: exact number of bars (4 beats per bar, 2 ticks per beat)
-        const xrange = bars * 4 * TICKS_PER_BEAT;
+        const totalTicks = seedTicksRef.current;
+        const barTicks = ticksPerBar([beatsPerBar, beatUnit]);
+        const xrange = bars * barTicks;
 
         el = document.createElement("webaudio-pianoroll") as PianoRollElement;
+        const DEFAULT_VISIBLE_BARS = 8;
+        
+        // If the user has a custom zoom preference, use it.
+        // Otherwise, use the comfortable default horizontal zoom (8 bars wide).
+        const initialXRange = customZoomRef.current 
+           ? customZoomRef.current.xrange 
+           : Math.min(xrange, DEFAULT_VISIBLE_BARS * barTicks);
+           
+        const initialYRange = customZoomRef.current
+           ? customZoomRef.current.yrange
+           : 16; // Sensible fixed vertical zoom by default
+
+        // Center the view on the song's actual pitch range
+        const actualPitchMin = pitchMin ?? DEFAULT_PITCH_MIN;
+        const actualPitchRange = pitchRange ?? DEFAULT_PITCH_RANGE;
+        const initialYOffset = Math.max(0, Math.floor(actualPitchMin + (actualPitchRange / 2) - (initialYRange / 2)));
+
         const attrs: Record<string, string | number> = {
           width: container.clientWidth,
-          height: RULER_PX + Y_RANGE * ROW_PX,
+          height: editorHeight,
           editmode: "dragpoly", // polyphonic mode allows overlapping notes/chords
-          timebase: 4 * TICKS_PER_BEAT,
-          tempo: bpm,
-          xrange,
-          yrange: Y_RANGE,
+          timebase: barTicks,
+          tempo: rollPlaybackTempo(bpm, barTicks),
+          xrange: initialXRange,
+          yrange: initialYRange,
           xoffset: 0,
-          yoffset: Y_OFFSET,
-          grid: TICKS_PER_BEAT, // grid line every beat
+          yoffset: initialYOffset,
+          grid: beatUnit === 8 ? 1 : TICKS_PER_BEAT,
           snap: 1,
           markstart: 0,
           markend: totalTicks,
@@ -212,7 +256,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         };
         
         container.appendChild(el);
-        el.sequence = melodyToSequence(melody);
+        el.sequence = seedSeqRef.current;
         if (el.clearHistory) el.clearHistory();
         if (el.saveState) el.saveState();
         el.redraw();
@@ -307,21 +351,16 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         document.addEventListener("pointerup", clearPressedKey);
         document.addEventListener("pointercancel", clearPressedKey);
         
-        // Custom wheel handler for zooming with Ctrl/Cmd + Scroll over the main area
+        // Custom wheel handler for zooming and scrolling
         el.addEventListener("wheel", (e) => {
+          const rect = el!.getBoundingClientRect();
+          const x = e.clientX - rect.left;
+          const y = e.clientY - rect.top;
+          const kbwidth = Number(el!.getAttribute("kbwidth")) || 32;
+          const yruler = Number(el!.getAttribute("yruler")) || 24;
+
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
-            const rect = el!.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const kbwidth = Number(el!.getAttribute("kbwidth")) || 32;
-            const yruler = Number(el!.getAttribute("yruler")) || 24;
-            
-            // If mouse is in the note area, zoom both X and Y? Or just X? 
-            // The request says "zoom in/out of the piano role notes and timeline etc"
-            // Let's do horizontal zoom if shift is not held, vertical if shift is held, 
-            // or just always horizontal since it's the most common need.
-            // Actually, let's do both if they want to zoom into a specific area!
             
             if (x > yruler + kbwidth) {
                let xrange = Number(el!.getAttribute("xrange"));
@@ -337,27 +376,60 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
                   xoffset = mouseTick - (mouseTick - xoffset) * 1.15;
                   xrange *= 1.15;
                }
+               
+               // Prevent zooming out past the maximum song bounds plus an extra 8 bars
+               const timebase = Number(el!.getAttribute("timebase")) || 8;
+               const maxTicks = Number(el!.getAttribute("markend")) + (timebase * 8);
+               if (xrange > maxTicks) {
+                  xrange = maxTicks;
+               }
+               
                el!.setAttribute("xrange", String(Math.max(4, xrange)));
                el!.setAttribute("xoffset", String(xoffset)); // allow negative xoffset if scrolling left
                
-               // Let's also do Y zoom
-               let yrange = Number(el!.getAttribute("yrange"));
-               let yoffset = Number(el!.getAttribute("yoffset"));
-               const graphHeight = rect.height - RULER_PX;
-               const mouseNote = yoffset - ((y - RULER_PX) / graphHeight) * yrange;
-
-               if (e.deltaY < 0) {
-                 yoffset = mouseNote + (yoffset - mouseNote) / 1.15;
-                 yrange /= 1.15;
-               } else if (e.deltaY > 0) {
-                 yoffset = mouseNote + (yoffset - mouseNote) * 1.15;
-                 yrange *= 1.15;
+               // Save custom zoom state
+               if (customZoomRef.current) {
+                   customZoomRef.current.xrange = Math.max(4, xrange);
+               } else {
+                   customZoomRef.current = { xrange: Math.max(4, xrange), yrange: Number(el!.getAttribute("yrange")) || 16 };
                }
-               el!.setAttribute("yrange", String(Math.max(4, yrange)));
-               el!.setAttribute("yoffset", String(yoffset));
-
+               
                el!.redraw();
             }
+          } else {
+             // Scroll panning (Vertical & Horizontal)
+             e.preventDefault();
+             
+             let xrange = Number(el!.getAttribute("xrange"));
+             let xoffset = Number(el!.getAttribute("xoffset"));
+             let yrange = Number(el!.getAttribute("yrange"));
+             let yoffset = Number(el!.getAttribute("yoffset"));
+             
+             const graphWidth = rect.width - yruler - kbwidth;
+             const graphHeight = rect.height - RULER_PX;
+             
+             // Convert pixel delta to tick/note delta
+             // DeltaX pans horizontally
+             if (e.deltaX !== 0) {
+                 const dx = (e.deltaX / graphWidth) * xrange;
+                 xoffset += dx;
+             }
+             
+             // DeltaY pans vertically (scrolling down moves view down, so yoffset decreases)
+             if (e.deltaY !== 0) {
+                 const dy = (e.deltaY / graphHeight) * yrange;
+                 yoffset -= dy;
+                 // Clamp yoffset so we don't scroll infinitely into empty MIDI space
+                 yoffset = Math.max(yrange, Math.min(127, yoffset));
+             }
+             
+             el!.setAttribute("xoffset", String(xoffset));
+             el!.setAttribute("yoffset", String(yoffset));
+             
+             // If user pans manually, we might want to track that so we don't snap them back if they load a new song,
+             // but per instructions we only care about persisting the ZOOM preferences, not necessarily the pan position.
+             
+             el!.redraw();
           }
         }, { passive: false });
         
@@ -382,9 +454,12 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
 
     useEffect(() => {
       if (elRef.current) {
-        elRef.current.tempo = bpm;
+        elRef.current.tempo = rollPlaybackTempo(
+          bpm,
+          ticksPerBar([beatsPerBar, beatUnit]),
+        );
       }
-    }, [bpm]);
+    }, [bpm, beatsPerBar, beatUnit]);
 
     useEffect(() => {
       if (elRef.current) {
@@ -403,11 +478,18 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
 
     useEffect(() => {
       if (elRef.current) {
-        const newXRange = bars * 4 * TICKS_PER_BEAT;
-        elRef.current.setAttribute("xrange", String(newXRange));
+        const barTicks = ticksPerBar([beatsPerBar, beatUnit]);
+        elRef.current.timebase = barTicks;
+        elRef.current.tempo = rollPlaybackTempo(bpm, barTicks);
+        elRef.current.setAttribute("timebase", String(barTicks));
+        elRef.current.setAttribute("xrange", String(bars * barTicks));
+        elRef.current.setAttribute(
+          "grid",
+          String(beatUnit === 8 ? 1 : TICKS_PER_BEAT),
+        );
         elRef.current.redraw();
       }
-    }, [bars]);
+    }, [bars, beatsPerBar, beatUnit, bpm]);
 
     useImperativeHandle(ref, () => ({
       getMelody() {
@@ -445,12 +527,61 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         const el = elRef.current;
         if (!el) return;
         el.stop();
-        el.sequence = melodyToSequence(initialRef.current);
-        el.markend = melodyTotalTicks(initialRef.current);
+        el.sequence = seedSeqRef.current.map((ev) => ({ ...ev }));
+        el.markend = seedTicksRef.current;
         el.locate(0);
         if (el.clearHistory) el.clearHistory();
         if (el.saveState) el.saveState();
         el.redraw();
+      },
+      zoomX(factor: number) {
+        const el = elRef.current;
+        if (!el) return;
+        let xrange = Number(el.getAttribute("xrange"));
+        let xoffset = Number(el.getAttribute("xoffset"));
+        const viewCenter = xoffset + xrange / 2;
+        xrange *= factor;
+        
+        // Prevent zooming out past the maximum song bounds plus an extra 8 bars
+        const timebase = Number(el.getAttribute("timebase")) || 8;
+        const maxTicks = Number(el.getAttribute("markend")) + (timebase * 8); 
+        
+        if (xrange > maxTicks) {
+           xrange = maxTicks;
+        }
+        
+        xoffset = viewCenter - xrange / 2;
+        el.setAttribute("xrange", String(Math.max(4, xrange)));
+        el.setAttribute("xoffset", String(xoffset));
+        el.redraw();
+        
+        // Save to user preferences
+        if (customZoomRef.current) {
+            customZoomRef.current.xrange = Math.max(4, xrange);
+        } else {
+            customZoomRef.current = { xrange: Math.max(4, xrange), yrange: Number(el.getAttribute("yrange")) || 16 };
+        }
+      },
+      zoomY(factor: number) {
+        const el = elRef.current;
+        if (!el) return;
+        let yrange = Number(el.getAttribute("yrange"));
+        let yoffset = Number(el.getAttribute("yoffset"));
+        const viewCenter = yoffset - yrange / 2;
+        yrange *= factor;
+        yrange = Math.max(4, Math.min(127, yrange));
+        yoffset = viewCenter + yrange / 2;
+        yoffset = Math.max(yrange, Math.min(127, yoffset));
+        el.setAttribute("yrange", String(yrange));
+        el.setAttribute("yoffset", String(yoffset));
+        el.redraw();
+        
+        // Save to user preferences
+        if (customZoomRef.current) {
+            customZoomRef.current.yrange = yrange;
+        } else {
+            customZoomRef.current = { xrange: Number(el.getAttribute("xrange")) || 64, yrange: yrange };
+        }
       },
     }));
 

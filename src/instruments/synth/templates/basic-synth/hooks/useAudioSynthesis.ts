@@ -17,6 +17,7 @@ interface UseAudioSynthesisReturn {
   setWaveType: (type: OscillatorType) => void;
   handleNoteStart: (noteNumber: number, note: string) => Promise<void>;
   stopNote: (note: string) => void;
+  scheduleNote: (frequency: number, startTime: number, duration: number) => void;
   initializeAudio: () => Promise<void>;
 }
 
@@ -127,6 +128,38 @@ export function useAudioSynthesis(
     [actx, publishVoices]
   );
 
+  const scheduleNote = useCallback(
+    (frequency: number, startTime: number, duration: number) => {
+      if (!actx) return;
+
+      const osc = actx.createOscillator();
+      const gain = actx.createGain();
+
+      const t = Math.max(startTime, actx.currentTime);
+
+      osc.type = waveTypeRef.current;
+      osc.frequency.setValueAtTime(frequency, t);
+      
+      const attackTime = 0.01;
+      const actualDuration = Math.max(duration, attackTime + 0.01);
+      
+      // Attack and Release envelope
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.1, t + attackTime); // Quick attack
+      
+      const releaseTime = Math.max(t + attackTime, t + actualDuration - RELEASE);
+      gain.gain.setValueAtTime(0.1, releaseTime);
+      gain.gain.linearRampToValueAtTime(0, t + actualDuration); // Release
+
+      osc.connect(gain);
+      gain.connect(actx.destination);
+      
+      osc.start(t);
+      osc.stop(t + actualDuration);
+    },
+    [actx]
+  );
+
   const updateWaveType = useCallback((newWaveType: OscillatorType) => {
     waveTypeRef.current = newWaveType;
     setWaveType(newWaveType);
@@ -158,6 +191,7 @@ export function useAudioSynthesis(
     setWaveType: updateWaveType,
     handleNoteStart,
     stopNote,
+    scheduleNote,
     initializeAudio,
   };
 }

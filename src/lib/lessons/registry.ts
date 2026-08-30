@@ -12,6 +12,9 @@ export interface Lesson {
   title: string;
   /** One-liner shown on the index card and the placeholder page. */
   summary: string;
+  /** Where to play the idea until the lesson is written. */
+  tryHref?: string;
+  tryLabel?: string;
 }
 
 export const LESSONS: Lesson[] = [
@@ -50,6 +53,14 @@ export const LESSONS: Lesson[] = [
     title: "Frequency & pitch",
     summary:
       "Pitch as vibrations per second — what the Hz readout actually measures, and why A4 = 440 Hz.",
+  },
+  {
+    slug: "time-signatures",
+    title: "Time signatures & timing",
+    summary:
+      "How bars are counted — 4/4, 3/4, 6/8 — and why moving the bar lines changes the feel without moving the notes.",
+    tryHref: "/piano-roll",
+    tryLabel: "Open the piano roll",
   },
 ];
 

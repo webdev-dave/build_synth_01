@@ -825,7 +825,7 @@ function Toggle({
 }
 
 /** Tiny oscilloscope-style glyphs for the four primitive waveforms. */
-function WaveGlyph({ type }: { type: OscillatorType }) {
+export function WaveGlyph({ type }: { type: OscillatorType }) {
   const paths: Record<OscillatorType, string> = {
     sine: "M1 8 Q4.5 0 8 8 T15 8",
     square: "M1 12 V4 H8 V12 H15 V4",

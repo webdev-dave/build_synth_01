@@ -1,15 +1,34 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Check, Copy, Play, RotateCcw, SkipBack, Square, Trash2, Volume2, VolumeX, Undo2, Redo2 } from "lucide-react";
+import { useReducedMotion } from "motion/react";
+import { Check, Copy, Play, RotateCcw, SkipBack, Square, Trash2, Volume2, VolumeX, Undo2, Redo2, Search, Plus, Minus } from "lucide-react";
 
-import { BPM as DEFAULT_BPM, MELODY } from "@/components/home/heroTune";
-import { useHeroAudio } from "@/components/home/useHeroAudio";
+import {
+  COMMON_TIME_SIGNATURES,
+  formatTimeSignature,
+  parseTimeSignature,
+  timeSignatureLesson,
+  type TimeSignature,
+} from "@/lib/music";
+import { documentToRollView } from "@/lib/song/toSequence";
+import {
+  getDefaultSong,
+  SONGS,
+  songBars,
+  songTimeSignature,
+  type SongEntry,
+} from "@/lib/songs";
+import { useSharedAudioContext } from "@/hooks/useSharedAudioContext";
+import { useAudioSynthesis, type OscillatorType } from "@/instruments/synth/templates/basic-synth/hooks/useAudioSynthesis";
+import { WaveGlyph } from "@/instruments/synth/v2/SynthV2";
+import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { melodyToCode, midiToHz } from "./melodyConvert";
+import { melodyToCode, midiToHz, midiToPitchName } from "./melodyConvert";
 import { PianoRollEditor, type PianoRollHandle } from "./PianoRollEditor";
-import { type SequenceEvent, midiToNote } from "./melodyConvert";
+import { type SequenceEvent } from "./melodyConvert";
+import { SongLibrarySelect } from "./SongLibrarySelect";
 
 import { LearnPanel, type LearnPanelConcept } from "@/components/learn/LearnPanel";
 import { useScaleLogic } from "@/instruments/synth/templates/basic-synth/hooks/useScaleLogic";
@@ -64,18 +83,43 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
       "The playhead will loop between the two gray flags on the top ruler. Click the Rewind button to instantly jump back to the start of the loop.",
     ],
   },
+  library: {
+    id: "library",
+    title: "Song Library",
+    body: [
+      "Open the Song dropdown to load a catalog melody onto the roll. Type or paste in the search field to filter titles.",
+      "Yesterday has three options: v2 (working draft), v1 (homepage hero), and a Beatles MIDI arrangement. Tumbalalaika has two MIDI versions. Bei Mir Bist Du Schön is a lead sheet.",
+    ],
+  },
 };
 
 export function MidiLab() {
-  const { ensureContext, getContext, noteAt } = useHeroAudio();
+  const { audioContext, initializeAudio } = useSharedAudioContext();
+  const { scheduleNote, waveType, setWaveType } = useAudioSynthesis(
+    audioContext,
+    () => {},
+    []
+  );
   const rollRef = useRef<PianoRollHandle>(null);
+  const learnRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useReducedMotion();
   
   const { selectedScale, setSelectedScale, isNoteInScale, allowOutOfScale, setAllowOutOfScale } = useScaleLogic();
   const hasScale = selectedScale !== "none";
   const lockToScale = hasScale && !allowOutOfScale;
 
-  const [bpm, setBpm] = useState(DEFAULT_BPM);
-  const [bars, setBars] = useState(8);
+  const [song, setSong] = useState<SongEntry>(getDefaultSong);
+  const [bpm, setBpm] = useState(getDefaultSong().bpm);
+  const [bars, setBars] = useState(songBars(getDefaultSong()));
+  const [timeSig, setTimeSig] = useState<TimeSignature>(
+    songTimeSignature(getDefaultSong()),
+  );
+  const rollView = song.document ? documentToRollView(song.document) : null;
+  const meterOptions = COMMON_TIME_SIGNATURES.some(
+    (sig) => sig[0] === timeSig[0] && sig[1] === timeSig[1],
+  )
+    ? COMMON_TIME_SIGNATURES
+    : [timeSig, ...COMMON_TIME_SIGNATURES];
   const [playing, setPlaying] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
@@ -91,11 +135,10 @@ export function MidiLab() {
   }, []);
 
   const previewNote = useCallback((n: number) => {
-    ensureContext();
-    const ctx = getContext();
-    if (!ctx) return;
-    noteAt(midiToHz(n), ctx.currentTime, 0.25);
-  }, [ensureContext, getContext, noteAt]);
+    initializeAudio();
+    if (!audioContext) return;
+    scheduleNote(midiToHz(n), audioContext.currentTime, 0.25);
+  }, [initializeAudio, audioContext, scheduleNote]);
 
   const handleNoteSelected = useCallback((ev: SequenceEvent | null) => {
     setSelectedNote(ev);
@@ -114,19 +157,22 @@ export function MidiLab() {
     }
     // Creating/resuming the AudioContext here, inside the click handler,
     // is the user gesture browsers (and AGENTS.md) require.
-    ensureContext();
-    const ctx = getContext();
-    if (!ctx) return;
-    rollRef.current?.play(ctx, (ev) => {
-      noteAt(midiToHz(ev.n), ev.t, ev.g - ev.t);
+    initializeAudio();
+    if (!audioContext) return;
+    rollRef.current?.play(audioContext, (ev) => {
+      scheduleNote(midiToHz(ev.n), ev.t, ev.g - ev.t);
     });
     setPlaying(true);
-  }, [playing, stop, ensureContext, getContext, noteAt]);
+  }, [playing, stop, initializeAudio, audioContext, scheduleNote]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       // Ignore if typing in an input field (like BPM or Bars)
-      if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) {
+      if (
+        e.target instanceof HTMLInputElement ||
+        e.target instanceof HTMLTextAreaElement ||
+        (e.target instanceof HTMLElement && e.target.closest("[data-song-library]"))
+      ) {
         return;
       }
       if (e.code === "Space") {
@@ -159,17 +205,48 @@ export function MidiLab() {
     flashCopied("json");
   };
 
+  const loadSong = (next: SongEntry) => {
+    if (next.id === song.id) return;
+    if (
+      !window.confirm(
+        `Load ${next.title}? Unsaved edits on the roll will be discarded.`,
+      )
+    ) {
+      return;
+    }
+    stop();
+    setSong(next);
+    setBpm(next.bpm);
+    setBars(songBars(next));
+    setTimeSig(songTimeSignature(next));
+    setSelectedNote(null);
+    setCanUndo(false);
+    setCanRedo(false);
+    setConceptId("library");
+  };
+
   const reset = () => {
-    if (!window.confirm("Discard all edits and reload the hero melody?"))
+    if (!window.confirm(`Discard all edits and reload ${song.title}?`))
       return;
     stop();
     rollRef.current?.reset();
+    setBpm(song.bpm);
+    setBars(songBars(song));
+    setTimeSig(songTimeSignature(song));
     setSelectedNote(null);
   };
   
   const deleteSelected = () => {
     rollRef.current?.deleteSelected();
     setSelectedNote(null);
+  };
+
+  const showHowTo = () => {
+    setConceptId("basics");
+    learnRef.current?.scrollIntoView({
+      behavior: reduceMotion ? "auto" : "smooth",
+      block: "start",
+    });
   };
 
   return (
@@ -183,7 +260,8 @@ export function MidiLab() {
           <button
             type="button"
             className="text-xs text-muted-foreground underline decoration-dotted underline-offset-4 hover:text-foreground transition-colors"
-            onClick={() => setConceptId(c => c === "basics" ? null : "basics")}
+            onClick={showHowTo}
+            aria-controls="piano-roll-learn"
           >
             How do I use this?
           </button>
@@ -195,10 +273,16 @@ export function MidiLab() {
 
         <div className="mt-8 overflow-x-auto rounded-md border border-border bg-card p-3 relative">
           <PianoRollEditor
+            key={song.id}
             ref={rollRef}
-            initialMelody={MELODY}
+            initialMelody={song.melody}
+            initialSequence={rollView?.sequence}
             bpm={bpm}
             bars={bars}
+            beatsPerBar={timeSig[0]}
+            beatUnit={timeSig[1]}
+            pitchMin={rollView?.pitchMin}
+            pitchRange={rollView?.pitchRange}
             isDeleteMode={isDeleteMode}
             hasScale={hasScale}
             lockToScale={lockToScale}
@@ -211,12 +295,12 @@ export function MidiLab() {
             }}
             className="min-h-[362px]"
           />
-          
+
           {selectedNote && !isDeleteMode && (
             <div className="absolute top-4 right-4 bg-background border border-border rounded-md shadow-lg p-2 flex flex-col gap-2 z-10 w-40">
               <div className="text-xs font-medium text-muted-foreground px-1 pb-1 border-b border-border flex justify-between">
                 <span>Selected Note</span>
-                <span className="text-foreground">{midiToNote(selectedNote.n) || "?"}</span>
+                <span className="text-foreground">{midiToPitchName(selectedNote.n)}</span>
               </div>
               <Button 
                 variant="ghost" 
@@ -231,7 +315,29 @@ export function MidiLab() {
           )}
         </div>
 
-        <div className="mt-4 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2 relative">
+          
+          {/* Zoom D-Pad (outside canvas, floated right) */}
+          <div className="absolute right-0 top-0 flex flex-col items-center gap-0.5 bg-card border border-border rounded-xl p-1 shadow-sm opacity-60 hover:opacity-100 transition-opacity">
+            <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" onClick={() => rollRef.current?.zoomY(1 / 1.25)} title="Zoom in vertically">
+              <Plus className="h-3 w-3" />
+            </Button>
+            <div className="flex items-center gap-0.5">
+              <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" onClick={() => rollRef.current?.zoomX(1.25)} title="Zoom out horizontally">
+                <Minus className="h-3 w-3" />
+              </Button>
+              <div className="h-5 w-5 flex items-center justify-center" title="Zoom controls">
+                <Search className="h-3 w-3 text-muted-foreground" />
+              </div>
+              <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" onClick={() => rollRef.current?.zoomX(1 / 1.25)} title="Zoom in horizontally">
+                <Plus className="h-3 w-3" />
+              </Button>
+            </div>
+            <Button variant="ghost" size="icon" className="h-5 w-5 rounded-full hover:bg-muted" onClick={() => rollRef.current?.zoomY(1.25)} title="Zoom out vertically">
+              <Minus className="h-3 w-3" />
+            </Button>
+          </div>
+
           <Button 
             onClick={() => {
               togglePlay();
@@ -285,6 +391,12 @@ export function MidiLab() {
             </Button>
           </div>
 
+          <SongLibrarySelect
+            songs={SONGS}
+            selectedId={song.id}
+            onSelect={loadSong}
+          />
+
           <label className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm">
             <span className="text-muted-foreground">BPM</span>
             <input
@@ -292,7 +404,7 @@ export function MidiLab() {
               min={40}
               max={200}
               value={bpm}
-              onChange={(e) => setBpm(Number(e.target.value) || DEFAULT_BPM)}
+              onChange={(e) => setBpm(Number(e.target.value) || song.bpm)}
               className="w-16 rounded border border-border bg-background px-2 py-1 text-right font-mono text-sm outline-none"
             />
           </label>
@@ -302,11 +414,36 @@ export function MidiLab() {
             <input
               type="number"
               min={1}
-              max={32}
+              max={256}
               value={bars}
               onChange={(e) => setBars(Number(e.target.value) || 8)}
               className="w-16 rounded border border-border bg-background px-2 py-1 text-right font-mono text-sm outline-none"
             />
+          </label>
+
+          <label
+            className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm"
+            onClick={() => setConceptId("meter")}
+          >
+            <span className="text-muted-foreground">Meter</span>
+            <select
+              value={formatTimeSignature(timeSig)}
+              aria-label="Time signature"
+              onChange={(e) => {
+                setTimeSig(parseTimeSignature(e.target.value));
+                setConceptId("meter");
+              }}
+              className="rounded border border-border bg-background px-2 py-1 font-mono text-sm outline-none"
+            >
+              {meterOptions.map((sig) => {
+                const value = formatTimeSignature(sig);
+                return (
+                  <option key={value} value={value}>
+                    {value}
+                  </option>
+                );
+              })}
+            </select>
           </label>
 
           <Button
@@ -333,8 +470,27 @@ export function MidiLab() {
             <Trash2 className="h-4 w-4" />
           </Button>
 
-          <div className="flex flex-wrap items-center gap-2 sm:ml-auto">
+          <div className="flex flex-wrap items-center gap-2 sm:ml-auto mr-16">
             
+            <div className="flex items-center gap-1 mr-2 bg-card rounded-md border border-input p-0.5">
+              {(["sine", "square", "sawtooth", "triangle"] as const).map((w) => (
+                <button
+                  key={w}
+                  type="button"
+                  onClick={() => setWaveType(w)}
+                  title={`Use ${w} wave`}
+                  className={cn(
+                    "p-1.5 rounded-sm transition-colors",
+                    waveType === w 
+                      ? "bg-secondary text-secondary-foreground" 
+                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
+                  )}
+                >
+                  <WaveGlyph type={w} />
+                </button>
+              ))}
+            </div>
+
             <div className="mr-2">
               <ScaleSelector
                 selectedScale={selectedScale}
@@ -369,9 +525,19 @@ export function MidiLab() {
         </div>
 
         {/* Learning area — shared, shows the last tool clicked */}
-        <div className="mt-8">
+        <div
+          id="piano-roll-learn"
+          ref={learnRef}
+          className="mt-8 scroll-mt-16"
+        >
           <LearnPanel
-            concept={conceptId ? MIDI_CONCEPTS[conceptId] : null}
+            concept={
+              conceptId === "meter"
+                ? timeSignatureLesson(timeSig)
+                : conceptId
+                  ? MIDI_CONCEPTS[conceptId]
+                  : null
+            }
             onClose={() => setConceptId(null)}
           />
         </div>

@@ -1,0 +1,58 @@
+---
+description: Ingest .mid files into the Piano Roll song library. Use whenever the user attaches, pastes, or points at MIDI, or asks to add/ingest a song.
+alwaysApply: true
+---
+
+# MIDI ingest
+
+When the user attaches or points at `.mid` file(s) to add a song, **run the
+script**. Do not hand-transcribe notes. Ignore this rule on unrelated work.
+
+```bash
+# Split parts (usual: voice + piano)
+npm run ingest-midi -- \
+  --id slug-here \
+  --title "Song Title" \
+  --subtitle "optional search context" \
+  --key "C major" \
+  --voice path/to/voice.mid \
+  --chords path/to/piano.mid
+
+# One multi-track arrangement (keeps pitched tracks; drops GM drums)
+npm run ingest-midi -- \
+  --id slug-here \
+  --title "Song Title" \
+  --subtitle "optional search context" \
+  --file path/to/arrangement.mid
+```
+
+Flags: `--id` (lowercase slug), `--title` required; `--subtitle` `--artist`
+`--key` optional; `--bass` optional with the split form. Paths may be
+absolute (`C:/Users/…/Downloads/….mid`).
+
+## After the script
+
+1. It copies sources to `public/midi/<id>/`, writes
+   `src/lib/songs/catalog/<id>.json` (`SongDocument`), a `SongEntry` module
+   if missing, and tries to register `library.ts` + `songs/index.ts`.
+2. **Fix `library.ts`** if the registrar smashed `SONGS` onto one line — keep
+   the multiline array. Import next to the other song modules.
+3. Same song, new arrangement → **new `--id`**, label versions in
+   `title`/`subtitle` (e.g. “Version A · split MIDI”, “Version B · arranger”).
+   Never overwrite an existing catalog song unless the user asks to re-ingest.
+4. Update the Song Library blurb in `src/components/midi/MidiLab.tsx` so it
+   mentions the new entry.
+5. `npx tsc --noEmit`. Tell the user to refresh `/piano-roll` and pick the
+   title (or search). Do not commit unless asked. Do not say it is live.
+
+## What the pipeline keeps / drops
+
+- Parser: `src/lib/song/fromMidi.ts`. The roll loads **JSON** via
+  `documentToRollView` — it does not re-parse `.mid` on song select.
+- First tempo + first time signature only (tempo maps flatten to one BPM).
+- Quantize 0.5 beat; skip GM drum channel 9.
+- `songBars()` uses quarter-beats per bar (`num * 4 / den`), so 6/8 is 3
+  quarters, not 6. Unknown meters (e.g. 3/8) still load; the Meter dropdown
+  prepends them.
+- Prefer public-domain / traditional / user-owned files. Still ingest locally
+  if asked, but say that is not clearance to ship on instrumaps.com.

@@ -35,6 +35,16 @@ export {
   getHarpNeeded,
 } from "./intervals";
 
+export {
+  COMMON_TIME_SIGNATURES,
+  formatTimeSignature,
+  parseTimeSignature,
+  sameTimeSignature,
+  ticksPerBar,
+  timeSignatureLesson,
+  type TimeSignature,
+} from "./timeSignatures";
+
 // Scale and mode utilities
 export {
   SCALE_PATTERNS,
