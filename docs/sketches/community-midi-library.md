@@ -5,6 +5,12 @@
 > with, not a chosen path. The "Research findings" section near the bottom
 > records what we've learned about the space so far; treat those as neutral
 > observations, not conclusions.
+>
+> **Related plan (2026-08-30):** the first concrete product slice is
+> [`docs/plans/self-hosted-midi-library.md`](../plans/self-hosted-midi-library.md)
+> — load songs into the Piano Roll, then (later) an allowlist-first agent
+> that finds MIDI by title + artist and caches the user's chosen version.
+> This sketch stays the broader funnel / "Wikipedia for MIDI" exploration.
 
 ## The problem
 

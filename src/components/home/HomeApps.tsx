@@ -61,7 +61,10 @@ export function HomeApps() {
                     <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-md border bg-muted/40 text-foreground">
                       <Icon className="h-5 w-5" strokeWidth={1.75} />
                     </div>
-                    <CardTitle className="text-base">{app.label}</CardTitle>
+                    <div className="flex items-center gap-2">
+                      <CardTitle className="text-base">{app.label}</CardTitle>
+                      {app.beta && <Badge variant="secondary">Beta</Badge>}
+                    </div>
                     {app.description && (
                       <CardDescription className="min-h-10">
                         {app.description}

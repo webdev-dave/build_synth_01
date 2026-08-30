@@ -141,6 +141,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 <img id="wac-markstart" class="marker" src="${this.markstartsrc}"/>
 <img id="wac-markend" class="marker" src="${this.markendsrc}"/>
 <img id="wac-cursor" class="marker" src="${this.cursorsrc}"/>
+<div id="wac-kbhighlight" style="position:absolute; left:0; pointer-events:none; background:rgba(234, 88, 12, 0.4); display:none;"></div>
 <div id="wac-menu">Delete</div>
 </div>`;
 
@@ -497,6 +498,31 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 if(ev.f && ev.ot+dt<0)
                     dt=-ev.ot;
             }
+            // Ensure notes stay within the bounds of the hero tune's C4-C5 range (MIDI 60-72)
+            // and respect lockToScale constraint
+            for(let i=0;i<l;++i){
+                const ev=this.sequence[i];
+                if(ev.f) {
+                    if (ev.on+dn < 60) dn = 60 - ev.on;
+                    if (ev.on+dn > 72) dn = 72 - ev.on;
+                    
+                    // If lockToScale is enabled, we need to snap to the nearest in-scale note
+                    // rather than allowing a drop on an out-of-scale note.
+                    // (For simplicity during drag-move, if they drag onto an out-of-scale note,
+                    // we'll let it temporarily visually sit there but they shouldn't be able to drop it,
+                    // but the web component modifies state instantly. So we'll snap it now).
+                    if (this.lockToScale && this.isNoteInScale) {
+                        let targetN = ev.on + dn;
+                        if (!this.isNoteInScale(targetN)) {
+                           // Try moving it one semitone in the direction of the drag to snap it
+                           if (dn > 0 && targetN + 1 <= 72 && this.isNoteInScale(targetN + 1)) dn += 1;
+                           else if (dn < 0 && targetN - 1 >= 60 && this.isNoteInScale(targetN - 1)) dn -= 1;
+                           // If still not in scale, just prevent the vertical move entirely for this step
+                           else if (!this.isNoteInScale(ev.on + dn)) dn = 0;
+                        }
+                    }
+                }
+            }
             for(let i=0;i<l;++i){
                 const ev=this.sequence[i];
                 if(ev.f){
@@ -510,6 +536,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             for(let i=0;i<l;++i){
                 this.sequence[i].f=0;
             }
+            if (this.onNoteSelect) this.onNoteSelect(null);
         };
         this.selectedNotes=function(){
             let obj=[];
@@ -523,6 +550,12 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         this.editDragDown=function(pos){
             const ht=this.hitTest(pos);
             let ev;
+            
+            // Prevent interacting with out-of-scale keys if lockToScale is on
+            if (this.lockToScale && this.isNoteInScale && !this.isNoteInScale(ht.n|0)) {
+                return;
+            }
+            
             if(ht.m=="N"){
                 ev=this.sequence[ht.i];
                 this.dragging={o:"D",m:"N",i:ht.i,t:ht.t,n:ev.n,dt:ht.t-ev.t};
@@ -532,12 +565,16 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         ev.on=ev.n, ev.ot=ev.t, ev.og=ev.g;
                 }
                 this.redraw();
+                if (this.onNoteSelect) this.onNoteSelect(this.sequence[ht.i]);
             }
             else if(ht.m=="n"){
                 ev=this.sequence[ht.i];
                 this.clearSel();
                 ev.f=1;
+                this.dragging={o:"D",m:"N",i:ht.i,t:ht.t,n:ev.n,dt:ht.t-ev.t};
+                ev.on=ev.n; ev.ot=ev.t; ev.og=ev.g;
                 this.redraw();
+                if (this.onNoteSelect) this.onNoteSelect(ev);
             }
             else if(ht.m=="E"){
                 const ev = this.sequence[ht.i];
@@ -552,6 +589,30 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 var t=((ht.t/this.snap)|0)*this.snap;
                 this.sequence.push({t:t, n:ht.n|0, g:1, f:1});
                 this.dragging={o:"D",m:"E",i:this.sequence.length-1, t:t, g:1, ev:[{t:t,g:1,ev:this.sequence[this.sequence.length-1]}]};
+                this.redraw();
+            }
+        };
+        this.editEraserDown=function(pos){
+            const ht=this.hitTest(pos);
+            if(ht.m=="N" || ht.m=="n" || ht.m=="E" || ht.m=="B"){
+                this.delNote(ht.i);
+                this.dragging={o:"X",m:"0"}; 
+                this.redraw();
+            } else {
+                this.dragging={o:"A",p:pos,p2:pos,t1:ht.t,n1:ht.n};
+            }
+        };
+        this.editEraserMove=function(pos){
+            const ht=this.hitTest(pos);
+            if(this.dragging.o=="X"){
+                if(ht.m=="N" || ht.m=="n" || ht.m=="E" || ht.m=="B"){
+                    this.delNote(ht.i);
+                    this.redraw();
+                }
+            } else if (this.dragging.o=="A"){
+                this.dragging.p2=pos;
+                this.dragging.t2=ht.t;
+                this.dragging.n2=ht.n;
                 this.redraw();
             }
         };
@@ -672,7 +733,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.markstartimg=this.elem.children[2];
             this.markendimg=this.elem.children[3];
             this.cursorimg=this.elem.children[4];
-            this.menu=this.elem.children[5];
+            this.kbhighlight=this.elem.children[5];
+            this.menu=this.elem.children[6];
             this.rcMenu={x:0, y:0, width:0, height:0};
             this.lastx=0;
             this.lasty=0;
@@ -686,6 +748,60 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.setListener(this.cursorimg,true);
             this.setListener(this.menu,false);
             this.sequence=[];
+            
+            // History Management
+            this.undoStack = [];
+            this.redoStack = [];
+            this.lastState = null;
+            this.clearHistory = function() {
+                this.undoStack = [];
+                this.redoStack = [];
+                this.lastState = null;
+                const ev = new CustomEvent('historychange', { detail: { canUndo: false, canRedo: false }});
+                this.dispatchEvent(ev);
+            };
+            this.saveState = function() {
+                const cleanSeq = this.sequence.map(e => ({t: e.t, g: e.g, n: e.n}));
+                const state = JSON.stringify(cleanSeq);
+                if (this.lastState === null) {
+                    this.lastState = state;
+                } else if (state !== this.lastState) {
+                    this.undoStack.push(this.lastState);
+                    if (this.undoStack.length > 50) this.undoStack.shift();
+                    this.lastState = state;
+                    this.redoStack = [];
+                    const ev = new CustomEvent('historychange', { detail: { canUndo: this.undoStack.length > 0, canRedo: this.redoStack.length > 0 }});
+                    this.dispatchEvent(ev);
+                }
+            };
+            this.undo = function() {
+                if (this.undoStack.length > 0) {
+                    const currentState = JSON.stringify(this.sequence.map(e => ({t: e.t, g: e.g, n: e.n})));
+                    if (currentState !== this.lastState) {
+                        this.redoStack.push(currentState);
+                    } else {
+                        this.redoStack.push(this.lastState);
+                    }
+                    this.lastState = this.undoStack.pop();
+                    this.sequence = JSON.parse(this.lastState);
+                    this.redraw();
+                    if (this.onNoteSelect) this.onNoteSelect(null);
+                    const ev = new CustomEvent('historychange', { detail: { canUndo: this.undoStack.length > 0, canRedo: this.redoStack.length > 0 }});
+                    this.dispatchEvent(ev);
+                }
+            };
+            this.redo = function() {
+                if (this.redoStack.length > 0) {
+                    this.undoStack.push(this.lastState);
+                    this.lastState = this.redoStack.pop();
+                    this.sequence = JSON.parse(this.lastState);
+                    this.redraw();
+                    if (this.onNoteSelect) this.onNoteSelect(null);
+                    const ev = new CustomEvent('historychange', { detail: { canUndo: this.undoStack.length > 0, canRedo: this.redoStack.length > 0 }});
+                    this.dispatchEvent(ev);
+                }
+            };
+
             this.dragging={o:null};
             this.kbimg.style.height=this.sheight+"px";
             this.kbimg.style.backgroundSize=(this.steph*12)+"px";
@@ -719,9 +835,11 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         };
         this.keydown=function(e){
             switch(e.keyCode){
+            case 8: // Backspace
             case 46://delNote
                 this.delSelectedNote();
                 this.redraw();
+                if(this.saveState) this.saveState();
                 break;
             }
         };
@@ -811,6 +929,9 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             case "dragmono":
                 this.editDragDown(this.downpos);
                 break;
+            case "eraser":
+                this.editEraserDown(this.downpos);
+                break;
             }
             this.press = 1;
             if(ev.preventDefault)
@@ -824,14 +945,22 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.rcTarget=this.canvas.getBoundingClientRect();
                 const pos=this.getPos(e);
                 const ht=this.hitTest(pos);
-                switch(ht.m){
-                    case "E": this.canvas.style.cursor="e-resize"; break;
-                    case "B": this.canvas.style.cursor="w-resize"; break;
-                    case "N": this.canvas.style.cursor="move"; break;
-                    case "n": this.canvas.style.cursor="pointer"; break;
-                    case "s": this.canvas.style.cursor="pointer"; break;
+                if (this.editmode === "eraser" && ["N", "n", "E", "B"].includes(ht.m)) {
+                    this.canvas.style.cursor="crosshair";
+                } else {
+                    switch(ht.m){
+                        case "E": this.canvas.style.cursor="e-resize"; break;
+                        case "B": this.canvas.style.cursor="w-resize"; break;
+                        case "N": this.canvas.style.cursor="move"; break;
+                        case "n": this.canvas.style.cursor="pointer"; break;
+                        case "s": this.canvas.style.cursor="pointer"; break;
+                        case "y": this.canvas.style.cursor="pointer"; break; // Piano keyboard area
+                        default: 
+                            this.canvas.style.cursor = this.editmode === "eraser" ? "crosshair" : "default"; 
+                            break;
                     }
                 }
+            }
         };
         this.pointermove=function(ev) {
             let e;
@@ -890,6 +1019,9 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             case "dragmono":
                 this.editDragMove(pos);
                 break;
+            case "eraser":
+                this.editEraserMove(pos);
+                break;
             }
 //            ev.preventDefault();
             ev.stopPropagation();
@@ -913,8 +1045,22 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             if(this.dragging.o=="A"){
                 this.selAreaNote(this.dragging.t1,this.dragging.t2,this.dragging.n1,this.dragging.n2);
+                if (this.editmode === "eraser") {
+                    this.delSelectedNote();
+                } else {
+                    // Check if a single note was selected by the box
+                    const selected = this.sequence.filter(e => e.f);
+                    if (selected.length === 1 && this.onNoteSelect) {
+                        this.onNoteSelect(selected[0]);
+                    } else if (this.onNoteSelect) {
+                        this.onNoteSelect(null);
+                    }
+                }
                 this.dragging={o:null};
                 this.redraw();
+            }
+            if(this.dragging.o=="X"){
+                this.dragging={o:null};
             }
 //            if(this.dragging.o=="D"){
                 if(this.editmode=="dragmono"){
@@ -930,6 +1076,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.dragging={o:null};
             if(this.press){
                 this.sortSequence();
+                if(this.saveState) this.saveState();
             }
             this.press = 0;
 //            this.mousemove(e);
@@ -1013,13 +1160,31 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
         };
         this.redrawGrid=function(){
             for(let y=0;y<128;++y){
-                if(this.semiflag[y%12]&1)
-                    this.ctx.fillStyle=this.coldk;
-                else
-                    this.ctx.fillStyle=this.collt;
+                let inScale = true;
+                if (this.hasScale && this.isNoteInScale) {
+                    inScale = this.isNoteInScale(y);
+                }
+
+                if (inScale) {
+                    if(this.semiflag[y%12]&1)
+                        this.ctx.fillStyle=this.coldk;
+                    else
+                        this.ctx.fillStyle=this.collt;
+                } else {
+                    if (this.lockToScale) {
+                        // Very dark / disabled look
+                        this.ctx.fillStyle = (this.semiflag[y%12]&1) ? "#070707" : "#0d0d0d";
+                    } else {
+                        // Slightly muted out-of-scale look
+                        this.ctx.fillStyle = (this.semiflag[y%12]&1) ? "#0a0a0a" : "#111111";
+                    }
+                }
+                
                 let ys = this.height - (y - this.yoffset) * this.steph;
                 this.ctx.fillRect(this.yruler+this.kbwidth, ys|0, this.swidth,-this.steph);
-                this.ctx.fillStyle=this.colgrid;
+                
+                // Dim the grid line slightly if it's an out-of-scale locked row
+                this.ctx.fillStyle = (this.lockToScale && !inScale) ? "#1f1f1f" : this.colgrid;
                 this.ctx.fillRect(this.yruler+this.kbwidth, ys|0, this.swidth,1);
             }
             for(let t=0;;t+=this.grid){
@@ -1080,20 +1245,76 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.ctx.font=(this.steph/2)+"px 'sans-serif'";
                 this.ctx.fillStyle=this.colortab.kbwh;
                 this.ctx.fillRect(1,this.xruler,this.yruler,this.sheight);
-                this.ctx.fillStyle=this.colortab.kbbk;
                 for(y=0;y<128;++y){
                     const ys=this.height-this.steph*(y-this.yoffset);
                     const ysemi=y%12;
                     const fsemi=this.semiflag[ysemi];
+                    
+                    let inScale = true;
+                    if (this.hasScale && this.isNoteInScale) {
+                        inScale = this.isNoteInScale(y);
+                    }
+                    
+                    // White key base logic
+                    if (!inScale) {
+                        this.ctx.fillStyle = this.lockToScale ? "#8c8c8c" : "#b3b3b3";
+                        this.ctx.fillRect(1, ys, this.yruler, -this.steph);
+                    } else if (this.hasScale) {
+                        // In scale white key gets a subtle tint
+                        this.ctx.fillStyle = "#ffffff";
+                        this.ctx.fillRect(1, ys, this.yruler, -this.steph);
+                    }
+                    
+                    if (this.pressedKey === y) {
+                        this.ctx.fillStyle = "rgba(234, 88, 12, 0.4)"; // burnt orange highlight for white key
+                        this.ctx.fillRect(0, ys, this.yruler, -this.steph);
+                    }
+
+                    // Green dot for in-scale keys (matching SynthV2)
+                    if (this.hasScale && inScale) {
+                        this.ctx.fillStyle = "#059669"; // emerald-600
+                        this.ctx.beginPath();
+                        // Draw dot on the far left of the key
+                        if (fsemi & 1) {
+                            // black key dot
+                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
+                        } else {
+                            // white key dot
+                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
+                        }
+                        this.ctx.fill();
+                    }
+
+                    this.ctx.fillStyle=this.colortab.kbbk;
                     if(fsemi&1){
+                        if (!inScale) {
+                           this.ctx.fillStyle = this.lockToScale ? "#404040" : "#262626";
+                        }
+                        
+                        if (this.pressedKey === y) {
+                            this.ctx.fillStyle = "rgba(234, 88, 12, 0.9)"; // burnt orange highlight for black key
+                        }
                         this.ctx.fillRect(0,ys,this.yruler/2,-this.steph);
+                        
+                        // Redraw the dot so it's on top of the black key
+                        if (this.hasScale && inScale) {
+                            this.ctx.fillStyle = "#059669";
+                            this.ctx.beginPath();
+                            this.ctx.arc(6, ys - this.steph/2, 3, 0, Math.PI * 2);
+                            this.ctx.fill();
+                        }
+                        
+                        this.ctx.fillStyle=this.colortab.kbbk;
                         this.ctx.fillRect(0,(ys-this.steph/2)|0,this.yruler,-1);
                     }
                     if(fsemi&2)
                         this.ctx.fillRect(0,ys|0,this.yruler,-1);
-                    if(fsemi&4)
+                    if(fsemi&4) {
+                        this.ctx.fillStyle = (!inScale && this.lockToScale) ? "#737373" : "#000000";
                         this.ctx.fillText("C"+(((y/12)|0)+this.octadj),this.yruler-4,ys-4);
+                    }
                 }
+                this.ctx.fillStyle=this.colortab.kbbk;
                 this.ctx.fillRect(this.yruler,this.xruler,1,this.sheight);
             }
         };
@@ -1110,6 +1331,18 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.ctx.clearRect(0,0,this.width,this.height);
             this.stepw = this.swidth/this.xrange;
             this.steph = this.sheight/this.yrange;
+            
+            if (this.pressedKey !== undefined && this.pressedKey !== null) {
+                const ys = this.height - this.steph * (this.pressedKey - this.yoffset);
+                this.kbhighlight.style.display = "block";
+                this.kbhighlight.style.top = ys + "px";
+                this.kbhighlight.style.height = this.steph + "px";
+                this.kbhighlight.style.width = this.kbwidth + "px";
+                this.kbhighlight.style.left = this.yruler + "px";
+            } else {
+                this.kbhighlight.style.display = "none";
+            }
+            
             this.redrawGrid();
             const l=this.sequence.length;
             for(let s=0; s<l; ++s){

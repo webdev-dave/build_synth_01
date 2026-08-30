@@ -14,6 +14,7 @@ import {
 import { getAppIcon } from "@/lib/appIcons";
 import { useBrowserHistoryNav } from "@/hooks/useBrowserHistoryNav";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
 const navLinkClass = (active: boolean) =>
@@ -210,8 +211,13 @@ export default function NavMenu() {
                   <div className="flex items-center gap-3">
                     <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
                     <div>
-                      <div className="font-medium text-foreground">
-                        {item.label}
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium text-foreground">
+                          {item.label}
+                        </span>
+                        {item.beta && (
+                          <Badge variant="secondary">Beta</Badge>
+                        )}
                       </div>
                       {item.description && (
                         <div className="mt-0.5 text-xs text-muted-foreground">

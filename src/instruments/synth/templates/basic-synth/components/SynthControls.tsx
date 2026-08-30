@@ -1,7 +1,8 @@
-import { Lock, Unlock, Expand, Shrink, Keyboard, Type } from "lucide-react";
+import { Expand, Shrink, Keyboard, Type } from "lucide-react";
 import { OscillatorType } from "../hooks/useAudioSynthesis";
 import { ScaleCombination } from "../hooks/useScaleLogic";
 import Tooltip from "@/components/Tooltip";
+import { ScaleSelector } from "@/components/music/ScaleSelector";
 
 interface TopToolbarProps {
   // Status display
@@ -87,87 +88,12 @@ export function TopToolbar({
       {/* Right Side - Piano Settings */}
       <div className="flex items-center gap-2">
         {/* Scale Controls */}
-        <Tooltip
-          message="Choose musical scale"
-          alignX="right"
-        >
-          <select
-            value={selectedScale}
-            onChange={(e) =>
-              setSelectedScale(e.target.value as ScaleCombination)
-            }
-            className="px-3 py-2 bg-gray-700 text-white rounded border-none outline-none cursor-pointer hover:bg-gray-600 transition-colors"
-            aria-label="Select musical scale"
-          >
-            <option value="none">No Scale</option>
-            <option value="A major">A Maj</option>
-            <option value="A minor">A Min</option>
-            <option value="A# major">A# Maj</option>
-            <option value="A# minor">A# Min</option>
-            <option value="B major">B Maj</option>
-            <option value="B minor">B Min</option>
-            <option value="C major">C Maj</option>
-            <option value="C minor">C Min</option>
-            <option value="C# major">C# Maj</option>
-            <option value="C# minor">C# Min</option>
-            <option value="D major">D Maj</option>
-            <option value="D minor">D Min</option>
-            <option value="D# major">D# Maj</option>
-            <option value="D# minor">D# Min</option>
-            <option value="E major">E Maj</option>
-            <option value="E minor">E Min</option>
-            <option value="F major">F Maj</option>
-            <option value="F minor">F Min</option>
-            <option value="F# major">F# Maj</option>
-            <option value="F# minor">F# Min</option>
-            <option value="G major">G Maj</option>
-            <option value="G minor">G Min</option>
-            <option value="G# major">G# Maj</option>
-            <option value="G# minor">G# Min</option>
-          </select>
-        </Tooltip>
-
-        {selectedScale !== "none" && (
-          <Tooltip
-            message={
-              allowOutOfScale
-                ? "Lock to scale notes only"
-                : "Unlock scale restriction"
-            }
-            alignX="right"
-          >
-            <button
-              onClick={() => setAllowOutOfScale(!allowOutOfScale)}
-              className={`
-              px-3 py-2 rounded transition-colors flex items-center gap-2 text-white text-sm
-              ${
-                allowOutOfScale
-                  ? "bg-green-600 hover:bg-green-700"
-                  : "bg-red-600 hover:bg-red-700"
-              }
-            `}
-              aria-label={
-                allowOutOfScale
-                  ? `Scale is unlocked. All notes can be played. Click to lock to ${selectedScale} scale only`
-                  : `Scale is locked to ${selectedScale}. Only scale notes can be played. Click to unlock`
-              }
-              aria-pressed={!allowOutOfScale}
-            >
-              {allowOutOfScale ? (
-                <Unlock
-                  size={16}
-                  aria-hidden="true"
-                />
-              ) : (
-                <Lock
-                  size={16}
-                  aria-hidden="true"
-                />
-              )}
-              <span>Scale</span>
-            </button>
-          </Tooltip>
-        )}
+        <ScaleSelector
+          selectedScale={selectedScale}
+          onScaleChange={setSelectedScale}
+          allowOutOfScale={allowOutOfScale}
+          onAllowOutOfScaleChange={setAllowOutOfScale}
+        />
 
         {/* Wave Type Control */}
         <Tooltip

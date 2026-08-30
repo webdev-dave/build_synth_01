@@ -336,7 +336,7 @@ const STARS_WIDE = makeStars(
   0,
   200,
   [{ n: 140, x0: 880, x1: 990, y0: 150, y1: 680 }],
-  (x, _y) => (x > 880 ? 1 : 0),
+  (x) => (x > 880 ? 1 : 0),
 );
 
 /* Five-point star silhouette (borrowed from the classic canvas

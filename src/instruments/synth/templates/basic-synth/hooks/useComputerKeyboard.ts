@@ -137,10 +137,11 @@ export function useComputerKeyboard(
     window.addEventListener("keydown", handleKeyDown);
     window.addEventListener("keyup", handleKeyUp);
 
+    const pressedCodes = pressedCodesRef.current;
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
-      pressedCodesRef.current.clear();
+      pressedCodes.clear();
     };
   }, [enabled, keys, onNoteStart, onNoteStop, adjustOctave]);
 }

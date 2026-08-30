@@ -1,12 +1,21 @@
-import type { Metadata } from "next";
+"use client";
 
-import { MelodyLab } from "@/components/melody-lab/MelodyLab";
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 
-export const metadata: Metadata = {
-  title: "Melody Lab — dev tool",
-  robots: { index: false },
-};
-
-export default function MelodyLabPage() {
-  return <MelodyLab />;
+/** Brief Melody Lab URL — the public tool is Piano Roll. */
+export default function MelodyLabRedirect() {
+  const router = useRouter();
+  useEffect(() => {
+    router.replace("/piano-roll");
+  }, [router]);
+  return (
+    <p className="p-6 text-sm text-muted-foreground">
+      Moved to{" "}
+      <a href="/piano-roll" className="underline hover:text-foreground">
+        Piano Roll
+      </a>
+      .
+    </p>
+  );
 }

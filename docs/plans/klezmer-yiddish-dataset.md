@@ -77,6 +77,9 @@ this defines *what* we ingest first and *why this repertoire*.
 ## Dependencies / prerequisites
 
 - `SongDocument` canonical type in `src/lib/song/` — **does not exist yet.**
+  Also needed by
+  [self-hosted MIDI library](self-hosted-midi-library.md)
+  (Piano Roll catalog + finder). Build the type once.
 - ABC parsing (`abcjs`, MIT) and MIDI parsing (`@tonejs/midi`) — **not installed
   yet**. `@spotify/basic-pitch` is not in the app (removed with the Key
   Detector); re-add it only if we build the audio funnel. Not needed here.

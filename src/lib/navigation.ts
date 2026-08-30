@@ -12,6 +12,8 @@ export interface NavItem {
   hidden?: boolean;
   /** When false, omitted from the top bar (Back/Home). Still in the hamburger. Default true. */
   inNav?: boolean;
+  /** Early/public beta — shown as a badge on the home widget and in the hamburger. */
+  beta?: boolean;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -38,6 +40,15 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/harmonica-lab/v2",
     description: "Position guide & theory for diatonic harmonica",
     inNav: false,
+  },
+  {
+    id: "piano-roll",
+    label: "Piano Roll",
+    icon: "🎼",
+    href: "/piano-roll",
+    description: "Draw, play, and edit melodies on a piano roll",
+    inNav: false,
+    beta: true,
   },
 ];
 

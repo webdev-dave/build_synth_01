@@ -40,6 +40,21 @@ const DrumMachine: LucideIcon = createLucideIcon("DrumMachine", [
 ]);
 
 /**
+ * Custom piano-roll icon: a landscape editor with a keyboard strip on the
+ * left and note bars on the right. Distinct from the synth's `Piano` glyph.
+ */
+const PianoRoll: LucideIcon = createLucideIcon("PianoRoll", [
+  ["rect", { x: "2", y: "4", width: "20", height: "16", rx: "2", key: "body" }],
+  ["path", { d: "M8 4v16", key: "divider" }],
+  ["path", { d: "M2 8h6", key: "key1" }],
+  ["path", { d: "M2 12h6", key: "key2" }],
+  ["path", { d: "M2 16h6", key: "key3" }],
+  ["rect", { x: "10", y: "6.5", width: "6", height: "2", rx: "0.5", key: "note1" }],
+  ["rect", { x: "13", y: "11", width: "7", height: "2", rx: "0.5", key: "note2" }],
+  ["rect", { x: "10", y: "15.5", width: "5", height: "2", rx: "0.5", key: "note3" }],
+]);
+
+/**
  * Maps a nav/app id (see NAV_ITEMS in navigation.ts) to a Lucide icon.
  * Shared by the global nav and the homepage app grid so icons stay consistent.
  */
@@ -47,6 +62,7 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   home: Home,
   synth: Piano,
   "harmonica-lab": Harmonica,
+  "piano-roll": PianoRoll,
   "drum-machine": DrumMachine,
 };
 

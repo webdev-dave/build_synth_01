@@ -93,7 +93,7 @@ export type MelodyEvent = {
   /** null = rest */
   note: NoteName | null;
   beats: number;
-  /** Sung syllable — used by the Melody Lab to reference notes by word */
+  /** Sung syllable — attached by note order when exporting a melody */
   lyric?: string;
 };
 

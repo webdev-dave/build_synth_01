@@ -98,8 +98,8 @@ export function useHeroAudio() {
 
   /**
    * Schedule a lead note at an absolute AudioContext time — same voice and
-   * envelope as `noteOn`, but sample-accurately timed. Used by the MIDI Lab
-   * piano roll, which pre-schedules notes slightly ahead of the playhead.
+   * envelope as `noteOn`, but sample-accurately timed. Used by the Piano Roll,
+   * which pre-schedules notes slightly ahead of the playhead.
    */
   const noteAt = useCallback((hz: number, when: number, durSec: number) => {
     const ctx = ctxRef.current;

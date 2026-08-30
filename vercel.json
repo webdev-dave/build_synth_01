@@ -4,5 +4,17 @@
     "deploymentEnabled": {
       "main": false
     }
-  }
+  },
+  "redirects": [
+    {
+      "source": "/midi-lab",
+      "destination": "/piano-roll",
+      "permanent": true
+    },
+    {
+      "source": "/melody-lab",
+      "destination": "/piano-roll",
+      "permanent": true
+    }
+  ]
 }
