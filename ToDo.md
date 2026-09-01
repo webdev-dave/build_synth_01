@@ -60,7 +60,7 @@ a doc says otherwise.
 ---
 
 Piano Roll day-to-day list: [ToDo-piano-roll.md](ToDo-piano-roll.md)
-(default song, pan/zoom, transpose↔scale, track picker).
+(default song, pan/zoom, transpose↔scale, track picker, song URLs / MIDI SEO).
 
 ## Next to implement
 
