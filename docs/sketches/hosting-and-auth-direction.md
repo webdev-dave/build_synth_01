@@ -181,7 +181,7 @@ Auth.js + Google. Drop `output: "export"`. Session-aware UI (save presets later)
 Neon + Drizzle: users, saved presets, favorite scales, shared projects.
 
 **Phase 4 — AI / DAW shell**  
-Audio stays in the browser (Web Audio). Hosting only owns accounts, save, share, and any server AI. AI Gateway + AI SDK when those features exist.
+Audio stays in the browser (Web Audio). Hosting only owns accounts, save, share, and any server AI. AI Gateway + AI SDK when those features exist. First concrete AI module: [Songwriting Studio](../plans/songwriting-studio.md) (workshop-first; the model is a coach, not a generator).
 
 ---
 

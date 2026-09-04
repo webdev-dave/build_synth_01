@@ -115,6 +115,9 @@ npm run build
 - MIDI input support
 
 ### AI Feature Ideas
+- **Songwriting Studio** (planned): coach a poem or journal entry into a
+  small demo — form, feel, chords, a pulse — without replacing the user's
+  words. Spec: [`docs/plans/songwriting-studio.md`](docs/plans/songwriting-studio.md).
 - **Song Interpretation**: Play songs through synth presets via AI
 - **Scale Recognition**: Real-time scale detection from audio input
 - **Sound Design**: AI-powered preset generation from natural language

@@ -68,6 +68,7 @@ backbeat.
 | [Dance tutorial](dance-tutorial-module.md) | Footwork *on* a beat | Shares the beat-clock idea. Dance is bodies; Genre Lab is drums + harmony. Same `BEAT` math, different widgets. Don't block on dance existing. |
 | [Klezmer / Yiddish](klezmer-yiddish-dataset.md) | A repertoire + (later) lyrics | A future **Klezmer** genre page can hang on that corpus. Don't special-case it in v1. |
 | [Self-hosted MIDI library](self-hosted-midi-library.md) | Play real songs on the roll | Later: "hear this in a song" deep-links. v1 does not wait on MIDI. |
+| [Songwriting Studio](songwriting-studio.md) | Coach a user's poem into a demo | *Consumes* a feel palette (groove + scale + stock progressions). Genre Lab *teaches* those layers. Share `GroovePattern`; don't fork. |
 | Synth / piano roll | Play pitches | "Try this groove's scale on the synth" / "see a 12-bar on the roll" are Phase-4 deep-links. |
 
 ### The honesty rule applies to grooves too
