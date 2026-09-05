@@ -11,8 +11,8 @@ function fromManifest(row: SongManifestEntry): SongEntry {
   return { ...row, melody: [], hasCatalog: true };
 }
 
-/** Piano Roll default — the draft we’re honing, not the live hero. */
-export const DEFAULT_SONG_ID: SongId = "yesterday-v2";
+/** Piano Roll default — full Beatles MIDI arrangement. */
+export const DEFAULT_SONG_ID: SongId = "yesterday-beatles";
 
 /**
  * Picker rows only. MIDI payloads load from /catalog/<id>.json on select.

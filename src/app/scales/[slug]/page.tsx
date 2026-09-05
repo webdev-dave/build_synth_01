@@ -5,8 +5,13 @@ import { ArrowLeft, ArrowRight, Hammer } from "lucide-react";
 
 import { SCALES, getScale } from "@/lib/scales/registry";
 import { getGenre } from "@/lib/genres/registry";
+import { getArticlesByScale } from "@/lib/history/registry";
 import { getScaleContent } from "@/content/scales";
 import { Badge } from "@/components/ui/badge";
+import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { RelatedPages } from "@/components/content/RelatedPages";
+import { WordBanner } from "@/components/words/WordBanner";
+import { getWord } from "@/lib/words/registry";
 
 interface ScalePageProps {
   params: Promise<{ slug: string }>;
@@ -43,6 +48,12 @@ export default async function ScalePage({ params }: ScalePageProps) {
   const genres = scale.usedIn
     .map((g) => getGenre(g))
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
+  const articles = getArticlesByScale(scale.slug);
+
+  // One linker for the page: a concept lights up at its first mention (lead,
+  // then history) and isn't repeated.
+  const linkTerms = makeTermLinker();
+  const word = getWord(scale.slug);
 
   const faqJsonLd = {
     "@context": "https://schema.org",
@@ -79,12 +90,13 @@ export default async function ScalePage({ params }: ScalePageProps) {
             {scale.kind === "mode" && <Badge variant="outline">Mode</Badge>}
             {soon && <Badge variant="secondary">Coming soon</Badge>}
           </div>
+          {word && <WordBanner word={word} />}
           <p className="mt-4 text-base leading-relaxed text-foreground">
-            {scale.answer}
+            {linkTerms(scale.answer)}
           </p>
           {scale.history && (
             <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-              {scale.history}
+              {linkTerms(scale.history)}
             </p>
           )}
         </header>
@@ -127,30 +139,20 @@ export default async function ScalePage({ params }: ScalePageProps) {
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
         </Link>
 
-        {genres.length > 0 && (
-          <section className="mt-10" aria-labelledby="heard-heading">
-            <h2
-              id="heard-heading"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Where you&apos;ll hear it
-            </h2>
-            <div className="mt-3 space-y-2">
-              {genres.map((genre) => (
-                <Link
-                  key={genre.slug}
-                  href={`/genres/${genre.slug}`}
-                  className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
-                >
-                  <span className="text-sm font-medium text-foreground">
-                    {genre.name}
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
+        <RelatedPages
+          heading="Related"
+          headingId="related-heading"
+          items={[
+            ...articles.map((article) => ({
+              href: `/history/${article.slug}`,
+              label: article.question,
+            })),
+            ...genres.map((genre) => ({
+              href: `/genres/${genre.slug}`,
+              label: genre.question,
+            })),
+          ]}
+        />
 
         {!Lesson && (
           <div className="mt-10 rounded-lg border border-dashed p-6 text-center">

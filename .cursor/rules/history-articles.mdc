@@ -1,0 +1,389 @@
+---
+description: Standards for writing and maintaining teaching content — history articles, genre/scale spokes, concepts, catalog entries, and loanwords (native spelling + pronounce). Use when adding or editing any of those, especially cross-links.
+globs: src/content/history/**,src/lib/history/**,src/components/history/**,src/lib/concepts/**,src/components/concepts/**,src/lib/catalog/**,src/components/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/words/**,src/components/words/**,src/lib/places/**,src/app/genres/**,src/app/scales/**,src/app/history/**,src/app/concepts/**,src/content/scales/**,src/content/concepts/**,src/components/genres/**,src/components/content/**
+alwaysApply: false
+---
+
+# Writing teaching content (history, genres, scales)
+
+The Musical History module (`/history`) tells *where a sound came from* as
+long-form, **sourced** prose — the counterpart to Genres/Scales, which show
+*how* it works. See `docs/plans/musical-history-module.md`. The blues article
+(`src/content/history/BluesHistory.tsx`) is the reference implementation.
+
+This is also our **house style for any long-form article/blog** we add later.
+The shared pieces are reusable: citations (`src/components/history/`), the song
+menu (`SongLink`), the inline player (`src/components/media/YouTubeEmbed.tsx`),
+the theory-term glossary (`<Term>` + `src/lib/concepts/registry.ts`), loanwords
+(`<Word>` / `<Term>` + `src/lib/words/registry.ts`), and the artists/songs
+catalog (`<ArtistLink>` + `src/lib/catalog/`).
+
+## The moving parts (do all of these to ship an article)
+
+1. **Registry entry** — `src/lib/history/registry.ts`: `slug`, `question`
+   (the `<h1>` + title), `summary` (hub card), `answer` (quotable lead —
+   mirrored into the meta description + FAQ JSON-LD, so it must be **true
+   standalone**), `genres`/`scales` (data cross-links), `sources`, `keywords`.
+2. **Body** — `src/content/history/<Name>.tsx`, a **server component** (no
+   `"use client"`) so quotes and footnotes ship in the static HTML.
+3. **Register it** — add the slug → component to `src/content/history/index.ts`.
+4. **Flip `status` to `"live"`** only once the body + real sources exist.
+   `"live"` enters the sitemap and search index; a live page with no body is
+   just a lead sentence.
+
+## Bidirectional links — three trees, always both ways
+
+Genres, scales, and history are siblings. A reader on any spoke must be
+able to walk to the other two. **Cross-links are data**, then the page
+renders them — never a one-off `<Link>` that the reverse page doesn't
+know about.
+
+| From | Declare on | Reverse lookup |
+|---|---|---|
+| Genre → scales | `Genre.scales` | `ScaleLesson.usedIn` |
+| Scale → genres | `ScaleLesson.usedIn` | `Genre.scales` |
+| History → genres / scales | `HistoryArticle.genres` / `.scales` | `getArticleByGenre` / `getArticlesByScale` |
+
+**When you add one side, add the other in the same change.** A scale that
+shows up in blues (`usedIn: ["blues"]`) must also appear on the blues
+genre (`scales: […, "that-slug"]`). A history article that discusses the
+blues scale must list `"blues-scale"` in `scales` so `/scales/blues-scale`
+grows a "Where did the blues come from?" card.
+
+Render those links with **`<RelatedPages>`**
+(`src/components/content/RelatedPages.tsx`) — the shared card list used
+by genre, scale, history, and concept spokes. Don't hand-roll a second
+card style. History pages show this list **even after the article body
+exists** ("Take it apart"); don't hide the reverse links behind `!Article`.
+
+Also link inline in article prose (first meaningful mention) to
+`/genres/<slug>` and `/scales/<slug>`. Inline links teach; the related
+footer is the guaranteed way back. `"soon"` spokes still get links —
+placeholders are doors, not dead ends.
+
+Concepts and catalog entries follow the same graph: if a concept or song
+belongs in the blues story, list `genres` / `scales` / `history` on that
+entry so `/concepts/<slug>`, `/songs/<slug>`, and `/artists/<slug>` grow
+the same cards.
+
+```ts
+// ❌ BAD — history knows the scale, the scale page can't find the article
+// history: { scales: ["blues-scale"] }
+// scale:   { usedIn: [] }          // genre missing
+// genre:   { scales: [] }          // scale missing
+
+// ✅ GOOD — both directions, same slugs
+// history: { genres: ["blues"], scales: ["blues-scale", "minor-pentatonic"] }
+// scale:   { usedIn: ["blues", "rock"] }
+// genre:   { scales: ["blues-scale", "minor-pentatonic"] }
+```
+
+## Sourcing — earn every claim
+
+- **Public-domain / openly-licensed first** (Library of Congress, National
+  Jukebox, archive.org, PD texts). Flag them `publicDomain: true`.
+- **Never fabricate** a URL, author, title, date, or quote. If you can't
+  verify it, **web-search to confirm** before citing — don't cite from memory.
+- **Quote briefly** for commentary, always with attribution and a link out.
+  Never reproduce a whole article. Non-PD works are fair use — note it (e.g.
+  `access: "Quoted briefly under fair use"`).
+- Keep the closing fair-use/attribution note at the foot of the article.
+
+## Citations — use the shared primitives
+
+Import from `src/components/history/citations.tsx`; don't hand-roll footnotes.
+
+- **`<Cite id sources />`** — inline `[n]`. Numbering derives from the source's
+  position in the registry `sources` array, so inline refs and the bibliography
+  can't drift. The `[n]` links straight to the source URL (new tab) when it has
+  one, else jumps to the bibliography anchor.
+- **`<Blockquote attribution cite sources>`** — short attributed quotes. The
+  **whole attribution line + `[n]`** is one clickable link (a big hit target),
+  via `<Cite label={attribution} …>`. Don't render a bare attribution string.
+- **`<SourceList sources />`** — the numbered bibliography; render it once at
+  the end. Order the `sources` array in first-appearance order.
+- Bind them to the article once: `const cite = (id) => <Cite id={id} sources={SOURCES} />`.
+
+## Songs get a menu to hear / open them
+
+Any **song named** in an article uses **`<SongLink id="<slug>" />`**
+(`src/components/history/SongLink.tsx`). It takes only the catalog slug — title,
+attribution, YouTube id, and Piano Roll link all come from the catalog (see the
+catalog section below). The title sits inline with a **YouTube icon** (YouTube
+red — `text-red-600` — so it reads as “play a video”). Clicking it opens a
+**full-width in-flow panel** (same width as the prose column — it pushes the
+body down; never an overlay) with:
+
+- **Open in Piano Roll** — `/piano-roll/<pianoRollId>`, opens a **new tab** and
+  shows a trailing **arrow**; **greyed out, no arrow** when the catalog song has
+  no `pianoRollId` (i.e. it isn't in the MIDI library `src/lib/songs`).
+- **Play on YouTube** — expands the reusable `YouTubeEmbed`
+  (`src/components/media/YouTubeEmbed.tsx`), so the user stays on the page.
+- **About “<song>” / More about <artist>** — cross-links to `/songs/<slug>` and
+  each `/artists/<slug>`, so the mention is a doorway into the catalog.
+
+Multiple songs can be open at once, and an open panel **stays open** (and its
+player keeps playing) until the user deliberately closes it — toggling the
+title again or pressing Escape — or navigates away. Don't reintroduce an
+outside-click / blur collapse: a stray click anywhere used to unmount the
+iframe and kill playback. But only **one plays at a time**: a newly
+opened player autoplays only if nothing else is sounding, and hitting play on a
+second song pauses the first (the `YouTubeEmbed`s cooperate via
+`youtubeConductor.ts` — don't reintroduce a bare autoplay iframe). List the
+article's song slugs in a `SONG_IDS` array and pass them to
+**`<SongJumpNav ids={SONG_IDS} />`**. Don't wrap a title **inside a direct
+quotation**. Reuse `YouTubeEmbed` anywhere a video should play in place.
+
+## Artists & songs get catalog entries (cross-referencing)
+
+Songs and the people who made them are **shared entities**, not article-local
+data. They live in the editorial catalog **`src/lib/catalog/`** so every mention
+across the app — this article, a genre page, another article — resolves to the
+same entry and cross-links back. (This is separate from `src/lib/songs`, the
+MIDI arrangements the Piano Roll plays; a catalog song points into it via
+`pianoRollId`.)
+
+- **`songs.ts`** — a `CatalogSong` per recording/composition: `slug`, `title`,
+  `artists` (artist slugs in credit order), `artistLabel?`, `year`, `youtubeId`
+  (**verified**, never from memory), `pianoRollId?` (only when it's a real id in
+  the MIDI library), `micro`, and `genres`/`history` slugs.
+- **`artists.ts`** — an `Artist` per person: `slug`, `name`, `era`, `micro`
+  (one-line bio, true standalone), longer `bio`, `genres`/`history` slugs, and
+  external `links` (encyclopedias/archives — verify URLs, don't fabricate).
+  Don't list an artist's songs; `songsByArtist()` derives them.
+- **Name a person in prose → wrap the first mention in
+  `<ArtistLink id="<slug>">Name</ArtistLink>`** (`src/components/catalog/`), the
+  artist counterpart to `<Term>`: dotted underline, click for a micro-bio + link
+  to `/artists/<slug>`. First meaningful mention only, not every one.
+  Registry strings (map place blurbs, genre `about`, scale `history`) go
+  through **`makeTermLinker()`**, which wraps catalog `name`s automatically
+  — adding the artist is enough for those surfaces. Hand-authored TSX still
+  needs `<ArtistLink>`.
+- Adding a song or artist is just a registry append — the `/songs` and
+  `/artists` hubs, spoke pages, and sitemap pick it up automatically. Set
+  `status: "live"` only once the entry is real.
+- Keep the catalog non-duplicative: reuse an existing `slug` rather than
+  inventing a second entry for the same song/person.
+
+## Theory terms get an inline definition
+
+When prose names a **music-theory concept** (pentatonic, blue notes,
+syncopation, 12-bar blues, shuffle…), wrap it in **`<Term id="…">`**
+(`src/components/concepts/Term.tsx`). The word gets a quiet dotted underline;
+clicking pops a one-line definition + a **"Full explanation →"** link. It's
+phrasing-level and a transient overlay (text only) — it never pushes the
+layout, unlike `SongLink`.
+
+- **Data lives in `src/lib/concepts/registry.ts`**, one `Concept` per term:
+  `micro` (the popover blurb — true standalone), optional longer `definition`
+  (glossary page body), `href`, and `scales`/`genres`/`history` cross-links.
+- **Two homes for "learn more."** If a term already has a richer page, set
+  `href` to it (e.g. `pentatonic` → `/scales/minor-pentatonic`) and it gets
+  **no** glossary stub. Otherwise it's glossary-owned: `href` is
+  `conceptHome(slug)` (`/concepts/<slug>`) and the `/concepts/[slug]` spoke
+  renders `definition` + "See it in action" cross-links. `GLOSSARY_CONCEPTS`
+  drives `generateStaticParams`; `LIVE_CONCEPTS` drives the sitemap.
+- **Link the first meaningful mention**, not every occurrence — over-linking
+  reads as noise. Pass children matching the prose
+  (`<Term id="syncopation">off-beat accent</Term>`); the `id` does the lookup.
+- **Terms *may* go inside a direct quotation** — unlike `<SongLink>`. When a
+  quotation itself names a concept (Kubik's *"characteristic pentatonic
+  system"*), that's a prime teaching moment: link it. The popover is a
+  transient text overlay showing *our* glossary blurb + "Full explanation →",
+  so it never alters the quoted words or puts them in the author's mouth. A
+  vivid quote counts as a meaningful mention worth a widget even if the concept
+  also appears in nearby body prose — don't leave the quote bare just to avoid a
+  second underline. (This is the one place we deliberately relax "first mention
+  only.") `<SongLink>` stays out of quotations — it opens a disruptive panel.
+- **Adding a concept:** append to `CONCEPTS` with a verified, plain-language
+  `micro` (never fabricate theory), and list its cross-links. New glossary-
+  owned terms are indexed automatically — no other wiring needed. Set the
+  optional `question` when `What is <term>?` reads badly (plurals/multi-word,
+  e.g. `steps` → "What are half steps and whole steps?"); `conceptQuestion()`
+  falls back to the default and feeds the `<h1>`, `<title>`, and FAQ JSON-LD.
+- **A concept page can carry an interactive demo.** For a concept you can
+  *play*, add a client widget to `src/content/concepts/` and map it in
+  `src/content/concepts/index.ts` (`getConceptContent(slug)`); the spoke renders
+  it in a "Play it" section between the definition and cross-links — same split
+  as scale lessons, so the registry stays free of client components. `steps`
+  is the reference: a one-octave **v2** `KeyboardV2` (never the v1 synth — see
+  the no-v1 rule) with half/whole-step buttons. Playing is the audio consent.
+- Reuse `<Term>` anywhere theory terms appear (genres, scales, lessons), not
+  just history.
+
+## Loanwords get a home spelling and a voice
+
+When prose uses a word from another language — Yiddish *krechtz*, Romanian
+*doina*, Hebrew *Ahava Rabbah* — **always** register it and show the native
+spelling. Don't leave a transliteration hanging; the reader should see how
+it's written at home.
+
+- **Data lives in `src/lib/words/registry.ts`**, one `SpokenWord` per
+  loanword: `latin` (how we write it in English), `alsoSpelled` (1–2
+  common English variants the reader will meet — *krechtz* / *krekhts*),
+  optional `aliases` (plurals and linker-only phrases), `native`
+  (`spelling`, `language`, `lang` BCP-47), and optional `audio` (see
+  below). Reuse an existing `id` rather than inventing a second entry for
+  the same word. If English spelling varies, fill `alsoSpelled` — the
+  banner and Term popover show them.
+
+### Pronunciation is a real human recording, or nothing
+
+- **Never synthesize speech.** The speaker button plays a verified human
+  recording only. A word with no recording shows its spelling with **no
+  speaker** — that's correct, not a gap to paper over with TTS.
+- **Set `audio` only after verifying** it's a real human saying the *matching*
+  word/sense and is openly licensed; then self-host in
+  `public/audio/words/<id>.mp3` and credit it in
+  `public/audio/words/ATTRIBUTION.md`. If you can't verify one, leave `audio`
+  off — never fabricate a URL or ship a synthetic voice.
+- **Where to find clips per language + how to verify** lives in its own rule:
+  `.cursor/rules/pronunciation-audio.mdc`. Update that catalog whenever you
+  add a language or find/rule-out a source.
+- **Never fabricate a spelling.** Use an attested form, or the standard
+  orthography of an attested Latin word (YIVO for Yiddish, Romanian
+  diacritics, unpointed Hebrew for prayer names). Cite the source in a
+  short comment on the entry. If you can't verify it, skip the native
+  script — don't guess letters.
+- **Theory terms that are loanwords** (`krechtz`, `doina`, `freygish`):
+  add the word with the **same id as the concept slug**. `<Term>` looks it
+  up and appends `(קרעכץ)` + the speaker *if a recording exists*. No extra
+  JSX.
+- **Loanwords that aren't concepts** (`klezmer`, `freylekhs`, `hora`):
+  wrap the first meaningful mention in **`<Word id="klezmer">klezmer</Word>`**
+  (`src/components/words/Word.tsx`). Same first-mention rule as `<Term>`.
+  Keep `<Word>` **out of direct quotations** (it's a control, like
+  `<SongLink>`).
+- **Spoke pages** (concept / genre / scale / history) pick up a banner
+  automatically when `getWord(slug)` hits — don't hand-roll a second
+  spelling line in the header.
+- **Hebrew / Yiddish next to English:** never put `dir="rtl"` on a box
+  that also holds Latin (language name, parentheses, "also spelled").
+  That flips `ms-*` and glues *Yiddish* to *קרעכץ*. Render the letters
+  with `<NativeScript>` (`src/components/words/NativeScript.tsx`); space
+  with an LTR flex `gap` or `ms-*` on an LTR wrapper.
+- **Registry strings** (`genre.about`, scale `history`, history `answer`,
+  place `music.blurb`) go through **`makeTermLinker()`**, which also wraps
+  first mentions of registered words and catalog artist names. Adding the
+  word to `WORDS` (with specific aliases) or the artist to `ARTISTS` is
+  enough for those pages. Hand-authored TSX still needs `<Word>` /
+  `<Term>` / `<ArtistLink>`.
+
+```tsx
+// ❌ BAD — transliteration only
+the little sobbing <em>krechtz</em>
+
+// ✅ GOOD — concept loanword (Term shows native + listen)
+the little sobbing <Term id="krechtz">krechtz</Term>
+
+// ✅ GOOD — not a concept
+<Word id="freylekhs">freylekhs</Word>
+```
+
+## Registry prose gets terms and loanwords via the auto-linker
+
+Hand-written `<Term>` only works in TSX. The genre `about`/`answer`, scale
+`history`/`answer`, and map place `music.blurb` are **plain strings** in the
+registries, so they can't hold JSX. To light those up, render them through
+**`makeTermLinker()`** (`src/components/concepts/autoTerm.tsx`) instead of
+printing the raw string:
+
+```tsx
+const linkTerms = makeTermLinker();   // one per page
+<p>{linkTerms(genre.answer)}</p>
+<p>{linkTerms(genre.about)}</p>
+```
+
+- It wraps the **first occurrence** of each registry concept (matched on `term`
+  + `aliases`, longest phrase wins) in a `<Term>`, each other loanword in
+  a `<Word>`, and each catalog artist `name` in an `<ArtistLink>`. **One
+  linker per page** — share it across the lead and body so a concept, word,
+  or artist links once, not once per paragraph (same "first meaningful
+  mention" rule as hand-authoring).
+- It's a plain function returning nodes (no hooks), so pages **stay server
+  components** and the prose text still ships in static HTML. `<Term>` /
+  `<Word>` / `<ArtistLink>` are the only client leaves.
+- It's **opt-in**: a page must call it. Don't auto-link deep in shared UI where
+  an author can't see what lit up. Registry descriptions are our own prose (not
+  quotations), so there's no direct-quote exception to worry about — but if you
+  add a field that can contain a quotation, don't run it through the linker.
+- Widening coverage is cheap: **add the concept to `CONCEPTS`**, the
+  loanword to `WORDS` (with sensible `aliases`), and/or the person to
+  `ARTISTS`, and every registry description that mentions them lights up.
+  Keep aliases specific enough not to false-match common words. Artist
+  names match the catalog `name` only — write the full name in the blurb
+  ("Abe Schwartz", not "Schwartz").
+
+## Reader navigation & motion
+
+- Render **`<SongJumpNav songs={SONGS} />`** at the top of the body (just under
+  the lead). It's a **quiet, collapsible contents line** (muted text +
+  chevron — *not* a boxed card), so it reads as part of the essay.
+- Jumping to a song scrolls it to the **vertical center** of the viewport
+  (`block: "center"`), not under the header, and updates the URL hash.
+- On arrival the song title plays a short **"find me" highlight** (~2.8s soft
+  glow + underline) so the eye can locate it in the prose. Honor
+  `prefers-reduced-motion` (via `useReducedMotion`) — show a static marked
+  state instead of the pulse. Timing follows the calm-motion house rules.
+
+## Predecessors — every genre has them; name them
+
+Almost every genre evolved out of earlier music. **Every history article
+must include a predecessors section** (near the top, before the genre
+“takes its familiar shape”) that:
+
+1. **Names the earlier traditions** — scales, forms, practices, regions —
+   that fed the sound. Don’t collapse them into a slogan (“from Mali to
+   Mississippi”). Name traits (call-and-response, pentatonic pitch,
+   bent notes, a dance rhythm) and say they were *carried and remade*,
+   not that the later genre already existed overseas.
+2. **Links across the app** whenever a predecessor (or descendant) has a
+   page — even a `"soon"` placeholder. Typical targets:
+   - `/scales/<slug>` for a predecessor or related scale
+   - `/genres/<slug>` for a parent, foil, or child genre
+   - `/history/<slug>` for that genre’s history article, if one exists
+   - `/scales` or `/genres` hubs when the specific spoke isn’t written yet
+3. **Covers other inspirations too** — not only the main ancestral line
+   (e.g. Anglo-European ballads and guitar harmony next to West African
+   pitch practice). Same rule: cite, don’t invent a single-origin myth.
+
+If we don’t yet have a page for a predecessor, still name it and cite
+an external source. When that page lands, come back and add the link.
+
+## Voice & honesty (Instrumaps: calm, precise, honest)
+
+- **Don't launder legend as fact.** Where the popular story is contested, say
+  so and cite the scholarship — e.g. the blues was not simply "born in the
+  Delta from hardship."
+- **Distinguish ancestry from category.** A thing can be *secular* (what the
+  music is about) yet descend from *sacred* sources (spirituals). Name the
+  distinction rather than letting the words look contradictory.
+- Prose is plain TSX + Tailwind (no `prose` plugin): `H2` = `text-lg font-semibold`,
+  body = `text-sm leading-relaxed text-muted-foreground`. Link inline to the
+  matching `/genres/<slug>` and `/scales/<slug>` pages.
+
+## Keep the short blurbs in sync
+
+The article is the source of truth. When it establishes a fact, reconcile the
+**shorter versions** so the app never contradicts itself: the genre `answer` /
+`about` (`src/lib/genres/registry.ts`), the scale `history`
+(`src/lib/scales/registry.ts`), and this article's own `summary` / `answer`.
+After a new claim, also sweep the concept `micro`/`definition` and catalog
+`micro`/`bio` that retell it.
+
+## Before you finish
+
+- Both sides of every new cross-link exist (genre `scales` ↔ scale `usedIn`;
+  history `genres`/`scales` ↔ `getArticleByGenre` / `getArticlesByScale`).
+- The spoke page actually *renders* those links via `<RelatedPages>` (or the
+  genre header history line). A registry field with no UI is an unfinished
+  link.
+- Every new loanword is in `WORDS` with a verified native spelling, and its
+  first mention in hand-authored TSX is wrapped (`<Term>` if it's also a
+  concept, otherwise `<Word>`). `audio` only if a verified human clip exists
+  (see `.cursor/rules/pronunciation-audio.mdc`); otherwise no speaker.
+- If you added a **language**, found/ruled-out a **source**, or shipped a
+  **clip**, update `.cursor/rules/pronunciation-audio.mdc` in this change.
+- `npx tsc --noEmit`, and check lints on touched files.
+- The body must stay server-rendered (crawlable). Don't add `"use client"`
+  just to embed a widget — lift the widget into its own client component.

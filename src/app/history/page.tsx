@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, BookOpen } from "lucide-react";
 
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
+import { NativeSpelling } from "@/components/words/NativeSpelling";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -65,6 +66,10 @@ export default function HistoryPage() {
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-base">
                           {article.name}
+                          <NativeSpelling
+                            id={article.slug}
+                            className="ms-2 text-sm"
+                          />
                         </CardTitle>
                         {soon && <Badge variant="secondary">Soon</Badge>}
                       </div>

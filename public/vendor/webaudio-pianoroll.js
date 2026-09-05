@@ -83,6 +83,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 }
 :host {
     user-select: none;
+    -webkit-touch-callout: none;
     display: inline-block;
     font-family: sans-serif;
     font-size: 11px;
@@ -96,6 +97,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
     width: 100%;
     height: 100%;
     overflow: hidden;
+    -webkit-touch-callout: none;
 }
 #wac-pianoroll {
     cursor: pointer;
@@ -109,14 +111,35 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 #wac-menu {
     display:none;
     position:absolute;
-    top:0px;
-    left:0px;
-    background:#eef;
-    color:#000;
-    padding:2px 10px;
-    border:1px solid #66f;
-    border-radius: 4px;
+    z-index:20;
+    top:0;
+    left:0;
+    min-width:7rem;
+    padding:4px;
+    background:#0a0a0a;
+    color:#fafafa;
+    border:1px solid #262626;
+    border-radius:6px;
+    box-shadow:0 8px 24px rgba(0,0,0,0.45);
+    font-size:12px;
+    line-height:1;
+    cursor:default;
+}
+#wac-menu button {
+    display:block;
+    width:100%;
+    margin:0;
+    padding:6px 8px;
+    border:0;
+    border-radius:4px;
+    background:transparent;
+    color:#ef4444;
+    font:inherit;
+    text-align:left;
     cursor:pointer;
+}
+#wac-menu button:hover {
+    background:rgba(239, 68, 68, 0.12);
 }
 .marker{
     position: absolute;
@@ -142,7 +165,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 <img id="wac-markend" class="marker" src="${this.markendsrc}"/>
 <img id="wac-cursor" class="marker" src="${this.cursorsrc}"/>
 <div id="wac-kbhighlight" style="position:absolute; left:0; pointer-events:none; background:rgba(234, 88, 12, 0.4); display:none;"></div>
-<div id="wac-menu">Delete</div>
+<div id="wac-menu" role="menu"><button type="button" role="menuitem">Delete</button></div>
 </div>`;
 
         this.sortSequence=function(){
@@ -247,6 +270,8 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             if(this.timer)
                 clearInterval(this.timer);
             this.timer=null;
+            this._soundingSig="";
+            this.redraw();
         };
         this.setMMLString=function(s){
             this.sequence=[];
@@ -508,6 +533,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 if(ev.f)
                     this.sequence.splice(i,1);
             }
+            this.notifySelection();
         };
         this.moveSelectedNote=function(dt,dn){
             const l=this.sequence.length;
@@ -555,6 +581,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.sequence[i].f=0;
             }
             if (this.onNoteSelect) this.onNoteSelect(null);
+            this.notifySelection();
         };
         this.selectedNotes=function(){
             let obj=[];
@@ -564,6 +591,18 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     obj.push({i:i, ev:ev, t:ev.t, g:ev.g});
             }
             return obj;
+        };
+        this.selectedCount=function(){
+            let c=0;
+            for(let i=0;i<this.sequence.length;++i)
+                if(this.sequence[i].f) ++c;
+            return c;
+        };
+        // Report how many notes are selected so the host can enable/disable
+        // its Delete control. Kept separate from onNoteSelect (preview sound).
+        this.notifySelection=function(){
+            if(this.onSelectionChanged)
+                this.onSelectionChanged(this.selectedCount());
         };
         this.editDragDown=function(pos){
             const ht=this.hitTest(pos);
@@ -769,6 +808,20 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.kbhighlight=this.elem.children[5];
             this.menu=this.elem.children[6];
             this.rcMenu={x:0, y:0, width:0, height:0};
+            this.menuOpen=false;
+            this.keepMenuOpen=false;
+            // Trash-can cursor for eraser mode: white icon with a dark halo so
+            // it reads on the dark grid. Drawn twice (black under, white over).
+            (function(self){
+                const P="<path d='M3 6h18'/>"
+                    +"<path d='M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6'/>"
+                    +"<path d='M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2'/>"
+                    +"<path d='M10 11v6'/><path d='M14 11v6'/>";
+                const svg="<svg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke-linecap='round' stroke-linejoin='round'>"
+                    +"<g stroke='%23000' stroke-width='3.5'>"+P+"</g>"
+                    +"<g stroke='%23fff' stroke-width='1.75'>"+P+"</g></svg>";
+                self.eraserCursorCss="url(\"data:image/svg+xml,"+svg+"\") 12 12, crosshair";
+            })(this);
             this.lastx=0;
             this.lasty=0;
             this.canvas.addEventListener('mousemove',this.mousemove.bind(this),false);
@@ -817,8 +870,10 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     }
                     this.lastState = this.undoStack.pop();
                     this.sequence = JSON.parse(this.lastState);
+                    this.hideMenu();
                     this.redraw();
                     if (this.onNoteSelect) this.onNoteSelect(null);
+                    this.notifySelection();
                     const ev = new CustomEvent('historychange', { detail: { canUndo: this.undoStack.length > 0, canRedo: this.redoStack.length > 0 }});
                     this.dispatchEvent(ev);
                 }
@@ -828,8 +883,10 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     this.undoStack.push(this.lastState);
                     this.lastState = this.redoStack.pop();
                     this.sequence = JSON.parse(this.lastState);
+                    this.hideMenu();
                     this.redraw();
                     if (this.onNoteSelect) this.onNoteSelect(null);
+                    this.notifySelection();
                     const ev = new CustomEvent('historychange', { detail: { canUndo: this.undoStack.length > 0, canRedo: this.redoStack.length > 0 }});
                     this.dispatchEvent(ev);
                 }
@@ -855,8 +912,9 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.lastx=e.clientX-this.rcTarget.left;
                 this.lasty=e.clientY-this.rcTarget.top;
             }
-            if(this.lastx>=this.rcMenu.x&&this.lastx<this.rcMenu.x+this.rcMenu.width
-                    &&this.lasty>=this.rcMenu.y&&this.lasty<this.rcMenu.y+this.rcMenu.height)
+            if((this.menu && this.menu.contains(t))
+                    || (this.lastx>=this.rcMenu.x&&this.lastx<this.rcMenu.x+this.rcMenu.width
+                    &&this.lasty>=this.rcMenu.y&&this.lasty<this.rcMenu.y+this.rcMenu.height))
                 t=this.menu;
             return {t:t, x:this.lastx, y:this.lasty};
         };
@@ -870,46 +928,135 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             switch(e.keyCode){
             case 8: // Backspace
             case 46://delNote
+                if(this.allowEdits===false){
+                    if(this.onEditBlocked) this.onEditBlocked();
+                    break;
+                }
                 this.delSelectedNote();
+                this.hideMenu();
                 this.redraw();
                 if(this.saveState) this.saveState();
                 break;
             }
         };
+        this.isNoteHit=function(m){
+            return m==="N" || m==="n" || m==="E" || m==="B";
+        };
+        this.hideMenu=function(){
+            if(!this.menu) return;
+            this.menu.style.display="none";
+            this.rcMenu={x:0,y:0,width:0,height:0};
+            this.menuOpen=false;
+            this.keepMenuOpen=false;
+        };
         this.popMenu=function(pos){
             const s=this.menu.style;
-            s.display="block";
-            s.top=(pos.y+8)+"px";
-            s.left=(pos.x+8)+"px";
-            this.rcMenu=this.menu.getBoundingClientRect();
-        };
-        this.longtapcountup=function(){
-            if(++this.longtapcount >= 18){
-                clearInterval(this.longtaptimer);
-                switch(this.downht.m){
-                case "N":
-                case "B":
-                case "E":
-                    this.popMenu(this.downpos);
-                    this.dragging={o:"m"};
-                    break;
-                }
+            const ev=(this.downht && this.downht.i>=0) ? this.sequence[this.downht.i] : null;
+            let left=pos.x+8;
+            let top=pos.y+8;
+            if(ev && this.stepw && this.steph){
+                // Sit just to the right of the note; flip to the left if it would clip.
+                const noteRight=(ev.t+ev.g-this.xoffset)*this.stepw+this.yruler+this.kbwidth;
+                const noteTop=this.height-(ev.n-this.yoffset+1)*this.steph;
+                left=noteRight+6;
+                top=noteTop;
             }
+            s.display="block";
+            const menuW=this.menu.offsetWidth||112;
+            const menuH=this.menu.offsetHeight||32;
+            if(left+menuW>this.width)
+                left=ev
+                    ? Math.max(this.yruler+this.kbwidth, (ev.t-this.xoffset)*this.stepw+this.yruler+this.kbwidth-menuW-6)
+                    : Math.max(0, this.width-menuW-4);
+            if(top+menuH>this.height) top=this.height-menuH-4;
+            if(top<this.xruler) top=this.xruler;
+            s.top=top+"px";
+            s.left=left+"px";
+            this.rcMenu={x:left,y:top,width:this.menu.offsetWidth||menuW,height:this.menu.offsetHeight||menuH};
+            this.menuOpen=true;
+        };
+        this.selectHitNote=function(){
+            if(!this.downht || this.downht.i<0) return;
+            const ev=this.sequence[this.downht.i];
+            if(!ev) return;
+            if(!ev.f){
+                this.clearSel();
+                ev.f=1;
+            }
+            if(this.onNoteSelect) this.onNoteSelect(ev);
+            this.notifySelection();
+            this.redraw();
+        };
+        // Touch has no right-click. Hold ~500ms on a note to open the menu.
+        // Finger jitter under 8px still counts as a hold, not a drag.
+        this.HOLD_MS=500;
+        this.HOLD_MOVE=8;
+        this.clearHoldWatch=function(){
+            if(this.holdTimer){
+                clearTimeout(this.holdTimer);
+                this.holdTimer=null;
+            }
+        };
+        this.startHoldWatch=function(){
+            this.clearHoldWatch();
+            if(this.allowEdits===false || this.editmode==="eraser") return;
+            if(!this.downht || !this.isNoteHit(this.downht.m)) return;
+            this.holdTimer=setTimeout(()=>{
+                this.holdTimer=null;
+                if(this.allowEdits===false || this.editmode==="eraser") return;
+                if(!this.downht || !this.isNoteHit(this.downht.m)) return;
+                this.selectHitNote();
+                this.popMenu(this.downpos);
+                this.dragging={o:"M"};
+                this.keepMenuOpen=true;
+            }, this.HOLD_MS);
         };
         this.pointerdown=function(ev) {
             let e;
             if(!this.enable)
                 return;
+            const isTouch=!!(ev.touches || ev.pointerType==="touch");
+            if(isTouch)
+                this.lastTouchAt=Date.now();
+            else if(this.lastTouchAt && Date.now()-this.lastTouchAt<800){
+                // Ghost mouse click after a touch — the hold already owns this gesture.
+                ev.preventDefault();
+                ev.stopPropagation();
+                return false;
+            }
+            this.touchGesture=isTouch;
             if(ev.touches)
                 e = ev.touches[0];
             else
                 e = ev;
             this.rcTarget=this.canvas.getBoundingClientRect();
             this.downpos=this.getPos(e);
-            this.downht=this.hitTest(this.downpos);
 
-            this.longtapcount = 0;
-            this.longtaptimer = setInterval(this.longtapcountup.bind(this),100);
+            // Open menu: Delete is a real click, not a press-and-slide.
+            if(this.menuOpen){
+                if(this.downpos.t==this.menu){
+                    this.delSelectedNote();
+                    this.hideMenu();
+                    this.redraw();
+                    if(this.saveState) this.saveState();
+                    if(this.onNoteSelect) this.onNoteSelect(null);
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    return false;
+                }
+                this.hideMenu();
+                this.downht=this.hitTest(this.downpos);
+                // Clicking empty grid dismisses the menu without painting a note.
+                if(!this.isNoteHit(this.downht.m) && !(e.button==2||e.ctrlKey)){
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    return false;
+                }
+            } else {
+                this.downht=this.hitTest(this.downpos);
+            }
+
+            if(this.touchGesture) this.startHoldWatch();
             window.addEventListener("touchmove", this.bindpointermove,false);
             window.addEventListener("mousemove",this.bindpointermove,false);
             window.addEventListener("touchend",this.bindcancel);
@@ -917,17 +1064,15 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             window.addEventListener("contextmenu",this.bindcontextmenu);
 
             if(e.button==2||e.ctrlKey){
-                switch(this.downht.m){
-                case "N":
-                case "B":
-                case "E":
+                if(this.allowEdits===false){
+                    if(this.isNoteHit(this.downht.m) && this.onEditBlocked) this.onEditBlocked();
+                } else if(this.editmode!=="eraser" && this.isNoteHit(this.downht.m)){
+                    this.selectHitNote();
                     this.popMenu(this.downpos);
-                    this.dragging={o:"m"};
-                    break;
-                default:
-                    if(this.editmode=="dragmono"||this.editmode=="dragpoly")
-                        this.dragging={o:"A",p:this.downpos,p2:this.downpos,t1:this.downht.t,n1:this.downht.n};
-                    break;
+                    this.dragging={o:"M"};
+                    this.keepMenuOpen=true;
+                } else if(this.editmode=="dragmono"||this.editmode=="dragpoly"){
+                    this.dragging={o:"A",p:this.downpos,p2:this.downpos,t1:this.downht.t,n1:this.downht.n};
                 }
                 ev.preventDefault();
                 ev.stopPropagation();
@@ -936,12 +1081,17 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             switch(e.target){
             case this.markendimg:
-                this.dragging={o:"E",x:this.downpos.x,m:this.markend};
-                ev.preventDefault();
-                ev.stopPropagation();
-                return false;
             case this.markstartimg:
-                this.dragging={o:"S",x:this.downpos.x,m:this.markstart};
+                if(this.allowEdits===false){
+                    if(this.onEditBlocked) this.onEditBlocked();
+                    ev.preventDefault();
+                    ev.stopPropagation();
+                    return false;
+                }
+                if(e.target===this.markendimg)
+                    this.dragging={o:"E",x:this.downpos.x,m:this.markend};
+                else
+                    this.dragging={o:"S",x:this.downpos.x,m:this.markstart};
                 ev.preventDefault();
                 ev.stopPropagation();
                 return false;
@@ -953,18 +1103,24 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             }
             this.dragging={o:null,x:this.downpos.x,y:this.downpos.y,offsx:this.xoffset,offsy:this.yoffset};
             this.canvas.focus();
-            switch(this.editmode){
-            case "gridpoly":
-            case "gridmono":
-                this.editGridDown(this.downpos);
-                break;
-            case "dragpoly":
-            case "dragmono":
-                this.editDragDown(this.downpos);
-                break;
-            case "eraser":
-                this.editEraserDown(this.downpos);
-                break;
+            // Listen mode while playing: don't steal the camera from the
+            // playhead. Ruler / keyboard still work (handled above).
+            if(this.allowEdits===false && this.timer){
+                this.dragging={o:"W"};
+            } else if(this.allowEdits!==false){
+                switch(this.editmode){
+                case "gridpoly":
+                case "gridmono":
+                    this.editGridDown(this.downpos);
+                    break;
+                case "dragpoly":
+                case "dragmono":
+                    this.editDragDown(this.downpos);
+                    break;
+                case "eraser":
+                    this.editEraserDown(this.downpos);
+                    break;
+                }
             }
             this.press = 1;
             if(ev.preventDefault)
@@ -978,8 +1134,10 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 this.rcTarget=this.canvas.getBoundingClientRect();
                 const pos=this.getPos(e);
                 const ht=this.hitTest(pos);
-                if (this.editmode === "eraser" && ["N", "n", "E", "B"].includes(ht.m)) {
-                    this.canvas.style.cursor="crosshair";
+                if(this.allowEdits===false && ht.m!=="y" && ht.m!=="x"){
+                    this.canvas.style.cursor="grab";
+                } else if (this.editmode === "eraser" && ht.m!=="x" && ht.m!=="y") {
+                    this.canvas.style.cursor=this.eraserCursorCss||"crosshair";
                 } else {
                     switch(ht.m){
                         case "E": this.canvas.style.cursor="e-resize"; break;
@@ -993,7 +1151,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                             break;
                         }
                         default: 
-                            this.canvas.style.cursor = this.editmode === "eraser" ? "crosshair" : "default"; 
+                            this.canvas.style.cursor = "default"; 
                             break;
                     }
                 }
@@ -1006,16 +1164,19 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 e = ev.touches[0];
             else
                 e = ev;
-            if(this.longtaptimer)
-                clearInterval(this.longtaptimer);
             const pos=this.getPos(e);
+            if(this.holdTimer && this.downpos
+                && (Math.abs(pos.x-this.downpos.x)>this.HOLD_MOVE
+                    || Math.abs(pos.y-this.downpos.y)>this.HOLD_MOVE)){
+                this.clearHoldWatch();
+            }
             const ht=this.hitTest(pos);
             switch(this.dragging.o){
             case null:
-                if(this.xscroll)
-                    this.xoffset=this.dragging.offsx+(this.dragging.x-pos.x)*(this.xrange/this.width);
-                if(this.yscroll)
-                    this.yoffset=this.dragging.offsy+(pos.y-this.dragging.y)*(this.yrange/this.height);
+                if(this.xscroll || this.allowEdits===false)
+                    this.xoffset=Math.max(0, this.dragging.offsx+(this.dragging.x-pos.x)*(this.xrange/this.width));
+                if(this.yscroll || this.allowEdits===false)
+                    this.yoffset=Math.max(0, Math.min(128-this.yrange, this.dragging.offsy+(pos.y-this.dragging.y)*(this.yrange/this.height)));
                 break;
             case "m":
                 if(ht.m=="m"){
@@ -1070,12 +1231,22 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                 e = null;
             else
                 e = ev;
-            if(this.longtaptimer)
-                clearInterval(this.longtaptimer);
+            this.clearHoldWatch();
             const pos=this.getPos(e);
+            if(this.keepMenuOpen){
+                this.keepMenuOpen=false;
+                this.dragging={o:null};
+                this.press=0;
+                window.removeEventListener('touchstart',this.preventScroll,false);
+                window.removeEventListener("mousemove",this.bindpointermove,false);
+                window.removeEventListener("touchend",this.bindcancel,false);
+                window.removeEventListener("mouseup",this.bindcancel,false);
+                ev.preventDefault();
+                ev.stopPropagation();
+                return false;
+            }
             if(this.dragging.o=="m"){
-                this.menu.style.display="none";
-                this.rcMenu={x:0,y:0,width:0,height:0};
+                this.hideMenu();
                 if(pos.t==this.menu)
                     this.delSelectedNote();
                 this.redraw();
@@ -1113,9 +1284,37 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 //            }
             this.dragging={o:null};
             if(this.press){
-                this.sortSequence();
-                if(this.saveState) this.saveState();
+                const tapped = pos && this.downpos
+                    && Math.abs(pos.x-this.downpos.x)<5
+                    && Math.abs(pos.y-this.downpos.y)<5;
+                if(this.allowEdits===false){
+                    // Browse: pans don't save. A tap that would have painted
+                    // asks the host to show the Edit helper.
+                    if(tapped){
+                        if(this.downht && this.isNoteHit(this.downht.m)){
+                            if(this.editmode==="eraser"){
+                                if(this.onEditBlocked) this.onEditBlocked();
+                            } else if(this.onNoteSelect && this.downht.i>=0){
+                                this.onNoteSelect(this.sequence[this.downht.i]);
+                            }
+                        } else if(this.downht && (this.downht.m==="s" || this.editmode==="eraser")){
+                            if(this.onEditBlocked) this.onEditBlocked();
+                        }
+                    }
+                } else {
+                    this.sortSequence();
+                    if(this.saveState) this.saveState();
+                    // Mouse click (no drag) opens the menu. Touch taps do not —
+                    // phones have no right-click; hold the note instead.
+                    if(!this.touchGesture
+                        && this.editmode!=="eraser"
+                        && this.downht && this.isNoteHit(this.downht.m)
+                        && tapped){
+                        this.popMenu(this.downpos);
+                    }
+                }
             }
+            if(this.press) this.notifySelection();
             this.press = 0;
 //            this.mousemove(e);
             window.removeEventListener('touchstart',this.preventScroll,false);
@@ -1133,6 +1332,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
 //            window.removeEventListener("contextmenu",this.contextmenu);
         };
         this.wheel=function(e) {
+            this.hideMenu();
             let delta = 0;
             const pos=this.getPos(e);
             if(!e)
@@ -1305,7 +1505,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, -this.steph);
                     }
                     
-                    if (this.pressedKey === y) {
+                    if (this.pressedKey === y || (this.soundingPitches && this.soundingPitches[y])) {
                         this.ctx.fillStyle = "rgba(234, 88, 12, 0.4)"; 
                         this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, -this.steph);
                     }
@@ -1350,7 +1550,7 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         this.ctx.fillStyle = this.lockToScale ? "#404040" : "#262626";
                     }
                     
-                    if (this.pressedKey === y) {
+                    if (this.pressedKey === y || (this.soundingPitches && this.soundingPitches[y])) {
                         this.ctx.fillStyle = "rgba(234, 88, 12, 0.9)";
                     }
                     this.ctx.fillRect(this.yruler, ys|0, this.kbwidth * 0.6, -this.steph);
@@ -1393,12 +1593,25 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
             this.steph = this.sheight/this.yrange;
             
             this.kbhighlight.style.display = "none";
+
+            // Pitches under the playhead (listen mode and edit mode alike).
+            this.soundingPitches=null;
+            if(this.timer && isFinite(this.cursor)){
+                this.soundingPitches=Object.create(null);
+                for(let i=0;i<this.sequence.length;++i){
+                    const ev=this.sequence[i];
+                    if(this.cursor>=ev.t && this.cursor<ev.t+ev.g)
+                        this.soundingPitches[ev.n]=1;
+                }
+            }
             
             this.redrawGrid();
             const l=this.sequence.length;
             for(let s=0; s<l; ++s){
                 const ev=this.sequence[s];
-                if(ev.f)
+                const sounding=this.soundingPitches && this.soundingPitches[ev.n]
+                    && this.cursor>=ev.t && this.cursor<ev.t+ev.g;
+                if(ev.f || sounding)
                     this.ctx.fillStyle=this.colnotesel;
                 else
                     this.ctx.fillStyle=this.colnote;

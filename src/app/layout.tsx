@@ -3,6 +3,7 @@ import Link from "next/link";
 import "./globals.css";
 import { TooltipProvider } from "@/components/TooltipContext";
 import { AudioContextProvider } from "@/contexts";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 import { NavMenu } from "@/components/navigation";
 import { APP_NAME } from "@/lib/navigation";
 
@@ -78,26 +79,28 @@ export default function RootLayout({
         aria-label="Instrumaps — interactive music-theory tools"
       >
         <AudioContextProvider>
-          <TooltipProvider>
-            <NavMenu />
-            {children}
+          <AuthProvider>
+            <TooltipProvider>
+              <NavMenu />
+              {children}
             {/* mt-auto pins the footer to the viewport bottom on short
                 pages; the inner pt-24 guarantees generous air between
                 the content and the footer rule either way. */}
-            <footer className="mt-auto pt-24">
-              <div className="border-t border-border/60 px-6 py-4">
-                <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2 text-center font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:text-left">
-                  <Link
-                    href="/about"
-                    className="transition-colors hover:text-foreground md:order-2 md:text-right"
-                  >
-                    About the developer
-                  </Link>
-                  <p className="md:order-1">© {new Date().getFullYear()} {APP_NAME}</p>
+              <footer className="mt-auto pt-24">
+                <div className="border-t border-border/60 px-6 py-4">
+                  <div className="mx-auto flex w-full max-w-5xl flex-col items-center gap-2 text-center font-mono text-xs text-muted-foreground md:flex-row md:items-center md:justify-between md:text-left">
+                    <Link
+                      href="/about"
+                      className="transition-colors hover:text-foreground md:order-2 md:text-right"
+                    >
+                      About the developer
+                    </Link>
+                    <p className="md:order-1">© {new Date().getFullYear()} {APP_NAME}</p>
+                  </div>
                 </div>
-              </div>
-            </footer>
-          </TooltipProvider>
+              </footer>
+            </TooltipProvider>
+          </AuthProvider>
         </AudioContextProvider>
       </body>
     </html>

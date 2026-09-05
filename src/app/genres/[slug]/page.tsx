@@ -1,16 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, BookOpen, Hammer } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
 
-import {
-  GENRES,
-  getGenre,
-  LAYER_INFO,
-} from "@/lib/genres/registry";
+import { GENRES, getGenre } from "@/lib/genres/registry";
 import { getArticleByGenre } from "@/lib/history/registry";
 import { getScale } from "@/lib/scales/registry";
 import { Badge } from "@/components/ui/badge";
+import { GenreLayers } from "@/components/genres/GenreLayers";
+import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { RelatedPages } from "@/components/content/RelatedPages";
+import { WordBanner } from "@/components/words/WordBanner";
+import { getWord } from "@/lib/words/registry";
 
 interface GenrePageProps {
   params: Promise<{ slug: string }>;
@@ -48,8 +49,12 @@ export default async function GenrePage({ params }: GenrePageProps) {
   const scales = genre.scales
     .map((s) => getScale(s))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
-  const foil = genre.compareWith ? getGenre(genre.compareWith) : undefined;
   const history = getArticleByGenre(genre.slug);
+
+  // Light up theory terms in the prose. One linker for the whole page, so each
+  // concept is linked at its first mention (lead, then body) and not repeated.
+  const linkTerms = makeTermLinker();
+  const word = getWord(genre.slug);
 
   // FAQ schema — the question this page answers, in a form answer engines
   // lift and cite. Honest: the on-page lead is the same text.
@@ -87,13 +92,14 @@ export default async function GenrePage({ params }: GenrePageProps) {
             </h1>
             {soon && <Badge variant="secondary">Coming soon</Badge>}
           </div>
+          {word && <WordBanner word={word} />}
           {/* Lead answer: the quotable definition, in real HTML so crawlers
               and answer engines see it without running the app. */}
           <p className="mt-4 text-base leading-relaxed text-foreground">
-            {genre.answer}
+            {linkTerms(genre.answer)}
           </p>
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            {genre.about}
+            {linkTerms(genre.about)}
           </p>
           {history && (
             <Link
@@ -114,70 +120,39 @@ export default async function GenrePage({ params }: GenrePageProps) {
           >
             What makes it {genre.name.toLowerCase()}
           </h2>
-          <ol className="mt-3 space-y-2">
-            {genre.signatureLayers.map((layer, i) => (
-              <li
-                key={layer}
-                className="flex gap-3 rounded-md border bg-muted/20 p-3"
-              >
-                <span className="font-mono text-xs text-muted-foreground">
-                  {i + 1}
-                </span>
-                <div>
-                  <span className="font-mono text-xs uppercase tracking-wide text-foreground">
-                    {LAYER_INFO[layer].label}
-                  </span>
-                  <p className="mt-0.5 text-sm text-muted-foreground">
-                    {LAYER_INFO[layer].blurb}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
+          <GenreLayers
+            layers={genre.signatureLayers}
+            defaultOpen={genre.slug === "blues" ? "scale" : undefined}
+            scales={scales.map((scale) => ({
+              slug: scale.slug,
+              name: scale.name,
+              question: scale.question,
+              answer: scale.answer,
+              formula: scale.formula,
+              exampleKey: scale.exampleKey,
+              exampleNotes: scale.exampleNotes,
+            }))}
+          />
         </section>
 
-        {scales.length > 0 && (
-          <section className="mt-10" aria-labelledby="scale-heading">
-            <h2
-              id="scale-heading"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              The scale behind it
-            </h2>
-            <div className="mt-3 space-y-2">
-              {scales.map((scale) => (
-                <Link
-                  key={scale.slug}
-                  href={`/scales/${scale.slug}`}
-                  className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
-                >
-                  <span>
-                    <span className="text-sm font-medium text-foreground">
-                      {scale.name}
-                    </span>
-                    <span className="mt-0.5 block font-mono text-xs text-muted-foreground">
-                      {scale.formula}
-                    </span>
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              ))}
-            </div>
-          </section>
-        )}
-
-        <div className="mt-10 rounded-lg border border-dashed p-6 text-center">
-          <Hammer
-            className="mx-auto h-5 w-5 text-muted-foreground"
-            strokeWidth={1.75}
-          />
-          <p className="mt-3 text-sm text-muted-foreground">
-            The interactive layers — a playable groove, a lit-up 12-bar map, and
-            {foil ? ` a same-tempo comparison with ${foil.name.toLowerCase()},` : ""}{" "}
-            are being built. This page will let you hear each one, not just read
-            about it.
-          </p>
-        </div>
+        <RelatedPages
+          heading="Related"
+          headingId="related-heading"
+          items={[
+            ...(history
+              ? [
+                  {
+                    href: `/history/${history.slug}`,
+                    label: history.question,
+                  },
+                ]
+              : []),
+            ...scales.map((scale) => ({
+              href: `/scales/${scale.slug}`,
+              label: scale.question,
+            })),
+          ]}
+        />
       </div>
     </main>
   );

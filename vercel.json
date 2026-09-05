@@ -15,6 +15,11 @@
       "source": "/melody-lab",
       "destination": "/piano-roll",
       "permanent": true
+    },
+    {
+      "source": "/concepts/krekhts",
+      "destination": "/concepts/krechtz",
+      "permanent": true
     }
   ]
 }

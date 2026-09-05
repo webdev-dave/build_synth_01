@@ -9,6 +9,8 @@
  *
  * Cross-links are data, not hardcoded prose: a genre points at the scale
  * slugs it uses (`scales`), and the scale registry points back (`usedIn`).
+ * History articles list genre slugs; the page looks them up with
+ * `getArticleByGenre`. Update both sides of a pair in the same change.
  */
 
 export type GenreLayer =
@@ -87,8 +89,8 @@ export const GENRES: Genre[] = [
       "The blues is a musical form that took shape in African-American communities of the southern United States, drawing on older West African traditions of call-and-response and bent pitch. You can recognise it by three things happening at once: a repeating 12-bar chord pattern built on I, IV and V; a shuffle or swung feel; and the blues scale, whose flattened 'blue' notes give it that aching sound.",
     about:
       "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
-    signatureLayers: ["form", "scale", "rhythm", "harmony"],
-    scales: ["blues-scale"],
+    signatureLayers: ["scale", "form", "rhythm", "harmony"],
+    scales: ["blues-scale", "minor-pentatonic"],
     compareWith: "rock",
     status: "live",
     keywords: [
@@ -111,10 +113,31 @@ export const GENRES: Genre[] = [
     about:
       "Rock grew directly out of the blues, keeping its scale and often its I–IV–V harmony but trading the shuffle for a hard, straight backbeat. It's the natural foil to the blues — same notes, different pulse.",
     signatureLayers: ["rhythm", "harmony", "scale"],
-    scales: ["blues-scale"],
+    scales: ["blues-scale", "minor-pentatonic"],
     compareWith: "blues",
     status: "soon",
     keywords: ["what makes rock rock", "backbeat", "power chords", "rock rhythm"],
+  },
+  {
+    slug: "klezmer",
+    name: "Klezmer",
+    question: "What is klezmer?",
+    summary:
+      "Freygish modes, sobbing ornaments, and dance forms from the freylekhs to the bulgar — the celebration music of Ashkenazi Eastern Europe.",
+    answer:
+      "Klezmer is the instrumental celebration music of the Ashkenazi Jews of Eastern Europe — historically the trade of professional wedding musicians called klezmorim. You can recognise it by its voice-like ornaments (the sobbing krechtz), its modes — most famously freygish, with its augmented-second leap — and its dance forms: the freylekhs, the bulgar, the hora, the sher.",
+    about:
+      "Klezmer grew up around the Jewish wedding in the towns of Eastern Europe, absorbing the modes of synagogue prayer and the dance music of its Romanian, Ukrainian, and Ottoman neighbours. Carried to America in the great migration of 1881–1924, it was captured on 78rpm records in New York, nearly silenced by assimilation and the Holocaust, and revived from the 1970s into a global genre. What makes a tune sound like klezmer is a stack of layers — mode, ornament, groove, and form — which is exactly what this page will pull apart.",
+    signatureLayers: ["scale", "rhythm", "form", "texture"],
+    scales: ["freygish"],
+    status: "soon",
+    keywords: [
+      "what is klezmer",
+      "klezmer music",
+      "freygish scale klezmer",
+      "jewish wedding music",
+      "bulgar freylekhs dance",
+    ],
   },
   {
     slug: "reggae",

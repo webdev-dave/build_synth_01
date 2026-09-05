@@ -1,11 +1,17 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, PenLine } from "lucide-react";
+import { ArrowLeft, PenLine } from "lucide-react";
 
 import { HISTORY_ARTICLES, getArticle } from "@/lib/history/registry";
+import { getHistoryContent } from "@/content/history";
 import { getGenre } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
+import { RelatedPages } from "@/components/content/RelatedPages";
+import { FeedbackInvite } from "@/components/content/FeedbackInvite";
+import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { WordBanner } from "@/components/words/WordBanner";
+import { getWord } from "@/lib/words/registry";
 
 interface HistoryPageProps {
   params: Promise<{ slug: string }>;
@@ -43,12 +49,15 @@ export default async function HistoryArticlePage({
   if (!article) notFound();
 
   const soon = article.status === "soon";
+  const Article = getHistoryContent(article.slug);
   const genres = article.genres
     .map((g) => getGenre(g))
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
   const scales = article.scales
     .map((s) => getScale(s))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
+  const word = getWord(article.slug);
+  const linkTerms = makeTermLinker();
 
   // FAQ schema — the question this article answers, in a form answer engines
   // lift and cite. Honest: the on-page lead is the same text.
@@ -83,51 +92,42 @@ export default async function HistoryArticlePage({
           <h1 className="text-3xl font-semibold tracking-tight">
             {article.question}
           </h1>
+          {word && <WordBanner word={word} />}
           {/* Lead answer: the quotable summary, in real HTML so crawlers and
               answer engines see it without running the app. */}
           <p className="mt-4 text-base leading-relaxed text-foreground">
-            {article.answer}
+            {linkTerms(article.answer)}
           </p>
         </header>
 
-        {(genres.length > 0 || scales.length > 0) && (
-          <section className="mt-10" aria-labelledby="related-heading">
-            <h2
-              id="related-heading"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Take it apart
-            </h2>
-            <div className="mt-3 space-y-2">
-              {genres.map((genre) => (
-                <Link
-                  key={`g-${genre.slug}`}
-                  href={`/genres/${genre.slug}`}
-                  className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
-                >
-                  <span className="text-sm font-medium text-foreground">
-                    {genre.question}
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              ))}
-              {scales.map((scale) => (
-                <Link
-                  key={`s-${scale.slug}`}
-                  href={`/scales/${scale.slug}`}
-                  className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
-                >
-                  <span className="text-sm font-medium text-foreground">
-                    {scale.question}
-                  </span>
-                  <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              ))}
-            </div>
-          </section>
+        {/* Full sourced article body when written; prose stays server-rendered
+            so quotes and footnotes are crawlable. */}
+        {Article && <Article />}
+
+        <RelatedPages
+          heading="Take it apart"
+          headingId="related-heading"
+          items={[
+            ...genres.map((genre) => ({
+              href: `/genres/${genre.slug}`,
+              label: genre.question,
+            })),
+            ...scales.map((scale) => ({
+              href: `/scales/${scale.slug}`,
+              label: scale.question,
+            })),
+          ]}
+        />
+
+        {Article && (
+          <FeedbackInvite
+            targetType="history"
+            targetId={article.slug}
+            subject="this article"
+          />
         )}
 
-        {soon && (
+        {!Article && soon && (
           <div className="mt-10 rounded-lg border border-dashed p-6 text-center">
             <PenLine
               className="mx-auto h-5 w-5 text-muted-foreground"

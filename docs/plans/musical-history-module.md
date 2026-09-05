@@ -1,9 +1,10 @@
 # Plan: Musical History module
 
-> **Phase 0 shipped (2026-09-05).** The registry, `/history` hub, a
-> placeholder `/history/blues` spoke, the nav entry, sitemap wiring, and the
-> "history of the blues" link on `/genres/blues` are live in the codebase.
-> Everything below Phase 0 is still to build.
+> **Phases 0–2 shipped (2026-09-05).** The registry, `/history` hub, the nav
+> entry, sitemap wiring, and the "history of the blues" link on `/genres/blues`
+> are live — plus the citation components and the first full article. The blues
+> article (`/history/blues`) is `status: "live"` with sourced, footnoted prose.
+> Phase 3 (more articles, embedded audio/widgets) is still to build.
 
 ## Overview
 
@@ -54,30 +55,34 @@ concept, not an afterthought.
 - [x] `/genres/blues` link under the `about` paragraph (data-driven).
 - [x] Nav entry (`history`, `inNav: false`), `appIcons` (`BookOpen`), sitemap.
 
-## Phase 1 — Citation components
+## Phase 1 — Citation components (DONE 2026-09-05)
 
-Location: `src/components/history/`.
+Location: `src/components/history/citations.tsx` (server components — quotes
+and footnotes ship in the static HTML).
 
-- [ ] **`<Citation source={id} />`** — inline superscript ref (`[1]`) linking
-      to the source anchor; numbers derive from the article's `sources` order.
-- [ ] **`<Blockquote>`** — styled short-quote block with attribution line and
-      a `Citation`.
-- [ ] **`<SourceList sources={…} />`** — the numbered "Sources & further
-      reading" bibliography with outbound links and `Retrieved` dates.
-- [ ] Consider `ScholarlyArticle` / `Article` JSON-LD with `citation` on the
-      spoke, in addition to the existing FAQ JSON-LD.
+- [x] **`<Cite id sources />`** — inline superscript ref (`[n]`) linking to the
+      source anchor; number derives from the source's position in `sources`.
+- [x] **`<Blockquote>`** — styled short-quote block with attribution + `Cite`.
+- [x] **`<SourceList sources />`** — numbered "Sources & further reading"
+      bibliography with outbound links, `Public domain` tag, and access dates.
+- [ ] (Later) `ScholarlyArticle` / `Article` JSON-LD with `citation` on the
+      spoke, alongside the existing FAQ JSON-LD.
 
-## Phase 2 — First article: the blues (content)
+## Phase 2 — First article: the blues (DONE 2026-09-05)
 
-- [ ] `src/content/history/blues.tsx` — prose + quotes + widgets, structured:
-      1. Origins — work songs, field hollers, spirituals in the Deep South.
-      2. Early forms — Delta blues, W.C. Handy, first published/recorded blues.
-      3. The Great Migration — Chicago electric blues.
-      4. Legacy — root of jazz, R&B, rock (ties to the genre page's line).
-- [ ] Populate `sources` with real, linked, public-domain-first references.
-- [ ] Flip `blues` to `status: "live"` (enters index + sitemap).
-- [ ] `getArticleContent(slug)` accessor (mirror `getScaleContent`) so the
-      spoke injects the body when present, keeps the placeholder when not.
+- [x] `src/content/history/BluesHistory.tsx` — sourced, footnoted prose:
+      1. Roots — work songs, field hollers, spirituals; the blue notes.
+      2. A contested birthplace — Handy's Tutwiler account vs. revisionist
+         scholarship (don't launder legend as fact).
+      3. Published & recorded — Handy 1912/1914; Mamie Smith 1920.
+      4. Great Migration & electric blues — Muddy Waters, Chicago.
+      5. Legacy — root system, and blues as protest.
+- [x] `sources` populated with real references, public-domain-first (Library of
+      Congress essays flagged `publicDomain`).
+- [x] `blues` flipped to `status: "live"` (indexed + in sitemap).
+- [x] `getHistoryContent(slug)` accessor (`src/content/history/index.ts`,
+      mirrors `getScaleContent`) — spoke injects the body when present, keeps
+      the placeholder when not.
 
 ## Phase 3 — Grow + interactive
 

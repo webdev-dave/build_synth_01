@@ -19,6 +19,7 @@ import {
   flatName,
   type ScaleDegree,
 } from "@/components/scales/notes";
+import { cn } from "@/lib/utils";
 
 /*
  * Keyboard window: two octaves anchored at the scale root, so the shape reads
@@ -56,7 +57,7 @@ function degreeMapForRoot(
  * up. Deliberately light on prose — the deep dive links out to the scales
  * hub. This is the same KeyboardV2 the live synth uses, scale pre-locked.
  */
-export function BluesScaleLesson() {
+export function BluesScaleLesson({ className }: { className?: string }) {
   // A is the guitar-blues home key — the classroom default for this scale.
   const [rootPc, setRootPc] = useState(9);
   const [lockToScale, setLockToScale] = useState(true);
@@ -142,7 +143,7 @@ export function BluesScaleLesson() {
   const blueName = flatName(rootPc + BLUE_NOTE_OFFSET);
 
   return (
-    <div className="mt-6 space-y-4">
+    <div className={cn("mt-6 space-y-4", className)}>
       <div className="flex flex-wrap items-center justify-between gap-x-6 gap-y-3">
         <RootNotePicker value={rootPc} onChange={setRootPc} />
         <div className="flex items-center gap-3">

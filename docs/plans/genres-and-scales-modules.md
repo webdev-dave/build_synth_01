@@ -36,10 +36,12 @@ for what stays in `/lessons`.
    `/scales/blues-scale` (kebab, no article). The search-shaped question
    ("What is the blues?") is the `<h1>`, `<title>`, and meta description —
    not the URL. No standalone `/what-is-the-blues`, no duplicate URL.
-3. **Cross-links are data, not prose.** `Genre.scales` → scale slugs;
-   `ScaleLesson.usedIn` → genre slugs. The blues page links to the blues
-   scale and vice-versa from the registries. Never nest
-   `/genres/blues/blues-scale` — a scale belongs to many genres.
+3. **Cross-links are data, not prose — and they go both ways.**
+   `Genre.scales` ↔ `ScaleLesson.usedIn`; a history article's `genres` /
+   `scales` is what `getArticleByGenre` / `getArticlesByScale` read so
+   every spoke can link back. Render them with `<RelatedPages>`. Never nest
+   `/genres/blues/blues-scale` — a scale belongs to many genres. See
+   `.cursor/rules/history-articles.mdc` ("Bidirectional links").
 4. **Modes are scales.** Dorian et al. live under `/scales/[slug]` with
    `kind: "mode"`, so the synth's planned `?scale=…` deep-link
    ([synth-scale-type-selector.md](synth-scale-type-selector.md)) has one

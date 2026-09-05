@@ -1,0 +1,321 @@
+/**
+ * Loanwords — native-script spellings + (when we have one) how to say them.
+ *
+ * English pages write *krechtz* and *doina*; those words still have a home
+ * spelling (Yiddish קרעכץ, Romanian doină). This registry is the source of
+ * truth for that pairing, and for the listen-to-pronounce control.
+ *
+ * Pronunciation is a **real human recording only** — no synthetic
+ * text-to-speech. A word gets a speaker button *only* when it has a verified,
+ * openly-licensed `audio` clip of the matching word; otherwise we show the
+ * spelling with no speaker. Never attach a synthetic voice or an unverified
+ * file just to have a button.
+ *
+ * Looked up by id (usually the same slug as a concept/genre/scale) or by
+ * any Latin phrase in `latin` / `alsoSpelled` / `aliases`. Only include a
+ * native spelling we can stand behind: attested in a cited source, or the
+ * standard orthography of an attested Latin form (YIVO for Yiddish, Romanian
+ * diacritics, unpointed Hebrew for prayer names).
+ */
+
+export interface NativeForm {
+  /** Spelling in the source language. */
+  spelling: string;
+  /** Language name shown to the reader ("Yiddish"). */
+  language: string;
+  /** BCP-47 tag, for the `lang` attribute + text direction. */
+  lang: string;
+}
+
+export interface WordAudio {
+  /** Local path under /public (we self-host for uptime + license clarity). */
+  src: string;
+  /** Human-readable source ("Jewish English Lexicon"). */
+  source: string;
+  /** Link to the source page (attribution). */
+  sourceUrl?: string;
+  /** License short name ("CC BY-SA 4.0"). */
+  license?: string;
+}
+
+export interface SpokenWord {
+  id: string;
+  /** How we write it in English prose. */
+  latin: string;
+  /**
+   * 1–2 common English spellings shown to the reader ("krechtz", "doyna").
+   * Plurals and linker-only phrases stay in `aliases`.
+   */
+  alsoSpelled?: string[];
+  /** Other Latin spellings an author or the auto-linker might use. */
+  aliases?: string[];
+  native: NativeForm;
+  /**
+   * A verified human recording of this word. Present ⇒ show the speaker.
+   * Absent ⇒ spelling only, no button. See `public/audio/words/`.
+   */
+  audio?: WordAudio;
+}
+
+/** Shared attribution for the Jewish English Lexicon recordings. */
+const JEL = (path: string, wordId: string): WordAudio => ({
+  src: `/audio/words/${path}`,
+  source: "Jewish English Lexicon",
+  sourceUrl: `https://jel.jewish-languages.org/words/${wordId}`,
+  license: "CC BY-SA 4.0",
+});
+
+export const WORDS: SpokenWord[] = [
+  {
+    id: "krechtz",
+    latin: "krechtz",
+    alsoSpelled: ["krekhts"],
+    aliases: ["krekhts", "krechts", "krekhtsn", "krekhtz", "krekhtsen"],
+    native: {
+      // Wikipedia "Klezmer"; Jewish English Lexicon (קרעכצן, the verb).
+      spelling: "קרעכץ",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("krechtz.mp3", "2481"),
+  },
+  {
+    id: "doina",
+    latin: "doina",
+    alsoSpelled: ["doyna"],
+    aliases: ["doyna", "doinas", "doine"],
+    native: {
+      spelling: "doină",
+      language: "Romanian",
+      lang: "ro-RO",
+    },
+  },
+  {
+    id: "freygish",
+    latin: "freygish",
+    aliases: ["freygish mode"],
+    native: {
+      // YIVO spelling of the attested Yiddish word (from German Phrygisch).
+      spelling: "פֿרייגיש",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "ahava-rabbah",
+    latin: "Ahava Rabbah",
+    alsoSpelled: ["Ahavah Rabbah", "Ahava Rabboh"],
+    aliases: ["Ahavah Rabbah", "Ahava Rabboh", "Ahavah Rabboh"],
+    native: {
+      spelling: "אהבה רבה",
+      language: "Hebrew",
+      lang: "he-IL",
+    },
+  },
+  {
+    id: "klezmer",
+    latin: "klezmer",
+    native: {
+      // Wikipedia lists כּלי־זמר and קלעזמער; the first is the Hebrew-origin form
+      // our history article already teaches (kley zemer).
+      spelling: "כּלי־זמר",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("klezmer.mp3", "272"),
+  },
+  {
+    id: "klezmorim",
+    latin: "klezmorim",
+    native: {
+      spelling: "כּלי־זמרים",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "kley-zemer",
+    latin: "kley zemer",
+    alsoSpelled: ["kele zemer"],
+    aliases: ["kele zemer"],
+    native: {
+      spelling: "כלי זמר",
+      language: "Hebrew",
+      lang: "he-IL",
+    },
+  },
+  {
+    id: "freylekhs",
+    latin: "freylekhs",
+    alsoSpelled: ["freilachs", "freylakhs"],
+    aliases: ["freylekh", "freylakhs", "freilechs", "freilachs", "freilach"],
+    native: {
+      spelling: "פֿריילעכס",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    // JEL headword "freilach" — same dance, singular spelling.
+    audio: JEL("freylekhs.mp3", "169"),
+  },
+  {
+    id: "sher",
+    latin: "sher",
+    aliases: ["shers", "sherele"],
+    native: {
+      // The dance is named for Yiddish שער, "scissors".
+      spelling: "שער",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "hora",
+    latin: "hora",
+    aliases: ["horă"],
+    native: {
+      spelling: "horă",
+      language: "Romanian",
+      lang: "ro-RO",
+    },
+  },
+  {
+    id: "sirba",
+    latin: "sirba",
+    aliases: ["sârbă"],
+    native: {
+      spelling: "sârbă",
+      language: "Romanian",
+      lang: "ro-RO",
+    },
+  },
+  {
+    id: "bulgar",
+    latin: "bulgar",
+    aliases: ["bulgars", "bulgarish"],
+    native: {
+      spelling: "bulgar",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "yidishe-muzik",
+    latin: "yidishe muzik",
+    native: {
+      spelling: "ייִדישע מוזיק",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "lautari",
+    latin: "lautari",
+    aliases: ["lautar", "lăutari", "lăutar"],
+    native: {
+      spelling: "lăutari",
+      language: "Romanian",
+      lang: "ro-RO",
+    },
+  },
+  {
+    id: "nigun",
+    latin: "nigun",
+    alsoSpelled: ["niggun"],
+    aliases: ["nigunim", "niggun"],
+    native: {
+      spelling: "ניגון",
+      language: "Hebrew",
+      lang: "he-IL",
+    },
+    audio: JEL("nigun.mp3", "410"),
+  },
+  {
+    id: "davening",
+    latin: "davening",
+    aliases: ["daven", "davens", "davenen"],
+    native: {
+      spelling: "דאַוונען",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+];
+
+/** Words that have a real human recording get a speaker button. */
+export function hasAudio(word: SpokenWord | undefined): word is SpokenWord & {
+  audio: WordAudio;
+} {
+  return Boolean(word?.audio);
+}
+
+const BY_ID = new Map(WORDS.map((w) => [w.id, w]));
+
+function latinPhrases(word: SpokenWord): string[] {
+  return [word.latin, ...(word.alsoSpelled ?? []), ...(word.aliases ?? [])];
+}
+
+const PHRASE_TO_ID = new Map<string, string>();
+for (const word of WORDS) {
+  for (const phrase of latinPhrases(word)) {
+    PHRASE_TO_ID.set(phrase.toLowerCase(), word.id);
+  }
+}
+
+/**
+ * Up to two English spellings other than what's already on screen — the
+ * canonical `latin` plus `alsoSpelled`, skipping the current mention.
+ */
+export function englishAlts(word: SpokenWord, mention?: string): string[] {
+  const shown = (mention ?? word.latin).toLowerCase();
+  const out: string[] = [];
+  for (const candidate of [word.latin, ...(word.alsoSpelled ?? [])]) {
+    if (candidate.toLowerCase() === shown) continue;
+    if (out.some((x) => x.toLowerCase() === candidate.toLowerCase())) continue;
+    out.push(candidate);
+    if (out.length === 2) break;
+  }
+  return out;
+}
+
+export function getWord(id: string): SpokenWord | undefined {
+  return BY_ID.get(id) ?? getWordByPhrase(id);
+}
+
+/** Resolve a Latin mention ("Ahava Rabbah", "krechtz") to a registry entry. */
+export function getWordByPhrase(phrase: string): SpokenWord | undefined {
+  const id = PHRASE_TO_ID.get(phrase.toLowerCase());
+  return id ? BY_ID.get(id) : undefined;
+}
+
+/**
+ * Word to show next to a concept mention: prefer a phrase match (so
+ * "Ahava Rabbah" gets Hebrew, not the Yiddish for *freygish*), then the
+ * concept slug.
+ */
+export function wordForMention(
+  conceptSlug: string,
+  mention?: string,
+): SpokenWord | undefined {
+  if (mention) {
+    const byPhrase = getWordByPhrase(mention);
+    if (byPhrase) return byPhrase;
+  }
+  return getWord(conceptSlug);
+}
+
+export function isRtlLang(lang: string): boolean {
+  const base = lang.split("-")[0];
+  return base === "yi" || base === "he" || base === "ar" || base === "fa";
+}
+
+/** True when the native spelling is visually the same as the Latin we already showed. */
+export function spellingDiffers(latin: string, spelling: string): boolean {
+  return latin.normalize("NFC") !== spelling.normalize("NFC");
+}
+
+/** Native script + English alts for search haystacks. */
+export function nativeSpellingsOf(id: string): string[] {
+  const word = getWord(id);
+  if (!word) return [];
+  return [word.native.spelling, ...(word.alsoSpelled ?? [])];
+}

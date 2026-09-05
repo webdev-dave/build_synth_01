@@ -1,0 +1,18 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "Great Migration corridor",
+    "note": "Schematic corridor from the Delta through Memphis and St. Louis to Chicago (Highway 61 / Illinois Central route). One of several migration routes."
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-90.6, 32.4], [-89.6, 33.5], [-89.7, 35.2], [-89.4, 36.7],
+        [-89.6, 38.6], [-88.6, 40.6], [-87.9, 41.9], [-87.3, 41.7],
+        [-88.6, 39.9], [-89.2, 37.9], [-89.0, 36.0], [-90.0, 34.2],
+        [-91.0, 32.5], [-90.6, 32.4]
+      ]
+    ]
+  }
+}

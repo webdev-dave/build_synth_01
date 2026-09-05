@@ -1,0 +1,143 @@
+---
+description: Hard rule — pronunciation audio is a verified human recording or nothing (no TTS). Best sources per language we know, how to verify + attribute, and keep this catalog current as languages/sources change.
+globs: src/lib/words/**,src/components/words/**,public/audio/words/**,src/lib/concepts/**,src/content/history/**,src/lib/genres/**,src/lib/scales/**
+alwaysApply: false
+---
+
+# Sourcing pronunciation audio
+
+The speaker button plays a clip we **self-host** in
+`public/audio/words/<id>.mp3`, wired via optional `audio` on a `SpokenWord` in
+`src/lib/words/registry.ts`. Writing rules for *when* to register a loanword
+live in `.cursor/rules/history-articles.mdc`. **This file is the sourcing
+catalog** — where to look per language, what we already have, what we ruled
+out. **Update it whenever you add a language, find a clip, or rule a source
+out**, so the next agent doesn't repeat a dead search.
+
+## Hard rule — human recordings only
+
+**A real human saying the matching word, or no speaker at all.**
+
+- Never synthesize speech. No `window.speechSynthesis`, no cloud TTS, no
+  generated voice, no "close enough" phonetic stand-in (German for Yiddish,
+  etc.). A word with no verified clip ships with **no `audio` field** → the UI
+  shows the native spelling and **no speaker icon**. That silence is correct.
+- Verify **all three** before adding a clip: (1) it is an actual human voice,
+  (2) it is the **matching word and sense** (Spanish *hora* “hour” ≠ the
+  Romanian dance; Occitan *bulgar* ≠ the klezmer dance), (3) it is **openly
+  licensed** for redistribution (public domain, CC0, CC BY, CC BY-SA). If any
+  of the three is unproven, **do not add it**.
+- **Never fabricate a URL, speaker, or license.** If you can't find and verify
+  a clip, leave `audio` off and say so. Don't hotlink a source we haven't
+  copied + attributed.
+
+```ts
+// ❌ BAD — TTS fallback, invented file, or wrong-sense Commons clip
+audio: { src: "/audio/words/hora.mp3" }  // Spanish "hour"
+utterance.text = "krechtz"; speechSynthesis.speak(utterance);
+
+// ✅ GOOD — verified human clip, self-hosted, credited
+audio: JEL("krechtz.mp3", "2481")
+// ✅ ALSO GOOD — no clip found → omit `audio`, no speaker
+```
+
+## Languages we currently know
+
+Every `native.language` / `lang` in `WORDS` must have a row here. When you
+register a word in a **new** language, add the row in the same change
+(Wikidata QID + best sources + any gotchas).
+
+| Language | BCP-47 | Lingua Libre QID | Best sources (try in this order) | Gotchas |
+|---|---|---|---|---|
+| **Yiddish** | `yi` | `Q8641` | **JEL**; then Commons `LL-Q8641`; yi.wiktionary | JEL is the strongest for klezmer/Jewish terms. Lingua Libre Yiddish is sparse (none of our words as of 2026-09-05). |
+| **Hebrew** | `he-IL` | `Q9288` | **JEL**; then Commons `LL-Q9288`; he.wiktionary | Prayer/mode names (*Ahava Rabbah*) often live on JEL, not Hebrew Wiktionary. |
+| **Romanian** | `ro-RO` | `Q7913` | Commons `LL-Q7913`; ro.wiktionary; Commons filename search | Dance terms (*doina*, *hora*, *sârbă*) often have only the common-noun / other-language sense recorded. **Do not attach the wrong sense.** |
+
+English (`en`, `Q1860`) is not a registry language, but Lingua Libre English
+sometimes has a human saying a loanword that has entered English (e.g.
+*klezmer*). Prefer a recording in the home language when one exists.
+
+### Words still needing a clip (2026-09-05)
+
+Already shipped (all JEL, CC BY-SA 4.0) — see `public/audio/words/ATTRIBUTION.md`:
+`krechtz` (JEL headword *krekhts*), `nigun`, `klezmer`, `freylekhs` (JEL headword *freilach*).
+
+**Still silent** — search these before inventing a new source, and record the
+result here if you look:
+
+| Word | Lang | Last look | Result |
+|---|---|---|---|
+| `doina` | ro | Commons / ro.wiktionary / `LL-Q7913` | no matching human clip |
+| `hora` | ro | Commons / wiktionary | only *hour* (es/cs/sk/…) — **wrong sense** |
+| `sirba` / sârbă | ro | Commons / `LL-Q7913` | none |
+| `lautari` | ro | Commons / `LL-Q7913` | none |
+| `freygish` | yi | JEL / `LL-Q8641` | none |
+| `sher` | yi | JEL search hits other words | none for the dance |
+| `bulgar` | yi | Commons | Occitan *bulgar* — **wrong sense** |
+| `klezmorim`, `yidishe-muzik`, `davening` | yi | JEL has *daven* (verb), not *davening* | leave off until a matching headword exists |
+| `ahava-rabbah`, `kley-zemer` | he | JEL / `LL-Q9288` | none yet |
+
+JEL *daven* (`/words/127`) is a real human clip of the verb — **do not** attach
+it to `davening` unless we decide the headword matches (it currently doesn't).
+
+## Shared sources (how to use them)
+
+- **Jewish English Lexicon** — https://jel.jewish-languages.org, **CC BY-SA 4.0**.
+  Search `/search?q=<word>` → word page `/words/<id>` → clip
+  `/recordings/<file>.mp3`. Confirm the headword via `og:title` (the site title
+  is generic). Listen / `file` the mp3 before shipping. Use the `JEL()` helper
+  in `registry.ts`.
+- **Wikimedia Commons / Lingua Libre** — usually **CC BY-SA** (sometimes CC0/BY).
+  Files look like `LL-Q<langQID> (code)-<speaker>-<word>.wav`. Look up a new
+  language's QID on Wikidata **before** searching, then add it to the table
+  above. Fetch `imageinfo` for the real URL + `LicenseShortName` + artist.
+- **Wiktionary** — audio on a page lives under a **language heading** and
+  points at Commons. Only trust a clip under the correct heading.
+
+### Ruled out (do not use)
+
+Record new rejects here so we don't re-try them.
+
+| Source | Why not |
+|---|---|
+| **Web Speech API / any TTS** | Synthetic. Hard-forbidden. |
+| **Forvo** | Human, but **not** a license we can redistribute. Don't download or hotlink. |
+| **Google / Amazon / Azure / ElevenLabs / etc.** | Synthetic or closed license. |
+| **YouTube / Spotify / commercial albums** | Not a pronunciation clip we can cut and ship; license unclear. |
+| **Hotlinking JEL or Commons** | Fragile + attribution lives on *our* page. Self-host. |
+
+## Find + verify (repeatable)
+
+```bash
+# Commons / Lingua Libre (namespace 6 = File):
+curl -s "https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srsearch=LL-Q7913%20doina&format=json"
+# Audio attached to a Wiktionary page (then check the language heading):
+curl -s "https://en.wiktionary.org/w/api.php?action=query&prop=images&titles=klezmer&format=json"
+# Real URL + license + speaker for a Commons file:
+curl -s "https://commons.wikimedia.org/w/api.php?action=query&prop=imageinfo&iiprop=url|mime|extmetadata&titles=File:<name>&format=json"
+# JEL: search → word id → og:title + /recordings/*.mp3
+curl -sL "https://jel.jewish-languages.org/search?q=nigun"
+# Prove a candidate is really audio before shipping:
+curl -sL "<url>" -o /tmp/x && file /tmp/x   # expect MPEG / WAV / OGG audio
+```
+
+## Add a clip
+
+1. Download to `public/audio/words/<id>.mp3`.
+2. Set `audio` on the `SpokenWord` (`src`, `source`, `sourceUrl`, `license`).
+   The banner renders the credit automatically.
+3. Add a row to `public/audio/words/ATTRIBUTION.md`.
+4. Update the "still needing a clip" table in **this file**.
+5. `npx tsc --noEmit`. Confirm the spoke shows the speaker + credit, and a
+   word *without* a clip still shows **no** speaker.
+
+## Keep this file current
+
+This catalog is meant to grow. In the **same change** as the work:
+
+- **New language** in `WORDS` → add its table row (BCP-47, Wikidata QID, best
+  sources, gotchas).
+- **Found a clip** → move the word out of "still needing"; note the source.
+- **Looked and failed, or ruled a source out** → write it here (date + why)
+  so the next agent doesn't repeat the search.
+- Don't silently rely on a source that isn't listed — document it first.

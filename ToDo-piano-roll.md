@@ -3,7 +3,7 @@
 Local list for `/piano-roll`. Site-wide ranking stays in [ToDo.md](ToDo.md).
 Update this file when a roll item ships, blocks, or gets a new next slice.
 
-**Default song:** `yesterday-v2` (hero draft we’re honing). `yesterday-beatles` stays in the catalog.
+**Default song:** `yesterday-beatles` (full Beatles MIDI). `yesterday-v2` stays in the catalog as the hero draft.
 
 ---
 

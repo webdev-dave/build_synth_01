@@ -1,0 +1,17 @@
+{
+  "type": "Feature",
+  "properties": {
+    "name": "Mississippi Delta",
+    "note": "Approximate Yazoo-Mississippi floodplain. Schematic teaching shape."
+  },
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [-90.3, 35.0], [-89.9, 34.6], [-90.0, 33.9], [-90.4, 33.0],
+        [-90.9, 32.4], [-91.1, 32.6], [-91.2, 33.5], [-90.9, 34.3],
+        [-90.5, 35.0], [-90.3, 35.0]
+      ]
+    ]
+  }
+}

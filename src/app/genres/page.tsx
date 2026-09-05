@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Disc3 } from "lucide-react";
 
 import { GENRES, LAYER_INFO, type GenreLayer } from "@/lib/genres/registry";
+import { NativeSpelling } from "@/components/words/NativeSpelling";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -94,6 +95,10 @@ export default function GenresPage() {
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-base">
                           {genre.name}
+                          <NativeSpelling
+                            id={genre.slug}
+                            className="ms-2 text-sm"
+                          />
                         </CardTitle>
                         {soon && <Badge variant="secondary">Soon</Badge>}
                       </div>

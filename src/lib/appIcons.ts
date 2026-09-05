@@ -5,6 +5,11 @@ import {
   Disc3,
   Waypoints,
   BookOpen,
+  BookMarked,
+  Map,
+  Users,
+  Music2,
+  Languages,
   createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -70,6 +75,11 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   genres: Disc3,
   scales: Waypoints,
   history: BookOpen,
+  map: Map,
+  concepts: BookMarked,
+  artists: Users,
+  songs: Music2,
+  languages: Languages,
 };
 
 export function getAppIcon(id: string): LucideIcon {

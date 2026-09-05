@@ -33,6 +33,21 @@ are places with relationships, and the app shows you the connections.
   tangible (frequencies, chord membership, in-scale vs. chromatic), not
   by decoration. If an effect doesn't encode information, it should be
   very quiet or gone.
+- **Loanwords get a home spelling and a voice.** If you write a word from
+  another language (Yiddish *krechtz*, Romanian *doina*), register it in
+  `src/lib/words/registry.ts` — never leave a transliteration as the only
+  form. The native script travels with the mention (`<Term>` for glossary
+  terms, `<Word>` otherwise). Pronunciation is a **hard rule: real human
+  recording or nothing** — never `speechSynthesis`, never a TTS service.
+  Attach an openly-licensed clip you've verified (self-hosted in
+  `public/audio/words/`, credited); if none exists, show **no speaker**.
+  When English spelling varies, list 1–2 common alternatives
+  (`alsoSpelled`: *krechtz* / *krekhts*). Don't invent spellings.
+  Writing: `.cursor/rules/history-articles.mdc`. **Sourcing catalog**
+  (best sources per language we know, what's already shipped, what's
+  ruled out): `.cursor/rules/pronunciation-audio.mdc` — **update that
+  file in the same change** when you add a language, find a clip, or
+  rule a source out.
 
 ## 3. Visual design
 

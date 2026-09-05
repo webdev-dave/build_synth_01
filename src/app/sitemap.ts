@@ -1,7 +1,11 @@
 import type { MetadataRoute } from "next";
 
+import { LIVE_ARTISTS } from "@/lib/catalog/artists";
+import { LIVE_SONGS } from "@/lib/catalog/songs";
+import { LIVE_CONCEPTS } from "@/lib/concepts/registry";
 import { LIVE_GENRES } from "@/lib/genres/registry";
 import { LIVE_HISTORY } from "@/lib/history/registry";
+import { LIVE_LANGUAGES } from "@/lib/languages/registry";
 import { LIVE_SCALES } from "@/lib/scales/registry";
 
 /**
@@ -26,9 +30,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/harmonica-lab/v2",
     "/piano-roll",
     "/lessons",
+    "/map",
     "/genres",
     "/scales",
     "/history",
+    "/concepts",
+    "/artists",
+    "/songs",
+    "/languages",
     "/about",
     "/contact",
   ];
@@ -37,6 +46,10 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...LIVE_GENRES.map((g) => `/genres/${g.slug}`),
     ...LIVE_SCALES.map((s) => `/scales/${s.slug}`),
     ...LIVE_HISTORY.map((a) => `/history/${a.slug}`),
+    ...LIVE_CONCEPTS.map((c) => `/concepts/${c.slug}`),
+    ...LIVE_ARTISTS.map((a) => `/artists/${a.slug}`),
+    ...LIVE_SONGS.map((s) => `/songs/${s.slug}`),
+    ...LIVE_LANGUAGES.map((l) => `/languages/${l.slug}`),
   ];
 
   return [...staticPaths, ...spokePaths].map((path) => ({

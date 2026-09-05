@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Waypoints } from "lucide-react";
 
 import { SCALES } from "@/lib/scales/registry";
+import { NativeSpelling } from "@/components/words/NativeSpelling";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -65,6 +66,10 @@ export default function ScalesPage() {
                       <div className="flex items-center gap-2">
                         <CardTitle className="text-base">
                           {scale.name}
+                          <NativeSpelling
+                            id={scale.slug}
+                            className="ms-2 text-sm"
+                          />
                         </CardTitle>
                         {scale.kind === "mode" && (
                           <Badge variant="outline">Mode</Badge>

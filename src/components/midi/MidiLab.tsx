@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useReducedMotion } from "motion/react";
-import { Check, Copy, Play, RotateCcw, SkipBack, Square, Trash2, Volume2, VolumeX, Undo2, Redo2, Search, Plus, Minus } from "lucide-react";
+import { Check, Copy, Eraser, Pencil, Play, RotateCcw, SkipBack, Square, Trash2, Volume2, VolumeX, Undo2, Redo2, Search, Plus, Minus } from "lucide-react";
 
 import {
   COMMON_TIME_SIGNATURES,
@@ -29,7 +29,7 @@ import { WaveGlyph } from "@/instruments/synth/v2/SynthV2";
 import { cn } from "@/lib/utils";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { melodyToCode, midiToHz, midiToPitchName, detectKey, melodyToSequence } from "./melodyConvert";
+import { melodyToCode, midiToHz, detectKey, melodyToSequence } from "./melodyConvert";
 import { PianoRollEditor, type PianoRollHandle } from "./PianoRollEditor";
 import { type SequenceEvent } from "./melodyConvert";
 import { SongLibrarySelect } from "./SongLibrarySelect";
@@ -45,16 +45,18 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
     id: "basics",
     title: "Piano Roll Basics",
     body: [
-      "Drag on empty space to draw a note. Drag a painted note to move it, or drag its edges to change its duration.",
+      "Edit starts off so a swipe on a phone doesn't paint notes. You can still see the notes, press Play, and watch the playhead — Edit only locks painting. Turn it on when you want to paint, move, or erase.",
+      "With Edit on: drag empty space to draw a note, drag a painted note to move it, or drag its edges to change duration. On a mouse, click a note (or right-click) to open its menu. On a phone, hold the note for a moment.",
       "The roll is a camera over the grid, not a page with scrollbars. Wheel pans up and down; Shift+wheel (or a sideways trackpad swipe) pans left and right. Ctrl/Cmd+wheel zooms.",
     ],
   },
-  eraser: {
-    id: "eraser",
-    title: "Eraser Tool",
+  delete: {
+    id: "delete",
+    title: "Deleting notes",
     body: [
-      "When the eraser is active, click any note to delete it, or drag a box to delete multiple notes at once.",
-      "Alternatively, you can right-click (or long-press) any note in normal mode to open the delete menu, or select notes and press the Delete key."
+      "Two ways, both need Edit on. Select notes (click one, or drag a box) then hit the trash button — or the Delete key — to remove them.",
+      "Or turn on the eraser (the second icon): the cursor becomes a trash can and any note you click, tap, or drag over is deleted. Click the eraser again to turn it off.",
+      "You can also click a note on a mouse, or hold it on a phone, to open its menu and Delete just that one.",
     ],
   },
   preview: {
@@ -89,6 +91,14 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
       "The playhead will loop between the two gray flags on the top ruler. Click the Rewind button to instantly jump back to the start of the loop.",
     ],
   },
+  edit: {
+    id: "edit",
+    title: "Edit",
+    body: [
+      "Edit is the roll's write switch — not the same as Scale lock. Scale lock only limits which pitches sound; Edit decides whether the grid accepts paint, moves, and erases at all.",
+      "It starts off so scrolling a phone doesn't drop stray notes. Play, the moving playhead, and the notes themselves still work — Edit off is listen mode. Turn it on when you mean to change the MIDI.",
+    ],
+  },
   library: {
     id: "library",
     title: "Song Library",
@@ -116,10 +126,14 @@ export function MidiLab({ songId }: { songId?: string }) {
   const lockToScale = hasScale && !allowOutOfScale;
 
   const initialSong = (songId && getSong(songId)) || getDefaultSong();
-  const appliedKeyRef = useRef<string | null>(songId ? null : initialSong.id);
+  // A catalog song (like the default Beatles MIDI) must still be fetched —
+  // only a bundled song counts as already applied at mount.
+  const appliedKeyRef = useRef<string | null>(
+    songId || songNeedsCatalog(initialSong) ? null : initialSong.id,
+  );
   const [song, setSong] = useState<SongEntry>(initialSong);
   const [loadingTitle, setLoadingTitle] = useState<string | null>(
-    songId && songNeedsCatalog(initialSong) ? initialSong.title : null,
+    songNeedsCatalog(initialSong) ? initialSong.title : null,
   );
   const loadGen = useRef(0);
   const [bpm, setBpm] = useState(initialSong.bpm);
@@ -135,9 +149,11 @@ export function MidiLab({ songId }: { songId?: string }) {
     : [timeSig, ...COMMON_TIME_SIGNATURES];
   const [playing, setPlaying] = useState(false);
   const [isDeleteMode, setIsDeleteMode] = useState(false);
+  const [editsEnabled, setEditsEnabled] = useState(false);
+  const [selectedCount, setSelectedCount] = useState(0);
+  const [showEditHint, setShowEditHint] = useState(false);
   const [soundEnabled, setSoundEnabled] = useState(false);
   const [copied, setCopied] = useState<"code" | "json" | null>(null);
-  const [selectedNote, setSelectedNote] = useState<SequenceEvent | null>(null);
   const [conceptId, setConceptId] = useState<string | null>(null);
   const [canUndo, setCanUndo] = useState(false);
   const [canRedo, setCanRedo] = useState(false);
@@ -154,11 +170,44 @@ export function MidiLab({ songId }: { songId?: string }) {
   }, [initializeAudio, audioContext, scheduleNote]);
 
   const handleNoteSelected = useCallback((ev: SequenceEvent | null) => {
-    setSelectedNote(ev);
     if (ev && soundEnabled) {
       previewNote(ev.n);
     }
   }, [soundEnabled, previewNote]);
+
+  const handleEditBlocked = useCallback(() => {
+    setShowEditHint(true);
+    setConceptId("edit");
+  }, []);
+
+  const deleteSelected = useCallback(() => {
+    if (!editsEnabled) {
+      handleEditBlocked();
+      return;
+    }
+    rollRef.current?.deleteSelected();
+    setConceptId("delete");
+  }, [editsEnabled, handleEditBlocked]);
+
+  const toggleEraser = useCallback(() => {
+    if (!editsEnabled) {
+      handleEditBlocked();
+      return;
+    }
+    setIsDeleteMode((v) => !v);
+    setConceptId("delete");
+  }, [editsEnabled, handleEditBlocked]);
+
+  useEffect(() => {
+    if (!showEditHint) return;
+    const t = window.setTimeout(() => setShowEditHint(false), 4500);
+    return () => window.clearTimeout(t);
+  }, [showEditHint]);
+
+  useEffect(() => {
+    if (editsEnabled) setShowEditHint(false);
+    else setIsDeleteMode(false);
+  }, [editsEnabled]);
 
   useEffect(() => stop, [stop]);
 
@@ -253,7 +302,6 @@ export function MidiLab({ songId }: { songId?: string }) {
       setBpm(next.bpm);
       setBars(songBars(next));
       setTimeSig(songTimeSignature(next));
-      setSelectedNote(null);
       setCanUndo(false);
       setCanRedo(false);
       const nextSeq = next.document
@@ -330,12 +378,6 @@ export function MidiLab({ songId }: { songId?: string }) {
     setBpm(song.bpm);
     setBars(songBars(song));
     setTimeSig(songTimeSignature(song));
-    setSelectedNote(null);
-  };
-  
-  const deleteSelected = () => {
-    rollRef.current?.deleteSelected();
-    setSelectedNote(null);
   };
 
   const showHowTo = () => {
@@ -369,8 +411,149 @@ export function MidiLab({ songId }: { songId?: string }) {
         </p>
 
         <div className="mt-8 overflow-x-auto rounded-md border border-border bg-card p-3 relative">
+          <div className="relative mb-2 flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+            <Button
+              size="sm"
+              className="h-8"
+              onClick={() => {
+                togglePlay();
+                setConceptId((c) => (c === "playback" ? null : "playback"));
+              }}
+            >
+              {playing ? (
+                <Square className="h-4 w-4" />
+              ) : (
+                <Play className="h-4 w-4" />
+              )}
+              {playing ? "Stop" : "Play"}
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="h-8 w-8"
+              onClick={() => {
+                rollRef.current?.rewind();
+                setConceptId((c) => (c === "loop" ? null : "loop"));
+              }}
+              title="Rewind to the start of the loop"
+              aria-label="Rewind to the start of the loop"
+            >
+              <SkipBack className="h-4 w-4" />
+            </Button>
+            </div>
+            <div className="flex items-center gap-2">
+            {/* Delete cluster: trash removes the selection; eraser arms the
+                trash-cursor so any note you click/touch is deleted. */}
+            <div className="flex overflow-hidden rounded-md border border-border bg-card">
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 rounded-none border-r border-border"
+                disabled={editsEnabled && selectedCount === 0}
+                onClick={deleteSelected}
+                title={
+                  !editsEnabled
+                    ? "Turn on Edit to delete notes"
+                    : selectedCount > 0
+                      ? `Delete ${selectedCount} selected note${selectedCount > 1 ? "s" : ""} (Del)`
+                      : "Select a note to delete"
+                }
+                aria-label="Delete selected notes"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                className={cn(
+                  "h-8 w-8 rounded-none",
+                  isDeleteMode && "bg-orange-600 text-white hover:bg-orange-700 hover:text-white",
+                )}
+                onClick={toggleEraser}
+                title={
+                  !editsEnabled
+                    ? "Turn on Edit to use the eraser"
+                    : isDeleteMode
+                      ? "Eraser on — click notes to delete. Click to turn off"
+                      : "Eraser — click notes to delete them"
+                }
+                aria-label="Toggle eraser (delete notes on click)"
+                aria-pressed={isDeleteMode}
+              >
+                <Eraser className="h-4 w-4" />
+              </Button>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={editsEnabled}
+              aria-label={
+                editsEnabled
+                  ? "Edit is on. Notes can be painted and moved."
+                  : "Edit is off. Turn on to paint or move notes."
+              }
+              title={
+                editsEnabled
+                  ? "Edit on — paint and move notes"
+                  : "Edit off — listen: play and watch, no painting"
+              }
+              onClick={() => {
+                setEditsEnabled((v) => !v);
+                setConceptId("edit");
+              }}
+              className={cn(
+                "inline-flex h-8 items-center gap-2 rounded-md border bg-background px-2.5 text-xs font-medium transition-colors",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                editsEnabled
+                  ? "border-emerald-600/50 text-foreground"
+                  : "border-border text-muted-foreground",
+              )}
+            >
+              <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+              <span>Edit</span>
+              <span
+                aria-hidden="true"
+                className={cn(
+                  "flex h-4 w-7 items-center rounded-full p-0.5 transition-colors",
+                  editsEnabled ? "bg-emerald-600" : "bg-muted",
+                )}
+              >
+                <span
+                  className={cn(
+                    "h-3 w-3 rounded-full bg-white transition-transform",
+                    editsEnabled ? "translate-x-3" : "translate-x-0",
+                  )}
+                />
+              </span>
+            </button>
+            </div>
+            {showEditHint && !editsEnabled && (
+              <div
+                role="status"
+                className="absolute right-0 top-10 z-20 w-64 rounded-md border border-orange-700/50 bg-background p-3 shadow-lg"
+              >
+                <p className="text-xs leading-relaxed text-muted-foreground">
+                  Turn on <span className="font-medium text-foreground">Edit</span> to
+                  paint or move notes. Dragging still pans the roll.
+                </p>
+                <Button
+                  size="sm"
+                  className="mt-2 h-7 text-xs"
+                  onClick={() => {
+                    setEditsEnabled(true);
+                    setConceptId("edit");
+                  }}
+                >
+                  Turn on Edit
+                </Button>
+              </div>
+            )}
+          </div>
           <PianoRollEditor
-            key={song.id}
+            // The roll seeds its notes once, at mount. Include the document
+            // state so the async catalog load (same id) remounts it seeded.
+            key={song.document ? `${song.id}:doc` : song.id}
             ref={rollRef}
             initialMelody={song.melody}
             initialSequence={rollView?.sequence}
@@ -384,32 +567,17 @@ export function MidiLab({ songId }: { songId?: string }) {
             hasScale={hasScale}
             lockToScale={lockToScale}
             isNoteInScale={isNoteInScale}
+            allowEdits={editsEnabled}
             onPreviewNote={previewNote}
             onNoteSelected={handleNoteSelected}
+            onSelectionChange={setSelectedCount}
+            onEditBlocked={handleEditBlocked}
             onHistoryChange={(undo, redo) => {
               setCanUndo(undo);
               setCanRedo(redo);
             }}
             className="min-h-[362px]"
           />
-
-          {selectedNote && !isDeleteMode && (
-            <div className="absolute top-4 right-4 bg-background border border-border rounded-md shadow-lg p-2 flex flex-col gap-2 z-10 w-40">
-              <div className="text-xs font-medium text-muted-foreground px-1 pb-1 border-b border-border flex justify-between">
-                <span>Selected Note</span>
-                <span className="text-foreground">{midiToPitchName(selectedNote.n)}</span>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="justify-start text-red-500 hover:text-red-600 hover:bg-red-500/10 h-8"
-                onClick={deleteSelected}
-              >
-                <Trash2 className="h-3 w-3 mr-2" />
-                Delete
-              </Button>
-            </div>
-          )}
         </div>
 
         <div className="mt-4 flex flex-wrap items-center gap-2 relative">
@@ -434,30 +602,6 @@ export function MidiLab({ songId }: { songId?: string }) {
               <Minus className="h-3 w-3" />
             </Button>
           </div>
-
-          <Button 
-            onClick={() => {
-              togglePlay();
-              setConceptId(c => c === "playback" ? null : "playback");
-            }}
-          >
-            {playing ? (
-              <Square className="h-4 w-4" />
-            ) : (
-              <Play className="h-4 w-4" />
-            )}
-            {playing ? "Stop" : "Play"}
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              rollRef.current?.rewind();
-              setConceptId(c => c === "loop" ? null : "loop");
-            }}
-            aria-label="Rewind to start"
-          >
-            <SkipBack className="h-4 w-4" />
-          </Button>
 
           <div className="flex rounded-md border border-border bg-card overflow-hidden">
             <Button
@@ -558,18 +702,6 @@ export function MidiLab({ songId }: { songId?: string }) {
             title="Toggle Click-to-Hear (Preview Note Sound)"
           >
             {soundEnabled ? <Volume2 className="h-4 w-4" /> : <VolumeX className="h-4 w-4" />}
-          </Button>
-
-          <Button
-            variant={isDeleteMode ? "default" : "outline"}
-            className={isDeleteMode ? "bg-orange-600 hover:bg-orange-700 text-white" : ""}
-            onClick={() => {
-              setIsDeleteMode(!isDeleteMode);
-              setConceptId("eraser");
-            }}
-            title="Toggle Eraser Tool"
-          >
-            <Trash2 className="h-4 w-4" />
           </Button>
 
           <div className="flex flex-wrap items-center gap-2 sm:ml-auto mr-16">

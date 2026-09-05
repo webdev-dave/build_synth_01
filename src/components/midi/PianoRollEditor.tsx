@@ -59,10 +59,14 @@ interface PianoRollElement extends HTMLElement {
   hasScale: boolean;
   lockToScale: boolean;
   isNoteInScale: ((noteNumber: number) => boolean) | null;
+  allowEdits: boolean;
   onNoteSelect: ((note: SequenceEvent | null) => void) | null;
+  onSelectionChanged: ((count: number) => void) | null;
+  onEditBlocked: (() => void) | null;
   pressedKey?: number | null;
   _cleanup?: () => void;
   delSelectedNote(): void;
+  hideMenu?: () => void;
   saveState(): void;
   clearHistory(): void;
   undo(): void;
@@ -110,9 +114,14 @@ type Props = {
   hasScale?: boolean;
   lockToScale?: boolean;
   isNoteInScale?: (note: number) => boolean;
+  /** When false, the grid pans instead of painting. Default true. */
+  allowEdits?: boolean;
   className?: string;
   onPreviewNote?: (note: number) => void;
   onNoteSelected?: (note: SequenceEvent | null) => void;
+  /** How many notes are currently selected (drives the Delete button). */
+  onSelectionChange?: (count: number) => void;
+  onEditBlocked?: () => void;
   onHistoryChange?: (canUndo: boolean, canRedo: boolean) => void;
 };
 
@@ -170,9 +179,12 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       hasScale = false,
       lockToScale = false,
       isNoteInScale,
+      allowEdits = true,
       className,
       onPreviewNote,
       onNoteSelected,
+      onSelectionChange,
+      onEditBlocked,
       onHistoryChange,
     } = props;
     const containerRef = useRef<HTMLDivElement>(null);
@@ -191,6 +203,9 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
     const previewRef = useRef(onPreviewNote);
     const selectRef = useRef(onNoteSelected);
     const historyRef = useRef(onHistoryChange);
+    const blockedRef = useRef(onEditBlocked);
+    const selectionRef = useRef(onSelectionChange);
+    const allowEditsRef = useRef(allowEdits);
 
     useEffect(() => {
       previewRef.current = onPreviewNote;
@@ -199,6 +214,19 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
     useEffect(() => {
       selectRef.current = onNoteSelected;
     }, [onNoteSelected]);
+
+    useEffect(() => {
+      blockedRef.current = onEditBlocked;
+    }, [onEditBlocked]);
+
+    useEffect(() => {
+      selectionRef.current = onSelectionChange;
+    }, [onSelectionChange]);
+
+    useEffect(() => {
+      allowEditsRef.current = allowEdits;
+      if (elRef.current) elRef.current.allowEdits = allowEdits;
+    }, [allowEdits]);
     
     useEffect(() => {
       historyRef.current = onHistoryChange;
@@ -267,6 +295,13 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         // Pass note selection events out
         el.onNoteSelect = (ev: SequenceEvent | null) => {
            if (selectRef.current) selectRef.current(ev);
+        };
+        el.allowEdits = allowEditsRef.current;
+        el.onEditBlocked = () => {
+          blockedRef.current?.();
+        };
+        el.onSelectionChanged = (count: number) => {
+          selectionRef.current?.(count);
         };
         
         container.appendChild(el);
@@ -374,6 +409,23 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         // All view changes go through element properties (setAttribute is a
         // no-op after mount); property sets trigger the element's own redraw.
         el.addEventListener("wheel", (e) => {
+          // Edit off is listen mode: notes, play, and the playhead still
+          // work. Vertical wheel scrolls the page. Horizontal (trackpad
+          // swipe / Shift+wheel) still pans time so you can watch the song.
+          if (el!.allowEdits === false) {
+            el!.hideMenu?.();
+            const panX = e.shiftKey ? e.deltaY || e.deltaX : e.deltaX;
+            if (panX !== 0) {
+              e.preventDefault();
+              const rect = el!.getBoundingClientRect();
+              const kbwidth = el!.kbwidth || 32;
+              const yruler = el!.yruler || 24;
+              const graphWidth = rect.width - yruler - kbwidth;
+              el!.xoffset = Math.max(0, el!.xoffset + (panX / graphWidth) * el!.xrange);
+            }
+            return;
+          }
+
           const rect = el!.getBoundingClientRect();
           const x = e.clientX - rect.left;
           const kbwidth = el!.kbwidth || 32;
@@ -381,6 +433,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
 
           if (e.ctrlKey || e.metaKey) {
             e.preventDefault();
+            el!.hideMenu?.();
 
             if (x > yruler + kbwidth) {
                let xrange = el!.xrange;
@@ -414,6 +467,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
           } else {
              // Scroll panning (Vertical & Horizontal)
              e.preventDefault();
+             el!.hideMenu?.();
 
              const graphWidth = rect.width - yruler - kbwidth;
              const graphHeight = rect.height - RULER_PX;
@@ -500,7 +554,19 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
         return sequenceToMelody(el.sequence, el.markend, initialRef.current);
       },
       play(ctx, onNote) {
-        elRef.current?.play(ctx, onNote);
+        const el = elRef.current;
+        if (!el) return;
+        // Skip leading silence: if the playhead is still parked at (or before)
+        // the first note, snap it to that note so pressing Play doesn't sit in
+        // an empty intro. Respects a playhead the user has dragged into the song.
+        if (el.sequence.length) {
+          let firstTick = Infinity;
+          for (const ev of el.sequence) if (ev.t < firstTick) firstTick = ev.t;
+          if (isFinite(firstTick) && firstTick > 0 && el.cursor <= firstTick) {
+            el.locate(firstTick);
+          }
+        }
+        el.play(ctx, onNote);
       },
       stop() {
         elRef.current?.stop();
@@ -510,6 +576,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       },
       deleteSelected() {
         if (elRef.current) {
+          elRef.current.hideMenu?.();
           elRef.current.delSelectedNote();
           elRef.current.redraw();
           if (elRef.current.saveState) elRef.current.saveState();
@@ -528,6 +595,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       reset() {
         const el = elRef.current;
         if (!el) return;
+        el.hideMenu?.();
         el.stop();
         el.sequence = seedSeqRef.current.map((ev) => ({ ...ev }));
         el.markend = Math.max(1, seedTicksRef.current);
@@ -539,6 +607,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       zoomX(factor: number) {
         const el = elRef.current;
         if (!el) return;
+        el.hideMenu?.();
         const viewCenter = el.xoffset + el.xrange / 2;
         // Prevent zooming out past the song bounds plus an extra 8 bars
         const maxTicks = el.markend + el.timebase * 8;
@@ -555,6 +624,7 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
       zoomY(factor: number) {
         const el = elRef.current;
         if (!el) return;
+        el.hideMenu?.();
         const viewCenter = el.yoffset + el.yrange / 2;
         const yrange = Math.max(4, Math.min(64, el.yrange * factor));
         el.yrange = yrange;

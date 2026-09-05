@@ -10,7 +10,9 @@
  * keeps the synth's `?scale=…` deep-link target unambiguous.
  *
  * Cross-links are data: a scale lists the genre slugs it shows up in
- * (`usedIn`), and the genre registry points back (`scales`).
+ * (`usedIn`), and the genre registry points back (`scales`). History
+ * articles list scale slugs; pages look them up with `getArticlesByScale`.
+ * When you add either side of a pair, update the other.
  */
 
 export type ScaleKind = "scale" | "mode";
@@ -97,6 +99,8 @@ export const SCALES: ScaleLesson[] = [
       "Five notes, no half-steps to clash — the safest scale to solo with, and the blues scale minus the blue note.",
     answer:
       "The minor pentatonic is a five-note scale (1, ♭3, 4, 5, ♭7) with none of the tense half-steps of a full minor scale. Add the ♭5 and you get the blues scale.",
+    history:
+      "The five-note column is older than the blues — a West African pentatonic sense of pitch that traveled into work songs, field hollers, and spirituals. In the southern United States it became the skeleton of blues and rock solos; pin a flattened fifth onto it and you have the blues scale.",
     formula: "1 – ♭3 – 4 – 5 – ♭7",
     exampleKey: "A",
     exampleNotes: "A – C – D – E – G",
@@ -104,6 +108,30 @@ export const SCALES: ScaleLesson[] = [
     patternKey: "minorPentatonic",
     status: "soon",
     keywords: ["minor pentatonic scale", "pentatonic notes", "pentatonic solo scale"],
+  },
+  {
+    slug: "freygish",
+    name: "Freygish",
+    kind: "mode",
+    question: "What is the freygish scale?",
+    summary:
+      "Flattened second, major third, and the augmented-second leap between them — the signature mode of klezmer, also known as Ahava Rabbah or Phrygian dominant.",
+    answer:
+      "Freygish — also called Ahava Rabbah or, in Western terms, Phrygian dominant — is a seven-note scale with a flattened second and a major third, leaving an augmented second between them: 1, ♭2, 3, 4, 5, ♭6, ♭7. It is the signature sound of klezmer and Ashkenazi prayer, and the same scale colours flamenco, Balkan, and Middle Eastern music.",
+    history:
+      "The Yiddish name freygish is a borrowing of 'Phrygian'; the Hebrew name Ahava Rabbah comes from the prayer whose chant uses the mode. Klezmer inherited it from the synagogue and shared it with its Ottoman, Romanian, and Greek neighbours — the augmented second between its second and third degrees is the interval most ears hear as 'the Jewish scale,' though the same pitches serve flamenco and the Arabic maqam Hijaz.",
+    formula: "1 – ♭2 – 3 – 4 – 5 – ♭6 – ♭7",
+    exampleKey: "E",
+    exampleNotes: "E – F – G♯ – A – B – C – D",
+    usedIn: ["klezmer"],
+    status: "soon",
+    keywords: [
+      "what is the freygish scale",
+      "ahava rabbah mode",
+      "phrygian dominant scale",
+      "jewish scale klezmer",
+      "freygish notes",
+    ],
   },
   {
     slug: "dorian",

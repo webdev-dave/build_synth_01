@@ -8,11 +8,14 @@ import { ArrowLeft, ArrowRight, AudioLines, Menu, X } from "lucide-react";
 import {
   NAV_BAR_ITEMS,
   DRAWER_ITEMS,
+  APP_SECTION_GROUPS,
   APP_NAME,
   isNavItemActive,
+  type NavItem,
 } from "@/lib/navigation";
 import { getAppIcon } from "@/lib/appIcons";
 import { useBrowserHistoryNav } from "@/hooks/useBrowserHistoryNav";
+import GlobalSearch from "@/components/navigation/GlobalSearch";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
@@ -64,8 +67,8 @@ export default function NavMenu() {
     <>
       {/* Header bar */}
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/75">
-        <div className="flex h-12 items-center justify-between px-3 sm:px-4">
-          <div className="flex items-center gap-3">
+        <div className="flex h-12 items-center gap-2 px-3 sm:px-4">
+          <div className="flex shrink-0 items-center gap-3">
             <Link
               href="/"
               className="flex items-center gap-2 font-semibold text-foreground transition-colors hover:text-foreground/80"
@@ -101,7 +104,11 @@ export default function NavMenu() {
             </div>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className="flex min-w-0 flex-1 justify-end">
+            <GlobalSearch />
+          </div>
+
+          <div className="flex shrink-0 items-center gap-1">
             {NAV_BAR_ITEMS.length > 0 && (
               <nav className="hidden items-center gap-1 md:flex">
                 {NAV_BAR_ITEMS.map((item) => {
@@ -171,7 +178,7 @@ export default function NavMenu() {
         {/* Drawer */}
         <div
           className={cn(
-            "absolute right-0 top-0 h-full w-72 max-w-[85vw] transform border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
+            "absolute right-0 top-0 flex h-full w-72 max-w-[85vw] transform flex-col border-l border-border bg-background shadow-2xl transition-transform duration-300 ease-out",
             isOpen ? "translate-x-0" : "translate-x-full"
           )}
         >
@@ -193,46 +200,36 @@ export default function NavMenu() {
           </div>
 
           {/* Nav items */}
-          <nav className="space-y-1 p-4">
-            {DRAWER_ITEMS.map((item) => {
-              const Icon = getAppIcon(item.id);
-              return (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "block rounded-lg p-3 transition-colors",
-                    isNavItemActive(pathname, item)
-                      ? "bg-accent text-accent-foreground"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                  )}
-                >
-                  <div className="flex items-center gap-3">
-                    <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium text-foreground">
-                          {item.label}
-                        </span>
-                        {item.beta && (
-                          <Badge variant="secondary">Beta</Badge>
-                        )}
-                      </div>
-                      {item.description && (
-                        <div className="mt-0.5 text-xs text-muted-foreground">
-                          {item.description}
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </Link>
-              );
-            })}
+          <nav className="min-h-0 flex-1 space-y-5 overflow-y-auto p-4">
+            {DRAWER_ITEMS.filter((item) => !item.section).map((item) => (
+              <DrawerLink
+                key={item.id}
+                item={item}
+                pathname={pathname}
+                onNavigate={() => setIsOpen(false)}
+              />
+            ))}
+            {APP_SECTION_GROUPS.map((group) => (
+              <div key={group.section.id}>
+                <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                  {group.section.title}
+                </p>
+                <div className="space-y-1">
+                  {group.apps.map((item) => (
+                    <DrawerLink
+                      key={item.id}
+                      item={item}
+                      pathname={pathname}
+                      onNavigate={() => setIsOpen(false)}
+                    />
+                  ))}
+                </div>
+              </div>
+            ))}
           </nav>
 
           {/* Footer */}
-          <div className="absolute bottom-0 left-0 right-0 border-t border-border p-4">
+          <div className="shrink-0 border-t border-border p-4">
             <Link
               href="/about"
               onClick={() => setIsOpen(false)}
@@ -244,5 +241,44 @@ export default function NavMenu() {
         </div>
       </div>
     </>
+  );
+}
+
+function DrawerLink({
+  item,
+  pathname,
+  onNavigate,
+}: {
+  item: NavItem;
+  pathname: string;
+  onNavigate: () => void;
+}) {
+  const Icon = getAppIcon(item.id);
+  return (
+    <Link
+      href={item.href}
+      onClick={onNavigate}
+      className={cn(
+        "block rounded-lg p-3 transition-colors",
+        isNavItemActive(pathname, item)
+          ? "bg-accent text-accent-foreground"
+          : "text-muted-foreground hover:bg-accent hover:text-foreground"
+      )}
+    >
+      <div className="flex items-center gap-3">
+        <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
+        <div>
+          <div className="flex items-center gap-2">
+            <span className="font-medium text-foreground">{item.label}</span>
+            {item.beta && <Badge variant="secondary">Beta</Badge>}
+          </div>
+          {item.description && (
+            <div className="mt-0.5 text-xs text-muted-foreground">
+              {item.description}
+            </div>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
