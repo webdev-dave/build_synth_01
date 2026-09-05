@@ -1,5 +1,5 @@
 ---
-description: How Instrumaps is hosted and deployed (Vercel, locked main, Netlify redirect)
+description: How Instrumaps is hosted and deployed (Vercel, staged main, Netlify redirect)
 alwaysApply: true
 ---
 
@@ -9,28 +9,48 @@ Live site: **https://instrumaps.com** (also `www` → apex 308). Hosted on
 **Vercel**, project `instrumaps`, team scope `elidovrichcoding-7145s-projects`,
 git-connected to `webdev-dave/build_synth_01`, production branch `main`.
 
-## ⚠️ Pushing to `main` does NOT deploy
+## ⚠️ Pushing to `main` builds, but does NOT go live
 
-Auto-deploy on `main` is intentionally **disabled** via `vercel.json`
-(`git.deploymentEnabled.main = false`). Commits pile up on `main` without
-changing the live site. Never tell the user a push went live — verify with
-`vercel ls instrumaps --prod --scope elidovrichcoding-7145s-projects`.
+GitHub pushes to `main` trigger a **staged production build** (Vercel clones
+the repo — no laptop upload). `instrumaps.com` stays on the last **promoted**
+deployment until someone explicitly promotes.
+
+That lock is **not** in `vercel.json`. It is a project setting:
+`autoAssignCustomDomains = false` (Settings → Environments → Production →
+Branch Tracking → Auto-assign Custom Production Domains). Toggle it via:
+
+```bash
+vercel api "/v9/projects/instrumaps?teamId=team_XKCZTQlumGfsOvBkDiALh3FA" \
+  -X PATCH -F autoAssignCustomDomains=false \
+  --scope elidovrichcoding-7145s-projects
+```
+
+Never tell the user a push went live — verify with
+`vercel ls instrumaps --prod --scope elidovrichcoding-7145s-projects`
+and/or open the production URL.
 
 ## Shipping to production (deliberate)
 
-- One-off manual deploy (keeps the lock):
-  `vercel --prod --scope elidovrichcoding-7145s-projects`
-  (manual CLI deploys ignore the git lock)
-- Re-enable auto-deploy: set `deploymentEnabled.main` to `true` in `vercel.json`
-  (or delete the file), then commit + push.
+1. Push (or wait for) the `main` commit you want.
+2. Find the staged build:
+   `vercel ls instrumaps --scope elidovrichcoding-7145s-projects`
+3. Promote that deployment (no rebuild if it is already a production build):
+   `vercel promote <url|id> --scope elidovrichcoding-7145s-projects --yes`
+
+Dashboard equivalent: Deployments → ⋯ → Promote.
+
+Do **not** use `vercel --prod` from a laptop unless Git is unavailable — it
+re-uploads the whole tree (~hundreds of MB of MIDI) and is what we retired.
 
 ## Other facts
 
-- Feature branches still auto-build as **preview** URLs — only `main` is locked.
-- Safety net: `vercel rollback <url|id>` / `vercel promote <url|id>`, or
-  Instant Rollback in the dashboard. Production keeps prior deployments.
+- Feature branches still auto-build as **preview** URLs.
+- Safety net: `vercel rollback <url|id>` / Instant Rollback. Production keeps
+  prior deployments.
 - App is currently a static export (`output: "export"`). Adding auth/DB means
   dropping that and switching to server rendering.
 - Old `synth-v01.netlify.app` 301-redirects to `instrumaps.com` via
   `netlify.toml`. That file affects **Netlify only** — Vercel ignores it. Do not
   delete the Netlify site or the redirect for old links dies.
+- Re-enabling instant-live-on-push: set `autoAssignCustomDomains` back to
+  `true`. Do not do that unless asked.
