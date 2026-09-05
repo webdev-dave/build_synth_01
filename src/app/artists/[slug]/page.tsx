@@ -7,8 +7,10 @@ import { ARTISTS, getArtist } from "@/lib/catalog/artists";
 import { songsByArtist } from "@/lib/catalog/songs";
 import { getGenre } from "@/lib/genres/registry";
 import { getArticle } from "@/lib/history/registry";
+import { sortByLabel } from "@/lib/search/normalize";
 import { SongLink } from "@/components/history/SongLink";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { PageMapSection } from "@/components/map/PageMapSection";
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -42,12 +44,18 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
   if (!artist) notFound();
 
   const songs = songsByArtist(artist.slug);
-  const genres = (artist.genres ?? [])
-    .map((g) => getGenre(g))
-    .filter((g): g is NonNullable<typeof g> => Boolean(g));
-  const articles = (artist.history ?? [])
-    .map((h) => getArticle(h))
-    .filter((a): a is NonNullable<typeof a> => Boolean(a));
+  const genres = sortByLabel(
+    (artist.genres ?? [])
+      .map((g) => getGenre(g))
+      .filter((g): g is NonNullable<typeof g> => Boolean(g)),
+    (g) => g.name,
+  );
+  const articles = sortByLabel(
+    (artist.history ?? [])
+      .map((h) => getArticle(h))
+      .filter((a): a is NonNullable<typeof a> => Boolean(a)),
+    (a) => a.name,
+  );
   const linkTerms = makeTermLinker();
 
   // FAQ schema — a definitional "who was X" answered with the on-page micro.
@@ -168,6 +176,20 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             </ul>
           </section>
         )}
+
+        {/* Where they worked — pinned places when set, else derived from the
+            genres/history they touch. Renders nothing if none map. */}
+        <PageMapSection
+          entity={{
+            genres: artist.genres,
+            history: artist.history,
+            places: artist.places,
+          }}
+          heading={`Where ${artist.name} worked`}
+          fullMapHref={
+            artist.genres?.[0] ? `/map?genre=${artist.genres[0]}` : "/map"
+          }
+        />
       </div>
     </main>
   );

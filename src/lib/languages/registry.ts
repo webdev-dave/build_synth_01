@@ -31,6 +31,11 @@ import {
 import { ARTISTS, type Artist } from "@/lib/catalog/artists";
 import { SONGS_CATALOG, type CatalogSong } from "@/lib/catalog/songs";
 import { WORDS, type SpokenWord } from "@/lib/words/registry";
+import {
+  filterByHaystack,
+  joinHaystack,
+  sortByLabel,
+} from "@/lib/search/normalize";
 
 export interface Language {
   /** URL slug under /languages. Kebab-case ("yiddish"). */
@@ -158,7 +163,7 @@ function touchesGenres(slugs: string[] | undefined, set: Set<string>): boolean {
   return (slugs ?? []).some((s) => set.has(s));
 }
 
-/** De-dupe by slug while preserving first-seen (registry) order. */
+/** De-dupe by slug while preserving first-seen order (caller sorts). */
 function uniqueBy<T>(items: T[], key: (item: T) => string): T[] {
   const seen = new Set<string>();
   const out: T[] = [];
@@ -173,14 +178,18 @@ function uniqueBy<T>(items: T[], key: (item: T) => string): T[] {
 
 export function languageGenres(language: Language): Genre[] {
   const set = genreSet(language);
-  return GENRES.filter((g) => set.has(g.slug));
+  return sortByLabel(
+    GENRES.filter((g) => set.has(g.slug)),
+    (g) => g.name,
+  );
 }
 
 export function languageScales(language: Language): ScaleLesson[] {
   const set = genreSet(language);
   const extra = new Set(language.scales ?? []);
-  return SCALES.filter(
-    (s) => touchesGenres(s.usedIn, set) || extra.has(s.slug),
+  return sortByLabel(
+    SCALES.filter((s) => touchesGenres(s.usedIn, set) || extra.has(s.slug)),
+    (s) => s.name,
   );
 }
 
@@ -192,37 +201,47 @@ export function languageConcepts(language: Language): Concept[] {
   const extra = (language.concepts ?? [])
     .map((slug) => getConcept(slug))
     .filter((c): c is Concept => Boolean(c));
-  return uniqueBy([...derived, ...extra], (c) => c.slug);
+  return sortByLabel(uniqueBy([...derived, ...extra], (c) => c.slug), (c) => c.term);
 }
 
 export function languageHistory(language: Language): HistoryArticle[] {
   const set = genreSet(language);
   const extra = new Set(language.history ?? []);
-  return HISTORY_ARTICLES.filter(
-    (a) => touchesGenres(a.genres, set) || extra.has(a.slug),
+  return sortByLabel(
+    HISTORY_ARTICLES.filter(
+      (a) => touchesGenres(a.genres, set) || extra.has(a.slug),
+    ),
+    (a) => a.name,
   );
 }
 
 export function languageArtists(language: Language): Artist[] {
   const set = genreSet(language);
   const extra = new Set(language.artists ?? []);
-  return ARTISTS.filter(
-    (a) => touchesGenres(a.genres, set) || extra.has(a.slug),
+  return sortByLabel(
+    ARTISTS.filter((a) => touchesGenres(a.genres, set) || extra.has(a.slug)),
+    (a) => a.name,
   );
 }
 
 export function languageCatalogSongs(language: Language): CatalogSong[] {
   const set = genreSet(language);
   const extra = new Set(language.catalogSongs ?? []);
-  return SONGS_CATALOG.filter(
-    (s) => touchesGenres(s.genres, set) || extra.has(s.slug),
+  return sortByLabel(
+    SONGS_CATALOG.filter(
+      (s) => touchesGenres(s.genres, set) || extra.has(s.slug),
+    ),
+    (s) => s.title,
   );
 }
 
-/** Loanwords whose native form is in this language, in registry order. */
+/** Loanwords whose native form is in this language, A–Z by Latin spelling. */
 export function languageWords(language: Language): SpokenWord[] {
   if (!language.wordLanguage) return [];
-  return WORDS.filter((w) => w.native.language === language.wordLanguage);
+  return sortByLabel(
+    WORDS.filter((w) => w.native.language === language.wordLanguage),
+    (w) => w.latin,
+  );
 }
 
 /** The best in-app destination for a loanword, when one exists. */
@@ -237,48 +256,36 @@ export function wordHref(word: SpokenWord): string | undefined {
 /** Languages safe to index (real editorial content), for the sitemap. */
 export const LIVE_LANGUAGES = LANGUAGES.filter((l) => l.status === "live");
 
-/** Lowercase + strip diacritics so "română" matches "romana". */
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
 function languageHaystack(language: Language): string {
-  return normalize(
-    [
-      language.name,
-      language.nativeName,
-      language.slug,
-      language.lang,
-      language.wordLanguage,
-      language.question,
-      language.summary,
-      language.answer,
-      language.about,
-      ...language.keywords,
-      ...(language.genres ?? []),
-      ...(language.midiLabels ?? []),
-      ...languageGenres(language).map((g) => g.name),
-      ...languageScales(language).map((s) => s.name),
-      ...languageConcepts(language).flatMap((c) => [
-        c.term,
-        ...(c.aliases ?? []),
-      ]),
-      ...languageHistory(language).map((a) => a.name),
-      ...languageArtists(language).map((a) => a.name),
-      ...languageCatalogSongs(language).map((s) => s.title),
-      ...languageWords(language).flatMap((w) => [
-        w.latin,
-        w.native.spelling,
-        ...(w.alsoSpelled ?? []),
-        ...(w.aliases ?? []),
-      ]),
-    ]
-      .filter(Boolean)
-      .join(" "),
-  );
+  return joinHaystack([
+    language.name,
+    language.nativeName,
+    language.slug,
+    language.lang,
+    language.wordLanguage,
+    language.question,
+    language.summary,
+    language.answer,
+    language.about,
+    ...language.keywords,
+    ...(language.genres ?? []),
+    ...(language.midiLabels ?? []),
+    ...languageGenres(language).map((g) => g.name),
+    ...languageScales(language).map((s) => s.name),
+    ...languageConcepts(language).flatMap((c) => [
+      c.term,
+      ...(c.aliases ?? []),
+    ]),
+    ...languageHistory(language).map((a) => a.name),
+    ...languageArtists(language).map((a) => a.name),
+    ...languageCatalogSongs(language).map((s) => s.title),
+    ...languageWords(language).flatMap((w) => [
+      w.latin,
+      w.native.spelling,
+      ...(w.alsoSpelled ?? []),
+      ...(w.aliases ?? []),
+    ]),
+  ]);
 }
 
 const HAYSTACKS = new Map(LANGUAGES.map((l) => [l.slug, languageHaystack(l)]));
@@ -289,10 +296,12 @@ const HAYSTACKS = new Map(LANGUAGES.map((l) => [l.slug, languageHaystack(l)]));
  * scale, concept, artist, song, loanword) so "krechtz" or "krekhts" finds Yiddish.
  */
 export function searchLanguages(query: string): Language[] {
-  const tokens = normalize(query).split(/\s+/).filter(Boolean);
-  if (tokens.length === 0) return LANGUAGES;
-  return LANGUAGES.filter((language) => {
-    const hay = HAYSTACKS.get(language.slug) ?? "";
-    return tokens.every((t) => hay.includes(t));
-  });
+  return sortByLabel(
+    filterByHaystack(
+      LANGUAGES,
+      query,
+      (language) => HAYSTACKS.get(language.slug) ?? "",
+    ),
+    (language) => language.name,
+  );
 }

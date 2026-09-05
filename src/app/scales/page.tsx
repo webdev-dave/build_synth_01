@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Waypoints } from "lucide-react";
+import { Waypoints } from "lucide-react";
 
-import { SCALES } from "@/lib/scales/registry";
-import { NativeSpelling } from "@/components/words/NativeSpelling";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ScalesExplorer } from "@/components/scales/ScalesExplorer";
 
 export const metadata: Metadata = {
   title: "Scales & Modes — Built, Heard, and Played",
@@ -45,52 +36,7 @@ export default function ScalesPage() {
           </p>
         </header>
 
-        <section aria-labelledby="scales-heading">
-          <h2
-            id="scales-heading"
-            className="mb-4 text-sm font-medium text-muted-foreground"
-          >
-            Scales
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SCALES.map((scale) => {
-              const soon = scale.status === "soon";
-              return (
-                <Link
-                  key={scale.slug}
-                  href={`/scales/${scale.slug}`}
-                  className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base">
-                          {scale.name}
-                          <NativeSpelling
-                            id={scale.slug}
-                            className="ms-2 text-sm"
-                          />
-                        </CardTitle>
-                        {scale.kind === "mode" && (
-                          <Badge variant="outline">Mode</Badge>
-                        )}
-                        {soon && <Badge variant="secondary">Soon</Badge>}
-                      </div>
-                      <CardDescription>{scale.summary}</CardDescription>
-                      <span className="mt-1 font-mono text-xs text-muted-foreground">
-                        {scale.formula}
-                      </span>
-                      <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                        {soon ? "Preview" : "Explore"}
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <ScalesExplorer />
       </div>
     </main>
   );

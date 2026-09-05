@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { Map as MapIcon } from "lucide-react";
 
 import { MapExplorer } from "@/components/map/MapExplorer";
@@ -64,7 +65,11 @@ export default function MapPage() {
           </p>
         </header>
 
-        <MapExplorer songCounts={songCounts} />
+        {/* useSearchParams (deep-link lens) needs a Suspense boundary under
+            the static export. */}
+        <Suspense fallback={<div className="mt-6 h-[520px]" aria-hidden />}>
+          <MapExplorer songCounts={songCounts} />
+        </Suspense>
       </div>
     </main>
   );

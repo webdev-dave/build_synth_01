@@ -13,6 +13,9 @@
  * `getArticleByGenre`. Update both sides of a pair in the same change.
  */
 
+import { nativeSpellingsOf } from "@/lib/words/registry";
+import { filterByHaystack, joinHaystack, sortByLabel } from "@/lib/search/normalize";
+
 export type GenreLayer =
   | "rhythm"
   | "meter"
@@ -163,3 +166,45 @@ export function getGenre(slug: string): Genre | undefined {
 
 /** Genres safe to index (real content), for the sitemap. */
 export const LIVE_GENRES = GENRES.filter((g) => g.status === "live");
+
+export interface GenreFilters {
+  layer?: GenreLayer;
+  status?: "live" | "soon";
+}
+
+function genreHaystack(genre: Genre): string {
+  return joinHaystack([
+    genre.name,
+    genre.slug,
+    genre.question,
+    genre.summary,
+    genre.answer,
+    genre.about,
+    ...genre.keywords,
+    ...genre.scales,
+    ...genre.signatureLayers,
+    ...genre.signatureLayers.map((layer) => LAYER_INFO[layer].label),
+    ...nativeSpellingsOf(genre.slug),
+  ]);
+}
+
+const GENRE_HAY = new Map(GENRES.map((g) => [g.slug, genreHaystack(g)]));
+
+export function searchGenres(
+  query: string,
+  filters: GenreFilters = {},
+): Genre[] {
+  let items: readonly Genre[] = GENRES;
+  if (filters.layer) {
+    items = items.filter((genre) =>
+      genre.signatureLayers.includes(filters.layer!),
+    );
+  }
+  if (filters.status) {
+    items = items.filter((genre) => genre.status === filters.status);
+  }
+  return sortByLabel(
+    filterByHaystack(items, query, (genre) => GENRE_HAY.get(genre.slug) ?? ""),
+    (genre) => genre.name,
+  );
+}

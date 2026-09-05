@@ -20,6 +20,13 @@ them, and links out to the full `/map`. Site-wide ranking stays in
 - **Rollout:** ship **genres** end-to-end first, then reuse the pieces for the
   other page types.
 
+**Status (2026-09-05):** Phases 0–4 shipped **and rolled out to every content
+page** — `/genres/[slug]`, `/history/[slug]`, `/artists/[slug]`,
+`/languages/[slug]`, `/concepts/[slug]`, `/songs/[slug]`. Artist `places` pins
+added for all 11 catalog artists. `tsc --noEmit` clean and `next build`
+(static export) passes. Remaining: **live QA** (nothing has been eyeballed in a
+browser yet) and Phase 5 polish — see "Open items" at the bottom.
+
 ---
 
 ## Why this is small
@@ -131,16 +138,24 @@ Per-entity resolution (derivation defaults):
       klezmer lives"; link "Open in full map →" → `/map?genre=<slug>`.
       Skip rendering for `status: "soon"` genres with no mapped places
       (today only blues + klezmer resolve places at all).
-- [ ] Then reuse in: `history/[slug]`, `artists/[slug]`, `languages/[slug]`,
-      `concepts/[slug]`, `piano-roll/[slug]` — each is a resolver call + the
-      section drop-in (plus `places?` pins where derivation is too broad,
-      especially artists).
+- [x] Then reuse in: `history/[slug]`, `artists/[slug]`, `languages/[slug]`,
+      `concepts/[slug]`, `songs/[slug]` — each is a resolver call + the
+      section drop-in.
+      - `piano-roll/[slug]` **skipped**: that route renders `null` (the roll is
+        a client app), so there's no page body to hang a map on. The real
+        "song page" is `/songs/[slug]`, which is wired.
+      - Headings per page: genre "Where {genre} lives"; history "Where it
+        happened"; artist "Where {name} worked"; language "Where the music
+        lives"; concept "Where you'll hear it"; song "Where it comes from".
+      - `fullMapHref` uses the entity's first genre (`/map?genre=…`) when it
+        has one, else plain `/map`.
 
 ## Phase 5 — Backfill & polish
 
-- [ ] Add `places?` pins to artists whose prose names specific cities
-      (Muddy Waters → delta/Mississippi/Chicago; Dave Tarras → Ukraine/New
-      York; W. C. Handy → Memphis/St. Louis; etc.).
+- [x] Add `places?` pins to all 11 catalog artists (Muddy Waters →
+      delta/Mississippi/Chicago; Dave Tarras → Ukraine/New York; W. C. Handy →
+      Mississippi/Memphis/St. Louis; Giora Feidman → Chișinău/Bessarabia/
+      Israel/Safed/New York; etc.).
 - [ ] Consider swapping `HomeMapTeaser` internals for `EmbeddedMap` later
       (optional; teaser is static-by-design, don't force it).
 - [ ] Reduced-motion: fit jumps instead of animating (the 900ms transform
@@ -171,3 +186,49 @@ Per-entity resolution (derivation defaults):
    showing a random globe. Only blues + klezmer have mapped places today —
    most concept/language/artist pages will correctly render no map until the
    registry grows.
+
+---
+
+## Open items — need your input / a browser
+
+Code is type-clean and the static build passes, but **nothing has been looked
+at in a running browser.** These need you (or a follow-up pass with the dev
+server up):
+
+1. **Live QA (the big one).** Eyeball, on desktop *and* a real touch device:
+   - a genre page (`/genres/blues`, `/genres/klezmer`) — does the region frame
+     nicely, and does one-finger scroll pass *through* the embed on mobile
+     (the touch-scroll fix) rather than panning it?
+   - an artist with a wide pin set (`/artists/giora-feidman`: Chișinău +
+     Bessarabia + Israel + Safed + New York) — the auto-fit has to span Europe
+     to the Levant to a US dot; confirm the framing isn't awkward.
+   - `/map?genre=blues` and `/map?place=chicago` open with the right lens.
+
+2. **Heading wording — your call.** I picked per-page headings (genre "Where
+   {genre} lives", history "Where it happened", artist "Where {name} worked",
+   language "Where the music lives", concept "Where you'll hear it", song
+   "Where it comes from"). Tell me if you'd rather a single consistent heading
+   everywhere, or different words.
+
+3. **Artist pin accuracy — please sanity-check.** I derived pins from each
+   bio's prose. Two I'd especially like you to confirm:
+   - **Bessie Smith** → `new-york` (recording) + `mississippi` (died there).
+     Her story is national; is that the right pair, or add Tennessee
+     (Chattanooga) / Pennsylvania (Philadelphia)?
+   - **Naftule Brandwein** → `galicia` + `new-york`. Przemyślany is inside the
+     Galicia overlay; do you also want the `ukraine` country tint?
+
+4. **Empty-map coverage.** Rock/reggae genres, Hebrew/Romanian languages, and
+   most concepts render **no** map today (no places tagged for them) — correct
+   per the honesty rule. If you want them to show something, that's a
+   *content* task: add places (or genre tags on existing places) to the
+   registry. Flag which ones matter.
+
+5. **`?places=` deep link (deferred).** Non-genre embeds link their section to
+   `/map?genre=…` or plain `/map`, and per-place chips to `/map?place=<id>`.
+   A true "open the full map with exactly these places lit" link is out until
+   the full map grows UI to show/clear an arbitrary place-set lens. Say the
+   word if you want that built.
+
+6. **Optional polish (not blocking):** fold `HomeMapTeaser` onto the shared
+   `geoData` cache; double-check the reduced-motion path on the initial fit.

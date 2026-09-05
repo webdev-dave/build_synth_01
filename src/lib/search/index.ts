@@ -21,6 +21,7 @@ import { CONCEPTS } from "@/lib/concepts/registry";
 import { LANGUAGES } from "@/lib/languages/registry";
 import { LESSONS } from "@/lib/lessons/registry";
 import { nativeSpellingsOf } from "@/lib/words/registry";
+import { normalizeSearch } from "@/lib/search/normalize";
 
 export type SearchGroup =
   | "pages"
@@ -98,12 +99,7 @@ export interface SearchResultGroup {
 }
 
 /** Lowercase + strip diacritics so "bulgár" matches "bulgar". */
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
+const normalize = normalizeSearch;
 
 function entry(
   group: SearchGroup,

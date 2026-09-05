@@ -18,6 +18,7 @@ import {
 import { songAttribution } from "@/lib/catalog/songs";
 import type { SongManifestEntry } from "@/lib/songs/types";
 import { RelatedPages } from "@/components/content/RelatedPages";
+import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { NativeScript } from "@/components/words/NativeScript";
 import manifestJson from "@/lib/songs/manifest.json";
@@ -226,6 +227,17 @@ export default async function LanguageDetailPage({
             </div>
           </section>
         )}
+
+        {/* Where this language's music lives — via the genres/history it
+            derives. Renders nothing if none map. */}
+        <PageMapSection
+          entity={{
+            genres: genres.map((g) => g.slug),
+            history: history.map((a) => a.slug),
+          }}
+          heading="Where the music lives"
+          fullMapHref={genres[0] ? `/map?genre=${genres[0].slug}` : "/map"}
+        />
       </div>
     </main>
   );

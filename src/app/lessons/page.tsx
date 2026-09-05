@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, GraduationCap } from "lucide-react";
+import { GraduationCap } from "lucide-react";
 
-import { LESSONS } from "@/lib/lessons/registry";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { LessonsExplorer } from "@/components/lessons/LessonsExplorer";
 
 export const metadata: Metadata = {
   title: "Lessons — Music Theory, Played",
@@ -33,29 +25,7 @@ export default function LessonsPage() {
           </p>
         </header>
 
-        <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {LESSONS.map((lesson) => (
-            <Link
-              key={lesson.slug}
-              href={`/lessons/${lesson.slug}`}
-              className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            >
-              <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">{lesson.title}</CardTitle>
-                    <Badge variant="secondary">Soon</Badge>
-                  </div>
-                  <CardDescription>{lesson.summary}</CardDescription>
-                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    Preview
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </CardHeader>
-              </Card>
-            </Link>
-          ))}
-        </section>
+        <LessonsExplorer />
       </div>
     </main>
   );

@@ -1,15 +1,10 @@
 "use client";
 
-/**
- * Hub list + filter for /concepts. The glossary will grow; this keeps
- * the grid scannable by term, alias, native script, or a genre/scale
- * the concept already names.
- */
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { CONCEPTS, searchConcepts } from "@/lib/concepts/registry";
+import { HISTORY_ARTICLES, searchHistory } from "@/lib/history/registry";
 import { genreOptionsFrom } from "@/lib/search/options";
 import { NativeSpelling } from "@/components/words/NativeSpelling";
 import { Badge } from "@/components/ui/badge";
@@ -19,43 +14,67 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { HubSearch, genreChipGroup } from "@/components/content/HubSearch";
+import {
+  HubSearch,
+  genreChipGroup,
+  toggleChipGroup,
+} from "@/components/content/HubSearch";
 
-export function ConceptsExplorer() {
+export function HistoryExplorer() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState<string | undefined>();
+  const [status, setStatus] = useState<"live" | "soon" | undefined>();
 
   const genreOptions = useMemo(
     () =>
-      genreOptionsFrom(CONCEPTS.flatMap((concept) => concept.genres ?? [])),
+      genreOptionsFrom(HISTORY_ARTICLES.flatMap((article) => article.genres)),
     [],
   );
+  const showStatus =
+    HISTORY_ARTICLES.some((article) => article.status === "live") &&
+    HISTORY_ARTICLES.some((article) => article.status === "soon");
 
   const matches = useMemo(
-    () => searchConcepts(query, { genre }),
-    [query, genre],
+    () => searchHistory(query, { genre, status }),
+    [query, genre, status],
   );
-  const filtering = query.trim().length > 0 || Boolean(genre);
+  const filtering =
+    query.trim().length > 0 || Boolean(genre) || Boolean(status);
 
   return (
     <HubSearch
-      headingId="concepts-heading"
+      headingId="articles-heading"
       heading={
         filtering
-          ? `${matches.length} of ${CONCEPTS.length}`
-          : `${CONCEPTS.length} term${CONCEPTS.length === 1 ? "" : "s"}`
+          ? `${matches.length} of ${HISTORY_ARTICLES.length}`
+          : `${HISTORY_ARTICLES.length} ${
+              HISTORY_ARTICLES.length === 1 ? "article" : "articles"
+            }`
       }
       query={query}
       onQueryChange={setQuery}
-      placeholder="Search a term, alias, or genre…"
-      searchLabel="Search concepts"
-      controlsId="concepts-grid"
-      groups={[genreChipGroup(genreOptions, genre, setGenre)]}
+      placeholder="Search an article, genre, or scale…"
+      searchLabel="Search history articles"
+      controlsId="history-grid"
+      groups={[
+        genreChipGroup(genreOptions, genre, setGenre),
+        toggleChipGroup(
+          "Also",
+          showStatus
+            ? [
+                { id: "live", label: "Ready" },
+                { id: "soon", label: "Coming soon" },
+              ]
+            : [],
+          status,
+          (id) => setStatus(id as "live" | "soon" | undefined),
+        ),
+      ]}
       empty={
         matches.length === 0
           ? query.trim()
-            ? `No concept matches “${query.trim()}”. Try a name, another spelling, or a genre it shows up in.`
-            : "No concept matches those filters."
+            ? `No article matches “${query.trim()}”. Try a name, a genre, or a scale.`
+            : "No article matches those filters."
           : undefined
       }
       onClearFilters={
@@ -63,37 +82,38 @@ export function ConceptsExplorer() {
           ? () => {
               setQuery("");
               setGenre(undefined);
+              setStatus(undefined);
             }
           : undefined
       }
     >
       <div
-        id="concepts-grid"
+        id="history-grid"
         className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
       >
-        {matches.map((concept) => {
-          const soon = concept.status === "soon";
+        {matches.map((article) => {
+          const soon = article.status === "soon";
           return (
             <Link
-              key={concept.slug}
-              href={concept.href}
+              key={article.slug}
+              href={`/history/${article.slug}`}
               className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
                 <CardHeader>
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base">
-                      {concept.term}
+                      {article.name}
                       <NativeSpelling
-                        id={concept.slug}
+                        id={article.slug}
                         className="ms-2 text-sm"
                       />
                     </CardTitle>
                     {soon && <Badge variant="secondary">Soon</Badge>}
                   </div>
-                  <CardDescription>{concept.micro}</CardDescription>
+                  <CardDescription>{article.summary}</CardDescription>
                   <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    Learn more
+                    {soon ? "Preview" : "Read"}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                   </span>
                 </CardHeader>

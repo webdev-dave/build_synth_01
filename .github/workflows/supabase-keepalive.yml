@@ -1,0 +1,39 @@
+# Keeps the free-tier Supabase project awake.
+#
+# Free-tier projects pause after ~7 days without database activity; this pings
+# the trivial public.keepalive view (created in
+# supabase/migrations/0001_submissions.sql) twice a week so the suggestions
+# inbox never goes to sleep. No real data is touched.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_URL       — e.g. https://abcdefgh.supabase.co
+#   SUPABASE_ANON_KEY  — the public anon key (RLS is the security layer)
+#
+# Until the secrets exist the job exits quietly, so this file is safe to
+# commit before the Supabase project is provisioned.
+name: Supabase keep-alive
+
+on:
+  schedule:
+    # Twice a week (Mon + Thu, 09:23 UTC) — well inside the 7-day idle window.
+    - cron: "23 9 * * 1,4"
+  workflow_dispatch: {}
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping the keepalive view
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+        run: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "Supabase secrets not configured yet — skipping."
+            exit 0
+          fi
+          curl --fail --silent --show-error \
+            "$SUPABASE_URL/rest/v1/keepalive?select=pinged_at" \
+            -H "apikey: $SUPABASE_ANON_KEY" \
+            -H "Authorization: Bearer $SUPABASE_ANON_KEY"
+          echo "Pinged at $(date -u)"

@@ -24,6 +24,12 @@ import { getGenre } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
 import { getArticle } from "@/lib/history/registry";
 import { nativeSpellingsOf } from "@/lib/words/registry";
+import {
+  filterByHaystack,
+  joinHaystack,
+  relatedNames,
+  sortByLabel,
+} from "@/lib/search/normalize";
 
 export interface Concept {
   /** URL slug + `<Term id>` key. Kebab-case ("call-and-response"). */
@@ -506,46 +512,27 @@ export const LIVE_CONCEPTS = GLOSSARY_CONCEPTS.filter(
   (c) => c.status === "live",
 );
 
-/** Lowercase + strip diacritics so "doină" matches "doina". */
-function normalize(s: string): string {
-  return s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
-}
-
-function relatedNames(
-  slugs: string[] | undefined,
-  resolve: (slug: string) => { name: string } | undefined,
-): string[] {
-  if (!slugs) return [];
-  return slugs.flatMap((slug) => {
-    const hit = resolve(slug);
-    return hit ? [slug, hit.name] : [slug];
-  });
-}
-
 function conceptHaystack(concept: Concept): string {
-  return normalize(
-    [
-      concept.term,
-      concept.slug,
-      concept.question,
-      concept.micro,
-      concept.definition,
-      ...(concept.aliases ?? []),
-      ...(concept.keywords ?? []),
-      ...nativeSpellingsOf(concept.slug),
-      ...relatedNames(concept.genres, getGenre),
-      ...relatedNames(concept.scales, getScale),
-      ...relatedNames(concept.history, getArticle),
-    ]
-      .filter(Boolean)
-      .join(" "),
-  );
+  return joinHaystack([
+    concept.term,
+    concept.slug,
+    concept.question,
+    concept.micro,
+    concept.definition,
+    ...(concept.aliases ?? []),
+    ...(concept.keywords ?? []),
+    ...nativeSpellingsOf(concept.slug),
+    ...relatedNames(concept.genres, getGenre),
+    ...relatedNames(concept.scales, getScale),
+    ...relatedNames(concept.history, getArticle),
+  ]);
 }
 
 const HAYSTACKS = new Map(CONCEPTS.map((c) => [c.slug, conceptHaystack(c)]));
+
+export interface ConceptFilters {
+  genre?: string;
+}
 
 /**
  * Filter the hub list. Empty query returns every concept. Tokens must all
@@ -553,11 +540,20 @@ const HAYSTACKS = new Map(CONCEPTS.map((c) => [c.slug, conceptHaystack(c)]));
  * spelling, keyword, related genre/scale/history) so "krekhts" finds
  * krechtz and "blues" surfaces the blues-tagged terms.
  */
-export function searchConcepts(query: string): Concept[] {
-  const tokens = normalize(query).split(/\s+/).filter(Boolean);
-  if (tokens.length === 0) return CONCEPTS;
-  return CONCEPTS.filter((concept) => {
-    const hay = HAYSTACKS.get(concept.slug) ?? "";
-    return tokens.every((t) => hay.includes(t));
-  });
+export function searchConcepts(
+  query: string,
+  filters: ConceptFilters = {},
+): Concept[] {
+  let items: readonly Concept[] = CONCEPTS;
+  if (filters.genre) {
+    items = items.filter((concept) => concept.genres?.includes(filters.genre!));
+  }
+  return sortByLabel(
+    filterByHaystack(
+      items,
+      query,
+      (concept) => HAYSTACKS.get(concept.slug) ?? "",
+    ),
+    (concept) => concept.term,
+  );
 }

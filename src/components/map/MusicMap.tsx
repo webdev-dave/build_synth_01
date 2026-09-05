@@ -21,9 +21,6 @@ import {
   useState,
 } from "react";
 import { geoNaturalEarth1, geoPath } from "d3-geo";
-import { feature } from "topojson-client";
-import type { Topology, GeometryCollection } from "topojson-specification";
-import type { Feature, FeatureCollection, Geometry } from "geojson";
 import { useReducedMotion } from "motion/react";
 
 import {
@@ -34,6 +31,7 @@ import {
   type Place,
 } from "@/lib/places/registry";
 import { cn } from "@/lib/utils";
+import { loadGeoData, type NamedFeature } from "./geoData";
 
 /** What a map click/zoom resolves to. */
 export type MapSelection =
@@ -44,8 +42,26 @@ interface MusicMapProps {
   /** Registry place to highlight + zoom to (from search or panel links). */
   selectedId: string | null;
   /** Active genre filter: only matching places keep the orange tint and markers. */
-  genreFilter: string | null;
-  onSelect: (selection: MapSelection | null) => void;
+  genreFilter?: string | null;
+  /**
+   * Explicit place-id lens for embedded region-maps. When set, only these
+   * places (plus the current `selectedId`) stay tinted — independent of genre.
+   * Pass a stable array reference (memoize upstream) so the camera doesn't
+   * re-fit every render.
+   */
+  placeFilter?: string[] | null;
+  /**
+   * Frame the camera to the focused places once geometry loads (and again if
+   * the lens changes). For embeds so they open on their region, not the globe.
+   */
+  fitToFocus?: boolean;
+  /**
+   * Embed chrome: drop the reset-to-world button (auto-fit is "home") and let
+   * the page scroll through the map on touch instead of trapping the gesture
+   * to pan. Mouse drag-pan and the zoom buttons still work.
+   */
+  compact?: boolean;
+  onSelect?: (selection: MapSelection | null) => void;
 }
 
 const W = 960;
@@ -70,11 +86,12 @@ function clampView(v: ViewTransform): ViewTransform {
   };
 }
 
-type NamedFeature = Feature<Geometry, { name?: string }>;
-
 export function MusicMap({
   selectedId,
-  genreFilter,
+  genreFilter = null,
+  placeFilter = null,
+  fitToFocus = false,
+  compact = false,
   onSelect,
 }: MusicMapProps) {
   const reducedMotion = useReducedMotion();
@@ -117,43 +134,29 @@ export function MusicMap({
   );
   const path = useMemo(() => geoPath(projection), [projection]);
 
-  // ── Load geometry once ───────────────────────────────────────────────────
+  /**
+   * The active lens as a set of place ids, or null for "everything shows."
+   * An explicit `placeFilter` wins over `genreFilter` (an embed picks its own
+   * places directly); a genre lens expands to every place in that genre.
+   */
+  const focusIds = useMemo<Set<string> | null>(() => {
+    if (placeFilter) return new Set(placeFilter);
+    if (genreFilter)
+      return new Set(
+        PLACES.filter((p) => placeInGenre(p, genreFilter)).map((p) => p.id),
+      );
+    return null;
+  }, [placeFilter, genreFilter]);
+
+  // ── Load geometry once (shared, cached across every map on the site) ───────
   useEffect(() => {
     let cancelled = false;
-    async function load() {
-      const [worldRes, usRes] = await Promise.all([
-        fetch("/geo/world-110m.json"),
-        fetch("/geo/us-states-10m.json"),
-      ]);
-      const world = (await worldRes.json()) as Topology<{
-        countries: GeometryCollection<{ name?: string }>;
-      }>;
-      const us = (await usRes.json()) as Topology<{
-        states: GeometryCollection<{ name?: string }>;
-      }>;
-      const overlayPlaces = PLACES.filter((p) => p.geo.overlay);
-      const overlayEntries = await Promise.all(
-        overlayPlaces.map(async (p) => {
-          const res = await fetch(`/geo/overlays/${p.geo.overlay}`);
-          return [p.id, (await res.json()) as NamedFeature] as const;
-        }),
-      );
+    loadGeoData().then((geo) => {
       if (cancelled) return;
-      setCountries(
-        (feature(world, world.objects.countries) as FeatureCollection<
-          Geometry,
-          { name?: string }
-        >).features,
-      );
-      setStates(
-        (feature(us, us.objects.states) as FeatureCollection<
-          Geometry,
-          { name?: string }
-        >).features,
-      );
-      setOverlays(new Map(overlayEntries));
-    }
-    load();
+      setCountries(geo.countries);
+      setStates(geo.states);
+      setOverlays(geo.overlays);
+    });
     return () => {
       cancelled = true;
     };
@@ -201,8 +204,12 @@ export function MusicMap({
   }, []);
 
   // ── Drag-to-pan (mouse + touch via Pointer Events) ─────────────────────────
-  const onPointerDown = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
+  const onPointerDown = useCallback(
+    (e: React.PointerEvent<SVGSVGElement>) => {
     if (e.button !== 0 && e.pointerType === "mouse") return;
+    // In an embed, a one-finger touch is the page trying to scroll past the
+    // map — don't hijack it to pan. Taps still select; mouse drag still pans.
+    if (compact && e.pointerType === "touch") return;
     const v = viewRef.current;
     dragRef.current = {
       active: true,
@@ -212,7 +219,9 @@ export function MusicMap({
       startTx: v.tx,
       startTy: v.ty,
     };
-  }, []);
+    },
+    [compact],
+  );
 
   const onPointerMove = useCallback((e: React.PointerEvent<SVGSVGElement>) => {
     const d = dragRef.current;
@@ -275,6 +284,55 @@ export function MusicMap({
     [countries, states, overlays, path, zoomToBounds, zoomToPoint],
   );
 
+  /**
+   * Frame every focused place at once (embed opening shot). Unions the
+   * projected bounds of each place's geometry — a padded box for city points
+   * — so one region or a whole migration corridor fills the viewport.
+   */
+  const fitFocus = useCallback(() => {
+    if (!focusIds || countries.length === 0) return;
+    const focusPlaces = PLACES.filter((p) => focusIds.has(p.id));
+    if (focusPlaces.length === 0) return;
+
+    let x0 = Infinity;
+    let y0 = Infinity;
+    let x1 = -Infinity;
+    let y1 = -Infinity;
+    const extend = (b: [[number, number], [number, number]]) => {
+      x0 = Math.min(x0, b[0][0]);
+      y0 = Math.min(y0, b[0][1]);
+      x1 = Math.max(x1, b[1][0]);
+      y1 = Math.max(y1, b[1][1]);
+    };
+
+    for (const p of focusPlaces) {
+      if (p.geo.point) {
+        const proj = projection(p.geo.point);
+        if (proj) {
+          const pad = 14; // a city is a point; give it breathing room
+          extend([
+            [proj[0] - pad, proj[1] - pad],
+            [proj[0] + pad, proj[1] + pad],
+          ]);
+        }
+        continue;
+      }
+      let geom: NamedFeature | undefined;
+      if (p.geo.overlay) geom = overlays.get(p.id);
+      else if (p.geo.countryId)
+        geom = countries.find((c) => String(c.id) === p.geo.countryId);
+      else if (p.geo.stateId)
+        geom = states.find((s) => String(s.id) === p.geo.stateId);
+      if (geom) extend(path.bounds(geom));
+    }
+
+    if (x0 === Infinity) return;
+    zoomToBounds([
+      [x0, y0],
+      [x1, y1],
+    ]);
+  }, [focusIds, countries, states, overlays, path, projection, zoomToBounds]);
+
   // External selection (search, panel cross-links) drives the camera.
   useEffect(() => {
     if (!selectedId) return;
@@ -285,13 +343,23 @@ export function MusicMap({
     }
   }, [selectedId, zoomToPlace]);
 
+  // Embed opening shot: once geometry is in and the lens is known, frame the
+  // focused region. Re-fits if the lens changes. Runs after the world-view
+  // reset below (that effect no-ops in fit mode), so it isn't clobbered.
+  useEffect(() => {
+    if (!fitToFocus) return;
+    fitFocus();
+  }, [fitToFocus, fitFocus]);
+
   // Choosing (or clearing) a genre returns to the world view, so every
   // matching marker is visible at once. Deliberately depends only on
   // genreFilter: map clicks must not trigger this and yank the camera.
   useEffect(() => {
+    // Embeds frame their region via fitFocus instead of snapping to the globe.
+    if (fitToFocus) return;
     setView(WORLD_VIEW);
     zoomedRef.current = genreFilter ? `genre:${genreFilter}` : null;
-  }, [genreFilter]);
+  }, [genreFilter, fitToFocus]);
 
   // ── Click handling ───────────────────────────────────────────────────────
   const handleFeatureClick = useCallback(
@@ -304,12 +372,12 @@ export function MusicMap({
       if (dragRef.current.moved) return; // this "click" was the end of a pan
       if (zoomedRef.current === featureKey) {
         resetView();
-        onSelect(null);
+        onSelect?.(null);
         return;
       }
       zoomedRef.current = featureKey;
       zoomToBounds(path.bounds(geom), featureKey.startsWith("state:") ? 12 : 8);
-      onSelect(
+      onSelect?.(
         place
           ? { kind: "place", id: place.id }
           : { kind: "unknown", label: fallbackName },
@@ -341,8 +409,8 @@ export function MusicMap({
    */
   const isFocused = (place: Place | undefined) => {
     if (!place) return false;
-    if (genreFilter) return placeInGenre(place, genreFilter) || place.id === selectedId;
-    return true;
+    if (!focusIds) return true;
+    return focusIds.has(place.id) || place.id === selectedId;
   };
 
   return (
@@ -351,7 +419,10 @@ export function MusicMap({
         ref={svgRef}
         viewBox={`0 0 ${W} ${H}`}
         className={cn(
-          "h-auto w-full touch-none select-none",
+          "h-auto w-full select-none",
+          // Embeds let the page scroll vertically through the map (pan-y);
+          // the full map claims the whole gesture (touch-none) to pan freely.
+          compact ? "touch-pan-y" : "touch-none",
           isDragging ? "cursor-grabbing" : "cursor-grab",
         )}
         role="group"
@@ -484,10 +555,10 @@ export function MusicMap({
                     onClick={() => {
                       if (dragRef.current.moved) return;
                       zoomedRef.current = `place:${p.id}`;
-                      onSelect({ kind: "place", id: p.id });
+                      onSelect?.({ kind: "place", id: p.id });
                     }}
                     onKeyDown={keyboardActivate(() =>
-                      onSelect({ kind: "place", id: p.id }),
+                      onSelect?.({ kind: "place", id: p.id }),
                     )}
                     className="cursor-pointer fill-orange-600/90 font-mono outline-none hover:underline"
                     fontSize={11 / view.k}
@@ -523,11 +594,11 @@ export function MusicMap({
                     if (dragRef.current.moved) return;
                     zoomedRef.current = `place:${p.id}`;
                     zoomToPoint(p.geo.point!);
-                    onSelect({ kind: "place", id: p.id });
+                    onSelect?.({ kind: "place", id: p.id });
                   }}
                   onKeyDown={keyboardActivate(() => {
                     zoomToPoint(p.geo.point!);
-                    onSelect({ kind: "place", id: p.id });
+                    onSelect?.({ kind: "place", id: p.id });
                   })}
                   className="peer cursor-pointer fill-transparent outline-none"
                 />
@@ -583,19 +654,37 @@ export function MusicMap({
         >
           −
         </button>
-        <button
-          type="button"
-          onClick={() => {
-            resetView();
-            onSelect(null);
-          }}
-          disabled={view.k === 1}
-          aria-label="Reset to world view"
-          title="World view"
-          className="flex h-8 w-8 items-center justify-center rounded-md border bg-background/80 font-mono text-sm leading-none text-muted-foreground backdrop-blur transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-        >
-          ⤢
-        </button>
+        {compact ? (
+          // Embed "home" is the region, not the globe: re-frame the focused
+          // places and drop any selection.
+          <button
+            type="button"
+            onClick={() => {
+              zoomedRef.current = null;
+              fitFocus();
+              onSelect?.(null);
+            }}
+            aria-label="Back to this region"
+            title="This region"
+            className="flex h-8 w-8 items-center justify-center rounded-md border bg-background/80 font-mono text-sm leading-none text-muted-foreground backdrop-blur transition-colors hover:text-foreground"
+          >
+            ⤢
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              resetView();
+              onSelect?.(null);
+            }}
+            disabled={view.k === 1}
+            aria-label="Reset to world view"
+            title="World view"
+            className="flex h-8 w-8 items-center justify-center rounded-md border bg-background/80 font-mono text-sm leading-none text-muted-foreground backdrop-blur transition-colors hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            ⤢
+          </button>
+        )}
       </div>
     </div>
   );

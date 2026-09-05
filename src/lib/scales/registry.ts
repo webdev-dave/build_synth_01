@@ -15,6 +15,15 @@
  * When you add either side of a pair, update the other.
  */
 
+import { getGenre } from "@/lib/genres/registry";
+import { nativeSpellingsOf } from "@/lib/words/registry";
+import {
+  filterByHaystack,
+  joinHaystack,
+  relatedNames,
+  sortByLabel,
+} from "@/lib/search/normalize";
+
 export type ScaleKind = "scale" | "mode";
 
 export interface ScaleLesson {
@@ -158,3 +167,48 @@ export function getScale(slug: string): ScaleLesson | undefined {
 
 /** Scales safe to index (real content), for the sitemap. */
 export const LIVE_SCALES = SCALES.filter((s) => s.status === "live");
+
+export interface ScaleFilters {
+  genre?: string;
+  kind?: ScaleKind;
+  status?: "live" | "soon";
+}
+
+function scaleHaystack(scale: ScaleLesson): string {
+  return joinHaystack([
+    scale.name,
+    scale.slug,
+    scale.kind,
+    scale.question,
+    scale.summary,
+    scale.answer,
+    scale.history,
+    scale.formula,
+    scale.exampleNotes,
+    ...scale.keywords,
+    ...relatedNames(scale.usedIn, getGenre),
+    ...nativeSpellingsOf(scale.slug),
+  ]);
+}
+
+const SCALE_HAY = new Map(SCALES.map((s) => [s.slug, scaleHaystack(s)]));
+
+export function searchScales(
+  query: string,
+  filters: ScaleFilters = {},
+): ScaleLesson[] {
+  let items: readonly ScaleLesson[] = SCALES;
+  if (filters.genre) {
+    items = items.filter((scale) => scale.usedIn.includes(filters.genre!));
+  }
+  if (filters.kind) {
+    items = items.filter((scale) => scale.kind === filters.kind);
+  }
+  if (filters.status) {
+    items = items.filter((scale) => scale.status === filters.status);
+  }
+  return sortByLabel(
+    filterByHaystack(items, query, (scale) => SCALE_HAY.get(scale.slug) ?? ""),
+    (scale) => scale.name,
+  );
+}

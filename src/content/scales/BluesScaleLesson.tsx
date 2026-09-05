@@ -95,9 +95,15 @@ export function BluesScaleLesson({ className }: { className?: string }) {
 
   /** Key press: the gesture that unlocks audio (playing is consent). */
   const startNote = useCallback(
-    async (noteNumber: number, note: string) => {
-      await initializeAudio();
-      await handleNoteStart(noteNumber, note);
+    (noteNumber: number, note: string) => {
+      /*
+       * Deliberately not awaited (same as SynthV2): on touch, a quick tap's
+       * pointerup can arrive while resume() is still pending. The voice must
+       * be registered synchronously here, or note-off finds nothing to stop
+       * and the oscillator drones forever once the context unlocks.
+       */
+      void initializeAudio();
+      void handleNoteStart(noteNumber, note);
     },
     [initializeAudio, handleNoteStart],
   );

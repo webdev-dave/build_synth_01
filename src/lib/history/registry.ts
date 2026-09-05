@@ -16,6 +16,16 @@
  * means a missing link.
  */
 
+import { getGenre } from "@/lib/genres/registry";
+import { getScale } from "@/lib/scales/registry";
+import { nativeSpellingsOf } from "@/lib/words/registry";
+import {
+  filterByHaystack,
+  joinHaystack,
+  relatedNames,
+  sortByLabel,
+} from "@/lib/search/normalize";
+
 /** A cited source — quoted briefly and linked, never reproduced wholesale. */
 export interface Source {
   /** Stable anchor id, referenced by inline footnote links ("lomax-1993"). */
@@ -344,3 +354,47 @@ export function getArticlesByScale(scaleSlug: string): HistoryArticle[] {
 
 /** Articles safe to index (real content), for the sitemap. */
 export const LIVE_HISTORY = HISTORY_ARTICLES.filter((a) => a.status === "live");
+
+export interface HistoryFilters {
+  genre?: string;
+  status?: "live" | "soon";
+}
+
+function articleHaystack(article: HistoryArticle): string {
+  return joinHaystack([
+    article.name,
+    article.slug,
+    article.question,
+    article.summary,
+    article.answer,
+    ...article.keywords,
+    ...relatedNames(article.genres, getGenre),
+    ...relatedNames(article.scales, getScale),
+    ...nativeSpellingsOf(article.slug),
+  ]);
+}
+
+const ARTICLE_HAY = new Map(
+  HISTORY_ARTICLES.map((a) => [a.slug, articleHaystack(a)]),
+);
+
+export function searchHistory(
+  query: string,
+  filters: HistoryFilters = {},
+): HistoryArticle[] {
+  let items: readonly HistoryArticle[] = HISTORY_ARTICLES;
+  if (filters.genre) {
+    items = items.filter((article) => article.genres.includes(filters.genre!));
+  }
+  if (filters.status) {
+    items = items.filter((article) => article.status === filters.status);
+  }
+  return sortByLabel(
+    filterByHaystack(
+      items,
+      query,
+      (article) => ARTICLE_HAY.get(article.slug) ?? "",
+    ),
+    (article) => article.name,
+  );
+}

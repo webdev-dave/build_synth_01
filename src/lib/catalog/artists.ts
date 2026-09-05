@@ -34,6 +34,13 @@ export interface Artist {
   genres?: string[];
   /** History article slugs that discuss them. */
   history?: string[];
+  /**
+   * Place-registry ids for this artist's embedded map, when genre-derivation
+   * would be too broad. A pin is a *curated* set (the cities/regions they
+   * actually worked in), so an artist page frames just their geography — not
+   * the whole genre's. Omit to fall back to genre/history derivation.
+   */
+  places?: string[];
   /** External "learn more" links (encyclopedias, archives). */
   links?: ArtistLinkOut[];
   /** "live" pages are indexed + in the sitemap; "soon" are placeholders. */
@@ -45,6 +52,7 @@ export interface Artist {
 export const ARTISTS: Artist[] = [
   {
     slug: "w-c-handy",
+    places: ["mississippi", "memphis", "st-louis"],
     name: "W. C. Handy",
     era: "1873–1958",
     micro:
@@ -64,6 +72,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "bessie-smith",
+    places: ["new-york", "mississippi"],
     name: "Bessie Smith",
     era: "1894–1937",
     micro:
@@ -79,6 +88,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "louis-armstrong",
+    places: ["new-orleans", "chicago", "new-york"],
     name: "Louis Armstrong",
     era: "1901–1971",
     micro:
@@ -97,6 +107,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "mamie-smith",
+    places: ["new-york"],
     name: "Mamie Smith",
     era: "1891–1946",
     micro:
@@ -112,6 +123,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "muddy-waters",
+    places: ["mississippi-delta", "mississippi", "chicago"],
     name: "Muddy Waters",
     era: "1913–1983",
     micro:
@@ -134,6 +146,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "naftule-brandwein",
+    places: ["galicia", "new-york"],
     name: "Naftule Brandwein",
     era: "1884–1963",
     micro:
@@ -160,6 +173,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "dave-tarras",
+    places: ["ukraine", "new-york"],
     name: "Dave Tarras",
     era: "c. 1895–1989",
     micro:
@@ -183,6 +197,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "abe-schwartz",
+    places: ["romania", "new-york"],
     name: "Abe Schwartz",
     era: "1881–1963",
     micro:
@@ -206,6 +221,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "sholom-secunda",
+    places: ["ukraine", "new-york"],
     name: "Sholom Secunda",
     era: "1894–1974",
     micro:
@@ -232,6 +248,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "giora-feidman",
+    places: ["chisinau", "bessarabia", "israel", "safed", "new-york"],
     name: "Giora Feidman",
     era: "b. 1936",
     micro:
@@ -258,6 +275,7 @@ export const ARTISTS: Artist[] = [
   },
   {
     slug: "billie-holiday",
+    places: ["new-york"],
     name: "Billie Holiday",
     era: "1915–1959",
     micro:

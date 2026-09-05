@@ -15,6 +15,7 @@ import { getArticle } from "@/lib/history/registry";
 import { getCatalogSong, songAttribution } from "@/lib/catalog/songs";
 import { getConceptContent } from "@/content/concepts";
 import { RelatedPages } from "@/components/content/RelatedPages";
+import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
@@ -164,6 +165,16 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
             ]}
           />
         )}
+
+        {/* Where you'll hear this concept — derived from the genres/history it
+            crosses. Renders nothing if none map. */}
+        <PageMapSection
+          entity={{ genres: concept.genres, history: concept.history }}
+          heading="Where you'll hear it"
+          fullMapHref={
+            concept.genres?.[0] ? `/map?genre=${concept.genres[0]}` : "/map"
+          }
+        />
       </div>
     </main>
   );

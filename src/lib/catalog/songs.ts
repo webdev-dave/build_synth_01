@@ -12,6 +12,7 @@
  * what lights up "Open in Piano Roll" instead of greying it out.
  */
 import { getArtist } from "./artists";
+import { sortByLabel } from "@/lib/search/normalize";
 
 export interface CatalogSong {
   /** URL slug + `<SongLink id>` key + in-page anchor. Kebab-case. */
@@ -167,9 +168,12 @@ export function getCatalogSong(slug: string): CatalogSong | undefined {
   return SONGS_CATALOG.find((s) => s.slug === slug);
 }
 
-/** All catalog songs crediting a given artist, in registry order. */
+/** All catalog songs crediting a given artist, A–Z by title. */
 export function songsByArtist(artistSlug: string): CatalogSong[] {
-  return SONGS_CATALOG.filter((s) => s.artists.includes(artistSlug));
+  return sortByLabel(
+    SONGS_CATALOG.filter((s) => s.artists.includes(artistSlug)),
+    (s) => s.title,
+  );
 }
 
 /**

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
+import { compareByLabel } from "@/lib/search/normalize";
+
 export interface RelatedPageItem {
   href: string;
   label: string;
@@ -22,13 +24,17 @@ export function RelatedPages({
 }) {
   if (items.length === 0) return null;
 
+  const ordered = items
+    .slice()
+    .sort((a, b) => compareByLabel(a.label, b.label));
+
   return (
     <section className="mt-10" aria-labelledby={headingId}>
       <h2 id={headingId} className="text-sm font-medium text-muted-foreground">
         {heading}
       </h2>
       <div className="mt-3 space-y-2">
-        {items.map((item) => (
+        {ordered.map((item) => (
           <Link
             key={item.href}
             href={item.href}

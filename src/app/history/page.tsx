@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, BookOpen } from "lucide-react";
+import { BookOpen } from "lucide-react";
 
-import { HISTORY_ARTICLES } from "@/lib/history/registry";
-import { NativeSpelling } from "@/components/words/NativeSpelling";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { HistoryExplorer } from "@/components/history/HistoryExplorer";
 
 export const metadata: Metadata = {
   title: "Musical History — Where the Sounds Came From",
@@ -45,46 +36,7 @@ export default function HistoryPage() {
           </p>
         </header>
 
-        <section aria-labelledby="articles-heading">
-          <h2
-            id="articles-heading"
-            className="mb-4 text-sm font-medium text-muted-foreground"
-          >
-            Articles
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {HISTORY_ARTICLES.map((article) => {
-              const soon = article.status === "soon";
-              return (
-                <Link
-                  key={article.slug}
-                  href={`/history/${article.slug}`}
-                  className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base">
-                          {article.name}
-                          <NativeSpelling
-                            id={article.slug}
-                            className="ms-2 text-sm"
-                          />
-                        </CardTitle>
-                        {soon && <Badge variant="secondary">Soon</Badge>}
-                      </div>
-                      <CardDescription>{article.summary}</CardDescription>
-                      <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                        {soon ? "Preview" : "Read"}
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <HistoryExplorer />
       </div>
     </main>
   );

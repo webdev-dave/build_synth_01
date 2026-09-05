@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { GenreLayers } from "@/components/genres/GenreLayers";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { RelatedPages } from "@/components/content/RelatedPages";
+import { PageMapSection } from "@/components/map/PageMapSection";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
 
@@ -152,6 +153,14 @@ export default async function GenrePage({ params }: GenrePageProps) {
               label: scale.question,
             })),
           ]}
+        />
+
+        {/* Where this music lives — renders only if the genre has mapped
+            places (blues, klezmer today). */}
+        <PageMapSection
+          entity={{ genres: [genre.slug] }}
+          heading={`Where ${genre.name.toLowerCase()} lives`}
+          fullMapHref={`/map?genre=${genre.slug}`}
         />
       </div>
     </main>

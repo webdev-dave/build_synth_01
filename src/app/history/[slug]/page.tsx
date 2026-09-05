@@ -8,6 +8,7 @@ import { getHistoryContent } from "@/content/history";
 import { getGenre } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
 import { RelatedPages } from "@/components/content/RelatedPages";
+import { PageMapSection } from "@/components/map/PageMapSection";
 import { FeedbackInvite } from "@/components/content/FeedbackInvite";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
@@ -117,6 +118,16 @@ export default async function HistoryArticlePage({
               label: scale.question,
             })),
           ]}
+        />
+
+        {/* Where this history happened — the places whose story lists this
+            article. Renders nothing if none map. */}
+        <PageMapSection
+          entity={{ history: [article.slug] }}
+          heading="Where it happened"
+          fullMapHref={
+            article.genres?.[0] ? `/map?genre=${article.genres[0]}` : "/map"
+          }
         />
 
         {Article && (

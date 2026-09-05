@@ -1,15 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Music2 } from "lucide-react";
+import { Music2 } from "lucide-react";
 
-import { SONGS_CATALOG, songAttribution } from "@/lib/catalog/songs";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { SongsExplorer } from "@/components/catalog/SongsExplorer";
 
 export const metadata: Metadata = {
   title: "Songs — The Recordings the App Writes About",
@@ -41,47 +33,7 @@ export default function SongsPage() {
           </p>
         </header>
 
-        <section aria-labelledby="songs-heading">
-          <h2
-            id="songs-heading"
-            className="mb-4 text-sm font-medium text-muted-foreground"
-          >
-            Recordings
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SONGS_CATALOG.map((song) => {
-              const soon = song.status === "soon";
-              return (
-                <Link
-                  key={song.slug}
-                  href={`/songs/${song.slug}`}
-                  className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base">
-                          {song.title}
-                        </CardTitle>
-                        {soon && <Badge variant="secondary">Soon</Badge>}
-                      </div>
-                      <p className="font-mono text-xs text-muted-foreground">
-                        {songAttribution(song)}
-                      </p>
-                      {song.micro && (
-                        <CardDescription>{song.micro}</CardDescription>
-                      )}
-                      <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                        Listen
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <SongsExplorer />
       </div>
     </main>
   );

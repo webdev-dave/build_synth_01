@@ -1,16 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, Disc3 } from "lucide-react";
+import { Disc3 } from "lucide-react";
 
-import { GENRES, LAYER_INFO, type GenreLayer } from "@/lib/genres/registry";
-import { NativeSpelling } from "@/components/words/NativeSpelling";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { LAYER_INFO, type GenreLayer } from "@/lib/genres/registry";
+import { GenresExplorer } from "@/components/genres/GenresExplorer";
 
 export const metadata: Metadata = {
   title: "Music Genres — What Makes Each One Itself",
@@ -74,46 +66,7 @@ export default function GenresPage() {
           </dl>
         </section>
 
-        <section aria-labelledby="genres-heading">
-          <h2
-            id="genres-heading"
-            className="mb-4 text-sm font-medium text-muted-foreground"
-          >
-            Genres
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {GENRES.map((genre) => {
-              const soon = genre.status === "soon";
-              return (
-                <Link
-                  key={genre.slug}
-                  href={`/genres/${genre.slug}`}
-                  className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base">
-                          {genre.name}
-                          <NativeSpelling
-                            id={genre.slug}
-                            className="ms-2 text-sm"
-                          />
-                        </CardTitle>
-                        {soon && <Badge variant="secondary">Soon</Badge>}
-                      </div>
-                      <CardDescription>{genre.summary}</CardDescription>
-                      <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                        {soon ? "Preview" : "Explore"}
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <GenresExplorer />
       </div>
     </main>
   );

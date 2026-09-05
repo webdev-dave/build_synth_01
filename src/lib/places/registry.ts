@@ -522,6 +522,52 @@ export function placesByGenre(genre: string): Place[] {
   return PLACES.filter((p) => (p.music.genres ?? []).includes(genre));
 }
 
+/** Places whose music touches a given history-article slug. */
+export function placesByHistory(history: string): Place[] {
+  return PLACES.filter((p) => (p.music.history ?? []).includes(history));
+}
+
+/**
+ * The places relevant to a content entity (genre, artist, history article,
+ * language, concept, song), for an embedded region-map at the bottom of that
+ * entity's page.
+ *
+ * Two modes, deliberately not additive:
+ * - `places` present → resolve *exactly* those ids, in the order given. This
+ *   is a curated pin: a Delta-bluesman page can show the Delta and Chicago
+ *   without inheriting all of blues geography (West Africa included).
+ * - otherwise → derive from `genres` + `history` + `songLabels`, de-duped and
+ *   returned in registry order (already curated: overlays → countries →
+ *   states → cities).
+ *
+ * Returns `[]` when nothing resolves; callers render no map in that case
+ * rather than an empty globe.
+ */
+export function placesForEntity(entity: {
+  genres?: string[];
+  history?: string[];
+  songLabels?: string[];
+  places?: string[];
+}): Place[] {
+  if (entity.places && entity.places.length > 0) {
+    return entity.places
+      .map((id) => getPlace(id))
+      .filter((p): p is Place => Boolean(p));
+  }
+
+  const genres = new Set(entity.genres ?? []);
+  const history = new Set(entity.history ?? []);
+  const songLabels = new Set(entity.songLabels ?? []);
+  return PLACES.filter((p) => {
+    const m = p.music;
+    return (
+      (m.genres ?? []).some((g) => genres.has(g)) ||
+      (m.history ?? []).some((h) => history.has(h)) ||
+      (m.songLabels ?? []).some((l) => songLabels.has(l))
+    );
+  });
+}
+
 /** True when a place belongs to the given genre (null genre = no filter). */
 export function placeInGenre(
   place: Place | undefined,

@@ -12,8 +12,10 @@ import { getArtist } from "@/lib/catalog/artists";
 import { getGenre } from "@/lib/genres/registry";
 import { getArticle } from "@/lib/history/registry";
 import { getConcept, conceptQuestion } from "@/lib/concepts/registry";
+import { sortByLabel } from "@/lib/search/normalize";
 import { YouTubeEmbed } from "@/components/media/YouTubeEmbed";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { PageMapSection } from "@/components/map/PageMapSection";
 
 interface SongPageProps {
   params: Promise<{ slug: string }>;
@@ -49,15 +51,24 @@ export default async function SongPage({ params }: SongPageProps) {
   const artists = song.artists
     .map((s) => getArtist(s))
     .filter((a): a is NonNullable<typeof a> => Boolean(a));
-  const genres = (song.genres ?? [])
-    .map((g) => getGenre(g))
-    .filter((g): g is NonNullable<typeof g> => Boolean(g));
-  const articles = (song.history ?? [])
-    .map((h) => getArticle(h))
-    .filter((a): a is NonNullable<typeof a> => Boolean(a));
-  const concepts = (song.concepts ?? [])
-    .map((c) => getConcept(c))
-    .filter((c): c is NonNullable<typeof c> => Boolean(c));
+  const genres = sortByLabel(
+    (song.genres ?? [])
+      .map((g) => getGenre(g))
+      .filter((g): g is NonNullable<typeof g> => Boolean(g)),
+    (g) => g.name,
+  );
+  const articles = sortByLabel(
+    (song.history ?? [])
+      .map((h) => getArticle(h))
+      .filter((a): a is NonNullable<typeof a> => Boolean(a)),
+    (a) => a.name,
+  );
+  const concepts = sortByLabel(
+    (song.concepts ?? [])
+      .map((c) => getConcept(c))
+      .filter((c): c is NonNullable<typeof c> => Boolean(c)),
+    (c) => c.term,
+  );
   const linkTerms = makeTermLinker();
 
   const faqJsonLd = {
@@ -189,6 +200,16 @@ export default async function SongPage({ params }: SongPageProps) {
             </div>
           </section>
         )}
+
+        {/* Where it comes from — derived from the song's genres/history.
+            Renders nothing if none map. */}
+        <PageMapSection
+          entity={{ genres: song.genres, history: song.history }}
+          heading="Where it comes from"
+          fullMapHref={
+            song.genres?.[0] ? `/map?genre=${song.genres[0]}` : "/map"
+          }
+        />
       </div>
     </main>
   );

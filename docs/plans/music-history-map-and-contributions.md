@@ -2,10 +2,16 @@
 
 > **Status:** approved 2026-09-05. **Steps 1–3 shipped same day**: the klezmer
 > article (`/history/klezmer` + genre/scale/concept/catalog entries), the
-> `/map` page (place registry, SVG renderer, alias-aware search, coverage
-> states), all six historical overlays, and the stopgap feedback footer
-> (`FeedbackInvite` → /contact) on articles + map panels. **Next: Phase 4
-> (Supabase)** — blocked on owner setup, see "What the user must do" below.
+> `/map` page (place registry, SVG renderer, genre filter with grey-out,
+> unified genre+place search with historical aliases, zoom buttons +
+> drag-to-pan, coverage states), all six historical overlays, and the feedback
+> footer on articles + map panels. **Step 4 (Supabase) code is fully built and
+> dormant** — client, AuthProvider (Google + magic link), suggestion modal,
+> `submissions` migration with RLS, keep-alive workflow. It activates when the
+> two `NEXT_PUBLIC_SUPABASE_*` env vars exist; until then every CTA falls back
+> to /contact. **Next: owner provisioning** — follow `supabase-setup.md`
+> (Supabase project, migration, Google OAuth, env vars, GitHub secrets).
+> After that: Phase 5 (admin moderation view), only when volume justifies it.
 
 ## Overview
 

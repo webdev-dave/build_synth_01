@@ -7,6 +7,8 @@
  * the links that point at it.
  */
 
+import { filterByHaystack, joinHaystack, sortByLabel } from "@/lib/search/normalize";
+
 export interface Lesson {
   slug: string;
   title: string;
@@ -66,4 +68,26 @@ export const LESSONS: Lesson[] = [
 
 export function getLesson(slug: string): Lesson | undefined {
   return LESSONS.find((l) => l.slug === slug);
+}
+
+function lessonHaystack(lesson: Lesson): string {
+  return joinHaystack([
+    lesson.title,
+    lesson.slug,
+    lesson.summary,
+    lesson.tryLabel,
+  ]);
+}
+
+const LESSON_HAY = new Map(LESSONS.map((l) => [l.slug, lessonHaystack(l)]));
+
+export function searchLessons(query: string): Lesson[] {
+  return sortByLabel(
+    filterByHaystack(
+      LESSONS,
+      query,
+      (lesson) => LESSON_HAY.get(lesson.slug) ?? "",
+    ),
+    (lesson) => lesson.title,
+  );
 }
