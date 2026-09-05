@@ -6,7 +6,12 @@ import { ArrowRight } from "lucide-react";
 
 import { ARTISTS } from "@/lib/catalog/artists";
 import { songsByArtist } from "@/lib/catalog/songs";
-import { searchArtists } from "@/lib/catalog/search";
+import { artistBirthYear, searchArtists } from "@/lib/catalog/search";
+import {
+  catalogYearBounds,
+  parseYearInput,
+  type CatalogSort,
+} from "@/lib/catalog/years";
 import { genreOptionsFrom } from "@/lib/search/options";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +22,8 @@ import {
 } from "@/components/ui/card";
 import {
   HubSearch,
+  YearRangeFields,
+  catalogSortGroup,
   genreChipGroup,
 } from "@/components/content/HubSearch";
 
@@ -24,6 +31,9 @@ export function ArtistsExplorer() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState<string | undefined>();
   const [hasSong, setHasSong] = useState(false);
+  const [sort, setSort] = useState<CatalogSort>("name");
+  const [yearFrom, setYearFrom] = useState("");
+  const [yearTo, setYearTo] = useState("");
 
   const genreOptions = useMemo(
     () =>
@@ -33,29 +43,40 @@ export function ArtistsExplorer() {
   const showHasSong =
     ARTISTS.some((artist) => songsByArtist(artist.slug).length > 0) &&
     ARTISTS.some((artist) => songsByArtist(artist.slug).length === 0);
+  const bounds = useMemo(
+    () => catalogYearBounds(ARTISTS.map(artistBirthYear)),
+    [],
+  );
+
+  const fromYear = parseYearInput(yearFrom);
+  const toYear = parseYearInput(yearTo);
 
   const matches = useMemo(
-    () => searchArtists(query, { genre, hasSong: hasSong || undefined }),
-    [query, genre, hasSong],
+    () =>
+      searchArtists(query, {
+        genre,
+        hasSong: hasSong || undefined,
+        yearFrom: fromYear,
+        yearTo: toYear,
+        sort,
+      }),
+    [query, genre, hasSong, fromYear, toYear, sort],
   );
-  const filtering = query.trim().length > 0 || Boolean(genre) || hasSong;
+  const filtering =
+    query.trim().length > 0 ||
+    Boolean(genre) ||
+    hasSong ||
+    fromYear != null ||
+    toYear != null;
 
-  const groups = [
-    genreChipGroup(genreOptions, genre, setGenre),
-    {
-      label: "Also",
-      chips: showHasSong
-        ? [
-            {
-              id: "has-song",
-              label: "Has a song on the site",
-              pressed: hasSong,
-              onToggle: () => setHasSong((on) => !on),
-            },
-          ]
-        : [],
-    },
-  ];
+  const clear = () => {
+    setQuery("");
+    setGenre(undefined);
+    setHasSong(false);
+    setSort("name");
+    setYearFrom("");
+    setYearTo("");
+  };
 
   return (
     <HubSearch
@@ -70,7 +91,39 @@ export function ArtistsExplorer() {
       placeholder="Search an artist, song, or genre…"
       searchLabel="Search artists"
       controlsId="artists-grid"
-      groups={groups}
+      groups={[
+        genreChipGroup(genreOptions, genre, setGenre),
+        {
+          label: "Also",
+          chips: showHasSong
+            ? [
+                {
+                  id: "has-song",
+                  label: "Has a song on the site",
+                  pressed: hasSong,
+                  onToggle: () => setHasSong((on) => !on),
+                },
+              ]
+            : [],
+        },
+        catalogSortGroup(sort, setSort, {
+          oldest: "Oldest born",
+          newest: "Newest born",
+        }),
+      ]}
+      extras={
+        <YearRangeFields
+          label="Born"
+          fromLabel="Born from year"
+          toLabel="Born to year"
+          from={yearFrom}
+          to={yearTo}
+          onFromChange={setYearFrom}
+          onToChange={setYearTo}
+          min={bounds?.min}
+          max={bounds?.max}
+        />
+      }
       empty={
         matches.length === 0
           ? query.trim()
@@ -78,15 +131,7 @@ export function ArtistsExplorer() {
             : "No artist matches those filters."
           : undefined
       }
-      onClearFilters={
-        filtering
-          ? () => {
-              setQuery("");
-              setGenre(undefined);
-              setHasSong(false);
-            }
-          : undefined
-      }
+      onClearFilters={filtering || sort !== "name" ? clear : undefined}
     >
       <div
         id="artists-grid"

@@ -7,6 +7,7 @@
 import type { ReactNode } from "react";
 import { Search, X } from "lucide-react";
 
+import type { CatalogSort } from "@/lib/catalog/years";
 import type { GenreOption } from "@/lib/search/options";
 import { cn } from "@/lib/utils";
 
@@ -39,6 +40,97 @@ export function genreChipGroup(
   };
 }
 
+export function catalogSortGroup(
+  selected: CatalogSort,
+  onChange: (sort: CatalogSort) => void,
+  yearLabels: { oldest: string; newest: string },
+): HubChipGroup {
+  return {
+    label: "Sort",
+    chips: [
+      {
+        id: "name",
+        label: "Name",
+        pressed: selected === "name",
+        onToggle: () => onChange("name"),
+      },
+      {
+        id: "year-asc",
+        label: yearLabels.oldest,
+        pressed: selected === "year-asc",
+        onToggle: () => onChange(selected === "year-asc" ? "name" : "year-asc"),
+      },
+      {
+        id: "year-desc",
+        label: yearLabels.newest,
+        pressed: selected === "year-desc",
+        onToggle: () =>
+          onChange(selected === "year-desc" ? "name" : "year-desc"),
+      },
+    ],
+  };
+}
+
+export function YearRangeFields({
+  label,
+  fromLabel,
+  toLabel,
+  from,
+  to,
+  onFromChange,
+  onToChange,
+  min,
+  max,
+}: {
+  label: string;
+  fromLabel: string;
+  toLabel: string;
+  from: string;
+  to: string;
+  onFromChange: (value: string) => void;
+  onToChange: (value: string) => void;
+  min?: number;
+  max?: number;
+}) {
+  const fieldClass =
+    "w-[4.75rem] rounded-md border bg-background px-2 py-1 font-mono text-xs text-foreground outline-none placeholder:italic placeholder:text-muted-foreground/50 focus-visible:ring-2 focus-visible:ring-ring";
+
+  return (
+    <div
+      role="group"
+      aria-label={label}
+      className="flex flex-wrap items-center gap-2"
+    >
+      <span className="text-xs text-muted-foreground">{label}</span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        placeholder="From"
+        value={from}
+        onChange={(e) => onFromChange(e.target.value)}
+        aria-label={fromLabel}
+        className={fieldClass}
+      />
+      <span className="text-xs text-muted-foreground" aria-hidden>
+        –
+      </span>
+      <input
+        type="number"
+        inputMode="numeric"
+        min={min}
+        max={max}
+        placeholder="To"
+        value={to}
+        onChange={(e) => onToChange(e.target.value)}
+        aria-label={toLabel}
+        className={fieldClass}
+      />
+    </div>
+  );
+}
+
 export function toggleChipGroup(
   label: string,
   chips: Array<{ id: string; label: string }>,
@@ -65,6 +157,7 @@ export function HubSearch({
   searchLabel,
   controlsId,
   groups,
+  extras,
   empty,
   onClearFilters,
   children,
@@ -77,6 +170,7 @@ export function HubSearch({
   searchLabel: string;
   controlsId: string;
   groups?: HubChipGroup[];
+  extras?: ReactNode;
   empty?: string;
   onClearFilters?: () => void;
   children: ReactNode;
@@ -120,7 +214,7 @@ export function HubSearch({
         </div>
       </div>
 
-      {visibleGroups.length > 0 && (
+      {(visibleGroups.length > 0 || extras) && (
         <div className="mb-4 flex flex-col gap-2">
           {visibleGroups.map((group) => (
             <div
@@ -148,6 +242,7 @@ export function HubSearch({
               ))}
             </div>
           ))}
+          {extras}
         </div>
       )}
 

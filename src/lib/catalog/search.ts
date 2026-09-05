@@ -15,20 +15,41 @@ import { getArticle } from "@/lib/history/registry";
 import { getConcept } from "@/lib/concepts/registry";
 import { getPlace } from "@/lib/places/registry";
 import {
+  compareByLabel,
   filterByHaystack,
   joinHaystack,
   relatedNames,
   sortByLabel,
 } from "@/lib/search/normalize";
+import {
+  compareByYear,
+  parseYear,
+  yearInRange,
+  type CatalogSort,
+} from "./years";
 
 export interface ArtistFilters {
   genre?: string;
   hasSong?: boolean;
+  yearFrom?: number;
+  yearTo?: number;
+  sort?: CatalogSort;
 }
 
 export interface SongFilters {
   genre?: string;
   hasPianoRoll?: boolean;
+  yearFrom?: number;
+  yearTo?: number;
+  sort?: CatalogSort;
+}
+
+export function artistBirthYear(artist: Artist): number | undefined {
+  return parseYear(artist.era);
+}
+
+export function songReleaseYear(song: CatalogSong): number | undefined {
+  return parseYear(song.year);
 }
 
 function placeNames(ids: string[] | undefined): string[] {
@@ -110,7 +131,25 @@ export function searchArtists(
   if (filters.hasSong) {
     items = items.filter((artist) => songsByArtist(artist.slug).length > 0);
   }
-  return sortByLabel(filterByHaystack(items, query, artistHay), (a) => a.name);
+  if (filters.yearFrom != null || filters.yearTo != null) {
+    items = items.filter((artist) =>
+      yearInRange(artistBirthYear(artist), filters.yearFrom, filters.yearTo),
+    );
+  }
+  const matched = filterByHaystack(items, query, artistHay);
+  const sort = filters.sort ?? "name";
+  if (sort === "name") return sortByLabel(matched, (a) => a.name);
+  const dir = sort === "year-asc" ? "asc" : "desc";
+  return matched.slice().sort((a, b) =>
+    compareByYear(
+      artistBirthYear(a),
+      artistBirthYear(b),
+      dir,
+      a.name,
+      b.name,
+      compareByLabel,
+    ),
+  );
 }
 
 export function searchSongs(
@@ -124,5 +163,23 @@ export function searchSongs(
   if (filters.hasPianoRoll) {
     items = items.filter((song) => Boolean(song.pianoRollId));
   }
-  return sortByLabel(filterByHaystack(items, query, songHay), (s) => s.title);
+  if (filters.yearFrom != null || filters.yearTo != null) {
+    items = items.filter((song) =>
+      yearInRange(songReleaseYear(song), filters.yearFrom, filters.yearTo),
+    );
+  }
+  const matched = filterByHaystack(items, query, songHay);
+  const sort = filters.sort ?? "name";
+  if (sort === "name") return sortByLabel(matched, (s) => s.title);
+  const dir = sort === "year-asc" ? "asc" : "desc";
+  return matched.slice().sort((a, b) =>
+    compareByYear(
+      songReleaseYear(a),
+      songReleaseYear(b),
+      dir,
+      a.title,
+      b.title,
+      compareByLabel,
+    ),
+  );
 }

@@ -5,7 +5,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 import { SONGS_CATALOG, songAttribution } from "@/lib/catalog/songs";
-import { searchSongs } from "@/lib/catalog/search";
+import { searchSongs, songReleaseYear } from "@/lib/catalog/search";
+import {
+  catalogYearBounds,
+  parseYearInput,
+  type CatalogSort,
+} from "@/lib/catalog/years";
 import { genreOptionsFrom } from "@/lib/search/options";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -16,6 +21,8 @@ import {
 } from "@/components/ui/card";
 import {
   HubSearch,
+  YearRangeFields,
+  catalogSortGroup,
   genreChipGroup,
 } from "@/components/content/HubSearch";
 
@@ -23,6 +30,9 @@ export function SongsExplorer() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState<string | undefined>();
   const [hasPianoRoll, setHasPianoRoll] = useState(false);
+  const [sort, setSort] = useState<CatalogSort>("name");
+  const [yearFrom, setYearFrom] = useState("");
+  const [yearTo, setYearTo] = useState("");
 
   const genreOptions = useMemo(
     () => genreOptionsFrom(SONGS_CATALOG.flatMap((song) => song.genres ?? [])),
@@ -31,17 +41,40 @@ export function SongsExplorer() {
   const showPianoRoll =
     SONGS_CATALOG.some((song) => song.pianoRollId) &&
     SONGS_CATALOG.some((song) => !song.pianoRollId);
+  const bounds = useMemo(
+    () => catalogYearBounds(SONGS_CATALOG.map(songReleaseYear)),
+    [],
+  );
+
+  const fromYear = parseYearInput(yearFrom);
+  const toYear = parseYearInput(yearTo);
 
   const matches = useMemo(
     () =>
       searchSongs(query, {
         genre,
         hasPianoRoll: hasPianoRoll || undefined,
+        yearFrom: fromYear,
+        yearTo: toYear,
+        sort,
       }),
-    [query, genre, hasPianoRoll],
+    [query, genre, hasPianoRoll, fromYear, toYear, sort],
   );
   const filtering =
-    query.trim().length > 0 || Boolean(genre) || hasPianoRoll;
+    query.trim().length > 0 ||
+    Boolean(genre) ||
+    hasPianoRoll ||
+    fromYear != null ||
+    toYear != null;
+
+  const clear = () => {
+    setQuery("");
+    setGenre(undefined);
+    setHasPianoRoll(false);
+    setSort("name");
+    setYearFrom("");
+    setYearTo("");
+  };
 
   return (
     <HubSearch
@@ -73,7 +106,24 @@ export function SongsExplorer() {
               ]
             : [],
         },
+        catalogSortGroup(sort, setSort, {
+          oldest: "Oldest first",
+          newest: "Newest first",
+        }),
       ]}
+      extras={
+        <YearRangeFields
+          label="Released"
+          fromLabel="Released from year"
+          toLabel="Released to year"
+          from={yearFrom}
+          to={yearTo}
+          onFromChange={setYearFrom}
+          onToChange={setYearTo}
+          min={bounds?.min}
+          max={bounds?.max}
+        />
+      }
       empty={
         matches.length === 0
           ? query.trim()
@@ -81,15 +131,7 @@ export function SongsExplorer() {
             : "No song matches those filters."
           : undefined
       }
-      onClearFilters={
-        filtering
-          ? () => {
-              setQuery("");
-              setGenre(undefined);
-              setHasPianoRoll(false);
-            }
-          : undefined
-      }
+      onClearFilters={filtering || sort !== "name" ? clear : undefined}
     >
       <div
         id="songs-grid"
