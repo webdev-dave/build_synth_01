@@ -26,6 +26,14 @@ export const NAV_ITEMS: NavItem[] = [
     inNav: false,
   },
   {
+    id: "genres",
+    label: "Genres",
+    icon: "💿",
+    href: "/genres",
+    description: "What makes a genre sound like itself — layer by layer",
+    inNav: false,
+  },
+  {
     id: "synth",
     label: "WebSynth",
     icon: "🎹",
@@ -49,6 +57,14 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Draw, play, and edit melodies on a piano roll",
     inNav: false,
     beta: true,
+  },
+  {
+    id: "scales",
+    label: "Scales",
+    icon: "🎶",
+    href: "/scales",
+    description: "How scales and modes are built — see it, hear it, play it",
+    inNav: false,
   },
 ];
 

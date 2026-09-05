@@ -17,14 +17,15 @@ harden.
 | Plan | File | What it is | Build status | Ranking |
 |------|------|------------|--------------|---------|
 | IP, copyright, trademark & licensing (security tightening) | [docs/plans/ip-copyright-trademark-licensing.md](docs/plans/ip-copyright-trademark-licensing.md) | Repo/legal layer: LICENSE, secret scan, trademark ™, repo rename | **Not started.** Status: planning (2026-08-22). No `LICENSE` yet. | **2** |
-| Interactive Scale Lessons | [docs/plans/lessons-module.md](docs/plans/lessons-module.md) | `/lessons` blog of interactive scale/mode pages + reusable widgets | **Partial.** Index + `[slug]` routes and registry exist; all lessons still "Soon". Widgets (keyboard, comparer, etc.) and real content are unbuilt. | not specified |
+| Interactive Scale Lessons | [docs/plans/lessons-module.md](docs/plans/lessons-module.md) | `/lessons` non-scale primitives + reusable widgets (scale deep-dives moved to `/scales`) | **Partial.** Index + `[slug]` routes and registry exist; all still "Soon". **Scales superseded by the Scales module** (`/scales/[slug]`); `/lessons` keeps chords/waveforms/frequency/etc. Widgets unbuilt. | not specified |
 | Harmonica Key Finder — SEO & LLM | [docs/plans/harmonica-lab-seo.md](docs/plans/harmonica-lab-seo.md) | Instrument-first hub `/harmonica` + Key Finder + Cross Harp Chart; migrate lab | **Not started.** Spec says sketch first — don't build yet. Site-wide `metadataBase` already exists; sitemap/robots/JSON-LD and new routes do not. | not specified (doc: hold on build) |
 | Contact & Licensing pages | [docs/plans/contact-and-licensing.md](docs/plans/contact-and-licensing.md) | `/contact` form, `/usage`, `/pricing` stub, footer wiring | **Partial.** `/contact` is a `mailto:` stub. `/usage` and `/pricing` do not exist. Decisions locked. | not specified |
 | Buy Me a Coffee (tips) | [docs/plans/buy-me-a-coffee.md](docs/plans/buy-me-a-coffee.md) | Footer + `/about` link to a BMC creator page | **Not started.** Blocked on off-site BMC account + live URL. | not specified (doc: **do not build yet**) |
 | Yiddish / Jewish music (dataset + learn-through-song) | [docs/plans/klezmer-yiddish-dataset.md](docs/plans/klezmer-yiddish-dataset.md) | Track A: klezmer melody corpus. Track B: lyric+audio language module | **Not started.** Blocked on `SongDocument` (`src/lib/song/` does not exist). Track B is exploration. | not specified |
 | Interactive Dance Tutorial | [docs/plans/dance-tutorial-module.md](docs/plans/dance-tutorial-module.md) | `/dance` beat-synced footwork lessons; first style West Coast Swing | **Not started.** Spec says sketch first — not a build order to start blindly. | not specified (doc: hold on build) |
 | Self-hosted MIDI library + agentic finder | [docs/plans/self-hosted-midi-library.md](docs/plans/self-hosted-midi-library.md) | Load songs into the Piano Roll; later an allowlist-first agent finds MIDI by title+artist and caches the user's pick | **Not started.** Blocked on `SongDocument`; agent/DB blocked on dropping `output: "export"`. First milestone is client-only (open `.mid` + PD seed). | not specified |
-| Genre Lab (what makes a genre itself) | [docs/plans/genre-lab-module.md](docs/plans/genre-lab-module.md) | `/genres` hub + per-genre pages; layer stack (rhythm first, then harmony/scale/form); reggae vs rock as the format proof | **Not started.** Spec says sketch first — not a build order to start blindly. | not specified (doc: hold on build) |
+| Genres + Scales modules (structure + SEO) | [docs/plans/genres-and-scales-modules.md](docs/plans/genres-and-scales-modules.md) | `/genres` + `/scales` hubs & `[slug]` spokes, typed registries, cross-links, per-page metadata + FAQ JSON-LD, first `sitemap.ts`/`robots.ts`, nav | **Partial (2026-09-05).** Structure + SEO shipped; `/scales/blues-scale` now has its interactive lesson (keyboard, pentatonic-vs-blues comparer, degree strip). Next: song embed on the blues pages (blocked on sourcing a PD blues `.mid`), then genre groove widgets. | not specified |
+| Genre Lab (what makes a genre itself) | [docs/plans/genre-lab-module.md](docs/plans/genre-lab-module.md) | `/genres` hub + per-genre pages; layer stack (rhythm first, then harmony/scale/form); reggae vs rock as the format proof | **Structure shipped; widgets not started.** `/genres` + `[slug]` + registry live (blues first, not reggae). Groove player / grid / comparer unbuilt. | not specified (doc: widgets next) |
 
 ---
 
@@ -61,7 +62,7 @@ a doc says otherwise.
 ---
 
 Piano Roll day-to-day list: [ToDo-piano-roll.md](ToDo-piano-roll.md)
-(default song, pan/zoom, transpose↔scale, track picker, song URLs / MIDI SEO).
+(default song, touch scroll X/Y, transpose↔scale, track picker, song URLs / MIDI SEO).
 
 ## Next to implement
 

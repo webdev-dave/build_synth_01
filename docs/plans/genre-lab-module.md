@@ -3,6 +3,16 @@
 A new **Genre Lab** at `/genres` that teaches music genres the Instrumaps way:
 **hear and see the signature**, don't read a Wikipedia paragraph about it.
 
+> **Structure shipped (2026-09-05).** The `/genres` hub + `/genres/[slug]`
+> routes, the `src/lib/genres/registry.ts` layer model, nav, and SEO
+> scaffolding now exist — see
+> [genres-and-scales-modules.md](genres-and-scales-modules.md). **Blues is
+> the first page, not reggae** (the "reggae-first" milestone below was about
+> proving the rhythm widget, not the URL order). The interactive groove
+> widgets in Phases 2–4 are still unbuilt; the live pages carry crawlable
+> copy + honest "coming soon" blocks until then. The scale layer links out to
+> the **Scales module** (`/scales/blues-scale`), it is not rebuilt here.
+
 The core question per genre is *"what actually makes this sound like this?"*
 The answer is almost never one thing. A genre is a **stack of layers** — rhythm,
 meter, harmony, scale, form, texture — and different genres light up different

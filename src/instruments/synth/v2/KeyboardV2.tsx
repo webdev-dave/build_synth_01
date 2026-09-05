@@ -14,9 +14,10 @@ interface KeyboardV2Props {
   /** When true, out-of-scale keys are dimmed and unplayable */
   lockToScale: boolean;
   isNoteInScale: (noteNumber: number) => boolean;
-  /** Pitch class (0–11) → 1-based scale degree; null entries are chromatic.
-      When provided, in-scale keys show their degree instead of the dot. */
-  scaleDegrees: (number | null)[] | null;
+  /** Pitch class (0–11) → scale degree; null entries are chromatic.
+      Numbers (1–7) or spelled labels ("♭5") — in-scale keys show this
+      instead of the green dot. */
+  scaleDegrees: (number | string | null)[] | null;
   /** note → computer-keyboard character, or null when labels are off */
   keyLabels: Record<string, string> | null;
   onNoteStart: (noteNumber: number, note: string) => void;
@@ -199,8 +200,8 @@ export function KeyboardV2({
                   // same on every key, black or white. The ball is the marker.
                   <span
                     className={cn(
-                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 font-mono text-[10px] leading-none text-white",
-                      degree === 1 && "font-bold",
+                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 min-w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 px-0.5 font-mono text-[10px] leading-none text-white",
+                      (degree === 1 || degree === "1") && "font-bold",
                     )}
                   >
                     {degree}
@@ -289,8 +290,8 @@ export function KeyboardV2({
                   // Same green ball as the white keys — one shared marker.
                   <span
                     className={cn(
-                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 font-mono text-[10px] leading-none text-white",
-                      degree === 1 && "font-bold",
+                      "pointer-events-none absolute bottom-8 left-1/2 flex h-4 min-w-4 -translate-x-1/2 items-center justify-center rounded-full bg-emerald-600 px-0.5 font-mono text-[10px] leading-none text-white",
+                      (degree === 1 || degree === "1") && "font-bold",
                     )}
                   >
                     {degree}

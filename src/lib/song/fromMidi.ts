@@ -1,7 +1,9 @@
 import * as ToneMidi from "@tonejs/midi";
+import * as midiFileNs from "midi-file";
 
 type MidiCtor = typeof import("@tonejs/midi").Midi;
 type MidiFile = InstanceType<MidiCtor>;
+type ParseMidi = typeof import("midi-file").parseMidi;
 
 /** CJS (Node ingest script) and ESM (Next) export `Midi` differently. */
 function MidiClass(): MidiCtor {
@@ -15,9 +17,20 @@ function MidiClass(): MidiCtor {
   throw new Error("Could not load @tonejs/midi Midi constructor");
 }
 
+function parseMidi(): ParseMidi {
+  const ns = midiFileNs as unknown as {
+    parseMidi?: ParseMidi;
+    default?: { parseMidi?: ParseMidi };
+  };
+  if (typeof ns.parseMidi === "function") return ns.parseMidi;
+  if (typeof ns.default?.parseMidi === "function") return ns.default.parseMidi;
+  throw new Error("Could not load midi-file parseMidi");
+}
+
 import type {
   SongDocument,
   SongDocumentMeta,
+  SongLyric,
   SongNote,
   SongTrack,
   SongTrackRole,
@@ -29,6 +42,11 @@ export type MidiTrackInput = {
   name?: string;
   sourceFile?: string;
 };
+
+type IngestMeta = Pick<SongDocumentMeta, "title"> &
+  Partial<SongDocumentMeta> & {
+    lyricSheet?: string;
+  };
 
 const quantize = (beats: number, step = 0.5): number =>
   Math.round(beats / step) * step;
@@ -75,13 +93,62 @@ function firstTempo(midi: MidiFile): number {
   return bpm ? Math.round(bpm) : 120;
 }
 
+function beatsFromTicks(ticks: number, ppq: number): number {
+  return Math.round((ticks / ppq) * 1000) / 1000;
+}
+
+/** Sequencer credits that show up as MIDI `text`, not sung words. */
+function isCreditText(text: string): boolean {
+  const t = text.toLowerCase();
+  return (
+    t.includes("general midi") ||
+    t.includes("sequenced") ||
+    t.includes("playback") ||
+    t.includes("copyright") ||
+    t.startsWith("http") ||
+    /^(words by|music by|by )\b/i.test(text)
+  );
+}
+
+/**
+ * KAR files put sung syllables on `text` meta events; SMF uses `lyrics`.
+ * `@…` lines are KAR headers (title, language), not words to sing.
+ */
+function lyricsFromBytes(bytes: ArrayBuffer | Uint8Array): SongLyric[] {
+  const data = bytes instanceof Uint8Array ? bytes : new Uint8Array(bytes);
+  const parsed = parseMidi()(data);
+  const ppq = parsed.header.ticksPerBeat || 480;
+  const out: SongLyric[] = [];
+  for (const track of parsed.tracks) {
+    let tick = 0;
+    for (const ev of track) {
+      tick += ev.deltaTime;
+      if (ev.type !== "lyrics" && ev.type !== "text") continue;
+      const text = (ev.text ?? "").replace(/\0/g, "").replace(/\r/g, "");
+      if (!text || text.startsWith("@") || isCreditText(text)) continue;
+      out.push({ startBeats: beatsFromTicks(tick, ppq), text });
+    }
+  }
+  return out;
+}
+
+function withLyrics(
+  doc: SongDocument,
+  lyrics: SongLyric[],
+  lyricSheet?: string,
+): SongDocument {
+  if (lyrics.length) doc.lyrics = lyrics;
+  if (lyricSheet?.trim()) doc.lyricSheet = lyricSheet.trim();
+  return doc;
+}
+
 /**
  * Merge one or more `.mid` files (e.g. a voice file + a piano file) into
  * one SongDocument. Empty and drum-channel tracks are skipped.
  */
 export function ingestMidiTracks(
   inputs: MidiTrackInput[],
-  meta: Pick<SongDocumentMeta, "title"> & Partial<SongDocumentMeta>,
+  meta: IngestMeta,
 ): SongDocument {
   if (inputs.length === 0) {
     throw new Error("ingestMidiTracks: no MIDI inputs");
@@ -89,10 +156,12 @@ export function ingestMidiTracks(
 
   const tracks: SongTrack[] = [];
   const sources: NonNullable<SongDocumentMeta["sources"]> = [];
+  const lyrics: SongLyric[] = [];
   let tempo = meta.tempo;
   let timeSignature = meta.timeSignature;
 
   for (const input of inputs) {
+    lyrics.push(...lyricsFromBytes(input.bytes));
     const midi = new (MidiClass())(input.bytes);
     if (!tempo) tempo = firstTempo(midi);
     if (!timeSignature) timeSignature = firstTimeSignature(midi);
@@ -118,20 +187,24 @@ export function ingestMidiTracks(
     throw new Error("ingestMidiTracks: no pitched notes found");
   }
 
-  return {
-    meta: {
-      title: meta.title,
-      artist: meta.artist,
-      key: meta.key,
-      tempo: tempo ?? 120,
-      timeSignature: timeSignature ?? [4, 4],
-      provenance: "midi",
-      confidence: 1,
-      sources: sources.length ? sources : undefined,
-      origin: meta.origin,
+  return withLyrics(
+    {
+      meta: {
+        title: meta.title,
+        artist: meta.artist,
+        key: meta.key,
+        tempo: tempo ?? 120,
+        timeSignature: timeSignature ?? [4, 4],
+        provenance: "midi",
+        confidence: 1,
+        sources: sources.length ? sources : undefined,
+        origin: meta.origin,
+      },
+      tracks,
     },
-    tracks,
-  };
+    lyrics,
+    meta.lyricSheet,
+  );
 }
 
 /**
@@ -140,12 +213,13 @@ export function ingestMidiTracks(
  */
 export function ingestMidiFile(
   bytes: ArrayBuffer | Uint8Array,
-  meta: Pick<SongDocumentMeta, "title"> & Partial<SongDocumentMeta>,
+  meta: IngestMeta,
   sourceFile?: string,
 ): SongDocument {
   const midi = new (MidiClass())(bytes);
   const ppq = midi.header.ppq || 480;
   const tracks: SongTrack[] = [];
+  const lyrics = lyricsFromBytes(bytes);
 
   for (const raw of midi.tracks) {
     if (raw.channel === 9 || raw.notes.length === 0) continue;
@@ -164,20 +238,24 @@ export function ingestMidiFile(
     throw new Error("ingestMidiFile: no pitched notes found");
   }
 
-  return {
-    meta: {
-      title: meta.title,
-      artist: meta.artist,
-      key: meta.key,
-      tempo: meta.tempo ?? firstTempo(midi),
-      timeSignature: meta.timeSignature ?? firstTimeSignature(midi),
-      provenance: "midi",
-      confidence: 1,
-      sources: sourceFile
-        ? [{ role: tracks[0].role, file: sourceFile }]
-        : undefined,
-      origin: meta.origin,
+  return withLyrics(
+    {
+      meta: {
+        title: meta.title,
+        artist: meta.artist,
+        key: meta.key,
+        tempo: meta.tempo ?? firstTempo(midi),
+        timeSignature: meta.timeSignature ?? firstTimeSignature(midi),
+        provenance: "midi",
+        confidence: 1,
+        sources: sourceFile
+          ? [{ role: tracks[0].role, file: sourceFile }]
+          : undefined,
+        origin: meta.origin,
+      },
+      tracks,
     },
-    tracks,
-  };
+    lyrics,
+    meta.lyricSheet,
+  );
 }

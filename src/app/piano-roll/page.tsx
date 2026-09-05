@@ -1,7 +1,5 @@
 import type { Metadata } from "next";
 
-import { MidiLab } from "@/components/midi/MidiLab";
-
 export const metadata: Metadata = {
   title: "Piano Roll (beta)",
   description:
@@ -9,5 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PianoRollPage() {
-  return <MidiLab />;
+  return null;
 }

@@ -101,7 +101,8 @@ export type MelodyEvent = {
  * "Yesterday, all my troubles seemed so far away…
  *  oh I believe in yesterday."
  */
-export const MELODY: MelodyEvent[] = [
+// Preserved old version (resolves to E instead of C)
+export const OLD_MELODY_V1: MelodyEvent[] = [
   { note: null, beats: 1.0 },
   { note: "D4", beats: 0.5, lyric: "Yes-" },
   { note: "C4", beats: 0.5, lyric: "-ter-" },
@@ -125,6 +126,33 @@ export const MELODY: MelodyEvent[] = [
   { note: "F4", beats: 1.0, lyric: "here" },
   { note: "E4", beats: 2.0, lyric: "to" },
   { note: "E4", beats: 1.5, lyric: "stay" },
+  { note: null, beats: 0.5 },
+];
+
+export const MELODY: MelodyEvent[] = [
+  { note: null, beats: 1.0 },
+  { note: "D4", beats: 0.5, lyric: "Yes-" },
+  { note: "C4", beats: 0.5, lyric: "-ter-" },
+  { note: "C4", beats: 2.0, lyric: "-day" },
+  { note: null, beats: 1.0 },
+  { note: "E4", beats: 0.5, lyric: "all" },
+  { note: "F#4", beats: 0.5, lyric: "my" },
+  { note: "G#4", beats: 0.5, lyric: "trou-" },
+  { note: "A4", beats: 0.5, lyric: "-bles" },
+  { note: "B4", beats: 0.5, lyric: "seemed" },
+  { note: "C5", beats: 0.5, lyric: "so" },
+  { note: "B4", beats: 2.0, lyric: "far" },
+  { note: "A4", beats: 0.5, lyric: "a-" },
+  { note: "A4", beats: 1.5, lyric: "-way" },
+  { note: "A4", beats: 0.5, lyric: "Now" },
+  { note: "A4", beats: 0.5, lyric: "it" },
+  { note: "G4", beats: 0.5, lyric: "looks" },
+  { note: "F4", beats: 0.5, lyric: "as" },
+  { note: "E4", beats: 0.5, lyric: "though" },
+  { note: "D4", beats: 0.5, lyric: "they're" },
+  { note: "F4", beats: 1.0, lyric: "here" },
+  { note: "E4", beats: 2.0, lyric: "to" },
+  { note: "C4", beats: 1.5, lyric: "stay" }, // Corrected: resolves properly to C4
   { note: null, beats: 0.5 },
 ];
 

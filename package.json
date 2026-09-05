@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "ingest-midi": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/ingest-midi.ts",
-    "ingest-klezmer-page": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/ingest-klezmer-page.ts"
+    "ingest-klezmer-page": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/ingest-klezmer-page.ts",
+    "ingest-listing-page": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/ingest-listing-page.ts",
+    "migrate-catalog-offload": "node --experimental-strip-types --no-warnings=ExperimentalWarning scripts/migrate-catalog-offload.ts"
   },
   "dependencies": {
     "@radix-ui/react-slot": "^1.3.3",

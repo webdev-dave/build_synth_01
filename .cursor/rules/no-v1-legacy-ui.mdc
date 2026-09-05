@@ -1,0 +1,53 @@
+---
+description: Never reuse synth or harmonica v1 UI when building new pages or widgets
+alwaysApply: true
+---
+
+# No v1 synth / harmonica UI in new work
+
+When embedding or composing a keyboard, harmonica diagram, or scale lock
+for **new** pages (lessons, genres, scales, labs), use the **v2**
+components. Never reach for the v1 / `templates/basic-synth` UI just
+because it is closer in the tree or already imported somewhere.
+
+The 2026-09 blues-scale lesson did this: it wrapped v1 `SynthKeys` and
+rebuilt lock + degree labels that `KeyboardV2` already had.
+
+## Use these
+
+| Need | Component |
+|------|-----------|
+| Playable piano / scale degrees / lock | `KeyboardV2` (`src/instruments/synth/v2/KeyboardV2.tsx`) |
+| Full synth page chrome (don't embed the whole page) | `SynthV2` |
+| Harmonica diagram | `HarmonicaDiagramV2` |
+| Position / key matrix | `PositionMatrixV2` |
+| Harmonica lab shell | `HarmonicaLabV2` |
+
+Shared **non-UI** is fine to keep using: `useAudioSynthesis`,
+`createSynthKeysFromRange` / `synthUtils`, `useSharedAudioContext`,
+`src/lib/music`, `src/lib/harmonica` (the theory engine).
+
+## Do not import for new work
+
+- `src/instruments/synth/templates/basic-synth/components/**` — `SynthKeys`,
+  `SynthKeyboard`, `SynthControls`, theory panels, `AudioPermissionOverlay`
+- `src/instruments/synth/templates/basic-synth/hooks/useScaleLogic.ts` —
+  major/minor only; new scale UI reads `src/lib/music/scales.ts`
+- `src/components/harmonica/*.tsx` (the folder root, **not** `v2/`) —
+  `HarmonicaDiagram`, `PositionMatrix`, `KeySelector`, `NoteCell`, etc.
+- Barrel `src/components/harmonica/index.ts` and
+  `src/instruments/synth/index.ts` (they re-export v1)
+
+```tsx
+// ❌ BAD — v1 keyboard, missing degrees + lock language
+import SynthKeys from "@/instruments/synth/templates/basic-synth/components/SynthKeys";
+
+// ✅ GOOD — same piano the live synth already shows
+import { KeyboardV2 } from "@/instruments/synth/v2/KeyboardV2";
+```
+
+## If v2 is missing a prop
+
+Extend the **v2** component (the way `scaleDegrees` now accepts `"♭5"`).
+Do not fork v1 or add a third keyboard. Touch v1 only when the user
+explicitly asks to change the legacy `/synth` or `/harmonica-lab` pages.

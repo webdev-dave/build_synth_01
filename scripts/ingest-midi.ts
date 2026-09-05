@@ -22,9 +22,8 @@
  *
  * Writes:
  *   public/midi/<id>/*.mid
- *   src/lib/songs/catalog/<id>.json
- *   src/lib/songs/<id>.ts          (if missing)
- * and registers the song in src/lib/songs/library.ts
+ *   public/catalog/<id>.json       (compact document)
+ * and appends a row to src/lib/songs/manifest.json
  */
 
 import fs from "node:fs";
@@ -33,6 +32,13 @@ import path from "node:path";
 import { ingestMidiFile, ingestMidiTracks } from "../src/lib/song/fromMidi.ts";
 import { documentTotalBeats } from "../src/lib/song/stats.ts";
 import type { SongOrigin, SongTrackRole } from "../src/lib/song/types.ts";
+import {
+  LABEL_SETS,
+  findCatalogDuplicate,
+  upsertManifest,
+  usedCatalogIds,
+  writeCatalogDocument,
+} from "./lib/song-catalog.ts";
 
 type Args = {
   id: string;
@@ -50,6 +56,7 @@ type Args = {
   "source-file-url"?: string;
   collection?: string;
   "source-note"?: string;
+  "lyric-sheet"?: string;
   force?: string;
 };
 
@@ -87,48 +94,22 @@ function slugId(id: string): string {
   return id;
 }
 
-function camel(id: string): string {
-  return id.replace(/-([a-z0-9])/g, (_, c: string) => c.toUpperCase());
-}
-
-function normKey(value: string): string {
-  let decoded = value;
-  try {
-    decoded = decodeURIComponent(value);
-  } catch {
-    decoded = value;
+function labelsFromArgs(args: Args, id: string): string[] {
+  if (
+    args.labels === "blues" ||
+    args.labels === "BLUES_LABELS" ||
+    args.labels === "blues,"
+  ) {
+    return [...LABEL_SETS.BLUES_LABELS];
   }
-  return decoded.trim().toLowerCase().replace(/[_+]+/g, " ").replace(/\s+/g, " ");
-}
-
-function originKeys(origin: SongOrigin): string[] {
-  const keys: string[] = [];
-  if (origin.filename) keys.push(`file:${normKey(origin.filename)}`);
-  if (origin.fileUrl) keys.push(`url:${normKey(origin.fileUrl)}`);
-  return keys;
-}
-
-function findCatalogDuplicate(
-  catalogDir: string,
-  origin: SongOrigin,
-): { id: string; title: string } | undefined {
-  const incoming = new Set(originKeys(origin));
-  if (incoming.size === 0 || !fs.existsSync(catalogDir)) return undefined;
-  for (const name of fs.readdirSync(catalogDir)) {
-    if (!name.endsWith(".json")) continue;
-    const raw = JSON.parse(fs.readFileSync(path.join(catalogDir, name), "utf8")) as {
-      meta?: { title?: string; origin?: SongOrigin };
-    };
-    const existing = raw.meta?.origin;
-    if (!existing) continue;
-    if (originKeys(existing).some((key) => incoming.has(key))) {
-      return {
-        id: name.replace(/\.json$/, ""),
-        title: raw.meta?.title ?? name,
-      };
-    }
+  if (args.labels) {
+    return args.labels
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
-  return undefined;
+  if (id.startsWith("yesterday")) return [...LABEL_SETS.YESTERDAY_LABELS];
+  return [...LABEL_SETS.KLEZMER_LABELS];
 }
 
 function buildOrigin(args: Args): SongOrigin | undefined {
@@ -161,14 +142,15 @@ function main() {
   const id = slugId(args.id);
   const root = process.cwd();
   const midiDir = path.join(root, "public", "midi", id);
-  const catalogDir = path.join(root, "src", "lib", "songs", "catalog");
-  const catalogPath = path.join(catalogDir, `${id}.json`);
-  const modulePath = path.join(root, "src", "lib", "songs", `${id}.ts`);
-  const libraryPath = path.join(root, "src", "lib", "songs", "library.ts");
-  const indexPath = path.join(root, "src", "lib", "songs", "index.ts");
+  if (usedCatalogIds(root).has(id) && args.force !== "true") {
+    console.error(
+      `Catalog id "${id}" already exists. Pass --force to overwrite the document.`,
+    );
+    process.exit(1);
+  }
   const origin = buildOrigin(args);
   if (origin && args.force !== "true") {
-    const dup = findCatalogDuplicate(catalogDir, origin);
+    const dup = findCatalogDuplicate(origin, root);
     if (dup) {
       console.error(
         `Same source file already ingested as "${dup.title}" (${dup.id}). ` +
@@ -181,7 +163,6 @@ function main() {
   }
 
   fs.mkdirSync(midiDir, { recursive: true });
-  fs.mkdirSync(path.dirname(catalogPath), { recursive: true });
 
   const inputs: {
     bytes: Uint8Array;
@@ -220,93 +201,42 @@ function main() {
     console.log(`copied ${abs} → ${dest}`);
   }
 
+  const lyricSheet = args["lyric-sheet"]
+    ? fs.readFileSync(path.resolve(args["lyric-sheet"]), "utf8")
+    : undefined;
   const meta = {
     title: args.title,
     artist: args.artist,
     key: args.key,
     origin,
+    lyricSheet,
   };
   const doc = fileBytes
     ? ingestMidiFile(fileBytes, meta, fileSource)
     : ingestMidiTracks(inputs, meta);
 
-  fs.writeFileSync(catalogPath, JSON.stringify(doc, null, 2) + "\n");
-  console.log(`wrote ${catalogPath}`);
+  const labels = labelsFromArgs(args, id);
+  const row = writeCatalogDocument(id, doc, {
+    subtitle: args.subtitle,
+    labels,
+  }, root);
+  row.title = args.title;
+  if (args.subtitle) row.subtitle = args.subtitle;
+  upsertManifest(row, root);
+  console.log(`wrote public/catalog/${id}.json`);
   console.log(
     `tracks: ${doc.tracks.map((t) => `${t.name} (${t.notes.length} notes)`).join(", ")}`,
   );
   console.log(
     `tempo ${doc.meta.tempo} · ${doc.meta.timeSignature.join("/")} · ${documentTotalBeats(doc)} beats`,
   );
-
-  const exportName = camel(id);
-  if (!fs.existsSync(modulePath)) {
-    const subtitle = args.subtitle
-      ? `\n  subtitle: ${JSON.stringify(args.subtitle)},`
-      : "";
-    const isYesterday = id.startsWith("yesterday");
-    const labelsExpr = args.labels
-      ? JSON.stringify(
-          args.labels
-            .split(",")
-            .map((s) => s.trim())
-            .filter(Boolean),
-        )
-      : isYesterday
-        ? "YESTERDAY_LABELS"
-        : "KLEZMER_LABELS";
-    const labelsImport = args.labels
-      ? "import type { SongEntry } from \"./types\";"
-      : `import { ${isYesterday ? "YESTERDAY_LABELS" : "KLEZMER_LABELS"}, type SongEntry } from "./types";`;
-    const sourceField = origin
-      ? `\n  source: ${JSON.stringify(origin, null, 2).replace(/\n/g, "\n  ")},`
-      : "";
-    fs.writeFileSync(
-      modulePath,
-      `import type { SongDocument } from "@/lib/song";
-${labelsImport}
-import document from "./catalog/${id}.json";
-
-const doc = document as SongDocument;
-
-export const ${exportName}: SongEntry = {
-  id: "${id}",
-  title: ${JSON.stringify(args.title)},${subtitle}
-  labels: ${labelsExpr},${sourceField}
-  bpm: doc.meta.tempo,
-  document: doc,
-  melody: [],
-};
-`,
-    );
-    console.log(`wrote ${modulePath}`);
-  } else {
-    console.log(`kept existing ${modulePath}`);
+  if (doc.lyrics?.length) {
+    console.log(`lyrics: ${doc.lyrics.length} timed events`);
   }
-
-  let library = fs.readFileSync(libraryPath, "utf8");
-  if (!library.includes(exportName)) {
-    library = library.replace(
-      /^(import \{[^}]+\} from "\.\/yesterday";)/m,
-      `$1\nimport { ${exportName} } from "./${id}";`,
-    );
-    library = library.replace(
-      /(export const SONGS: SongEntry\[\] = \[)([^\]]*)(\];)/,
-      `$1${exportName}, $2$3`,
-    );
-    fs.writeFileSync(libraryPath, library);
-    console.log(`registered ${exportName} in library.ts`);
+  if (doc.lyricSheet) {
+    console.log(`lyric sheet: ${doc.lyricSheet.length} chars`);
   }
-
-  let index = fs.readFileSync(indexPath, "utf8");
-  if (!index.includes(exportName)) {
-    index = index.replace(
-      /(export \{ yesterdayV1, yesterdayV2 \} from "\.\/yesterday";)/,
-      `$1\nexport { ${exportName} } from "./${id}";`,
-    );
-    fs.writeFileSync(indexPath, index);
-    console.log(`exported ${exportName} from songs/index.ts`);
-  }
+  console.log(`registered ${id} in manifest.json`);
 
   console.log(`\nDone. Reload /piano-roll and pick "${args.title}" from Song.`);
 }

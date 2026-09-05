@@ -32,24 +32,31 @@ Same `.mid` listed twice (same filename or file URL already in catalog) →
 Do not invent a second copy of the same file.
 
 **Category labels:** `yesterday-*` → pop/rock/folk. Jewish/Yiddish/klezmer
-repertoire → `KLEZMER_LABELS`. Other FreeSheetMusic pages get their own set
-(e.g. irish/celtic/folk) — do not stamp klezmer labels on a jig from `/irish`.
+repertoire → `KLEZMER_LABELS`. Blues (MidKar, pdmusic.org) → `BLUES_LABELS`.
+Other FreeSheetMusic pages get their own set (e.g. irish/celtic/folk) — do
+not stamp klezmer labels on a jig from `/irish`.
 
 ## After the script
 
-1. Writes `public/midi/<id>/`, `catalog/<id>.json` (includes `meta.origin`),
-   a `SongEntry` module (`source` + `labels`), and registers library/index.
-2. Fix `library.ts` if `SONGS` was smashed onto one line.
-3. Never overwrite an existing `--id` unless the user asks to re-ingest.
-4. Update the MidiLab Song Library blurb. `npx tsc --noEmit`.
-5. Do not commit unless asked. Do not say it is live.
+1. Writes `public/midi/<id>/`, compact `public/catalog/<id>.json` (includes
+   `meta.origin`, labels, subtitle), and appends a row to
+   `src/lib/songs/manifest.json`. Do not generate a per-song `.ts` module.
+2. Never overwrite an existing `--id` unless the user asks to re-ingest.
+3. Update the MidiLab Song Library blurb. `npx tsc --noEmit`.
+4. Do not commit unless asked. Do not say it is live.
 
 ## What the pipeline keeps / drops
 
-- Parser: `src/lib/song/fromMidi.ts`. The roll loads **JSON** via
-  `documentToRollView` — it does not re-parse `.mid` on song select.
+- Parser: `src/lib/song/fromMidi.ts`. The roll **fetches**
+  `/catalog/<id>.json` on select, expands it, then runs
+  `documentToRollView`. It does not re-parse `.mid` and does not import
+  catalog JSON into the TypeScript graph. The picker reads
+  `manifest.json` only.
 - First tempo + first time signature only (tempo maps flatten to one BPM).
 - Quantize 0.5 beat; skip GM drum channel 9.
+- **Keep lyrics.** MIDI `lyrics` meta and KAR `text` events become
+  `document.lyrics` (timed). Companion `.txt` sheets use `--lyric-sheet`
+  → `document.lyricSheet`. Do not drop a `.kar` just because it has words.
 - `songBars()` uses quarter-beats per bar (`num * 4 / den`), so 6/8 is 3
   quarters, not 6. Unknown meters (e.g. 3/8) still load; the Meter dropdown
   prepends them.
@@ -73,5 +80,20 @@ original filename; both versions if the files differ). Worldfolk siblings:
 `/music/worldfolk/{belgian,celtic,around-the-world,popular,guitar,irish,russian,scottish}`.
 Also `/music/{bach,beethoven,christmas,oneills,…}`. Only tag
 `jewish/klezmer/yiddish` when the repertoire actually is that; Irish/Scottish
-etc. need their own labels. Generalize `scripts/ingest-klezmer-page.ts` rather
-than copy-pasting a new script per page.
+etc. need their own labels. Use `scripts/ingest-listing-page.ts` (`--preset`)
+for new listing pages rather than copy-pasting a script per page.
+
+## Blues listings (local catalog)
+
+`npm run ingest-listing-page -- --preset blues` (or `midkar-old` /
+`midkar-chicago` / `pdmusic-blues`). Known `origin.filename` / `fileUrl`
+are skipped. MidKar needs a browser User-Agent. MidKar is **not** clearance
+to ship on instrumaps.com.
+
+**Already ingested (2026-09-05):**
+- [MidKar old blues](https://midkar.com/Blues/Blues_MIDIs.html) (~380)
+- [Wayne's Blues Venue · Chicago/Delta/Texas](https://midkar.com/Blues/Chicago/Chicago.html) (~264)
+- [pdmusic.org Blues](https://dirkncl.github.io/pdmusic_org/blues.html) (~28; lyric sheets when present)
+
+Do not re-ingest those filenames. Wayne's other venue categories
+(Classic Rock, BTO-only, Motown, …) are not in yet.

@@ -1,5 +1,17 @@
 # Plan: Interactive Scale Lessons Module
 
+> **Superseded for scales (2026-09-05).** Scale/mode deep-dives now live in
+> the **Scales module** at `/scales/[slug]` — see
+> [genres-and-scales-modules.md](genres-and-scales-modules.md). The blues
+> scale is `/scales/blues-scale`, **not** `/lessons/blues-scale`. Modes
+> (Phrygian, Dorian) also live under `/scales` (`kind: "mode"`), not here.
+> `/lessons` keeps the **non-scale** primitives below (chords, waveforms,
+> octaves, frequency, time signatures); the `scales` / `scale-degrees` slugs
+> in `src/lib/lessons/registry.ts` are superseded and should be
+> migrated/redirected to `/scales` when that registry is next touched. The
+> widget designs in Phase 2 are still the plan — they get built **on the
+> `/scales` pages**.
+
 ## Overview
 
 A new **Lessons** section at `/lessons` — a blog/lessons module where each page

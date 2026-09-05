@@ -3,7 +3,7 @@
 Local list for `/piano-roll`. Site-wide ranking stays in [ToDo.md](ToDo.md).
 Update this file when a roll item ships, blocks, or gets a new next slice.
 
-**Default song:** `yesterday-beatles` (full MIDI arrangement).
+**Default song:** `yesterday-v2` (hero draft we’re honing). `yesterday-beatles` stays in the catalog.
 
 ---
 
@@ -12,12 +12,13 @@ Update this file when a roll item ships, blocks, or gets a new next slice.
 | # | Item | Status | Next slice |
 |---|------|--------|------------|
 | 1 | **Transpose updates the scale** | **Doing / just shipped.** | −1 / +1 moves notes *and* the Scale dropdown root (C major → C# major). Mode stays. If scale is `none`, leave it — do not invent a key. |
-| 2 | **Pan when the song is bigger than the view** | **Partial.** | Wheel already pans Y. Trackpad swipe pans X. **Shift+wheel** now pans X for mouse users. No classic scrollbars (see below). Follow-up: Space+drag or a “hand” tool if people still get lost. |
+| 2 | **Touch scroll (X and Y)** | **Need to test.** | On a mobile touchscreen, does panning the piano-roll area work on both the X and Y axes? |
 | 3 | **Track picker** | Open | Full arrangements dump every pitched track on one roll. Let the user solo melody / hide accompaniment. |
 | 4 | **Open a local `.mid`** | Open | In-app file picker → same ingest path (`SongDocument` → roll). Phase 0 of the library plan. |
 | 5 | **Meter vs playback honesty** | Open | 3/8 (Bei Mir) and other odd meters: confirm bar lines + clock after the tempo-compensation fix. First tempo only — tempo maps still flatten. |
 | 6 | **How-to / learn copy** | Open | Keep the Learn panel honest as gestures change (pan vs zoom vs transpose). |
-| 7 | **Song on the URL + MIDI SEO / GEO** | Open | Selecting a catalog song must land on a crawlable path (`/piano-roll/hava-nagila`), not a query string. See **Song URLs** below. First slice: `[slug]` routes from `SongEntry.id` + picker `router.replace`. Then per-song metadata, JSON-LD, sitemap. |
+| 7 | **Touch / mobile — whole roll** | **Need extensive testing.** | The entire piano-roll area on a mobile touchscreen — not just X/Y pan. Play, draw, select, zoom, transpose, and the rest of the chrome. |
+| 8 | **Song on the URL + MIDI SEO / GEO** | **Slice 1 shipped.** `/piano-roll/[id]` + picker `replace`. Pop/blues slugs are `noindex`. | Per-song metadata, JSON-LD, sitemap. License-based index vs noindex. |
 
 ---
 
@@ -50,8 +51,9 @@ roll — shareable, bookmarkable, and citable. Same honesty rule as the SEO
 plan: the page ranks for a song because the roll actually plays it, not
 because we stuffed the title.
 
-Picker state today is client-only (`MidiLab` `useState` + `getDefaultSong()`).
-`/piano-roll` is one thin metadata page. That cannot rank per song.
+Picker state is on the URL (`/piano-roll/[id]`). Catalog MIDI still loads
+from `/catalog/<id>.json` after the slug resolves. Per-song metadata is
+the next slice — slug pages reuse the hub title for now.
 
 ### URL shape — path slugs, not `?song=`
 
@@ -114,10 +116,10 @@ local files: never a public URL.
 
 ### Next slices (when we build)
 
-1. `/piano-roll/[slug]` + picker URL sync + unknown slug 404.
+1. ~~`/piano-roll/[slug]` + picker URL sync + unknown slug 404.~~ Shipped.
 2. Per-song `generateMetadata` + canonical + crawlable header.
 3. JSON-LD + sitemap + `llms.txt` entries.
-4. Index vs noindex from license / origin (PD/CC in; gated pop out).
+4. Index vs noindex from license / origin (PD/CC in; gated pop out). Slugs labeled `pop` / `blues` are already `noindex`.
 
 ---
 

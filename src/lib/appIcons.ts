@@ -2,6 +2,8 @@ import {
   Home,
   Piano,
   Music,
+  Disc3,
+  Waypoints,
   createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -64,6 +66,8 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   "harmonica-lab": Harmonica,
   "piano-roll": PianoRoll,
   "drum-machine": DrumMachine,
+  genres: Disc3,
+  scales: Waypoints,
 };
 
 export function getAppIcon(id: string): LucideIcon {

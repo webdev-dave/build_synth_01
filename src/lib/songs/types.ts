@@ -11,16 +11,20 @@ export const YESTERDAY_LABELS = ["pop", "rock", "folk"] as const;
 /** Everything else in the current catalog. */
 export const KLEZMER_LABELS = ["jewish", "klezmer", "yiddish"] as const;
 
+/** Blues samples and (later) MidKar / pdmusic blues pages. */
+export const BLUES_LABELS = ["blues"] as const;
+
 export type SongLabel =
   | (typeof YESTERDAY_LABELS)[number]
   | (typeof KLEZMER_LABELS)[number]
+  | (typeof BLUES_LABELS)[number]
   | (string & {});
 
 /**
- * A catalog entry the Piano Roll (and later, other labs) can load.
- * Add new drafts here instead of overwriting the live hero tune.
+ * Picker/search row. Lives in the bundle via `manifest.json`.
+ * MIDI payloads are fetched from `/catalog/<id>.json` on select.
  */
-export type SongEntry = {
+export type SongManifestEntry = {
   id: SongId;
   title: string;
   /** Version, artist, or other search/display context */
@@ -30,11 +34,25 @@ export type SongEntry = {
   /** Listing URL, original filename, collection — required for sourced MIDI. */
   source?: SongOrigin;
   bpm: number;
-  /** Visible 4/4 workspace length. Derived from the melody if omitted. */
+  /** Visible workspace length. Derived at ingest if omitted. */
   bars?: number;
+  timeSignature?: [number, number];
+  artist?: string;
+  key?: string;
+  hasLyrics?: boolean;
+  hasLyricSheet?: boolean;
+  /** Fetch `/catalog/<id>.json` on select. Handwritten drafts omit this. */
+  hasCatalog?: boolean;
+};
+
+/**
+ * A catalog entry the Piano Roll (and later, other labs) can load.
+ * Add new drafts here instead of overwriting the live hero tune.
+ */
+export type SongEntry = SongManifestEntry & {
   /** Hero-style monophonic line. Empty when `document` is the source. */
   melody: MelodyEvent[];
   chords?: ChordEvent[];
-  /** MIDI-ingested (or other adapter) canonical document. */
+  /** Present after fetch, or inline for handwritten drafts. */
   document?: SongDocument;
 };

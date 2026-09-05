@@ -15,6 +15,15 @@ export type SongTrack = {
   notes: SongNote[];
 };
 
+/**
+ * One timed lyric syllable or phrase from MIDI meta (`lyrics` 0x05) or
+ * KAR `text` events. Times are in beats, matching notes.
+ */
+export type SongLyric = {
+  startBeats: number;
+  text: string;
+};
+
 /** Where a sourced MIDI came from — used to avoid ingesting the same file twice. */
 export type SongOrigin = {
   /** Listing or article page. */
@@ -35,6 +44,10 @@ export type SongOrigin = {
 
 export type SongDocumentMeta = {
   title: string;
+  /** Search/display line (version, collection). Copied onto the picker manifest. */
+  subtitle?: string;
+  /** Picker labels, stored as strings so the document stays catalog-independent. */
+  labels?: string[];
   artist?: string;
   key?: string;
   tempo: number;
@@ -53,4 +66,8 @@ export type SongDocumentMeta = {
 export type SongDocument = {
   meta: SongDocumentMeta;
   tracks: SongTrack[];
+  /** Timed lyrics from the MIDI/KAR. Omitted when the file has none. */
+  lyrics?: SongLyric[];
+  /** Unsynced full text when the source publishes a lyric sheet beside the MIDI. */
+  lyricSheet?: string;
 };

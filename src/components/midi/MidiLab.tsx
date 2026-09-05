@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useReducedMotion } from "motion/react";
 import { Check, Copy, Play, RotateCcw, SkipBack, Square, Trash2, Volume2, VolumeX, Undo2, Redo2, Search, Plus, Minus } from "lucide-react";
 
@@ -14,6 +15,9 @@ import {
 import { documentToRollView } from "@/lib/song/toSequence";
 import {
   getDefaultSong,
+  getSong,
+  resolveSongEntry,
+  songNeedsCatalog,
   SONGS,
   songBars,
   songTimeSignature,
@@ -90,12 +94,13 @@ const MIDI_CONCEPTS: Record<string, LearnPanelConcept> = {
     title: "Song Library",
     body: [
       "Open the Song dropdown to load a catalog melody onto the roll. Type or paste in the search field to filter titles.",
-      "Yesterday has three options (labels: pop, rock, folk). The rest of the catalog is tagged jewish, klezmer, yiddish — including the FreeSheetMusic.net klezmer page. Type a title, label, or original filename to filter. Same .mid is stored once; a different file of the same title is a named version.",
+      "Yesterday has three options (labels: pop, rock, folk). Search jewish / klezmer / yiddish for the FreeSheetMusic.net klezmer page. Search blues for MidKar (old page + Wayne's Chicago/Delta/Texas venue) and pdmusic.org 1850–1923. Type a title, label, or original filename to filter. Same .mid is stored once; a different file of the same title is a named version. MIDI/KAR lyrics stay on the song document.",
     ],
   },
 };
 
-export function MidiLab() {
+export function MidiLab({ songId }: { songId?: string }) {
+  const router = useRouter();
   const { audioContext, initializeAudio } = useSharedAudioContext();
   const { scheduleNote, waveType, setWaveType } = useAudioSynthesis(
     audioContext,
@@ -110,11 +115,17 @@ export function MidiLab() {
   const hasScale = selectedScale !== "none";
   const lockToScale = hasScale && !allowOutOfScale;
 
-  const [song, setSong] = useState<SongEntry>(getDefaultSong);
-  const [bpm, setBpm] = useState(getDefaultSong().bpm);
-  const [bars, setBars] = useState(songBars(getDefaultSong()));
+  const initialSong = (songId && getSong(songId)) || getDefaultSong();
+  const appliedKeyRef = useRef<string | null>(songId ? null : initialSong.id);
+  const [song, setSong] = useState<SongEntry>(initialSong);
+  const [loadingTitle, setLoadingTitle] = useState<string | null>(
+    songId && songNeedsCatalog(initialSong) ? initialSong.title : null,
+  );
+  const loadGen = useRef(0);
+  const [bpm, setBpm] = useState(initialSong.bpm);
+  const [bars, setBars] = useState(songBars(initialSong));
   const [timeSig, setTimeSig] = useState<TimeSignature>(
-    songTimeSignature(getDefaultSong()),
+    songTimeSignature(initialSong),
   );
   const rollView = song.document ? documentToRollView(song.document) : null;
   const meterOptions = COMMON_TIME_SIGNATURES.some(
@@ -235,8 +246,55 @@ export function MidiLab() {
     setSelectedScale(newScale);
   }, [selectedScale, setSelectedScale]);
 
+  const applySong = useCallback(
+    (next: SongEntry) => {
+      appliedKeyRef.current = next.id;
+      setSong(next);
+      setBpm(next.bpm);
+      setBars(songBars(next));
+      setTimeSig(songTimeSignature(next));
+      setSelectedNote(null);
+      setCanUndo(false);
+      setCanRedo(false);
+      const nextSeq = next.document
+        ? documentToRollView(next.document)?.sequence || []
+        : melodyToSequence(next.melody);
+      const detected = detectKey(nextSeq);
+      if (detected !== "unknown") {
+        setSelectedScale(detected);
+        setAllowOutOfScale(true);
+      } else {
+        setSelectedScale("none");
+      }
+    },
+    [setAllowOutOfScale, setSelectedScale],
+  );
+
+  useEffect(() => {
+    const target = songId ? getSong(songId) : getDefaultSong();
+    if (!target) return;
+    if (appliedKeyRef.current === target.id) return;
+
+    stop();
+    const gen = ++loadGen.current;
+    if (songNeedsCatalog(target)) setLoadingTitle(target.title);
+    void resolveSongEntry(target)
+      .then((loaded) => {
+        if (gen !== loadGen.current) return;
+        applySong(loaded);
+      })
+      .catch((err: unknown) => {
+        if (gen !== loadGen.current) return;
+        const message = err instanceof Error ? err.message : "unknown error";
+        window.alert(`Could not load ${target.title}. ${message}`);
+      })
+      .finally(() => {
+        if (gen === loadGen.current) setLoadingTitle(null);
+      });
+  }, [songId, applySong, stop]);
+
   const loadSong = (next: SongEntry) => {
-    if (next.id === song.id) return;
+    if (next.id === song.id || loadingTitle) return;
     if (
       !window.confirm(
         `Load ${next.title}? Unsaved edits on the roll will be discarded.`,
@@ -245,24 +303,23 @@ export function MidiLab() {
       return;
     }
     stop();
-    setSong(next);
-    setBpm(next.bpm);
-    setBars(songBars(next));
-    setTimeSig(songTimeSignature(next));
-    setSelectedNote(null);
-    setCanUndo(false);
-    setCanRedo(false);
     setConceptId("library");
-    
-    // Key detection
-    const nextSeq = next.document ? documentToRollView(next.document)?.sequence || [] : melodyToSequence(next.melody);
-    const detected = detectKey(nextSeq);
-    if (detected !== "unknown") {
-      setSelectedScale(detected);
-      setAllowOutOfScale(true);
-    } else {
-      setSelectedScale("none");
-    }
+    const gen = ++loadGen.current;
+    setLoadingTitle(next.title);
+    void resolveSongEntry(next)
+      .then((loaded) => {
+        if (gen !== loadGen.current) return;
+        applySong(loaded);
+        router.replace(`/piano-roll/${loaded.id}`);
+      })
+      .catch((err: unknown) => {
+        if (gen !== loadGen.current) return;
+        const message = err instanceof Error ? err.message : "unknown error";
+        window.alert(`Could not load ${next.title}. ${message}`);
+      })
+      .finally(() => {
+        if (gen === loadGen.current) setLoadingTitle(null);
+      });
   };
 
   const reset = () => {
@@ -436,6 +493,11 @@ export function MidiLab() {
             selectedId={song.id}
             onSelect={loadSong}
           />
+          {loadingTitle && (
+            <span className="font-mono text-xs text-muted-foreground">
+              Loading {loadingTitle}…
+            </span>
+          )}
 
           <label className="flex items-center gap-2 rounded-md border border-border bg-card px-3 py-1.5 text-sm">
             <span className="text-muted-foreground">BPM</span>
