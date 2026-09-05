@@ -53,7 +53,7 @@ Netlify: already worked; keep only as a 301 redirect host for old links.
 | Custom domain | `instrumaps.com` live over HTTPS; `www` → apex via 308 redirect (set in Vercel) |
 | Cloudflare DNS | `A @ 76.76.21.21` and `A www 76.76.21.21`, both **DNS only (grey cloud)**. Nameservers unchanged (Cloudflare). |
 | Old Netlify site | `synth-v01.netlify.app` 301-redirects to instrumaps.com via `netlify.toml`. **Builds stopped** on Netlify (see below). |
-| `main` auto-deploy | **Disabled** (locked) via `vercel.json` — see "Deploy control". |
+| `main` auto-deploy | GitHub **builds** `main` as a staged production deploy; `instrumaps.com` stays put until `vercel promote`. See "Deploy control". |
 
 ### Domain / DNS (done — reference)
 
@@ -72,19 +72,22 @@ Fix = `ipconfig /flushdns` + wait, or temporarily set DNS to 1.1.1.1. Not a
 Cloudflare/Vercel problem. Orange-cloud proxy in front of Vercel would break SSL —
 keep it grey.
 
-### Deploy control (Option A: locked main + rollback)
+### Deploy control (staged `main` + promote)
 
-`vercel.json` sets `git.deploymentEnabled.main = false`, so **pushing to `main`
-does NOT change the live site**. Production is frozen at the last deliberately
-shipped build.
+Pushes to `main` trigger a **staged production build** (Vercel clones GitHub —
+no laptop upload). `instrumaps.com` stays on the last **promoted** deployment.
 
-- Ship a new version: `vercel --prod --scope elidovrichcoding-7145s-projects`
-  (manual CLI deploys ignore the git lock), OR set `deploymentEnabled.main` to
-  `true` in `vercel.json` and push.
-- Feature branches still auto-build as preview URLs — only `main` is locked.
-- Safety net: `vercel rollback <url|id>` / `vercel promote <url|id>`, or Instant
-  Rollback in the dashboard.
-- Also captured as an always-apply Cursor rule: `.cursor/rules/deployment.mdc`.
+The lock is a project setting, not `vercel.json`:
+`autoAssignCustomDomains = false` (Settings → Environments → Production →
+Branch Tracking). `vercel.json` only holds redirects.
+
+- Ship a new version: wait for the `main` build, then
+  `vercel promote <url|id> --scope elidovrichcoding-7145s-projects --yes`
+- Do **not** use `vercel --prod` from a laptop unless Git is unavailable — it
+  re-uploads the whole tree (MIDI catalog).
+- Feature branches still auto-build as preview URLs.
+- Safety net: `vercel rollback <url|id>` / Instant Rollback.
+- Always-apply Cursor rule: `.cursor/rules/deployment.mdc`.
 
 ### Netlify (redirect only)
 
@@ -169,7 +172,7 @@ Do not over-build. Each phase only when the feature is actually needed.
 
 **Phase 0 — DONE**  
 Domain live on Vercel (`instrumaps.com`). Static export kept. Netlify redirect in
-place, Netlify builds stopped. `main` locked (manual/rollback deploys).
+place, Netlify builds stopped. `main` builds from GitHub; promote to go live.
 
 **Phase 1 — content**  
 Blog + lesson pages (MDX + interactive React). Can stay mostly static.
@@ -193,7 +196,7 @@ Audio stays in the browser (Web Audio). Hosting only owns accounts, save, share,
 - Neon vs Supabase Postgres
 - App title still “Synth-v01” — rename when the domain is the brand
 
-Resolved: `www` → apex (308) ✓ · host = Vercel ✓ · deploy control = locked main + rollback ✓
+Resolved: `www` → apex (308) ✓ · host = Vercel ✓ · deploy control = staged `main` + promote ✓
 
 ---
 
@@ -207,7 +210,7 @@ Hosting/domain (Phase 0) is complete. Remaining, in rough order:
 - [ ] Months out: delete the Netlify site once old links have faded
 
 Done: Next.js CVE bump, Vercel project + custom domain + HTTPS, `www`→apex,
-Cloudflare DNS, Netlify 301 redirect, Netlify builds stopped, `main` deploy lock,
-`.cursor/rules/deployment.mdc`.
+Cloudflare DNS, Netlify 301 redirect, Netlify builds stopped, staged `main` +
+promote (`.cursor/rules/deployment.mdc`).
 
 When auth decisions harden, copy a tightened version into `docs/plans/`.

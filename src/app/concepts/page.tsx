@@ -1,16 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { ArrowRight, BookMarked } from "lucide-react";
+import { BookMarked } from "lucide-react";
 
-import { CONCEPTS } from "@/lib/concepts/registry";
-import { NativeSpelling } from "@/components/words/NativeSpelling";
-import { Badge } from "@/components/ui/badge";
-import {
-  Card,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { ConceptsExplorer } from "@/components/concepts/ConceptsExplorer";
 
 export const metadata: Metadata = {
   title: "Music Theory Concepts — A Playable Glossary",
@@ -44,46 +35,7 @@ export default function ConceptsPage() {
           </p>
         </header>
 
-        <section aria-labelledby="concepts-heading">
-          <h2
-            id="concepts-heading"
-            className="mb-4 text-sm font-medium text-muted-foreground"
-          >
-            Terms
-          </h2>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {CONCEPTS.map((concept) => {
-              const soon = concept.status === "soon";
-              return (
-                <Link
-                  key={concept.slug}
-                  href={concept.href}
-                  className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-                >
-                  <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                    <CardHeader>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-base">
-                          {concept.term}
-                          <NativeSpelling
-                            id={concept.slug}
-                            className="ms-2 text-sm"
-                          />
-                        </CardTitle>
-                        {soon && <Badge variant="secondary">Soon</Badge>}
-                      </div>
-                      <CardDescription>{concept.micro}</CardDescription>
-                      <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                        Learn more
-                        <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                      </span>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              );
-            })}
-          </div>
-        </section>
+        <ConceptsExplorer />
       </div>
     </main>
   );

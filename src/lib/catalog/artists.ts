@@ -68,7 +68,7 @@ export const ARTISTS: Artist[] = [
     era: "1894–1937",
     micro:
       "The “Empress of the Blues” — the most popular and highest-paid Black performer of the 1920s, whose big, unamplified voice defined classic (vaudeville) blues on record.",
-    bio: "Bessie Smith rose through Black vaudeville to become the leading blues singer of the 1920s, recording prolifically for Columbia. Her phrasing and sheer vocal power set the standard for “classic blues,” and her 1925 sessions — including “St. Louis Blues” with Louis Armstrong — are landmarks of the era. Her career waned with the Depression and the shift toward swing, and she died after a car accident in Mississippi in 1937.",
+    bio: "Bessie Smith rose through Black vaudeville and the tent-show circuit to become the leading blues singer of the 1920s. She began recording for Columbia in 1923; “Down Hearted Blues” sold in huge numbers and earned her the billing “Empress of the Blues” — the most popular and highest-paid Black performer of the decade. Her phrasing and sheer unamplified vocal power set the standard for classic (vaudeville) blues. The 1925 sessions, including “St. Louis Blues” with Louis Armstrong on cornet, are landmarks of the era. Her career waned with the Depression and the shift toward swing, and she died after a car accident in Mississippi in 1937.",
     genres: ["blues"],
     history: ["blues"],
     links: [
@@ -83,7 +83,7 @@ export const ARTISTS: Artist[] = [
     era: "1901–1971",
     micro:
       "Trumpeter and singer who reshaped jazz around the soloist; his cornet answers Bessie Smith’s vocals on the classic 1925 recording of “St. Louis Blues.”",
-    bio: "Louis Armstrong, out of New Orleans, did more than any single musician to turn jazz into a soloist’s art, and his influence runs straight through American popular singing. In 1925 he recorded “St. Louis Blues” with Bessie Smith, his cornet trading phrases with her voice in the call-and-response the blues inherited. His career spanned five decades, from the Hot Five sides to “Hello, Dolly!” and “What a Wonderful World.”",
+    bio: "Louis Armstrong, out of New Orleans, did more than any single musician to turn jazz into a soloist’s art, and his influence runs straight through American popular singing. He came up in the city’s brass-band and riverboat world, then through King Oliver’s band in Chicago and Fletcher Henderson’s in New York, before the Hot Five and Hot Seven sides of the late 1920s made the improvised solo the center of the music. In 1925 he recorded “St. Louis Blues” with Bessie Smith, his cornet trading phrases with her voice in the call-and-response the blues inherited. His career spanned five decades, from those early sides to “Hello, Dolly!” and “What a Wonderful World.”",
     genres: ["blues"],
     history: ["blues"],
     links: [
@@ -116,7 +116,7 @@ export const ARTISTS: Artist[] = [
     era: "1913–1983",
     micro:
       "Born McKinley Morganfield, the Delta guitarist who electrified the blues in postwar Chicago, shaping the sound that fed directly into rock and roll.",
-    bio: "McKinley Morganfield was first recorded playing acoustic Delta blues in Mississippi by Alan Lomax and John Work for the Library of Congress in 1941. He moved to Chicago in 1943 and switched to electric guitar to cut through noisy clubs; pushed by a full band, his country blues became Chicago blues. Records like “Rollin’ Stone” gave a British band its name and, more broadly, handed rock and roll much of its vocabulary.",
+    bio: "McKinley Morganfield grew up on Stovall Plantation in the Mississippi Delta and was first recorded there playing acoustic country blues by Alan Lomax and John Work for the Library of Congress in 1941. He moved to Chicago in 1943 and switched to electric guitar to cut through noisy clubs; pushed by a full band, his country blues became Chicago blues — the sound that Chess Records put on disc and that British rock bands later treated as scripture. Records like “Rollin’ Stone” gave a British band its name and, more broadly, handed rock and roll much of its vocabulary. He died in 1983.",
     genres: ["blues", "rock"],
     history: ["blues"],
     links: [
@@ -262,7 +262,7 @@ export const ARTISTS: Artist[] = [
     era: "1915–1959",
     micro:
       "Jazz and blues singer of unmatched phrasing whose 1939 “Strange Fruit” turned the blues tradition toward open protest.",
-    bio: "Billie Holiday reshaped popular singing with her behind-the-beat phrasing and emotional directness, working with the leading jazz musicians of her time. In 1939 she recorded “Strange Fruit,” Abel Meeropol’s stark poem about the lynching of Black Americans — a song that made the blues tradition’s undercurrent of witness and protest explicit, and that she made her own.",
+    bio: "Billie Holiday (born Eleanora Fagan) reshaped popular singing with her behind-the-beat phrasing and emotional directness, working with the leading jazz musicians of her time — from the Columbia small-group sides of the mid-1930s into a career that never sat still. In 1939, at Café Society in Greenwich Village, she began closing sets with “Strange Fruit,” Abel Meeropol’s stark poem about the lynching of Black Americans. Columbia would not touch it; she recorded it for Commodore, and it became the song she is most remembered for. She made the blues tradition’s undercurrent of witness and protest explicit, and she made the song her own. She died in 1959, at 44.",
     genres: ["blues"],
     history: ["blues"],
     links: [

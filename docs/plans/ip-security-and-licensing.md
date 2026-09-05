@@ -46,9 +46,9 @@ intend to charge commercial users — see Phase 2).
 - **Repo:** `github.com/webdev-dave/build_synth_01` — **currently PUBLIC**. Named
   from the passion-project era; brand is now **Instrumaps** (`instrumaps.com`).
 - **Deploy coupling:** Vercel project `instrumaps` is git-connected to this exact
-  repo (`webdev-dave/build_synth_01`), `main` production, auto-deploy locked via
-  `vercel.json`. See `.cursor/rules/deployment.mdc`. **Any repo move must re-wire
-  this.**
+  repo (`webdev-dave/build_synth_01`), `main` production, staged builds
+  (auto-assign custom domains off; promote to go live). See
+  `.cursor/rules/deployment.mdc`. **Any repo move must re-wire this.**
 - **Secrets:** `.env*`, `*.pem`, `.vercel` are gitignored *now* — good going
   forward, but history from "back in the day" is unverified (see Phase 1).
 - **Brand assets that may be protectable:** the name **Instrumaps**, the logo /
@@ -229,8 +229,8 @@ Keeps history, stars, and the Vercel wiring intact.
 - [ ] Preserve provenance: keep the old repo archived (read-only) so nothing
       breaks, and note in the new README that it succeeds `build_synth_01`.
 - [ ] **Re-wire deployment** (this is the expensive part — budget for it):
-      re-connect the new repo in the Vercel `instrumaps` project, re-apply the
-      `main` deploy lock (`vercel.json`), re-check the custom domain, and update
+      re-connect the new repo in the Vercel `instrumaps` project, re-apply
+      `autoAssignCustomDomains = false`, re-check the custom domain, and update
       `.cursor/rules/deployment.mdc`.
 - [ ] Archive (don't delete) `webdev-dave/build_synth_01` so old links survive.
 
@@ -306,7 +306,7 @@ data locked down too. Split into what matters **now** vs. **when auth/DB land**.
       the one-time history scan in Phase 1.
 - [ ] **Branch protection on `main`:** require PRs (even solo, it forces review of
       agent-generated changes), disallow force-push/deletion, and — pairs with the
-      existing `vercel.json` deploy lock — keep prod changes deliberate.
+      staged-`main` + promote lock — keep prod changes deliberate.
 - [ ] **Dependency vulnerability monitoring:** enable **Dependabot** alerts +
       security updates; run `npm audit` in CI. Keeps the CVE-bump pain (cf. the
       Next.js CVE-2025-66478 bump in `hosting-and-auth-direction.md`) from

@@ -58,6 +58,8 @@ export const SONGS_CATALOG: CatalogSong[] = [
     youtubeId: "mcrx2-vvwC4",
     micro:
       "W. C. Handy’s composition about a Delta railroad junction (the “Yellow Dog”); Bessie Smith’s 1925 recording is a classic-blues landmark.",
+    about:
+      "Handy published it in 1915 as “Yellow Dog Rag,” then retitled it “Yellow Dog Blues” in 1919 when the word itself was selling. The title is a railroad nickname: the Yellow Dog was the Yazoo Delta line, and “where the Southern cross’ the Dog” is the junction at Moorhead, Mississippi — the same line Handy remembered hearing a guitarist sing at Tutwiler around 1903. The lyric is an answer-song: it tells what became of the “easy rider” from Shelton Brooks’s 1913 hit. Bessie Smith’s 1925 Columbia recording is the classic-blues landmark; the song is older than the blues industry that later claimed it.",
     genres: ["blues"],
     history: ["blues"],
     status: "live",
@@ -72,8 +74,11 @@ export const SONGS_CATALOG: CatalogSong[] = [
     pianoRollId: "st-louis-blues",
     micro:
       "Handy’s 1914 song, among the most-recorded of its era; the 1925 Bessie Smith / Louis Armstrong version pairs a blues voice with a jazz cornet in call-and-response.",
+    about:
+      "Handy published it in September 1914. The verses are a 12-bar blues; the middle strain is a 16-bar habanera — what Handy called a tango — so the song is a ragtime-shaped piece with a blues heart, not a simple loop. It became one of the most-recorded songs of its era (musicians nicknamed it “the jazzman’s Hamlet”). The version this page plays is Bessie Smith’s January 1925 Columbia side, with Louis Armstrong answering her on cornet: a blues voice and a jazz horn in call-and-response.",
     genres: ["blues"],
     history: ["blues"],
+    concepts: ["twelve-bar-blues", "call-and-response"],
     status: "live",
   },
   {
@@ -103,6 +108,8 @@ export const SONGS_CATALOG: CatalogSong[] = [
     pianoRollId: "heyser-bulgar",
     micro:
       "“The hot bulgar” — Brandwein's May 1923 recording made this one of the best-known American klezmer tunes, and his ornament-drenched version is still the reference point.",
+    about:
+      "Heyser means “hot.” Brandwein cut it for Victor in New York on May 10, 1923 — issued as “Heiser Bulgar,” with the label’s own gloss “spirited bulgar.” A bulgar is a Bessarabian wedding dance that American klezmer made its own; Brandwein’s take is fast, heavily ornamented, and still the version later clarinetists learn from. It sits on the same 78 as his “Turkishe Yalle Vey Uve,” another of the sides that defined the hot American klezmer clarinet style.",
     genres: ["klezmer"],
     history: ["klezmer"],
     status: "live",
@@ -117,6 +124,8 @@ export const SONGS_CATALOG: CatalogSong[] = [
     pianoRollId: "der-shtiller-bulgar",
     micro:
       "“The quiet bulgar,” first recorded by Abe Schwartz's orchestra in 1918. Twenty years on, trumpeter Ziggy Elman's adaptation became Benny Goodman's #1 hit “And the Angels Sing” — a klezmer dance tune at the top of the American charts.",
+    about:
+      "Schwartz’s orchestra recorded “Der shtiler bulgar” (“the quiet bulgar”) in 1918, early in the Columbia Jewish-music sessions he ran. Twenty years later, trumpeter Ziggy Elman — a klezmer player inside Benny Goodman’s band — swung the tune; with Johnny Mercer’s English lyrics it became Goodman’s 1939 #1 hit “And the Angels Sing.” For a moment a Bessarabian wedding dance sat on top of the American pop charts. The piano-roll arrangement on this site is the klezmer original, not the swing rewrite.",
     genres: ["klezmer"],
     history: ["klezmer"],
     status: "live",
@@ -131,6 +140,8 @@ export const SONGS_CATALOG: CatalogSong[] = [
     pianoRollId: "bei-mir-bistu-shein",
     micro:
       "Written by Sholom Secunda for a 1932 Yiddish musical that closed in a season; five years later the Andrews Sisters' English version became a worldwide hit — the Yiddish stage's greatest crossover.",
+    about:
+      "Secunda and lyricist Jacob Jacobs wrote it for the 1932 Yiddish musical I Would If I Could (M’ken lebn nor m’lozt nit), which closed after one season in Brooklyn. In 1937 they sold the publishing rights for $30. That same year Sammy Cahn and Lou Levy heard two Black performers sing it in Yiddish at the Apollo; Cahn wrote English lyrics, and the Andrews Sisters cut it for Decca as a B-side. It became their first huge hit — and the Yiddish stage’s greatest crossover — while Secunda watched from Second Avenue.",
     genres: ["klezmer"],
     history: ["klezmer"],
     status: "live",
@@ -144,6 +155,8 @@ export const SONGS_CATALOG: CatalogSong[] = [
     youtubeId: "YbcZstt8ACY",
     micro:
       "Billie Holiday’s 1939 protest song about lynching (written by Abel Meeropol) — the blues tradition’s language of witness made explicit.",
+    about:
+      "Abel Meeropol, a Bronx schoolteacher writing as Lewis Allan, first published the lyric as a poem in 1937, then set it to music. Holiday began singing it in 1939 at Café Society, New York’s first integrated nightclub; she closed the set with it, lights down, no encore. Columbia would not record it — southern retailers and the CBS radio network were the stated fear — so she cut it on April 20, 1939, for Milt Gabler’s small Commodore label, with the Café Society band. It became the best-selling record of her career, and the blues tradition’s language of witness made explicit.",
     genres: ["blues"],
     history: ["blues"],
     status: "live",

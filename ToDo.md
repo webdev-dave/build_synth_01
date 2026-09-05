@@ -57,7 +57,7 @@ a doc says otherwise.
 | Sketch | File | What it is | Status | Ranking |
 |--------|------|------------|--------|---------|
 | Universal song ingestion → community MIDI library | [docs/sketches/community-midi-library.md](docs/sketches/community-midi-library.md) | Users funnel MIDI/ABC/MusicXML/audio into one `SongDocument`; later a shared, curated library | **Exploration.** Not a decided direction. Parent of klezmer + the [self-hosted MIDI library](docs/plans/self-hosted-midi-library.md) plan. No `src/lib/song/` yet. | not specified |
-| Hosting, domain, and auth | [docs/sketches/hosting-and-auth-direction.md](docs/sketches/hosting-and-auth-direction.md) | Vercel + `instrumaps.com` + deploy lock; later Auth.js / DB | **Split.** Hosting/domain = done (live). Auth = still a sketch. Promote a tightened auth version to `docs/plans/` when it hardens. | not specified |
+| Hosting, domain, and auth | [docs/sketches/hosting-and-auth-direction.md](docs/sketches/hosting-and-auth-direction.md) | Vercel + `instrumaps.com` + staged `main` / promote; later Auth.js / DB | **Split.** Hosting/domain = done (live). Auth = still a sketch. Promote a tightened auth version to `docs/plans/` when it hardens. | not specified |
 
 ---
 
