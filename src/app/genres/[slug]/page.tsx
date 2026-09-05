@@ -1,13 +1,14 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Hammer } from "lucide-react";
+import { ArrowLeft, ArrowRight, BookOpen, Hammer } from "lucide-react";
 
 import {
   GENRES,
   getGenre,
   LAYER_INFO,
 } from "@/lib/genres/registry";
+import { getArticleByGenre } from "@/lib/history/registry";
 import { getScale } from "@/lib/scales/registry";
 import { Badge } from "@/components/ui/badge";
 
@@ -48,6 +49,7 @@ export default async function GenrePage({ params }: GenrePageProps) {
     .map((s) => getScale(s))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
   const foil = genre.compareWith ? getGenre(genre.compareWith) : undefined;
+  const history = getArticleByGenre(genre.slug);
 
   // FAQ schema — the question this page answers, in a form answer engines
   // lift and cite. Honest: the on-page lead is the same text.
@@ -93,6 +95,16 @@ export default async function GenrePage({ params }: GenrePageProps) {
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
             {genre.about}
           </p>
+          {history && (
+            <Link
+              href={`/history/${history.slug}`}
+              className="group mt-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+            >
+              <BookOpen className="h-3.5 w-3.5" />
+              More on the history of {genre.name.toLowerCase()}
+              <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+            </Link>
+          )}
         </header>
 
         <section className="mt-10" aria-labelledby="layers-heading">

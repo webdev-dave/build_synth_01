@@ -56,7 +56,7 @@ export const SCALES: ScaleLesson[] = [
     answer:
       "The blues scale is the minor pentatonic scale with one note added: the flattened fifth, or 'blue note.' Those six notes — 1, ♭3, 4, ♭5, 5, ♭7 — are the vocabulary behind most blues, rock, and jazz solos.",
     history:
-      "The blues scale grew out of the African-American spirituals, work songs, and field hollers of the 19th-century American South. Its 'blue notes' — the lowered third, fifth, and seventh — freeze the bent, vocal pitches of that music into keys you can play, and they carried the sound onward into jazz, R&B, and rock.",
+      "The blues scale grew out of the African-American spirituals, work songs, and field hollers of the 19th-century southern United States — music that carried older West African traditions of bent pitch and call-and-response. Its 'blue notes' — the lowered third, fifth, and seventh — freeze those vocal pitches into keys you can play, and they carried the sound onward into jazz, R&B, and rock.",
     formula: "1 – ♭3 – 4 – ♭5 – 5 – ♭7",
     exampleKey: "A",
     exampleNotes: "A – C – D – E♭ – E – G",

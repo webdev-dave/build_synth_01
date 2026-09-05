@@ -344,7 +344,12 @@ export const PianoRollEditor = forwardRef<PianoRollHandle, Props>(
             const yoffset = el!.yoffset;
             const steph = (rect.height - RULER_PX) / yrange;
             const n = Math.floor(yoffset - (y - rect.height) / steph);
-            
+
+            // Locked-out keys show a red dot and do not sound — same as KeyboardV2.
+            if (el!.lockToScale && el!.isNoteInScale && !el!.isNoteInScale(n)) {
+              return;
+            }
+
             // Set the pressed key for visual feedback
             el!.pressedKey = n;
             el!.redraw();

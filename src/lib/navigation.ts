@@ -66,6 +66,14 @@ export const NAV_ITEMS: NavItem[] = [
     description: "How scales and modes are built — see it, hear it, play it",
     inNav: false,
   },
+  {
+    id: "history",
+    label: "Musical History",
+    icon: "📖",
+    href: "/history",
+    description: "Where the sounds came from — sourced, quoted, and linked",
+    inNav: false,
+  },
 ];
 
 export const APP_NAME = "Instrumaps";

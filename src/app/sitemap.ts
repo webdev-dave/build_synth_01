@@ -1,6 +1,7 @@
 import type { MetadataRoute } from "next";
 
 import { LIVE_GENRES } from "@/lib/genres/registry";
+import { LIVE_HISTORY } from "@/lib/history/registry";
 import { LIVE_SCALES } from "@/lib/scales/registry";
 
 /**
@@ -27,6 +28,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/lessons",
     "/genres",
     "/scales",
+    "/history",
     "/about",
     "/contact",
   ];
@@ -34,6 +36,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const spokePaths = [
     ...LIVE_GENRES.map((g) => `/genres/${g.slug}`),
     ...LIVE_SCALES.map((s) => `/scales/${s.slug}`),
+    ...LIVE_HISTORY.map((a) => `/history/${a.slug}`),
   ];
 
   return [...staticPaths, ...spokePaths].map((path) => ({

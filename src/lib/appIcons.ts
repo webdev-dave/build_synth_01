@@ -4,6 +4,7 @@ import {
   Music,
   Disc3,
   Waypoints,
+  BookOpen,
   createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -68,6 +69,7 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   "drum-machine": DrumMachine,
   genres: Disc3,
   scales: Waypoints,
+  history: BookOpen,
 };
 
 export function getAppIcon(id: string): LucideIcon {

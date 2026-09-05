@@ -84,9 +84,9 @@ export const GENRES: Genre[] = [
     summary:
       "A 12-bar form, a shuffle feel, and the blues scale — the stack that became the root of jazz, R&B, and rock.",
     answer:
-      "The blues is a musical form with deep roots in the African-American communities of the Deep South. You can recognise it by three things happening at once: a repeating 12-bar chord pattern built on I, IV and V; a shuffle or swung feel; and the blues scale, whose flattened 'blue' notes give it that aching sound.",
+      "The blues is a musical form that took shape in African-American communities of the southern United States, drawing on older West African traditions of call-and-response and bent pitch. You can recognise it by three things happening at once: a repeating 12-bar chord pattern built on I, IV and V; a shuffle or swung feel; and the blues scale, whose flattened 'blue' notes give it that aching sound.",
     about:
-      "Born in the Deep South around the turn of the 20th century out of work songs, field hollers, and spirituals, the blues became the root system of jazz, rhythm and blues, and rock and roll. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
+      "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
     signatureLayers: ["form", "scale", "rhythm", "harmony"],
     scales: ["blues-scale"],
     compareWith: "rock",

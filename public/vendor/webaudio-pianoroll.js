@@ -987,7 +987,11 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         case "N": this.canvas.style.cursor="move"; break;
                         case "n": this.canvas.style.cursor="pointer"; break;
                         case "s": this.canvas.style.cursor="pointer"; break;
-                        case "y": this.canvas.style.cursor="pointer"; break; // Piano keyboard area
+                        case "y": {
+                            const locked = this.lockToScale && this.isNoteInScale && !this.isNoteInScale(ht.n|0);
+                            this.canvas.style.cursor = locked ? "not-allowed" : "pointer";
+                            break;
+                        }
                         default: 
                             this.canvas.style.cursor = this.editmode === "eraser" ? "crosshair" : "default"; 
                             break;
@@ -1306,9 +1310,14 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                         this.ctx.fillRect(this.yruler, ys|0, this.kbwidth, -this.steph);
                     }
 
-                    // Green dot for in-scale keys
+                    // Green = in-scale; red = locked out (same language as KeyboardV2)
                     if (this.hasScale && inScale) {
                         this.ctx.fillStyle = "#059669";
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.yruler + this.kbwidth - 8, ys - this.steph/2, 3, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    } else if (this.lockToScale && !inScale) {
+                        this.ctx.fillStyle = "#ef4444";
                         this.ctx.beginPath();
                         this.ctx.arc(this.yruler + this.kbwidth - 8, ys - this.steph/2, 3, 0, Math.PI * 2);
                         this.ctx.fill();
@@ -1350,9 +1359,14 @@ customElements.define("webaudio-pianoroll", class Pianoroll extends HTMLElement 
                     this.ctx.fillStyle = "#000000";
                     this.ctx.fillRect(this.yruler, (ys-this.steph/2)|0, this.kbwidth, 1);
 
-                    // Green dot for black keys
+                    // Green = in-scale; red = locked out (same language as KeyboardV2)
                     if (this.hasScale && inScale) {
                         this.ctx.fillStyle = "#059669";
+                        this.ctx.beginPath();
+                        this.ctx.arc(this.yruler + this.kbwidth * 0.6 - 6, ys - this.steph/2, 2.5, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    } else if (this.lockToScale && !inScale) {
+                        this.ctx.fillStyle = "#ef4444";
                         this.ctx.beginPath();
                         this.ctx.arc(this.yruler + this.kbwidth * 0.6 - 6, ys - this.steph/2, 2.5, 0, Math.PI * 2);
                         this.ctx.fill();
