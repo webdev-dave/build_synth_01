@@ -12,7 +12,13 @@
 import { supabase } from "./client";
 
 /** The kind of page a suggestion is about. */
-export type TargetType = "history" | "place" | "song" | "artist" | "genre";
+export type TargetType =
+  | "history"
+  | "place"
+  | "song"
+  | "artist"
+  | "genre"
+  | "cousin";
 
 /** What sort of suggestion it is. */
 export type SubmissionKind = "correction" | "addition" | "source" | "general";

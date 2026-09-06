@@ -29,6 +29,7 @@ type SearchEntryGroup =
   | "genres"
   | "scales"
   | "history"
+  | "cousins"
   | "concepts"
   | "languages"
   | "lessons";

@@ -95,7 +95,7 @@ export const LANGUAGES: Language[] = [
       "Yiddish is the everyday language of Ashkenazi Eastern European Jewry, and it carries a whole musical world: klezmer, the instrumental celebration music of the Jewish wedding; the songs of the Second Avenue Yiddish theater; and a vocabulary of ornaments and dance forms — the krechtz, the freylekhs, the bulgar — whose names are Yiddish words.",
     about:
       "This page is a lens, not a new catalog: it gathers everything the app already teaches that lives in Yiddish — the klezmer genre and its freygish mode, the concepts behind its sound, its history and artists, the recordings you can hear and open, and the loanwords with their home spellings — so you can walk into the tradition from the language itself.",
-    genres: ["klezmer"],
+    genres: ["klezmer", "yiddish-theater", "yiddish-folk"],
     midiLabels: ["yiddish", "klezmer", "jewish"],
     wordLanguage: "Yiddish",
     status: "live",

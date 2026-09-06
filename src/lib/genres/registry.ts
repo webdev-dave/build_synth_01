@@ -143,6 +143,72 @@ export const GENRES: Genre[] = [
     ],
   },
   {
+    slug: "yiddish-theater",
+    name: "Yiddish theater",
+    question: "What is Yiddish theater music?",
+    summary:
+      "Composed songs for the Yiddish stage — Second Avenue operetta and the literary Art Theatre — named authors, verse-and-refrain, and the crossover hits that jumped into American pop.",
+    answer:
+      "Yiddish theater music is the composed song of the Yiddish-speaking stage: show tunes written for named plays by named writers, not dance tunes for a wedding. You can recognise it by a singable verse-and-refrain, a pit-orchestra or piano accompaniment, and a lyric that belongs to a character or a scene — from Second Avenue operettas like “Bei Mir Bistu Shein” to Art Theatre songs like “Dona Dona.”",
+    about:
+      "The Yiddish stage grew up in Eastern Europe and exploded in New York after the great migration, along Second Avenue — “the Jewish Broadway.” Composers such as Sholom Secunda wrote for musicals that closed in a season and, sometimes, became American hits in English translation. Maurice Schwartz’s Yiddish Art Theatre aimed higher, at literary drama; Aaron Zeitlin’s Esterke (1940–41) is that wing, and Dona Dona is its most-travelled song. Klezmer bands often sat in the pit, which is why the two worlds get collapsed — but a theater song is a written lyric for a play, not a freylekhs.",
+    signatureLayers: ["form", "harmony", "texture"],
+    scales: [],
+    compareWith: "yiddish-folk",
+    status: "live",
+    keywords: [
+      "what is yiddish theater music",
+      "yiddish theatre songs",
+      "Second Avenue Yiddish stage",
+      "Bei Mir Bistu Shein",
+      "Dona Dona Yiddish theater",
+    ],
+  },
+  {
+    slug: "yiddish-folk",
+    name: "Yiddish folk",
+    question: "What is a Yiddish folk song?",
+    summary:
+      "Strophic songs in Yiddish that lived by being sung — lullabies, love songs, work and protest songs — rather than by being written for a stage or a wedding dance.",
+    answer:
+      "A Yiddish folk song is a song that lived in people’s mouths: usually strophic, often anonymous or treated as traditional, sung in Yiddish for love, work, lullaby, or protest rather than for a play or a wedding set. Collectors later wrote them down; the folk revival sometimes filed theater songs here too, which is how Dona Dona got a second, folk-shaped life.",
+    about:
+      "Ashkenazi communities sang far more than they danced. Beside the klezmer’s instrumental set sat a huge sung repertoire — lullabies, ballads, workers’ songs — that Yiddishists and songbooks collected in the twentieth century. Some pieces began on the stage and were then sung as if they had always been folk (Theodore Bikel’s “Jewish folk songs” album is that shelf). This page keeps the distinction: folk is how a song lives, theater is how it was written. Dona Dona belongs on both sides of that line.",
+    signatureLayers: ["form", "texture", "scale"],
+    scales: [],
+    compareWith: "yiddish-theater",
+    status: "live",
+    keywords: [
+      "what is a yiddish folk song",
+      "yiddish folk songs",
+      "folkslid",
+      "yiddish lullaby",
+      "Dona Dona folk song",
+    ],
+  },
+  {
+    slug: "folk-revival",
+    name: "Folk revival",
+    question: "What was the folk revival?",
+    summary:
+      "The 1950s–60s Anglo-American movement that put traditional and borrowed songs on guitar and on record — coffeehouses, Newport, protest — and carried “Donna, Donna” around the world.",
+    answer:
+      "The folk revival was a mid-century Anglo-American movement that treated songs as things you could learn, share, and stand behind: voice and guitar, coffeehouses and festivals, traditional ballads next to new protest songs. Joan Baez’s 1960 “Donna, Donna” is the revival’s most famous meeting with a Yiddish theater lyric — an English cover that made a 1940 stage song a freedom anthem.",
+    about:
+      "After the war, singers in the United States and Britain reached for older songs — British ballads, spirituals, union tunes, and pieces borrowed from other languages — and put them on records that sold. Newport (1959) and the Vanguard and Elektra catalogs were the circuit. The revival was not a folk culture; it was a way of performing one. That is why Baez and Donovan sit here, not under klezmer: they sang an English Dona Dona, not a wedding dance.",
+    signatureLayers: ["texture", "form", "harmony"],
+    scales: [],
+    compareWith: "yiddish-folk",
+    status: "live",
+    keywords: [
+      "what was the folk revival",
+      "1960s folk revival",
+      "Joan Baez Donna Donna",
+      "Newport Folk Festival",
+      "coffeehouse folk",
+    ],
+  },
+  {
     slug: "reggae",
     name: "Reggae",
     question: "What makes reggae sound like reggae?",

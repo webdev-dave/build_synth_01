@@ -10,6 +10,7 @@ import {
   Users,
   Music2,
   Languages,
+  GitFork,
   createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -79,6 +80,7 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   concepts: BookMarked,
   artists: Users,
   songs: Music2,
+  cousins: GitFork,
   languages: Languages,
 };
 

@@ -492,6 +492,47 @@ export const PLACES: Place[] = [
     status: "stub",
   },
 
+  // ─────────────────────────── Misirlou geography ─────────────────────────
+  {
+    id: "istanbul",
+    kind: "city",
+    name: "Istanbul",
+    aliases: [
+      { name: "Constantinople", era: "Ottoman / Greek name" },
+    ],
+    geo: { point: [28.9784, 41.0082] },
+    music: {
+      blurb:
+        "Ottoman Constantinople — Tetos Demetriades was born here and left for the United States in 1921. The folk tune later recorded as Misirlou was already circulating among Greek, Arabic, and Jewish musicians of the eastern Mediterranean by the 1920s.",
+    },
+    status: "stub",
+  },
+  {
+    id: "athens",
+    kind: "city",
+    name: "Athens",
+    geo: { point: [23.7275, 37.9838] },
+    music: {
+      blurb:
+        "Michalis Patrinos recorded Misirlou here around 1930 as Mousourlou — a slower rebetiko / tsifteteli that also circulated back to New York on Orthophonic.",
+    },
+    status: "stub",
+  },
+  {
+    id: "california",
+    kind: "state",
+    name: "California",
+    aliases: [
+      { name: "Orange County", era: "Dick Dale’s surf years" },
+    ],
+    geo: { countryId: "840", stateId: "06" },
+    music: {
+      blurb:
+        "Southern California is where Dick Dale recast Misirlou as surf guitar in 1962 — a one-string oud memory from his Lebanese-American family, sped up into rock and roll. Pulp Fiction later quoted that record, not a new composition.",
+    },
+    status: "rich",
+  },
+
   // ─────────────────────────── Shared / crossover ──────────────────────────
   {
     id: "new-york",
@@ -504,8 +545,8 @@ export const PLACES: Place[] = [
     geo: { point: [-73.9857, 40.7484] },
     music: {
       blurb:
-        "Where klezmer became American. Two million Eastern European Jews arrived between 1881 and 1924; their music filled Lower East Side halls, Second Avenue's Yiddish theaters, and — from about 1917 — the recording studios, where Abe Schwartz's orchestras and the rival clarinets of Naftule Brandwein and Dave Tarras cut the 78s the revival was later built on. It's also where the blues first hit records: Mamie Smith's 'Crazy Blues' (1920) was cut here, and 'Bei Mir Bistu Shein' jumped from the Yiddish stage to the top of the charts in 1937.",
-      genres: ["klezmer", "blues"],
+        "Where klezmer became American. Two million Eastern European Jews arrived between 1881 and 1924; their music filled Lower East Side halls, Second Avenue's Yiddish theaters, and — from about 1917 — the recording studios, where Abe Schwartz's orchestras and the rival clarinets of Naftule Brandwein and Dave Tarras cut the 78s the revival was later built on. It's also where the blues first hit records: Mamie Smith's 'Crazy Blues' (1920) was cut here, and 'Bei Mir Bistu Shein' jumped from the Yiddish stage to the top of the charts in 1937. Tetos Demetriades cut the earliest known Misirlou here in 1927; a generation later Seymour Rexite sang Miriam Kressyn's Yiddish words on Banner.",
+      genres: ["klezmer", "yiddish-theater", "blues"],
       history: ["klezmer", "blues"],
       songLabels: ["klezmer"],
     },

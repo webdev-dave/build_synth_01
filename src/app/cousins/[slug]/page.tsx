@@ -3,11 +3,11 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PenLine } from "lucide-react";
 
-import { HISTORY_ARTICLES, getArticle } from "@/lib/history/registry";
-import { getCousinsByHistory } from "@/lib/cousins/registry";
-import { getHistoryContent } from "@/content/history";
+import { COUSIN_ARTICLES, getCousin } from "@/lib/cousins/registry";
+import { getCousinContent } from "@/content/cousins";
 import { getGenre } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
+import { getArticle } from "@/lib/history/registry";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
 import { FeedbackInvite } from "@/components/content/FeedbackInvite";
@@ -15,56 +15,53 @@ import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
 import { HubLink } from "@/components/content/HubLink";
+import { GenrePills } from "@/components/content/GenrePills";
 
-interface HistoryPageProps {
+interface CousinPageProps {
   params: Promise<{ slug: string }>;
 }
 
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  return HISTORY_ARTICLES.map((article) => ({ slug: article.slug }));
+  return COUSIN_ARTICLES.map((article) => ({ slug: article.slug }));
 }
 
 export async function generateMetadata({
   params,
-}: HistoryPageProps): Promise<Metadata> {
+}: CousinPageProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticle(slug);
-  if (!article) return { title: "Musical history" };
+  const article = getCousin(slug);
+  if (!article) return { title: "Cousins" };
   return {
     title: article.question,
     description: article.answer,
-    alternates: { canonical: `/history/${article.slug}` },
+    alternates: { canonical: `/cousins/${article.slug}` },
     keywords: article.keywords,
-    // "soon" pages are thin placeholders — keep them out of the index until
-    // the sourced article body lands.
     robots:
       article.status === "soon" ? { index: false, follow: true } : undefined,
   };
 }
 
-export default async function HistoryArticlePage({
-  params,
-}: HistoryPageProps) {
+export default async function CousinArticlePage({ params }: CousinPageProps) {
   const { slug } = await params;
-  const article = getArticle(slug);
+  const article = getCousin(slug);
   if (!article) notFound();
 
   const soon = article.status === "soon";
-  const Article = getHistoryContent(article.slug);
-  const genres = article.genres
+  const Article = getCousinContent(article.slug);
+  const genres = (article.genres ?? [])
     .map((g) => getGenre(g))
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
-  const scales = article.scales
+  const scales = (article.scales ?? [])
     .map((s) => getScale(s))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
-  const cousins = getCousinsByHistory(article.slug);
+  const history = (article.history ?? [])
+    .map((h) => getArticle(h))
+    .filter((a): a is NonNullable<typeof a> => Boolean(a));
   const word = getWord(article.slug);
   const linkTerms = makeTermLinker();
 
-  // FAQ schema — the question this article answers, in a form answer engines
-  // lift and cite. Honest: the on-page lead is the same text.
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -84,22 +81,19 @@ export default async function HistoryArticlePage({
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <HubLink href="/history">All history</HubLink>
+        <HubLink href="/cousins">All cousins</HubLink>
 
         <header className="mt-6">
           <h1 className="text-3xl font-semibold tracking-tight">
             {article.question}
           </h1>
           {word && <WordBanner word={word} />}
-          {/* Lead answer: the quotable summary, in real HTML so crawlers and
-              answer engines see it without running the app. */}
+          <GenrePills slugs={article.genres} className="mt-3" />
           <p className="mt-4 text-base leading-relaxed text-foreground">
             {linkTerms(article.answer)}
           </p>
         </header>
 
-        {/* Full sourced article body when written; prose stays server-rendered
-            so quotes and footnotes are crawlable. */}
         {Article && <Article />}
 
         <RelatedPages
@@ -114,26 +108,22 @@ export default async function HistoryArticlePage({
               href: `/scales/${scale.slug}`,
               label: scale.question,
             })),
-            ...cousins.map((cousin) => ({
-              href: `/cousins/${cousin.slug}`,
-              label: cousin.question,
+            ...history.map((item) => ({
+              href: `/history/${item.slug}`,
+              label: item.question,
             })),
           ]}
         />
 
-        {/* Where this history happened — the places whose story lists this
-            article. Renders nothing if none map. */}
         <PageMapSection
-          entity={{ history: [article.slug] }}
-          heading="Where it happened"
-          fullMapHref={
-            article.genres?.[0] ? `/map?genre=${article.genres[0]}` : "/map"
-          }
+          entity={{ places: article.places }}
+          heading="Where it traveled"
+          fullMapHref="/map"
         />
 
         {Article && (
           <FeedbackInvite
-            targetType="history"
+            targetType="cousin"
             targetId={article.slug}
             subject="this article"
           />
@@ -146,10 +136,9 @@ export default async function HistoryArticlePage({
               strokeWidth={1.75}
             />
             <p className="mt-3 text-sm text-muted-foreground">
-              The full article is being written — sourced from original writing
-              and recordings, quoted briefly, and linked back so you can read
-              and hear them yourself. For now, take the sound apart on the pages
-              above.
+              The full article is being written — sourced from recordings and
+              contemporary accounts, quoted briefly, and linked so you can hear
+              the instances yourself.
             </p>
           </div>
         )}

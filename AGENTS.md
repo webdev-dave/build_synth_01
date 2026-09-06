@@ -43,7 +43,9 @@ are places with relationships, and the app shows you the connections.
   `public/audio/words/`, credited); if none exists, show **no speaker**.
   When English spelling varies, list 1–2 common alternatives
   (`alsoSpelled`: *krechtz* / *krekhts*). Don't invent spellings.
-  Writing: `.cursor/rules/history-articles.mdc`. **Sourcing catalog**
+  Writing: `.cursor/rules/history-articles.mdc`. Cousins:
+  `.cursor/rules/cousins.mdc`. Catalog songs:
+  `.cursor/rules/catalog-songs.mdc`. **Sourcing catalog**
   (best sources per language we know, what's already shipped, what's
   ruled out): `.cursor/rules/pronunciation-audio.mdc` — **update that
   file in the same change** when you add a language, find a clip, or

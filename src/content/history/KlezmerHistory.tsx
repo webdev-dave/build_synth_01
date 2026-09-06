@@ -13,6 +13,7 @@
 import Link from "next/link";
 
 import { getArticle } from "@/lib/history/registry";
+import { cousinQuestion } from "@/lib/cousins/registry";
 import { Blockquote, Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
 import { SongLink } from "@/components/history/SongLink";
@@ -31,6 +32,7 @@ const SONG_IDS = [
   "heyser-bulgar",
   "der-shtiler-bulgar",
   "bei-mir-bistu-shein",
+  "dona-dona",
 ];
 
 /** Bind the shared footnote to this article's source ordering. */
@@ -64,14 +66,21 @@ export function KlezmerHistory() {
 
       <H2 id="the-word">A musician before it was a music</H2>
       <P>
-        For most of its history, <em>klezmer</em> named a person, not a genre.
+        For most of its history,{" "}
+        <Word id="klezmer">
+          <em>klezmer</em>
+        </Word>{" "}
+        named a person, not a genre.
         The Yiddish word comes from the Hebrew{" "}
         <Word id="kley-zemer">
           <em>kley zemer</em>
         </Word>{" "}
         — &ldquo;vessels of song,&rdquo; the instruments themselves — and by
         extension the professional who played them (plural{" "}
-        <em>klezmorim</em>).<Ref id="britannica-klezmer" /> From the later
+        <Word id="klezmorim">
+          <em>klezmorim</em>
+        </Word>
+        ).<Ref id="britannica-klezmer" /> From the later
         sixteenth century, Jewish musicians in Bohemia and the
         Polish&ndash;Lithuanian Commonwealth organized into guilds like other
         tradesmen, and the new word carried the new respectability.
@@ -165,13 +174,23 @@ export function KlezmerHistory() {
         wedding: a multi-day sequence of ritual moments, each with its own
         music — processionals to and from the ceremony, laments to seat the
         bride, listening tunes at the table, and dance after dance.
-        <Ref id="yivo-traditional" /> The band (<em>kapelye</em>) worked
-        alongside the <em>badkhn</em>, the wedding jester whose improvised
+        <Ref id="yivo-traditional" /> The band (
+        <Word id="kapelye">
+          <em>kapelye</em>
+        </Word>
+        ) worked alongside the{" "}
+        <Word id="badkhn">
+          <em>badkhn</em>
+        </Word>
+        , the wedding jester whose improvised
         rhymes could tip a room from laughter into tears — the emotional
         double-helix the instruments learned to imitate.
       </P>
       <P>
-        The older bands were led by the fiddle, with the <em>tsimbl</em>{" "}
+        The older bands were led by the fiddle, with the{" "}
+        <Word id="tsimbl">
+          <em>tsimbl</em>
+        </Word>{" "}
         (hammered dulcimer) at their heart; the clarinet is a relative
         latecomer that rose through the nineteenth century and conquered in
         America.<Ref id="rubin-nyklezmer" /> Klezmer families passed the trade
@@ -206,7 +225,10 @@ export function KlezmerHistory() {
         breaks into a dance tune — weeping and dancing in a single breath. The
         dance forms themselves are a small vocabulary worth knowing: the{" "}
         <em>freylekhs</em> and <em>sher</em> of the old country, the{" "}
-        <em>khosidl</em>, the slow-spinning <em>hora</em>, and the{" "}
+        <Word id="khosidl">
+          <em>khosidl</em>
+        </Word>
+        , the slow-spinning <em>hora</em>, and the{" "}
         <em>bulgar</em>, the Bessarabian import that conquered America.
         <Ref id="feldman-shofar" /> Over a hundred of these tunes are playable
         in our{" "}
@@ -289,6 +311,23 @@ export function KlezmerHistory() {
         Johnny Mercer&rsquo;s lyrics it became the 1939 #1 hit &ldquo;And the
         Angels Sing.&rdquo;<Ref id="nmusa-shtetl" /> For a moment, a Bessarabian
         wedding dance sat on top of the American charts.
+      </P>
+      <P>
+        A quieter crossing came a generation later. Secunda and{" "}
+        <ArtistLink id="aaron-zeitlin">Aaron Zeitlin</ArtistLink>&rsquo;s{" "}
+        <SongLink id="dona-dona" />, written for the 1940–41{" "}
+        <em>Esterke</em> at the Yiddish Art Theatre, reached English in the folk
+        revival: <ArtistLink id="joan-baez">Joan Baez</ArtistLink> recorded it
+        on her 1960 debut, and a Yiddish theater calf became a freedom song.
+        <Ref id="mlotek-dona" /> The later lives — English folk rooms, still
+        both languages in the air — are on{" "}
+        <Link
+          href="/cousins/dona-dona"
+          className="text-foreground underline-offset-2 hover:underline"
+        >
+          {cousinQuestion("Dona Dona")}
+        </Link>
+        .
       </P>
 
       <H2 id="revival">Silence, and the revival</H2>

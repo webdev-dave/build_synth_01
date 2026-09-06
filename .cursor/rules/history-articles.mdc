@@ -1,6 +1,6 @@
 ---
 description: Standards for writing and maintaining teaching content — history articles, genre/scale spokes, concepts, catalog entries, and loanwords (native spelling + pronounce). Use when adding or editing any of those, especially cross-links.
-globs: src/content/history/**,src/lib/history/**,src/components/history/**,src/lib/concepts/**,src/components/concepts/**,src/lib/catalog/**,src/components/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/words/**,src/components/words/**,src/lib/places/**,src/app/genres/**,src/app/scales/**,src/app/history/**,src/app/concepts/**,src/content/scales/**,src/content/concepts/**,src/components/genres/**,src/components/content/**
+globs: src/content/history/**,src/lib/history/**,src/components/history/**,src/content/cousins/**,src/lib/cousins/**,src/components/cousins/**,src/app/cousins/**,src/lib/concepts/**,src/components/concepts/**,src/lib/catalog/**,src/components/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/words/**,src/components/words/**,src/lib/places/**,src/app/genres/**,src/app/scales/**,src/app/history/**,src/app/concepts/**,src/app/songs/**,src/content/scales/**,src/content/concepts/**,src/components/genres/**,src/components/content/**
 alwaysApply: false
 ---
 
@@ -31,6 +31,20 @@ catalog (`<ArtistLink>` + `src/lib/catalog/`).
    `"live"` enters the sitemap and search index; a live page with no body is
    just a lead sentence.
 
+## Cousins — one melody, many lives
+
+Authoring standard: **`.cursor/rules/cousins.mdc`**. Catalog songs:
+**`.cursor/rules/catalog-songs.mdc`**.
+
+`/cousins` uses the same article chrome as history. `genres` is required
+and renders as `<GenrePills>` on the hub and spoke. Every named song is a
+catalog member **and** lists `cousins: ["<slug>"]`; the song page shows
+that link at the **top**. Don’t put lyric blocks on the cousin page.
+Titles and link labels are locked — **One melody, many lives** /
+**History & versions of {name}**. Use `cousinQuestion` /
+`COUSIN_SONG_HEADING` from the cousins registry; never “Where else does
+this tune live?”. See `.cursor/rules/cousins.mdc`.
+
 ## Bidirectional links — three trees, always both ways
 
 Genres, scales, and history are siblings. A reader on any spoke must be
@@ -43,6 +57,8 @@ know about.
 | Genre → scales | `Genre.scales` | `ScaleLesson.usedIn` |
 | Scale → genres | `ScaleLesson.usedIn` | `Genre.scales` |
 | History → genres / scales | `HistoryArticle.genres` / `.scales` | `getArticleByGenre` / `getArticlesByScale` |
+| Cousin → songs | `CousinArticle.members` | `CatalogSong.cousins` + `getCousinsBySong` |
+| Song → cousins | `CatalogSong.cousins` | `CousinArticle.members` |
 
 **When you add one side, add the other in the same change.** A scale that
 shows up in blues (`usedIn: ["blues"]`) must also appear on the blues
@@ -146,7 +162,10 @@ MIDI arrangements the Piano Roll plays; a catalog song points into it via
 - **`songs.ts`** — a `CatalogSong` per recording/composition: `slug`, `title`,
   `artists` (artist slugs in credit order), `artistLabel?`, `year`, `youtubeId`
   (**verified**, never from memory), `pianoRollId?` (only when it's a real id in
-  the MIDI library), `micro`, and `genres`/`history` slugs.
+  the MIDI library), `micro`, `lyrics?` (see below), `genres`/`history` slugs,
+  and `cousins` when a `/cousins` article names the song (see
+  `.cursor/rules/catalog-songs.mdc`). The song page shows those cousin
+  links at the top.
 - **`artists.ts`** — an `Artist` per person: `slug`, `name`, `era`, `micro`
   (one-line bio, true standalone), longer `bio`, `genres`/`history` slugs, and
   external `links` (encyclopedias/archives — verify URLs, don't fabricate).
@@ -164,6 +183,59 @@ MIDI arrangements the Piano Roll plays; a catalog song points into it via
   `status: "live"` only once the entry is real.
 - Keep the catalog non-duplicative: reuse an existing `slug` rather than
   inventing a second entry for the same song/person.
+
+### Lyrics belong on the song page
+
+When you add or expand a catalog song, **source the lyrics and show them**
+on `/songs/<slug>`. Hearing the recording without the words is half a
+lesson. Store them on `CatalogSong.lyrics` (`SongLyrics[]`) and render
+with **`<SongLyrics versions={song.lyrics} />`** — don't hand-roll a second
+layout. **Copyright is not a reason to skip** — see
+`.cursor/rules/catalog-songs.mdc` (“Lyrics — always hunt”). Over the
+Rainbow shipped empty because an agent treated 1938 copyright as a stop;
+that is forbidden.
+
+- **Hunt before you give up.** Scholarly song collections (Mlotek / Workers
+  Circle for Yiddish), Library of Congress / National Jukebox, Wikisource /
+  IMSLP, PD songbooks, published sheet music, a cited encyclopedia table
+  that actually prints the words. Web-search; don't quote from memory.
+  Still-protected lyrics: reprint from a publication we can point at,
+  attribute, link out; the component already prints the teaching/fair-use
+  note. Omit only for an instrumental, an author’s explicit no-reprint
+  request, or a hunt that found no citable text — and say so in `about`.
+- **Non-English songs: original + line-by-line English.** Each line keeps the
+  home-language `text` (native script via `<NativeScript>`), optional `latin`
+  romanization when the original isn't Latin, and `en` (a literal gloss, not
+  a rewrite). One sung line → one English line.
+- **Several versions → several entries.** A Yiddish original and a later
+  English folk version are two `SongLyrics` objects on the same song (see
+  `dona-dona`). English-only versions omit `en`. When a song is sung in more
+  than one language, add a labeled `recordings` entry for each so the page
+  can play a Yiddish example *and* an English one — don't leave only the
+  crossover hit. `youtubeId` stays the `<SongLink>` default.
+- **Always credit the source** (`source.label` + verified `url`). Public-
+  domain first (`publicDomain` on the source when true). Still-protected
+  lyrics: reproduce only from a publication we can point at, attribute, link
+  out, and keep the teaching/fair-use note the component already prints.
+  Don't paste a lyric site with no provenance.
+
+```ts
+// ❌ BAD — remembered, unsourced, or English only for a Yiddish song
+lyrics: [{ label: "Yiddish", lang: "yi", language: "Yiddish", lines: [
+  { text: "On a wagon bound for market" },
+]}]
+
+// ✅ GOOD — sourced original + line-by-line English, plus the later version
+lyrics: [
+  { id: "yiddish", label: "Yiddish original", lang: "yi", language: "Yiddish",
+    source: { label: "Mlotek Yiddish Song Collection", url: "https://…" },
+    lines: [{ text: "אױפֿן פֿורל ליגט דאָס קעלבל", latin: "Oyfn furl ligt dos kelbl",
+              en: "Upon the wagon lies the calf" }] },
+  { id: "english", label: "English (Kevess & Schwartz)", lang: "en",
+    language: "English", source: { label: "…", url: "https://…" },
+    lines: [{ text: "On a wagon bound for market" }] },
+]
+```
 
 ## Theory terms get an inline definition
 
@@ -215,8 +287,9 @@ layout, unlike `SongLink`.
 
 When prose uses a word from another language — Yiddish *krechtz*, Romanian
 *doina*, Hebrew *Ahava Rabbah* — **always** register it and show the native
-spelling. Don't leave a transliteration hanging; the reader should see how
-it's written at home.
+spelling **in the same change**. Don't leave a transliteration hanging; the
+reader should see how it's written at home. Write-time checklist + how to
+run a periodic scan: **`.cursor/rules/loanword-speakers.mdc`**.
 
 - **Data lives in `src/lib/words/registry.ts`**, one `SpokenWord` per
   loanword: `latin` (how we write it in English), `alsoSpelled` (1–2
@@ -373,8 +446,15 @@ After a new claim, also sweep the concept `micro`/`definition` and catalog
 
 ## Before you finish
 
+- A new or expanded catalog song has sourced `lyrics` (original + line-by-line
+  English when it isn't English; each sung version is its own entry). Copyright
+  is not a skip. Omit only for instrumental / author forbade reprint / hunt
+  failed, and say so in `about`.
 - Both sides of every new cross-link exist (genre `scales` ↔ scale `usedIn`;
-  history `genres`/`scales` ↔ `getArticleByGenre` / `getArticlesByScale`).
+  history `genres`/`scales` ↔ `getArticleByGenre` / `getArticlesByScale`;
+  cousin `members` ↔ song `cousins`). A live cousin article has `genres`
+  and shows pills. A song named in a cousin article links that article at
+  the top of `/songs/<slug>`.
 - The spoke page actually *renders* those links via `<RelatedPages>` (or the
   genre header history line). A registry field with no UI is an unfinished
   link.

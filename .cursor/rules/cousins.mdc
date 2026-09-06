@@ -1,0 +1,122 @@
+---
+description: How to write Cousins articles — locked copy (One melody, many lives / History & versions of {name}), tune families, genre pills, map places, loanwords + pronunciation, and bidirectional song links.
+globs: src/lib/cousins/**,src/content/cousins/**,src/app/cousins/**,src/components/cousins/**,src/app/songs/**
+alwaysApply: false
+---
+
+# Cousins articles
+
+A cousin page is one **melody** with many lives. Chrome matches History.
+Details and the honesty rules live in `docs/plans/cousins-module.md`.
+
+## Copy standard — do not invent titles or link labels
+
+House phrasing is locked. Import the helpers from
+`src/lib/cousins/registry.ts`. Do **not** write “Where else does this
+tune live?”, “This tune also lives as…”, or a custom search-question
+per article (Dona Dona used to; that is retired).
+
+| Surface | Copy | Source |
+|---|---|---|
+| Hub `<h1>` / nav label | **Cousins** | keep |
+| Hub tagline / nav description | **One melody, many lives** | `COUSIN_SONG_HEADING` |
+| Song-page section heading | **One melody, many lives** | `COUSIN_SONG_HEADING` |
+| Song-page card (one cousin) | **History & versions** | `cousinSongLinkLabel` |
+| Song-page card (several) | **{name} — history & versions** | `cousinSongLinkLabel` |
+| Spoke `<h1>`, `<title>`, FAQ, RelatedPages, search title, inline “see also” | **History & versions of {name}** | `cousinQuestion(name)` — derived; never stored |
+| Hub card CTA | **History & versions** | `COUSIN_SONG_LINK` |
+
+```tsx
+// ❌ BAD — old “live” metaphor, or a one-off question
+question: "Where else does Misirlou live?"
+<h2>This tune also lives as…</h2>
+<Link href="/cousins/dona-dona">Where else does Dona Dona live?</Link>
+
+// ✅ GOOD — helpers only
+import {
+  COUSIN_SONG_HEADING,
+  cousinQuestion,
+  cousinSongLinkLabel,
+} from "@/lib/cousins/registry";
+
+<h2>{COUSIN_SONG_HEADING}</h2>
+label={cousinSongLinkLabel(cousin, cousins.length)}
+<Link href="/cousins/miserlou">{cousinQuestion("Misirlou")}</Link>
+```
+
+A new registry row has `name` only. `publishCousin` sets `question`.
+Do not add a `question` field to a draft.
+
+## Ship checklist
+
+1. Registry row in `src/lib/cousins/registry.ts` — `genres` is **required**
+   (existing genre slugs only; don't invent "rebetiko" / "surf").
+2. Body in `src/content/cousins/<Name>.tsx` (server TSX) +
+   `src/content/cousins/index.ts`.
+3. Every named recording is a `CatalogSong` **and** a `members[]` row.
+4. That song lists `cousins: ["<this-slug>"]`. Both sides, same change.
+5. `<GenrePills>` on the hub card and the spoke header (empty `genres` is a bug).
+6. **`places` — every place the body names, accurately** (see below).
+7. **Loanwords + pronunciation — every non-English word** (see below).
+8. No lyric blocks here — link `/songs/<slug>`.
+
+```ts
+// ❌ BAD — song named in prose, not a member, no reverse field
+members: [{ song: "misirlou-dale", kind: "rearrangement" }]
+// songs.ts: misirlou-dale has no cousins: []
+
+// ✅ GOOD — both directions
+// cousins registry: members: [{ song: "misirlou-dale", kind: "rearrangement" }]
+// songs.ts: cousins: ["miserlou"], genres: ["rock"]  // when a slug fits
+```
+
+## Places — map the whole journey, accurately
+
+The spoke's `<PageMapSection>` reads `article.places` verbatim. A one-city
+list is almost always **wrong**: a tune that traveled touches several places.
+
+- List **every place the body cites** — origin, each rearrangement/translation
+  home, each performer's base — as place-registry ids.
+- Only pin what the prose actually supports; kinship-by-vibe is not a place.
+- If a cited place is missing from `src/lib/places/registry.ts`, **add it**
+  (sourced blurb) in the same change, then reference it. Don't shrink the map
+  because the registry is thin.
+
+```ts
+// ❌ BAD — story spans Poland, New York, Israel; map shows one dot
+places: ["new-york"]
+// ✅ GOOD — every cited home
+places: ["poland", "new-york", "israel"]
+```
+
+## Loanwords + pronunciation — always both
+
+Every word from another language in the body (song titles, refrains, vocables,
+dance names) gets a `SpokenWord` in `src/lib/words/registry.ts` with a verified
+native spelling, wrapped on first mention with `<Word>` (or `<Term>` if it's
+also a concept).
+
+- **Always hunt for a speaker.** Follow `.cursor/rules/pronunciation-audio.mdc`:
+  real human clip, matching word/sense, openly licensed → self-host + credit.
+  New language → add its table row there. No clip → no speaker, and record the
+  search so the next agent doesn't repeat it.
+- Latin-script languages (Polish, Romanian) still earn an entry — the value is
+  the **speaker**, not a native parenthetical.
+- Keep `latin`/`aliases` specific so the auto-linker can't false-match (a bare
+  `"dana"` would grab "Dana, Dana, Dana" in a bio; scope it to `"oj, dana dana"`).
+
+```tsx
+// ❌ BAD — foreign refrain left as plain italics: no home spelling, no speaker
+<em>oj, dana dana</em>
+// ✅ GOOD — registered word + hunted, licensed clip
+<Word id="oj-dana"><em>oj, dana dana</em></Word>
+```
+
+## Song page reverse
+
+The song page shows **`COUSIN_SONG_HEADING`** (each link from
+**`cousinSongLinkLabel`**) at the **top** (under title / genre pills).
+`getCousinsBySong` unions members + `song.cousins`;
+still fix drift so they match.
+
+Kinship is a cited claim. Same mode ≠ cousins.

@@ -171,12 +171,15 @@ export const WORDS: SpokenWord[] = [
   {
     id: "hora",
     latin: "hora",
-    aliases: ["horă"],
+    alsoSpelled: ["horah"],
+    aliases: ["horă", "horah"],
     native: {
       spelling: "horă",
       language: "Romanian",
       lang: "ro-RO",
     },
+    // JEL: Jewish circle dance originating in Romania — same dance, not "hour".
+    audio: JEL("hora.mp3", "3678"),
   },
   {
     id: "sirba",
@@ -196,6 +199,61 @@ export const WORDS: SpokenWord[] = [
       spelling: "bulgar",
       language: "Yiddish",
       lang: "yi",
+    },
+  },
+  {
+    id: "shvesters",
+    latin: "shvesters",
+    alsoSpelled: ["shvester"],
+    aliases: ["shvester", "the shvesters"],
+    native: {
+      // Standard Yiddish שוועסטער “sister”; the duo’s name is the English-Yiddish plural.
+      spelling: "שוועסטערס",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    id: "misirlou",
+    latin: "Misirlou",
+    alsoSpelled: ["Miserlou"],
+    aliases: ["Misirlou", "Miserlou", "Mısırlı", "Mousourlou"],
+    native: {
+      // Wikipedia “Misirlou”; Greek feminine of Turkish Mısırlı (“Egyptian”).
+      spelling: "Μισιρλού",
+      language: "Greek",
+      lang: "el",
+    },
+  },
+  {
+    id: "dos-kelbl",
+    latin: "Dos kelbl",
+    aliases: ["dos kelbl", "Dos Kelbl"],
+    native: {
+      // Mlotek Yiddish Song Collection; Wikipedia “Dona, Dona”.
+      spelling: "דאָס קעלבל",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    // The Dona Dona refrain vocable. Polish is Latin-script, so the value here
+    // is the *speaker*, not a native parenthetical — the clip is a native
+    // Polish "dana". Scoped to the full "oj, dana dana" phrase (never bare
+    // "dana") so the auto-linker can't grab "Dana, Dana, Dana" in prose.
+    id: "oj-dana",
+    latin: "oj, dana dana",
+    aliases: ["oj dana dana", "oj, dana dana, moja dana"],
+    native: {
+      spelling: "oj, dana dana",
+      language: "Polish",
+      lang: "pl",
+    },
+    audio: {
+      src: "/audio/words/oj-dana.ogg",
+      source: "Wikimedia Commons — Equadus",
+      sourceUrl: "https://commons.wikimedia.org/wiki/File:Pl-dana.ogg",
+      license: "CC BY-SA 3.0",
     },
   },
   {
@@ -238,6 +296,80 @@ export const WORDS: SpokenWord[] = [
       language: "Yiddish",
       lang: "yi",
     },
+  },
+  {
+    // Standard Yiddish for the institution; YIVO טעאַטער. Uriel Weinreich /
+    // modern Yiddish dictionaries. Genre slug so the spoke gets a banner.
+    id: "yiddish-theater",
+    latin: "Yiddish theater",
+    alsoSpelled: ["Yiddish theatre"],
+    aliases: ["yiddish theater", "yiddish theatre"],
+    native: {
+      spelling: "ייִדיש טעאַטער",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    // YIVO פֿאָלקסליד “folk song.” Genre slug for the spoke banner.
+    id: "yiddish-folk",
+    latin: "folkslid",
+    aliases: ["folks lid", "Yiddish folk song", "Yiddish folk songs"],
+    native: {
+      spelling: "פֿאָלקסליד",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    // JEL “badchen”; YIVO badkhn. Wedding jester.
+    id: "badkhn",
+    latin: "badkhn",
+    alsoSpelled: ["badchen", "badchan"],
+    aliases: ["badchen", "badchan", "badkhen"],
+    native: {
+      spelling: "באַדחן",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("badkhn.mp3", "2300"),
+  },
+  {
+    // JEL etymology קאַפּעליע — a klezmer band.
+    id: "kapelye",
+    latin: "kapelye",
+    aliases: ["kapelyeh", "kapelie"],
+    native: {
+      spelling: "קאַפּעליע",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("kapelye.mp3", "4285"),
+  },
+  {
+    // YIVO צימבל; hammered dulcimer. YIVO Encyclopedia, “Traditional and
+    // Instrumental Music.” No JEL clip as of 2026-09-06.
+    id: "tsimbl",
+    latin: "tsimbl",
+    aliases: ["tsimbal", "cimbalom"],
+    native: {
+      spelling: "צימבל",
+      language: "Yiddish",
+      lang: "yi",
+    },
+  },
+  {
+    // JEL “khosidl” — Hasidic dance; Y חסידל.
+    id: "khosidl",
+    latin: "khosidl",
+    alsoSpelled: ["khosidel"],
+    aliases: ["khosidls", "hasidl", "chosidl"],
+    native: {
+      spelling: "חסידל",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("khosidl.mp3", "4540"),
   },
 ];
 

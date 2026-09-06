@@ -1,0 +1,166 @@
+---
+description: How to write editorial catalog song entries — always hunt lyrics (copyright is not a skip), genres, cousins reverse links.
+globs: src/lib/catalog/songs.ts,src/app/songs/**,src/components/catalog/**
+alwaysApply: false
+---
+
+# Catalog songs
+
+Editorial recordings live in `src/lib/catalog/songs.ts` (not the MIDI
+library). House style for lyrics and sourcing:
+`.cursor/rules/history-articles.mdc`.
+
+## Required on every new / expanded song
+
+- Verified `youtubeId`, or `listen` to an archive when there is no legal
+  player. Never invent an id.
+- `genres` when an **existing** genre slug fits. Omit rather than invent.
+- **Sourced `lyrics` on the song page.** Hunt first; copyright is not a
+  skip. See “Lyrics — always hunt” below.
+- **Non-English songs carry `original`** — the English name *and* the
+  home-language name, both searchable. See “Bilingual titles” below.
+
+## Lyrics — always hunt
+
+Hearing a recording without the words is half a lesson. A new or
+expanded song **must** get a sourced `lyrics` block, or a written reason
+in `about` after a real hunt. Do **not** leave lyrics off because the
+composition is still under copyright — that is how Over the Rainbow
+shipped empty. Still-protected words are printed for teaching, with a
+citable source, a link out, and the fair-use note `<SongLyrics>` already
+shows.
+
+```ts
+// ❌ BAD — copyright used as a skip
+about: "We do not print the English lyric here: it is still under copyright."
+
+// ✅ GOOD — sourced, attributed, fair-use footer already on the page
+lyrics: [{
+  id: "english",
+  label: "English — Harburg",
+  lang: "en",
+  language: "English",
+  source: { label: "Leo Feist, Inc., 1939", url: "https://…" },
+  lines: [/* transcribed from that publication, never from memory */],
+}]
+```
+
+**Hunt order:** scholarly collections (Mlotek / Workers Circle for
+Yiddish), Wikisource / IMSLP / LOC / university sheet-music scans for
+public-domain songs, a cited encyclopedia or Wikipedia table that
+actually prints the words, published sheet music we can point at.
+Web-search; **never invent a line or “fix” one you did not see.**
+
+**The only honest omissions** (say so in `about`):
+
+1. **Instrumental** — no words exist (Dale’s Misirlou, Brandwein
+   bulgars). Do not invent a lyric.
+2. **Author forbade reprint** — e.g. Al Grand asked that his Yiddish
+   Over the Rainbow not be used without permission. Hunt anyway; if the
+   ask is explicit, omit and quote the request.
+3. **Hunt failed** — no citable published text (not “I remembered it”).
+   Write what you searched. A later pass must try again.
+
+Non-English versions: original + line-by-line English gloss (`en`),
+romanization (`latin`) when the script isn’t Latin. Several sung
+versions → several `SongLyrics` entries. Don’t paste a lyric site with
+no provenance (Genius, AZLyrics). Wikipedia / Wikisource / Milken /
+Mlotek / LOC are fine when they print the words.
+
+## Bilingual titles (non-English songs)
+
+A song whose title is not English **must** name the tune in both languages,
+and the global search bar (⌘K) **must** find it by either. English speakers
+type “over the rainbow”; a Yiddish speaker types “iber dem regnboygn” or
+`איבער דעם רעגן־בויגן`. Both land on the same song.
+
+`title` stays the **best-known Latin display form** (unchanged for existing
+rows — `Iber dem regnboygn`, `Bei Mir Bistu Shein`, `Misirlou`). The other
+forms live in a structured `original` field:
+
+```ts
+/** Present iff the song’s title is not English. */
+original?: {
+  /** English title, or a literal gloss when there is no English title
+   *  ("Over the Rainbow"; or "‘The calf’" for Dos kelbl). Required. */
+  english: string;
+  /** BCP-47 of the original language ("yi", "el", "ro"). Required. */
+  lang: string;
+  /** Romanization when the script isn’t Latin (YIVO for Yiddish, etc.).
+   *  Usually equal to `title`; set it when `title` is a stylized variant. */
+  latin?: string;
+  /** Native-script spelling — **only when attested**. Never invent letters
+   *  (YIVO for Yiddish, unpointed Hebrew, monotonic Greek). Omit if unsure. */
+  native?: string;
+};
+```
+
+Honesty (same bar as loanwords, `.cursor/rules/pronunciation-audio.mdc`):
+`native` is an attested spelling or nothing — cite it in a short comment,
+never guess script. `english` is the real English title when one exists; a
+plain-language translation in quotes otherwise. Don’t label a proper-noun
+tune (Misirlou) with a fake “English title” — give its native script + a
+glossed meaning.
+
+**Display** (render, don’t hand-format per page): `songTitleParts(song)` in
+`songs.ts` returns `{ display, english?, native?, lang? }`. Surfaces:
+
+- **Song page header, `/songs` cards, search rows** — show both: `title`
+  with `— “{english}”`, and the native script (via `<NativeScript>`,
+  dir-aware) when present. Never put `dir="rtl"` on a box that also holds
+  Latin — see the loanword RTL note.
+- **`<SongLink>` in article prose** keeps the single `title` inline (prose
+  stays readable); the panel it opens shows the full bilingual title.
+
+**Search** (both surfaces, same change):
+
+- Global (`src/lib/search/index.ts`) — fold `original.english`,
+  `original.latin`, `original.native`, and the language name into the song
+  entry, and treat `english` as a **title alias** so an English-title query
+  ranks it like a title hit, not a body hit.
+- Hub (`src/lib/catalog/search.ts` → `songHaystack`) — add the same fields.
+
+English-titled songs (blues catalog, `Over the Rainbow`) leave `original`
+unset — they’re already in one language.
+
+```ts
+// ✅ GOOD — Yiddish song, both names, attested native script
+{
+  slug: "iber-dem-regnboygn",
+  title: "Iber dem regnboygn",
+  original: {
+    english: "Over the Rainbow",
+    lang: "yi",
+    native: "איבער דעם רעגן־בויגן", // Grand’s Forward spelling, 2003
+  },
+  // …
+}
+```
+
+## If a Cousins article names this song
+
+Both directions, same change:
+
+1. The article `members` list includes this slug.
+2. This song has `cousins: ["<article-slug>"]`.
+
+The song page **must** show those cousin links at the **top** (title →
+attribution → genre pills → `COUSIN_SONG_HEADING` / `cousinSongLinkLabel`
+from `src/lib/cousins/registry.ts`). Copy standard:
+`.cursor/rules/cousins.mdc`. Don’t bury the card under the players.
+`getCousinsBySong` is the lookup — don’t hand-roll a second list.
+
+```ts
+// ❌ BAD — mentioned in /cousins/miserlou, no reverse, no pills on either side
+slug: "misirlou-dale"
+
+// ✅ GOOD
+slug: "misirlou-dale",
+cousins: ["miserlou"],
+genres: ["rock"],
+```
+
+Name a person → catalog artist + `<ArtistLink>` on first mention.
+Name a foreign word → `WORDS` + first-mention wrap (human clip or no
+speaker). `.cursor/rules/loanword-speakers.mdc`.
+Keep one slug per recording/composition; don’t fork a second copy.

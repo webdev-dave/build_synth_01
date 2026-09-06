@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
 
 import {
   GLOSSARY_CONCEPTS,
@@ -14,6 +13,7 @@ import { getScale } from "@/lib/scales/registry";
 import { getArticle } from "@/lib/history/registry";
 import { getCatalogSong, songAttribution } from "@/lib/catalog/songs";
 import { getConceptContent } from "@/content/concepts";
+import { HubLink } from "@/components/content/HubLink";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
@@ -107,13 +107,7 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <Link
-          href="/concepts"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          All concepts
-        </Link>
+        <HubLink href="/concepts">All concepts</HubLink>
 
         <header className="mt-6">
           <h1 className="text-3xl font-semibold tracking-tight">{question}</h1>

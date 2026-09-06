@@ -16,6 +16,7 @@ import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getArtist } from "@/lib/catalog/artists";
+import { GenrePills } from "@/components/content/GenrePills";
 
 interface ArtistLinkProps {
   /** Artist slug in the catalog ("bessie-smith"). */
@@ -94,6 +95,7 @@ export function ArtistLink({ id, children }: ArtistLinkProps) {
           <span className="mt-1.5 block text-sm leading-relaxed text-foreground">
             {artist.micro}
           </span>
+          <GenrePills slugs={artist.genres} compact className="mt-2" />
           <Link
             href={`/artists/${artist.slug}`}
             className="group/more mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"

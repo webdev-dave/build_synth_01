@@ -12,10 +12,16 @@
  */
 import { NAV_ITEMS } from "@/lib/navigation";
 import { SONGS } from "@/lib/songs/library";
-import { SONGS_CATALOG, songAttribution } from "@/lib/catalog/songs";
+import {
+  SONGS_CATALOG,
+  songAttribution,
+  songTitleAliases,
+  songTitleParts,
+} from "@/lib/catalog/songs";
 import { ARTISTS } from "@/lib/catalog/artists";
 import { GENRES } from "@/lib/genres/registry";
 import { SCALES } from "@/lib/scales/registry";
+import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
 import { LANGUAGES } from "@/lib/languages/registry";
@@ -31,6 +37,7 @@ export type SearchGroup =
   | "genres"
   | "scales"
   | "history"
+  | "cousins"
   | "concepts"
   | "languages"
   | "lessons";
@@ -43,6 +50,7 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
   genres: "Genres",
   scales: "Scales & modes",
   history: "Musical history",
+  cousins: "Cousins",
   concepts: "Concepts",
   languages: "Languages",
   lessons: "Lessons",
@@ -57,6 +65,7 @@ const GROUP_CAPS: Record<SearchGroup, number> = {
   genres: 4,
   scales: 5,
   history: 4,
+  cousins: 4,
   concepts: 6,
   languages: 4,
   lessons: 4,
@@ -71,6 +80,7 @@ const GROUP_ORDER: SearchGroup[] = [
   "genres",
   "scales",
   "history",
+  "cousins",
   "concepts",
   "languages",
   "lessons",
@@ -90,6 +100,9 @@ export interface SearchEntry {
   haystack: string;
   titleNorm: string;
   titleWords: string[];
+  /** Alt titles that rank like the title (e.g. a song's English name). */
+  titleAliases: string[];
+  aliasWords: string[][];
 }
 
 export interface SearchResultGroup {
@@ -101,6 +114,10 @@ export interface SearchResultGroup {
 /** Lowercase + strip diacritics so "bulgár" matches "bulgar". */
 const normalize = normalizeSearch;
 
+function wordsOf(norm: string): string[] {
+  return norm.split(/[^a-z0-9]+/).filter(Boolean);
+}
+
 function entry(
   group: SearchGroup,
   iconId: string,
@@ -109,10 +126,16 @@ function entry(
   subtitle: string | undefined,
   extraHaystack: Array<string | undefined>,
   soon = false,
+  titleAliases: string[] = [],
 ): SearchEntry {
   const titleNorm = normalize(title);
+  const aliasNorms = titleAliases.map(normalize).filter(Boolean);
+  // Aliases join the haystack too, so a query matches even when it never
+  // appears in the visible title (a Yiddish song found by its English name).
   const haystack = normalize(
-    [title, subtitle, ...extraHaystack].filter(Boolean).join(" "),
+    [title, subtitle, ...extraHaystack, ...titleAliases]
+      .filter(Boolean)
+      .join(" "),
   );
   return {
     href,
@@ -123,7 +146,9 @@ function entry(
     soon,
     haystack,
     titleNorm,
-    titleWords: titleNorm.split(/[^a-z0-9]+/).filter(Boolean),
+    titleWords: wordsOf(titleNorm),
+    titleAliases: aliasNorms,
+    aliasWords: aliasNorms.map(wordsOf),
   };
 }
 
@@ -144,20 +169,30 @@ function buildIndex(): SearchEntry[] {
   // Editorial song articles — before the MIDI library so a title that exists
   // in both (e.g. "St. Louis Blues") surfaces the article and the arrangement.
   for (const song of SONGS_CATALOG) {
+    const parts = songTitleParts(song);
+    // Row shows both languages: the Latin display and the English name.
+    const rowTitle = parts.english
+      ? `${parts.display} — “${parts.english}”`
+      : parts.display;
     out.push(
       entry(
         "songs",
         "songs",
         `/songs/${song.slug}`,
-        song.title,
+        rowTitle,
         songAttribution(song),
         [
           song.micro,
           song.about,
           ...(song.keywords ?? []),
           ...(song.genres ?? []),
+          song.original?.native,
+          song.original?.lang,
         ],
         song.status !== "live",
+        // Latin display + English + romanization + native script all rank
+        // like the title, so either language finds the song.
+        [parts.display, ...songTitleAliases(song)],
       ),
     );
   }
@@ -244,6 +279,26 @@ function buildIndex(): SearchEntry[] {
     );
   }
 
+  for (const article of COUSIN_ARTICLES) {
+    out.push(
+      entry(
+        "cousins",
+        "cousins",
+        `/cousins/${article.slug}`,
+        article.question,
+        article.summary,
+        [
+          article.name,
+          article.answer,
+          ...(article.keywords ?? []),
+          ...article.members.map((m) => m.song),
+          ...nativeSpellingsOf(article.slug),
+        ],
+        article.status !== "live",
+      ),
+    );
+  }
+
   for (const language of LANGUAGES) {
     out.push(
       entry(
@@ -307,19 +362,29 @@ function getIndex(): SearchEntry[] {
   return INDEX;
 }
 
+/** Where a token hit one field: whole > prefix > word prefix > substring. */
+function fieldScore(norm: string, words: string[], t: string): number {
+  if (norm === t) return 100;
+  if (norm.startsWith(t)) return 60;
+  if (words.some((w) => w.startsWith(t))) return 40;
+  if (norm.includes(t)) return 25;
+  return 0;
+}
+
 /**
  * Every query token must appear somewhere in the haystack; the score only
- * ranks *where* it hit (whole title > title prefix > word prefix > body).
+ * ranks *where* it hit. A title alias (a song's English name) ranks like the
+ * title, so "over the rainbow" surfaces the Yiddish song, not as a body hit.
  */
 function scoreEntry(e: SearchEntry, tokens: string[]): number {
   let score = 0;
   for (const t of tokens) {
     if (!e.haystack.includes(t)) return 0;
-    if (e.titleNorm === t) score += 100;
-    else if (e.titleNorm.startsWith(t)) score += 60;
-    else if (e.titleWords.some((w) => w.startsWith(t))) score += 40;
-    else if (e.titleNorm.includes(t)) score += 25;
-    else score += 5;
+    let best = fieldScore(e.titleNorm, e.titleWords, t);
+    for (let i = 0; i < e.titleAliases.length; i++) {
+      best = Math.max(best, fieldScore(e.titleAliases[i], e.aliasWords[i], t));
+    }
+    score += best > 0 ? best : 5;
   }
   return score;
 }

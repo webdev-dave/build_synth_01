@@ -189,7 +189,7 @@ export const HISTORY_ARTICLES: HistoryArticle[] = [
       "From the wedding bands of Ashkenazi Eastern Europe through the 78rpm era of immigrant New York to the 1970s revival — the story of klezmer, sourced and linked.",
     answer:
       "Klezmer is the celebration music of the Ashkenazi Jews of Eastern Europe, played above all for weddings by professional musicians called klezmorim. Carried to America in the great migration of 1881–1924 and captured on 78rpm records in New York, it was nearly silenced by assimilation and the Holocaust — then revived from the 1970s, when 'klezmer' first became the name of a genre.",
-    genres: ["klezmer"],
+    genres: ["klezmer", "yiddish-theater", "yiddish-folk"],
     scales: ["freygish"],
     // Bibliography — public-domain / open-archive first. Order here sets the
     // footnote numbering rendered by the citation components.
@@ -274,6 +274,14 @@ export const HISTORY_ARTICLES: HistoryArticle[] = [
         access: "Retrieved 2026-09-05",
       },
       {
+        id: "mlotek-dona",
+        title: "Dona Dona",
+        publication:
+          "The Yosl and Chana Mlotek Yiddish Song Collection at the Workers Circle",
+        url: "https://yiddishsongs.org/dona-dona/",
+        access: "Retrieved 2026-09-06",
+      },
+      {
         id: "jta-feldman",
         title:
           "He kicked off the 1970s klezmer revival. Now, he's paying tribute to New York's vast global music scene.",
@@ -329,6 +337,7 @@ export const HISTORY_ARTICLES: HistoryArticle[] = [
       "klezmorim eastern europe",
       "klezmer clarinet brandwein tarras",
       "yiddish swing bei mir bistu shein",
+      "dona dona yiddish folk joan baez",
       "klezmer revival 1970s",
       "klezmer in israel safed festival giora feidman",
       "freygish ahava rabbah",

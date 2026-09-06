@@ -1,0 +1,101 @@
+---
+description: Wrap foreign words with native spelling + a human pronunciation speaker at write time; periodic scan protocol. Never TTS.
+globs: src/content/**,src/lib/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/concepts/**,src/lib/cousins/**,src/lib/history/**,src/lib/words/**,src/lib/places/**,src/lib/languages/**,src/components/history/**,src/components/catalog/**,src/components/words/**,src/app/songs/**,src/app/artists/**,src/app/cousins/**,src/app/history/**,src/app/genres/**,src/app/scales/**,src/app/concepts/**,src/app/languages/**
+alwaysApply: false
+---
+
+# Loanword speakers — write now, scan later
+
+When prose uses a word from another language, the reader should see the
+home spelling and — **only if we have a verified human recording** — a
+speaker. Do this in the **same change** as the article or catalog entry.
+A periodic scan exists because mentions still slip through.
+
+Sourcing catalog (where to look, what’s shipped, what’s ruled out):
+`.cursor/rules/pronunciation-audio.mdc`. House style:
+`.cursor/rules/history-articles.mdc`.
+
+## Hard rule — human audio or no speaker
+
+**A real human saying the matching word and sense, openly licensed, or
+nothing.** Never `speechSynthesis`, never a TTS service, never a generated
+voice, never a “close enough” language (German for Yiddish). A registered
+word with no clip shows native script and **no speaker**. That silence is
+correct. Never invent a URL or ship audio you did not verify.
+
+## At write time (every new / expanded article or entry)
+
+1. **Name it → register it.** One `SpokenWord` in `src/lib/words/registry.ts`.
+   Reuse an existing `id`. Attested native spelling only. Same `id` as the
+   concept slug when it is also a `<Term>`.
+2. **First meaningful mention only.** Hand-authored TSX: `<Term id>` if it
+   is a concept, else `<Word id="…">word</Word>`. Keep both **out of
+   quotations** (`<Term>` may go *inside* a quote; `<Word>` may not).
+3. **Hunt a clip** per `pronunciation-audio.mdc`. Verify human + matching
+   sense + redistributable license, then self-host + credit. No clip →
+   omit `audio` and log the miss in that file.
+4. **Registry strings** (`about`, `answer`, `micro`, place `blurb`) cannot
+   hold JSX. Add precise `aliases` and confirm the page calls
+   `makeTermLinker()`. One linker per page.
+
+```tsx
+// ❌ BAD — hanging transliteration, or a fake voice
+the little sobbing <em>krechtz</em>
+utterance.text = "krechtz"; speechSynthesis.speak(utterance);
+
+// ✅ GOOD — concept loanword (native + speaker if a clip exists)
+the little sobbing <Term id="krechtz">krechtz</Term>
+
+// ✅ GOOD — not a concept
+<Word id="freylekhs">freylekhs</Word>
+```
+
+English song titles, artist names, and place names are not loanwords.
+A Yiddish *song title* used as a common noun (*dos kelbl*) is.
+
+## Periodic scan (run when asked, or every few content drops)
+
+### What to look for
+
+| Hit | Why it matters |
+|---|---|
+| `<em>foreign</em>` / `*italic*` transliteration not in `<Word>` / `<Term>` | First mention never wrapped |
+| Native script (`קרעכץ`, `אהבה`, `doină`) outside `<NativeScript>` / registry | Spelling with no home or speaker path |
+| Word in `WORDS` never referenced by `id` / `latin` / alias in TSX or linker prose | Dead registry row, or a page that skips the linker |
+| Spoke page with `about` / `answer` / `micro` and no `makeTermLinker()` | Registry loanwords stay plain text |
+| New `native.language` missing from `pronunciation-audio.mdc` | Next hunt has no source order |
+| Silent `WORDS` row whose “last look” is old or “not searched yet” | Possible clip we never tried |
+
+Skip: English theory terms, catalog artist names (those are `<ArtistLink>`),
+quoted lyrics, MIDI / piano-roll copy.
+
+### How to scan
+
+```bash
+# Bare italics that may be loanwords (then read — many are English emphasis)
+rg -n "<em>[^<]+</em>" src/content src/lib --glob '!**/node_modules/**'
+
+# Known / likely loanword spellings not next to Word/Term
+rg -n -i "krechtz|krekhts|doina|doină|freylekhs|freilach|nigun|niggun|hora|horă|sher|bulgar|sârbă|lautari|klezmer|freygish|ahava|davening|mame-loshn|shtetl|tsifteteli|rebetiko|oud" \
+  src/content src/lib/catalog src/lib/genres src/lib/scales src/lib/concepts \
+  src/lib/cousins src/lib/history src/lib/places src/lib/languages
+
+# Native script dumped into JSX/strings
+rg -n "[\p{Hebrew}\p{Greek}\p{Arabic}]" src/content src/lib --glob '!**/words/registry.ts'
+
+# Spoke pages that render registry prose without the linker
+rg -L "makeTermLinker" src/app --glob '**/[*]/page.tsx'
+```
+
+Read each hit. A second mention of an already-wrapped word is fine.
+A first mention in hand-authored TSX that is only italicized is not.
+
+### What to do with hits
+
+1. Register (or reuse) the word. Wrap the first mention.
+2. Hunt a **human** clip. Attach only if all three checks pass. Otherwise
+   leave `audio` off and update the miss table — do not paper it over.
+3. If you add a language, find a clip, or rule a source out, update
+   `pronunciation-audio.mdc` in the same change.
+
+Do not finish a scan by adding TTS “just for the words we missed.”

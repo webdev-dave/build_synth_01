@@ -17,7 +17,7 @@ export const APP_SECTIONS: AppSection[] = [
     id: "learn",
     title: "Learn",
     description:
-      "Genres, scales, history, and the people and songs behind them.",
+      "Genres, scales, history, cousins, and the people and songs behind them.",
   },
   {
     id: "instruments",
@@ -116,6 +116,16 @@ export const NAV_ITEMS: NavItem[] = [
     icon: "🎵",
     href: "/songs",
     description: "Landmark recordings — hear them, open them, trace them back",
+    inNav: false,
+    section: "learn",
+  },
+  {
+    id: "cousins",
+    label: "Cousins",
+    icon: "🌿",
+    href: "/cousins",
+    description:
+      "One melody, many lives — rearrangements, translations, folk variants",
     inNav: false,
     section: "learn",
   },

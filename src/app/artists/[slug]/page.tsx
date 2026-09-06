@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight, ExternalLink } from "lucide-react";
 
 import { ARTISTS, getArtist } from "@/lib/catalog/artists";
 import { songsByArtist } from "@/lib/catalog/songs";
@@ -10,7 +10,9 @@ import { getArticle } from "@/lib/history/registry";
 import { sortByLabel } from "@/lib/search/normalize";
 import { SongLink } from "@/components/history/SongLink";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
+import { GenrePills } from "@/components/content/GenrePills";
 import { PageMapSection } from "@/components/map/PageMapSection";
+import { HubLink } from "@/components/content/HubLink";
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -78,13 +80,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <Link
-          href="/artists"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          All artists
-        </Link>
+        <HubLink href="/artists">All artists</HubLink>
 
         <header className="mt-6">
           <h1 className="text-3xl font-semibold tracking-tight">
@@ -95,6 +91,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
               {artist.era}
             </p>
           )}
+          <GenrePills slugs={artist.genres} className="mt-3" />
           <p className="mt-4 text-base leading-relaxed text-foreground">
             {linkTerms(artist.micro)}
           </p>
@@ -114,11 +111,17 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             >
               Songs on the site
             </h2>
-            <div className="mt-3 space-y-1">
+            <div className="mt-3 space-y-2">
               {songs.map((song) => (
-                <p key={song.slug} className="text-sm leading-relaxed">
-                  <SongLink id={song.slug} />
-                </p>
+                <div
+                  key={song.slug}
+                  className="flex flex-wrap items-center gap-x-2 gap-y-1"
+                >
+                  <p className="text-sm leading-relaxed">
+                    <SongLink id={song.slug} />
+                  </p>
+                  <GenrePills slugs={song.genres} compact />
+                </div>
               ))}
             </div>
           </section>

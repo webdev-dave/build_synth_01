@@ -33,6 +33,7 @@ import { melodyToCode, midiToHz, detectKey, melodyToSequence } from "./melodyCon
 import { PianoRollEditor, type PianoRollHandle } from "./PianoRollEditor";
 import { type SequenceEvent } from "./melodyConvert";
 import { SongLibrarySelect } from "./SongLibrarySelect";
+import { GenrePills } from "@/components/content/GenrePills";
 
 import { LearnPanel, type LearnPanelConcept } from "@/components/learn/LearnPanel";
 import { useScaleLogic, type ScaleCombination } from "@/instruments/synth/templates/basic-synth/hooks/useScaleLogic";
@@ -637,6 +638,7 @@ export function MidiLab({ songId }: { songId?: string }) {
             selectedId={song.id}
             onSelect={loadSong}
           />
+          <GenrePills slugs={song.labels} compact />
           {loadingTitle && (
             <span className="font-mono text-xs text-muted-foreground">
               Loading {loadingTitle}…

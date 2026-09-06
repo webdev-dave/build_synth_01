@@ -43,6 +43,8 @@ function toEntry(item: RecentSearchItem): SearchEntry {
     haystack: "",
     titleNorm: "",
     titleWords: [],
+    titleAliases: [],
+    aliasWords: [],
   };
 }
 

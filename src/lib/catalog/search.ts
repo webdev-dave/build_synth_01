@@ -79,6 +79,10 @@ function artistHaystack(artist: Artist): string {
 function songHaystack(song: CatalogSong): string {
   return joinHaystack([
     song.title,
+    song.original?.english,
+    song.original?.latin,
+    song.original?.native,
+    song.original?.lang,
     song.slug,
     song.artistLabel,
     song.year,
@@ -96,6 +100,13 @@ function songHaystack(song: CatalogSong): string {
       const concept = getConcept(slug);
       return concept ? { name: concept.term } : undefined;
     }),
+    ...(song.lyrics ?? []).flatMap((version) => [
+      version.label,
+      version.language,
+      version.credit,
+      ...version.lines.flatMap((line) => [line.text, line.latin, line.en]),
+    ]),
+    ...(song.recordings ?? []).map((recording) => recording.label),
   ]);
 }
 

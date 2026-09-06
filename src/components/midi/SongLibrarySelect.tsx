@@ -4,7 +4,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronsUpDown } from "lucide-react";
 
 import { searchSongs, type SongEntry } from "@/lib/songs";
+import { getGenre } from "@/lib/genres/registry";
 import { cn } from "@/lib/utils";
+import { GenrePills } from "@/components/content/GenrePills";
 
 type Props = {
   songs: SongEntry[];
@@ -111,38 +113,47 @@ export function SongLibrarySelect({ songs, selectedId, onSelect }: Props) {
                 No matches
               </li>
             ) : (
-              filtered.map((song, i) => (
-                <li key={song.id}>
-                  <button
-                    type="button"
-                    role="option"
-                    aria-selected={song.id === selectedId}
+              filtered.map((song, i) => {
+                const extraLabels = song.labels.filter(
+                  (label) => !getGenre(label),
+                );
+                return (
+                  <li
+                    key={song.id}
                     onMouseEnter={() => setHighlight(i)}
-                    onClick={() => pick(song)}
                     className={cn(
-                      "flex w-full flex-col items-start px-3 py-2 text-left text-sm hover:bg-accent",
+                      "px-3 py-2 hover:bg-accent",
                       i === highlight && "bg-accent",
                     )}
                   >
-                    <span className="font-medium">{song.title}</span>
-                    {song.subtitle ? (
-                      <span className="text-xs text-muted-foreground">
-                        {song.subtitle}
-                      </span>
-                    ) : null}
-                    {song.labels.length > 0 ? (
-                      <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">
-                        {song.labels.join(" · ")}
-                      </span>
-                    ) : null}
-                    {song.source?.filename ? (
-                      <span className="font-mono text-[10px] text-muted-foreground/80">
-                        {song.source.filename}
-                      </span>
-                    ) : null}
-                  </button>
-                </li>
-              ))
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={song.id === selectedId}
+                      onClick={() => pick(song)}
+                      className="flex w-full flex-col items-start text-left text-sm"
+                    >
+                      <span className="font-medium">{song.title}</span>
+                      {song.subtitle ? (
+                        <span className="text-xs text-muted-foreground">
+                          {song.subtitle}
+                        </span>
+                      ) : null}
+                      {extraLabels.length > 0 ? (
+                        <span className="mt-0.5 font-mono text-[10px] text-muted-foreground">
+                          {extraLabels.join(" · ")}
+                        </span>
+                      ) : null}
+                      {song.source?.filename ? (
+                        <span className="font-mono text-[10px] text-muted-foreground/80">
+                          {song.source.filename}
+                        </span>
+                      ) : null}
+                    </button>
+                    <GenrePills slugs={song.labels} compact className="mt-1" />
+                  </li>
+                );
+              })
             )}
           </ul>
         </div>

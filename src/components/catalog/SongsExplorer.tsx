@@ -4,7 +4,8 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import { SONGS_CATALOG, songAttribution } from "@/lib/catalog/songs";
+import { SONGS_CATALOG, songAttribution, songTitleParts } from "@/lib/catalog/songs";
+import { NativeScript } from "@/components/words/NativeScript";
 import { searchSongs, songReleaseYear } from "@/lib/catalog/search";
 import {
   catalogYearBounds,
@@ -19,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { GenrePills } from "@/components/content/GenrePills";
 import {
   HubSearch,
   YearRangeFields,
@@ -139,31 +141,53 @@ export function SongsExplorer() {
       >
         {matches.map((song) => {
           const soon = song.status === "soon";
+          const titleParts = songTitleParts(song);
           return (
-            <Link
+            <Card
               key={song.slug}
-              href={`/songs/${song.slug}`}
-              className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group relative h-full transition-colors hover:border-foreground/25 hover:bg-accent/40 has-[a.card-hit:focus-visible]:ring-2 has-[a.card-hit:focus-visible]:ring-ring has-[a.card-hit:focus-visible]:ring-offset-2 has-[a.card-hit:focus-visible]:ring-offset-background"
             >
-              <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">{song.title}</CardTitle>
-                    {soon && <Badge variant="secondary">Soon</Badge>}
-                  </div>
-                  <p className="font-mono text-xs text-muted-foreground">
-                    {songAttribution(song)}
-                  </p>
-                  {song.micro && (
-                    <CardDescription>{song.micro}</CardDescription>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base">
+                    <Link
+                      href={`/songs/${song.slug}`}
+                      className="card-hit after:absolute after:inset-0 focus-visible:outline-none"
+                    >
+                      {song.title}
+                    </Link>
+                  </CardTitle>
+                  {soon && (
+                    <Badge variant="secondary" className="relative z-10">
+                      Soon
+                    </Badge>
                   )}
-                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    Listen
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </CardHeader>
-              </Card>
-            </Link>
+                </div>
+                {(titleParts.native || titleParts.english) && (
+                  <p className="flex flex-wrap items-baseline gap-x-2 text-xs text-muted-foreground">
+                    {titleParts.native && (
+                      <NativeScript
+                        spelling={titleParts.native}
+                        lang={titleParts.lang ?? "und"}
+                        className="text-foreground"
+                      />
+                    )}
+                    {titleParts.english && <span>“{titleParts.english}”</span>}
+                  </p>
+                )}
+                <p className="font-mono text-xs text-muted-foreground">
+                  {songAttribution(song)}
+                </p>
+                {song.micro && (
+                  <CardDescription>{song.micro}</CardDescription>
+                )}
+                <GenrePills slugs={song.genres} className="relative z-10" />
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
+                  Listen
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </CardHeader>
+            </Card>
           );
         })}
       </div>

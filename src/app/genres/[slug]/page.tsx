@@ -1,16 +1,18 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, BookOpen } from "lucide-react";
+import { ArrowRight, BookOpen } from "lucide-react";
 
 import { GENRES, getGenre } from "@/lib/genres/registry";
 import { getArticleByGenre } from "@/lib/history/registry";
+import { getCousinsByGenre } from "@/lib/cousins/registry";
 import { getScale } from "@/lib/scales/registry";
 import { Badge } from "@/components/ui/badge";
 import { GenreLayers } from "@/components/genres/GenreLayers";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
+import { HubLink } from "@/components/content/HubLink";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
 
@@ -51,6 +53,8 @@ export default async function GenrePage({ params }: GenrePageProps) {
     .map((s) => getScale(s))
     .filter((s): s is NonNullable<typeof s> => Boolean(s));
   const history = getArticleByGenre(genre.slug);
+  const cousins = getCousinsByGenre(genre.slug);
+  const foil = genre.compareWith ? getGenre(genre.compareWith) : undefined;
 
   // Light up theory terms in the prose. One linker for the whole page, so each
   // concept is linked at its first mention (lead, then body) and not repeated.
@@ -78,13 +82,7 @@ export default async function GenrePage({ params }: GenrePageProps) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
       />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <Link
-          href="/genres"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          All genres
-        </Link>
+        <HubLink href="/genres">All genres</HubLink>
 
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
@@ -151,6 +149,18 @@ export default async function GenrePage({ params }: GenrePageProps) {
             ...scales.map((scale) => ({
               href: `/scales/${scale.slug}`,
               label: scale.question,
+            })),
+            ...(foil
+              ? [
+                  {
+                    href: `/genres/${foil.slug}`,
+                    label: foil.question,
+                  },
+                ]
+              : []),
+            ...cousins.map((cousin) => ({
+              href: `/cousins/${cousin.slug}`,
+              label: cousin.question,
             })),
           ]}
         />

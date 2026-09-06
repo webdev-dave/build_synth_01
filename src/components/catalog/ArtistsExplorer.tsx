@@ -20,6 +20,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { GenrePills } from "@/components/content/GenrePills";
 import {
   HubSearch,
   YearRangeFields,
@@ -140,30 +141,39 @@ export function ArtistsExplorer() {
         {matches.map((artist) => {
           const soon = artist.status === "soon";
           return (
-            <Link
+            <Card
               key={artist.slug}
-              href={`/artists/${artist.slug}`}
-              className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+              className="group relative h-full transition-colors hover:border-foreground/25 hover:bg-accent/40 has-[a.card-hit:focus-visible]:ring-2 has-[a.card-hit:focus-visible]:ring-ring has-[a.card-hit:focus-visible]:ring-offset-2 has-[a.card-hit:focus-visible]:ring-offset-background"
             >
-              <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                <CardHeader>
-                  <div className="flex items-center gap-2">
-                    <CardTitle className="text-base">{artist.name}</CardTitle>
-                    {artist.era && (
-                      <span className="font-mono text-xs text-muted-foreground">
-                        {artist.era}
-                      </span>
-                    )}
-                    {soon && <Badge variant="secondary">Soon</Badge>}
-                  </div>
-                  <CardDescription>{artist.micro}</CardDescription>
-                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    Read
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
-                </CardHeader>
-              </Card>
-            </Link>
+              <CardHeader>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-base">
+                    <Link
+                      href={`/artists/${artist.slug}`}
+                      className="card-hit after:absolute after:inset-0 focus-visible:outline-none"
+                    >
+                      {artist.name}
+                    </Link>
+                  </CardTitle>
+                  {artist.era && (
+                    <span className="font-mono text-xs text-muted-foreground">
+                      {artist.era}
+                    </span>
+                  )}
+                  {soon && (
+                    <Badge variant="secondary" className="relative z-10">
+                      Soon
+                    </Badge>
+                  )}
+                </div>
+                <CardDescription>{artist.micro}</CardDescription>
+                <GenrePills slugs={artist.genres} className="relative z-10" />
+                <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
+                  Read
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </CardHeader>
+            </Card>
           );
         })}
       </div>

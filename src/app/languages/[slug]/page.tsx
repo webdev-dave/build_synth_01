@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, Languages } from "lucide-react";
+import { Languages } from "lucide-react";
 
 import {
   LANGUAGES,
@@ -16,11 +16,13 @@ import {
   wordHref,
 } from "@/lib/languages/registry";
 import { songAttribution } from "@/lib/catalog/songs";
+import { getCousinsByLanguage } from "@/lib/cousins/registry";
 import type { SongManifestEntry } from "@/lib/songs/types";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { NativeScript } from "@/components/words/NativeScript";
+import { HubLink } from "@/components/content/HubLink";
 import manifestJson from "@/lib/songs/manifest.json";
 
 const MANIFEST = manifestJson as unknown as SongManifestEntry[];
@@ -73,6 +75,7 @@ export default async function LanguageDetailPage({
   const history = languageHistory(language);
   const artists = languageArtists(language);
   const songs = languageCatalogSongs(language);
+  const cousins = getCousinsByLanguage(language.slug);
   const words = languageWords(language);
   const arrangements = midiCount(language.midiLabels);
   const linkTerms = makeTermLinker();
@@ -80,13 +83,7 @@ export default async function LanguageDetailPage({
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Link
-          href="/languages"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          All languages
-        </Link>
+        <HubLink href="/languages">All languages</HubLink>
 
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
@@ -166,6 +163,15 @@ export default async function LanguageDetailPage({
           items={songs.map((s) => ({
             href: `/songs/${s.slug}`,
             label: `${s.title} — ${songAttribution(s)}`,
+          }))}
+        />
+
+        <RelatedPages
+          heading="Cousins"
+          headingId="languages-cousins"
+          items={cousins.map((c) => ({
+            href: `/cousins/${c.slug}`,
+            label: c.question,
           }))}
         />
 

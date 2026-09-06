@@ -1,6 +1,6 @@
 ---
 description: Hard rule — pronunciation audio is a verified human recording or nothing (no TTS). Best sources per language we know, how to verify + attribute, and keep this catalog current as languages/sources change.
-globs: src/lib/words/**,src/components/words/**,public/audio/words/**,src/lib/concepts/**,src/content/history/**,src/lib/genres/**,src/lib/scales/**
+globs: src/lib/words/**,src/components/words/**,public/audio/words/**,src/lib/concepts/**,src/content/**,src/lib/genres/**,src/lib/scales/**,src/lib/catalog/**,src/lib/cousins/**,src/lib/history/**,src/lib/places/**,src/lib/languages/**
 alwaysApply: false
 ---
 
@@ -8,8 +8,9 @@ alwaysApply: false
 
 The speaker button plays a clip we **self-host** in
 `public/audio/words/<id>.mp3`, wired via optional `audio` on a `SpokenWord` in
-`src/lib/words/registry.ts`. Writing rules for *when* to register a loanword
-live in `.cursor/rules/history-articles.mdc`. **This file is the sourcing
+`src/lib/words/registry.ts`. Writing rules for *when* to register a loanword, and the periodic scan,
+live in `.cursor/rules/loanword-speakers.mdc` (house style:
+`.cursor/rules/history-articles.mdc`). **This file is the sourcing
 catalog** — where to look per language, what we already have, what we ruled
 out. **Update it whenever you add a language, find a clip, or rule a source
 out**, so the next agent doesn't repeat a dead search.
@@ -52,15 +53,20 @@ register a word in a **new** language, add the row in the same change
 | **Yiddish** | `yi` | `Q8641` | **JEL**; then Commons `LL-Q8641`; yi.wiktionary | JEL is the strongest for klezmer/Jewish terms. Lingua Libre Yiddish is sparse (none of our words as of 2026-09-05). |
 | **Hebrew** | `he-IL` | `Q9288` | **JEL**; then Commons `LL-Q9288`; he.wiktionary | Prayer/mode names (*Ahava Rabbah*) often live on JEL, not Hebrew Wiktionary. |
 | **Romanian** | `ro-RO` | `Q7913` | Commons `LL-Q7913`; ro.wiktionary; Commons filename search | Dance terms (*doina*, *hora*, *sârbă*) often have only the common-noun / other-language sense recorded. **Do not attach the wrong sense.** |
+| **Greek** | `el` | `Q9129` | Commons `LL-Q9129`; el.wiktionary | *Misirlou* (Μισιρλού) is a song title / proper name — Lingua Libre is unlikely. Don’t attach a random “Egypt” clip. |
+| **Polish** | `pl` | `Q809` | Commons `LL-Q809`; Commons `Pl-<word>.ogg`; pl.wiktionary | Latin script, so there's no native parenthetical — the value is the *speaker*. Lingua Libre Polish is large. `oj-dana.ogg` (refrain vocable) shipped from `File:Pl-dana.ogg`, CC BY-SA 3.0. |
 
 English (`en`, `Q1860`) is not a registry language, but Lingua Libre English
 sometimes has a human saying a loanword that has entered English (e.g.
 *klezmer*). Prefer a recording in the home language when one exists.
 
-### Words still needing a clip (2026-09-05)
+### Words still needing a clip (2026-09-06)
 
-Already shipped (all JEL, CC BY-SA 4.0) — see `public/audio/words/ATTRIBUTION.md`:
-`krechtz` (JEL headword *krekhts*), `nigun`, `klezmer`, `freylekhs` (JEL headword *freilach*).
+Already shipped — see `public/audio/words/ATTRIBUTION.md`:
+`krechtz` (JEL *krekhts*), `nigun`, `klezmer`, `freylekhs` (JEL *freilach*),
+`badkhn` (JEL *badchen*), `kapelye`, `khosidl`, `hora` (JEL circle-dance —
+not Spanish *hour*) — all JEL, CC BY-SA 4.0. Plus `oj-dana` (Polish refrain
+vocable) from Wikimedia Commons `Pl-dana.ogg`, CC BY-SA 3.0 (`.ogg`).
 
 **Still silent** — search these before inventing a new source, and record the
 result here if you look:
@@ -68,17 +74,24 @@ result here if you look:
 | Word | Lang | Last look | Result |
 |---|---|---|---|
 | `doina` | ro | Commons / ro.wiktionary / `LL-Q7913` | no matching human clip |
-| `hora` | ro | Commons / wiktionary | only *hour* (es/cs/sk/…) — **wrong sense** |
 | `sirba` / sârbă | ro | Commons / `LL-Q7913` | none |
 | `lautari` | ro | Commons / `LL-Q7913` | none |
-| `freygish` | yi | JEL / `LL-Q8641` | none |
-| `sher` | yi | JEL search hits other words | none for the dance |
-| `bulgar` | yi | Commons | Occitan *bulgar* — **wrong sense** |
-| `klezmorim`, `yidishe-muzik`, `davening` | yi | JEL has *daven* (verb), not *davening* | leave off until a matching headword exists |
-| `ahava-rabbah`, `kley-zemer` | he | JEL / `LL-Q9288` | none yet |
+| `freygish` | yi | JEL `/search?q=freygish` (2026-09-06) | no entry |
+| `sher` | yi | JEL hits *shiur* / *sherut* — **wrong words** | none for the dance |
+| `bulgar` | yi | JEL `/words/4538` (2026-09-06) | dance sense matches; **no recording** |
+| `klezmorim`, `yidishe-muzik` | yi | JEL no *klezmorim* headword (2026-09-06) | none |
+| `davening` | yi | JEL *daven* `/words/127` has a verb clip | **do not** attach — speaker would say *daven*, not *davening* |
+| `dos-kelbl` | yi | JEL `/search?q=kelbl` (2026-09-06) | none |
+| `yiddish-theater` | yi | JEL `/search?q=theater` (2026-09-06) | *teatron* — **wrong word** |
+| `yiddish-folk` / folkslid | yi | JEL `/search?q=folkslid` (2026-09-06) | none |
+| `tsimbl` | yi | JEL `/search?q=tsimbl` + `tsimbal` (2026-09-06) | none |
+| `ahava-rabbah`, `kley-zemer` | he | JEL *ahava* hits other compounds (2026-09-06) | none for the prayer name |
+| `misirlou` | el | song title, not a dictionary headword | spelling only |
+| `shvesters` | yi | JEL `/search?q=shvester` (2026-09-06) | none |
 
 JEL *daven* (`/words/127`) is a real human clip of the verb — **do not** attach
-it to `davening` unless we decide the headword matches (it currently doesn't).
+it to `davening`. The English gerund and the Yiddish infinitive are not the
+same spoken word.
 
 ## Shared sources (how to use them)
 

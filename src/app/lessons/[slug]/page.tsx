@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft, ArrowRight, Hammer } from "lucide-react";
+import { ArrowRight, Hammer } from "lucide-react";
 
 import { LESSONS, getLesson } from "@/lib/lessons/registry";
 import { Badge } from "@/components/ui/badge";
+import { HubLink } from "@/components/content/HubLink";
 
 interface LessonPageProps {
   params: Promise<{ slug: string }>;
@@ -35,13 +36,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <Link
-          href="/lessons"
-          className="inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          All lessons
-        </Link>
+        <HubLink href="/lessons">All lessons</HubLink>
 
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
