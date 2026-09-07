@@ -63,9 +63,9 @@ export const SCALES: ScaleLesson[] = [
     kind: "scale",
     question: "What is the blues scale?",
     summary:
-      "The minor pentatonic plus one extra note — the flattened fifth 'blue note' — six notes behind most blues, rock, and jazz solos.",
+      "Six notes behind most blues, rock, and jazz solos: the five-note minor pentatonic plus one extra key, the flattened fifth 'blue note.'",
     answer:
-      "The blues scale is the minor pentatonic scale with one note added: the flattened fifth, or 'blue note.' Those six notes — 1, ♭3, 4, ♭5, 5, ♭7 — are the vocabulary behind most blues, rock, and jazz solos.",
+      "The blues scale is a set of six notes that gives blues, rock, and jazz solos their sound. Five of them are the minor pentatonic scale; the sixth — the flattened fifth, or 'blue note' — is the one note that turns the pentatonic into the blues scale. Counted from the root, the six are 1, ♭3, 4, ♭5, 5, ♭7.",
     history:
       "The blues scale grew out of the African-American spirituals, work songs, and field hollers of the 19th-century southern United States — music that carried older West African traditions of bent pitch and call-and-response. Its 'blue notes' — the lowered third, fifth, and seventh — freeze those vocal pitches into keys you can play, and they carried the sound onward into jazz, R&B, and rock.",
     formula: "1 – ♭3 – 4 – ♭5 – 5 – ♭7",
@@ -105,9 +105,9 @@ export const SCALES: ScaleLesson[] = [
     kind: "scale",
     question: "What is the minor pentatonic scale?",
     summary:
-      "Five notes, no half-steps to clash — the safest scale to solo with, and the blues scale minus the blue note.",
+      "Five notes, none of them neighbours — the safest scale to solo with, and the blues scale minus its blue note.",
     answer:
-      "The minor pentatonic is a five-note scale (1, ♭3, 4, 5, ♭7) with none of the tense half-steps of a full minor scale. Add the ♭5 and you get the blues scale.",
+      "The minor pentatonic is a five-note scale — counted from the root, 1, ♭3, 4, 5, ♭7. Every note sits at least two keys from the next, so nothing clashes, which makes it the first solo scale most players learn. Add one more key, the flattened fifth, and it becomes the blues scale.",
     history:
       "The five-note column is older than the blues — a West African pentatonic sense of pitch that traveled into work songs, field hollers, and spirituals. In the southern United States it became the skeleton of blues and rock solos; pin a flattened fifth onto it and you have the blues scale.",
     formula: "1 – ♭3 – 4 – 5 – ♭7",

@@ -81,6 +81,77 @@ export function conceptHome(slug: string): string {
 
 export const CONCEPTS: Concept[] = [
   {
+    slug: "scale",
+    term: "scale",
+    aliases: ["scales", "musical scale"],
+    question: "What is a scale?",
+    micro:
+      "A small set of notes — usually five to seven — chosen from the twelve on the piano and treated as 'home' for a piece of music. Play only those notes and everything sounds like it belongs.",
+    definition:
+      "A piano repeats the same twelve notes over and over, octave after octave. A scale picks a handful of them — the major scale takes seven, a pentatonic five, the blues scale six — and a piece of music treats that handful as its home territory: melodies are built from those notes, and the ones left out sound 'outside' when they appear. Every scale is named for two things — its root, the note that feels like home, and its pattern, the fixed set of distances from that root. Move the root and keep the pattern, and you have the same scale in a different key.",
+    href: conceptHome("scale"),
+    scales: ["blues-scale", "minor-pentatonic", "major-scale"],
+    genres: ["blues"],
+    status: "live",
+    keywords: [
+      "what is a scale in music",
+      "musical scale explained",
+      "scale for beginners",
+    ],
+  },
+  {
+    slug: "root",
+    term: "root",
+    aliases: ["root note", "home note", "tonic"],
+    question: "What is the root note?",
+    micro:
+      "The note a scale or chord is built from and named after — the one that feels like 'home.' In A blues, A is the root; every other note is measured from it.",
+    definition:
+      "The root is the starting point. Play a scale from its root and it sounds settled; land on the root at the end of a phrase and the music feels finished. That is why scales and chords are named after theirs — 'A blues,' 'C major' — and why the root is always scale degree 1. Musicians also call the home note of a whole piece its tonic. Change the root and keep the same pattern of distances above it, and the scale moves to a new key without changing its character.",
+    href: conceptHome("root"),
+    scales: ["blues-scale", "minor-pentatonic", "major-scale"],
+    status: "live",
+    keywords: ["what is the root note", "root note of a scale", "tonic note"],
+  },
+  {
+    slug: "scale-degree",
+    term: "scale degree",
+    aliases: ["scale degrees", "degree", "degrees"],
+    question: "What are scale degrees?",
+    micro:
+      "The notes of a scale numbered from the root: 1 is home, 2 is the next letter up, and so on to 7. A ♭ in front (♭3, ♭5) means that note is one half step lower than plain.",
+    definition:
+      "Scale degrees are a way of naming notes by their job instead of their letter. Call the root 1 and count each letter-name above it: in A, B is 2, C♯ is 3, D is 4, E is 5, F♯ is 6, G♯ is 7 — those plain numbers are the major scale, the do-re-mi scale everything else is measured against. A flat sign lowers one of them by a half step, so ♭3 in A is C rather than C♯, and ♭5 is E♭ rather than E. The point of the numbers is that they travel: A blues and C blues use different letters but the very same degrees, 1 ♭3 4 ♭5 5 ♭7, which is why players think in numbers and can move a lick to any key.",
+    href: conceptHome("scale-degree"),
+    scales: ["blues-scale", "minor-pentatonic", "major-scale"],
+    status: "live",
+    keywords: [
+      "what are scale degrees",
+      "scale degree numbers",
+      "flat 3 flat 5 meaning",
+    ],
+  },
+  {
+    slug: "flats-and-sharps",
+    term: "flats and sharps",
+    // No bare "flat"/"sharp": the linker would catch "the flat floodplain"
+    // and "flat, even eighths". Hand-authored prose uses <Term> explicitly.
+    aliases: ["flats", "sharps", "flat sign", "sharp sign", "accidental", "accidentals"],
+    question: "What do flats (♭) and sharps (♯) mean?",
+    micro:
+      "A flat (♭) lowers a note by one half step — one key to the left; a sharp (♯) raises it one key to the right. The same black key can carry either name: E♭ and D♯ are one key.",
+    definition:
+      "Only seven letters name the notes, A to G, but there are twelve keys in an octave, so the five black keys borrow their names from the white keys beside them. A sharp (♯) means 'the key just above this letter'; a flat (♭) means 'the key just below.' That gives every black key two names — the one between D and E is D♯ coming up from D and E♭ coming down from E — and which name gets used depends on the scale. Blues writing spells its lowered notes as flats (E♭, the ♭5 in A blues) because they are thought of as notes pulled down; the synth keyboard labels the same key D♯. Both are correct; it is one key with two names.",
+    href: conceptHome("flats-and-sharps"),
+    scales: ["blues-scale", "minor-pentatonic"],
+    status: "live",
+    keywords: [
+      "what does flat mean in music",
+      "sharp vs flat",
+      "E flat D sharp same note",
+    ],
+  },
+  {
     slug: "pentatonic",
     term: "pentatonic",
     aliases: ["pentatonic scale", "five-note scale", "pentatonics"],

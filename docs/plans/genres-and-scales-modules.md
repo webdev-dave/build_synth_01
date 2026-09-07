@@ -84,13 +84,45 @@ plan). New pieces, all composing existing audio/keyboard code — no forks:
   (clickable degree chips; ♭5 gets the burnt-orange spotlight),
   `PlayScaleButton` (scheduled up/down run with key highlight), `notes.ts`
   (flat spellings + degree data).
-- `src/content/scales/BluesScaleLesson.tsx` — the lesson: **Hear it**
-  (root-anchored 2-octave keyboard, scale run, lock-to-scale), **Build it**
-  (minor pentatonic vs blues strips, keyboard-highlight toggle), **The truth
-  about blue notes** (bends honesty note).
+- `src/content/scales/BluesScaleLesson.tsx` — originally shipped as a
+  compact widget (keyboard + degree chips + one caption). Superseded by the
+  2026-09-07 rewrite below.
 - `src/content/scales/index.ts` — slug → lesson map; `[slug]/page.tsx`
   renders the lesson when one exists, placeholder otherwise. Registry stays
   free of client imports (sitemap safety).
+
+## Shipped 2026-09-07 (third pass): beginner-first blues-scale lesson
+
+User feedback: the page assumed the reader already knew what a scale,
+degree, flat, and pentatonic were, and the only teaching text was one
+caption. Rewritten as a six-section lesson that introduces one idea per
+section and puts the widget that plays it directly underneath.
+
+- **Lesson is a server component** (`BluesScaleLesson.tsx`, no
+  `"use client"`): prose ships in static HTML; only widgets are client.
+  Sections: 1 what a scale is · 2 counting from home (degrees, flats,
+  D♯/E♭ spelling) · 3 minor pentatonic · 4 add the ♭5 (A/B comparer) ·
+  5 why it sounds blue (tritone, bends) · 6 what to do with it.
+- **Shared page state** — `src/components/scales/ScaleLessonProvider.tsx`
+  owns root, octave, lock, and the one audio engine. Every widget reads it,
+  so the root picker and octave stepper move *all* keyboards, chips, and
+  scheduled runs. `<RootName>` / `<NoteAt>` leaves keep the prose truthful
+  when the reader transposes.
+- **Octave stepper** (`OctaveStepper.tsx`, in `LessonToolbar`) next to
+  every embedded keyboard: small speakers can't reproduce the default
+  register's low keys, so the reader lifts the whole lesson. Runs always
+  start on the root at the bottom of the window (lower octave).
+- **A/B comparer** (`ScaleComparer.tsx`): pentatonic vs blues on one
+  locked keyboard — the ♭5 flips between red dot and green number.
+- Connected widgets: `ScaleKeyboard`, `DegreeStrip`, `PlayPatternButton`,
+  `LessonToolbar`. Presentational pieces (`LessonKeyboard`,
+  `ScaleDegreeStrip`, `PlayScaleButton`, `RootNotePicker`) unchanged.
+- Glossary grew four beginner concepts: `scale`, `root`, `scale-degree`,
+  `flats-and-sharps`. The scale page's linker skips `scale` so it doesn't
+  wrap the page's own name.
+- Reuse: any future scale lesson wraps its sections in
+  `ScaleLessonProvider` and composes the same widgets with its own
+  `ScaleDegree[]`.
 
 ## Next slices (when we build content)
 

@@ -54,8 +54,10 @@ export default async function ScalePage({ params }: ScalePageProps) {
   const cousins = getCousinsByScale(scale.slug);
 
   // One linker for the page: a concept lights up at its first mention (lead,
-  // then history) and isn't repeated.
-  const linkTerms = makeTermLinker();
+  // then history) and isn't repeated. "scale" is skipped — on a scale page
+  // it would wrap the page's own name ("the blues [scale]"), and the lesson
+  // body defines it deliberately where a beginner needs it.
+  const linkTerms = makeTermLinker({ skip: ["scale"] });
   const word = getWord(scale.slug);
 
   const faqJsonLd = {
@@ -98,8 +100,9 @@ export default async function ScalePage({ params }: ScalePageProps) {
           )}
         </header>
 
-        {/* Interactive keyboard first — play the scale, then read the
-            reference. The prose above stays server-rendered for crawlers. */}
+        {/* The lesson: server-rendered prose with the widgets that play each
+            idea interleaved. The formula box below is the quick reference
+            once the reader knows what the symbols mean. */}
         {Lesson && <Lesson />}
 
         <section className="mt-10" aria-labelledby="build-heading">
@@ -107,7 +110,7 @@ export default async function ScalePage({ params }: ScalePageProps) {
             id="build-heading"
             className="text-sm font-medium text-muted-foreground"
           >
-            How it&apos;s built
+            Quick reference
           </h2>
           <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-md border bg-muted/20 p-3">
