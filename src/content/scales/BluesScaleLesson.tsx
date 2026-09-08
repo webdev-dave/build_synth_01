@@ -114,8 +114,21 @@ export function BluesScaleLesson() {
           name the other notes by how far above the root they sit — those names
           are <Term id="scale-degree">scale degrees</Term>. The easiest way to
           find one is to count keys to the right of the root, black and white
-          alike; each key is one{" "}
-          <Term id="steps">half step</Term>.
+          alike. Each move from one key to the very next key is called a{" "}
+          <Term id="steps">half step</Term>, so &ldquo;six keys up&rdquo; and
+          &ldquo;six half steps up&rdquo; mean the same thing.
+        </P>
+        <P>
+          Two words that trip people up. A <em>half step</em> is a distance
+          between two notes, not a kind of note — every key on the piano,
+          black or white, is a full note in its own right, so an octave holds
+          twelve notes, not &ldquo;twelve halves.&rdquo; A <em>whole step</em>{" "}
+          is simply two half steps: skip one key. The names come from the major
+          scale, where most steps are two keys wide and a couple are one key
+          wide, so the bigger one was called whole and the smaller one half.
+          (Unrelated: <em>whole note</em> and <em>half note</em> also exist,
+          but they describe how long a note lasts, not how far apart two notes
+          are.)
         </P>
         <div className="mt-4 overflow-hidden rounded-md border">
           <table className="w-full text-sm">
@@ -125,7 +138,7 @@ export function BluesScaleLesson() {
                   Degree
                 </th>
                 <th scope="col" className="px-3 py-2 text-left font-medium">
-                  Keys above the root
+                  Half steps (keys) above the root
                 </th>
                 <th scope="col" className="px-3 py-2 text-left font-medium">
                   In <RootName />
