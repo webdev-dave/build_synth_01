@@ -11,9 +11,6 @@
  * the <RootName>/<NoteAt> leaves that keep the prose truthful when the
  * reader transposes) are client components.
  */
-import Link from "next/link";
-import type { ReactNode } from "react";
-
 import { Term } from "@/components/concepts/Term";
 import { ScaleLessonProvider } from "@/components/scales/ScaleLessonProvider";
 import { LessonToolbar } from "@/components/scales/LessonToolbar";
@@ -22,6 +19,15 @@ import { DegreeStrip } from "@/components/scales/DegreeStrip";
 import { PlayPatternButton } from "@/components/scales/PlayPatternButton";
 import { ScaleComparer } from "@/components/scales/ScaleComparer";
 import { RootName, NoteAt } from "@/components/scales/LessonInline";
+import {
+  DegreeTable,
+  H2,
+  LessonIntro,
+  LessonLink,
+  Mono,
+  P,
+  type DegreeRow,
+} from "@/components/scales/lessonPrimitives";
 import {
   BLUES_DEGREES,
   BLUE_NOTE_OFFSET,
@@ -35,7 +41,7 @@ const BLUES_OFFSETS = BLUES_DEGREES.map((d) => d.offset);
 const PENTATONIC_OFFSETS = MINOR_PENTATONIC_DEGREES.map((d) => d.offset);
 
 /** Degree · keys above the root · what it is, for the counting table. */
-const DEGREE_ROWS: { offset: number; label: string; role: string }[] = [
+const DEGREE_ROWS: DegreeRow[] = [
   { offset: 0, label: "1", role: "the root — home" },
   { offset: 3, label: "♭3", role: "lowered third" },
   { offset: 5, label: "4", role: "fourth" },
@@ -44,40 +50,11 @@ const DEGREE_ROWS: { offset: number; label: string; role: string }[] = [
   { offset: 10, label: "♭7", role: "lowered seventh" },
 ];
 
-function H2({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: ReactNode }) {
-  return (
-    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
-
-function Mono({ children }: { children: ReactNode }) {
-  return <span className="font-mono text-foreground">{children}</span>;
-}
-
 export function BluesScaleLesson() {
   return (
     <ScaleLessonProvider defaultRootPc={DEFAULT_ROOT_PC} degrees={BLUES_DEGREES}>
       <section className="mt-8" aria-label="Blues scale lesson">
-        <P>
-          This page is a lesson, not a poster. Read it top to bottom; every
-          section has something to press, and the whole page follows one root
-          and one octave — change either and everything below changes with it.
-          If the low keys are hard to hear on your speaker, use{" "}
-          <Mono>Octave +</Mono> to lift the whole lesson.
-        </P>
+        <LessonIntro />
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="what-is-a-scale">1. First: what a scale is</H2>
@@ -130,58 +107,7 @@ export function BluesScaleLesson() {
           but they describe how long a note lasts, not how far apart two notes
           are.)
         </P>
-        <div className="mt-4 overflow-hidden rounded-md border">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/30 text-xs text-muted-foreground">
-              <tr>
-                <th scope="col" className="px-3 py-2 text-left font-medium">
-                  Degree
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-medium">
-                  Half steps (keys) above the root
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-medium">
-                  In <RootName />
-                </th>
-                <th scope="col" className="px-3 py-2 text-left font-medium">
-                  What it is
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {DEGREE_ROWS.map((row) => {
-                const isBlue = row.offset === BLUE_NOTE_OFFSET;
-                return (
-                  <tr
-                    key={row.offset}
-                    className={
-                      isBlue
-                        ? "border-t bg-orange-700/10"
-                        : "border-t"
-                    }
-                  >
-                    <td
-                      className={`px-3 py-2 font-mono ${
-                        isBlue ? "text-orange-600" : "text-foreground"
-                      }`}
-                    >
-                      {row.label}
-                    </td>
-                    <td className="px-3 py-2 font-mono text-muted-foreground">
-                      {row.offset}
-                    </td>
-                    <td className="px-3 py-2">
-                      <NoteAt offset={row.offset} />
-                    </td>
-                    <td className="px-3 py-2 text-muted-foreground">
-                      {row.role}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+        <DegreeTable rows={DEGREE_ROWS} spotlightOffset={BLUE_NOTE_OFFSET} />
         <P>
           Why the odd names — why <Mono>♭3</Mono> and not just{" "}
           <Mono>3</Mono>? The plain numbers 1 to 7 belong to the major scale,
@@ -305,12 +231,7 @@ export function BluesScaleLesson() {
           finished, and treat <Mono>♭5</Mono> as a note you pass through, not one
           you stop on. Then take it to a{" "}
           <Term id="twelve-bar-blues">12-bar blues</Term> —{" "}
-          <Link
-            href="/genres/blues"
-            className="font-medium text-foreground underline-offset-4 hover:underline"
-          >
-            What is the blues?
-          </Link>{" "}
+          <LessonLink href="/genres/blues">What is the blues?</LessonLink>{" "}
           covers the form and the shuffle the scale sits on.
         </P>
       </section>
