@@ -21,6 +21,20 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-11 · klezmer track built; paused for owner review.** Branch
+  `cursor/scales-catalog-plan-0d4e`, PR #4 to `main`. Shipped: Phase 0
+  (catalog + `spellDegrees`, `notes.ts` derives from it, `patternKey`
+  typed), the Phase 1 template half (`lessonPrimitives.tsx`, comparer
+  swap + re-home modes; the major / minor-pentatonic pages themselves are
+  **not** written), and all of Phase 3 (`/scales/harmonic-minor`,
+  `/scales/freygish`, `/scales/ukrainian-dorian` live, `misheberakh`
+  loanword with a verified JEL clip, reverse links from klezmer genre +
+  history + `augmented-second` / `mode` concepts). Verified: `tsc`, lint,
+  471-check catalog assertion script, browser pass on all four scale pages
+  (root transposed, comparers, reduced motion). **Next agent: do not start
+  Phase 4+ until the Phase 6 Freygish sign-off is struck through.** Then
+  the natural next slice is Phase 1's two pages (major, minor pentatonic)
+  followed by Phase 2. Not merged, not promoted.
 - **2026-09-11 · started.** Owner asked for the klezmer pages first and
   stepped away. Agreed flow: build the **klezmer track** (Phase 0 → slice 2
   → Phase 3) on one branch / one PR, stop, and wait for owner feedback on
@@ -29,23 +43,37 @@ Newest entry on top. Update in the same commit as the work.
   `src/components/harmonica/v2/`); the legacy `/harmonica-lab` page is not
   touched. Open items for the owner live in **Phase 6**.
 
-## Where things stand (2026-09-11)
+## Where things stand (2026-09-11, end of klezmer track)
 
-- **Live:** `/scales/blues-scale` only. Six-section beginner lesson,
-  `ScaleLessonProvider` + widgets (`ScaleKeyboard`, `ScaleComparer`,
-  `DegreeStrip`, `PlayPatternButton`, `LessonToolbar`, `RootName`/`NoteAt`).
+- **Live:** `/scales/blues-scale`, `/scales/harmonic-minor`,
+  `/scales/freygish`, `/scales/ukrainian-dorian` (the last three on the
+  PR #4 branch, awaiting review). Lessons are server components composing
+  `src/components/scales/lessonPrimitives.tsx` (`LessonIntro`, `H2`, `P`,
+  `Mono`, `DegreeTable`, `LessonLink`, `Sources`) around the client widgets
+  (`ScaleKeyboard`, `ScaleComparer`, `DegreeStrip`, `PlayPatternButton`,
+  `LessonToolbar`, `RootName`/`NoteAt`). `ScaleLessonProvider` takes the
+  page's `degrees` and spells its root names from the catalog.
 - **Stubbed (`status: "soon"`, registry copy exists):** `major-scale`,
-  `minor-pentatonic`, `dorian`, `freygish`.
-- **In the engine, no page:** natural minor, harmonic minor, melodic minor,
-  major pentatonic, Phrygian, Lydian, Mixolydian, Locrian
-  (`src/lib/music/scales.ts` `SCALE_PATTERNS` / `MODE_PATTERNS`).
-- **Named in plans, not in the engine:** Phrygian dominant (= Freygish),
-  Ukrainian Dorian, double harmonic, major blues, maqam Rast.
-- **Widgets are already generic.** Every lesson widget takes a
-  `ScaleDegree[]`; only the *data* is blues-specific
-  (`BLUES_DEGREES` / `MINOR_PENTATONIC_DEGREES` hand-typed in
-  `src/components/scales/notes.ts`). Spelling is flat-only (`flatName`),
-  which is wrong for sharp-side modes.
+  `minor-pentatonic`, `dorian`.
+- **Catalog:** `src/lib/music/scaleCatalog.ts` holds 16 `ScaleTypeId`s
+  (major, minor, five other church modes, harmonic + melodic minor, both
+  pentatonics, blues, majorBlues, phrygianDominant, ukrainianDorian,
+  doubleHarmonic) with degree labels, aliases, group, and `parent`.
+  `SCALE_PATTERNS` / `MODE_PATTERNS` in `scales.ts` derive from it;
+  `src/components/scales/notes.ts` no longer hand-types degrees. Rast is
+  still only named in plans.
+- **Spelling:** `spellDegrees` — letter-once for 7-note scales with the
+  enharmonic root chosen per scale type (B♭ major, G♯ freygish, A♭
+  Ukrainian Dorian); simple flat names for 5/6-note scales, so the blues
+  page is pixel-identical. Known legitimate exception: double harmonic on
+  pitch class 8 needs a double accidental either way.
+- **Comparer** speaks three captions: superset/subset, swap (same degree
+  number, different key), re-home (same keys, `rootOffset` moves home).
+- **Assertion script** lives outside the repo (`/tmp/scale-catalog-check.ts`
+  during the 2026-09-11 session). Re-create it if needed: pattern length =
+  degree count, every label maps to its semitone, parent offsets re-home
+  onto the parent's key set, letter-once spelling has no double
+  accidentals (except the exemption above).
 - Harmonica positions already map 1→Ionian, 2→Mixolydian, 3→Dorian,
   4→Aeolian, 5→Phrygian (`src/lib/harmonica/constants.ts`), so those modes
   have a ready-made cross-link and reader intuition.
@@ -155,34 +183,34 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
 
 ### Phase 0 — one theory catalog (`src/lib/music`)
 
-- [ ] Add `phrygianDominant`, `ukrainianDorian`, `doubleHarmonic`,
+- [x] Add `phrygianDominant`, `ukrainianDorian`, `doubleHarmonic`,
       `majorBlues` patterns to `scales.ts`.
-- [ ] Build `SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo>` with
+- [x] Build `SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo>` with
       `{ name, aliases?, pattern, degrees, group, feel, parent? }` per the
       synth plan. Groups: Common / Modes / Pentatonic & Blues /
       Harmonic-minor family.
-- [ ] Add `spellScale(root, id)` next to the `notes.ts` helpers: letter-once
+- [x] Add `spellScale(root, id)` next to the `notes.ts` helpers: letter-once
       for heptatonic scales, degree-derived for 5/6-note scales, pick the
       enharmonic root without double accidentals (evaluated per scale type —
       B♭ major but G♯ Freygish and A♭ Ukrainian Dorian).
-- [ ] `degreesFor(id): ScaleDegree[]` so `src/components/scales/notes.ts`
+- [x] `degreesFor(id): ScaleDegree[]` so `src/components/scales/notes.ts`
       stops hand-typing `BLUES_DEGREES` / `MINOR_PENTATONIC_DEGREES`.
-- [ ] Type `ScaleLesson.patternKey` as `ScaleTypeId`. Fix the existing
+- [x] Type `ScaleLesson.patternKey` as `ScaleTypeId`. Fix the existing
       `minorPentatonic` vs `pentatonicMinor` mismatch.
-- [ ] Assertion pass (script or test): every pattern's length equals its
+- [x] Assertion pass (script or test): every pattern's length equals its
       degree table, every degree label maps to its semitone, every
       `parent` offset re-homes onto the parent's note set.
-- [ ] Regression-check `/scales/blues-scale`: `NoteAt`, `RootName`, and the
+- [x] Regression-check `/scales/blues-scale`: `NoteAt`, `RootName`, and the
       comparer caption switch from `flatName` to catalog spelling.
 
 ### Phase 1 — lesson template + first two pages
 
-- [ ] Extract `H2`, `P`, `Mono`, the degree table, and the section rhythm
+- [x] Extract `H2`, `P`, `Mono`, the degree table, and the section rhythm
       from `BluesScaleLesson.tsx` into `src/components/scales/lessonPrimitives.tsx`.
       Lessons stay server components that compose them.
-- [ ] `ScaleComparer`: add a **swap** caption ("Freygish raises the 3rd:
+- [x] `ScaleComparer`: add a **swap** caption ("Freygish raises the 3rd:
       G → G♯") — today it assumes one side is a superset.
-- [ ] `ScaleComparer`: add a **re-home** mode (`parentOffset`) that keeps the
+- [x] `ScaleComparer`: add a **re-home** mode (`parentOffset`) that keeps the
       key set and shifts the root, for "same notes, home on the 5th."
 - [ ] `MajorScaleLesson.tsx`: white keys in C, W–W–H–W–W–W–H, degrees 1–7,
       why plain numbers belong to major, comparer vs natural minor.
@@ -207,25 +235,33 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
 
 ### Phase 3 — harmonic-minor family (the Middle Eastern block)
 
-- [ ] Registry rows for `harmonic-minor`, `ukrainian-dorian`; `freygish`
+- [x] Registry rows for `harmonic-minor`, `ukrainian-dorian`; `freygish`
       already exists — add `patternKey: "phrygianDominant"` and aliases.
-- [ ] `HarmonicMinorLesson.tsx`: natural minor → raised 7th, the
+- [x] `HarmonicMinorLesson.tsx`: natural minor → raised 7th, the
       `augmented-second` concept lit, spelled `A B C D E F G♯`.
-- [ ] `FreygishLesson.tsx` (E): comparer Phrygian → Freygish (swap), comparer
+- [x] `FreygishLesson.tsx` (E): comparer Phrygian → Freygish (swap), comparer
       harmonic minor → Freygish (re-home, −7). Alias line for Ahava Rabbah /
       Hijaz / Spanish Phrygian. One sentence that maqam Hijaz on a piano is
       an approximation. Cross-link `/genres/klezmer`, klezmer history.
-- [ ] `UkrainianDorianLesson.tsx` (D): comparer Dorian → ♯4 (swap), comparer
+- [x] `UkrainianDorianLesson.tsx` (D): comparer Dorian → ♯4 (swap), comparer
       harmonic minor → re-home (−5). Sibling paragraph: same parent as
       Freygish, different home.
-- [ ] Loanwords: register `misheberakh` (verified Hebrew spelling, source
+- [x] Loanwords: register `misheberakh` (verified Hebrew spelling, source
       cited in a comment) in `src/lib/words/registry.ts`; hunt a human clip
       per `.cursor/rules/pronunciation-audio.mdc`, otherwise no speaker;
       log the result there in the same change.
-- [ ] Cross-links: `usedIn: ["klezmer"]` on all three; klezmer `scales` in
+- [x] Cross-links: `usedIn: ["klezmer"]` on all three; klezmer `scales` in
       the genre registry; klezmer history article `scales`;
       `augmented-second` concept `scales` widened to include
       `harmonic-minor` and `ukrainian-dorian`.
+
+Built 2026-09-11. As shipped, each page also re-homes onto its *sibling*
+(freygish ↔ Ukrainian Dorian), the freygish page ends with a "what twelve
+keys cannot show" section (♭7 / natural 6 below the root, Hijaz
+intonation), and the Ukrainian Dorian page has a "tendency, not a law"
+section on the interchangeable ♯4 / ♮4. `rootOffset` on `ComparerSide` is
+how far the *other* scale's root sits above the page root (harmonic minor
+on the freygish page = +5, on the Ukrainian Dorian page = +7).
 
 ### Phase 4 — fill the catalog
 
