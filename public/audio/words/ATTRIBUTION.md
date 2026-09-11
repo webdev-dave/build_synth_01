@@ -12,6 +12,7 @@ Human-recorded pronunciations, redistributed here under their original license.
 | `kapelye.mp3` | kapelye | [Jewish English Lexicon](https://jel.jewish-languages.org/words/4285) | CC BY-SA 4.0 |
 | `khosidl.mp3` | khosidl | [Jewish English Lexicon](https://jel.jewish-languages.org/words/4540) | CC BY-SA 4.0 |
 | `hora.mp3` | hora (circle dance, not “hour”) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/3678) | CC BY-SA 4.0 |
+| `misheberakh.mp3` | Mi Sheberakh (JEL *Mi Shebeirach* — the prayer the klezmer mode is named after) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/372) | CC BY-SA 4.0 |
 | `oj-dana.ogg` | oj, dana dana (Polish refrain — native "dana" syllable) | [Wikimedia Commons — Equadus](https://commons.wikimedia.org/wiki/File:Pl-dana.ogg) | CC BY-SA 3.0 |
 
 `oj-dana.ogg` is a native Polish male voice saying **dana**, the syllable of the

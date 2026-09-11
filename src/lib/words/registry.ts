@@ -113,6 +113,29 @@ export const WORDS: SpokenWord[] = [
     },
   },
   {
+    id: "misheberakh",
+    latin: "Mi Sheberakh",
+    alsoSpelled: ["Mi Shebeirach", "Misheberakh"],
+    aliases: [
+      "Mi Shebeirach",
+      "Misheberakh",
+      "Misheberach",
+      "Mi Sheberach",
+      "Mishebeyrekh",
+      "Mi Sheberakh mode",
+    ],
+    native: {
+      // The prayer incipit ("He who blessed"); unpointed, as JEL /words/372
+      // and Wikipedia "Mi Shebeirach" give it. Yiddish form: מי־שברך.
+      spelling: "מי שברך",
+      language: "Hebrew",
+      lang: "he-IL",
+    },
+    // JEL sense 1 is the prayer itself — the same spoken name the klezmer
+    // mode carries, so word and sense match.
+    audio: JEL("misheberakh.mp3", "372"),
+  },
+  {
     id: "klezmer",
     latin: "klezmer",
     native: {

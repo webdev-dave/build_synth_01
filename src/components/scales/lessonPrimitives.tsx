@@ -64,6 +64,38 @@ export function LessonIntro() {
   );
 }
 
+export interface LessonSource {
+  label: string;
+  url: string;
+}
+
+/**
+ * Where the lesson's specific claims come from. Scale lessons are not
+ * history articles (no footnote apparatus), but a number or a name we
+ * took from someone still gets pointed at.
+ */
+export function Sources({ items }: { items: LessonSource[] }) {
+  return (
+    <div className="mt-10 border-t pt-4">
+      <h2 className="text-xs font-medium text-muted-foreground">Sources</h2>
+      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+        {items.map((s) => (
+          <li key={s.url}>
+            <a
+              href={s.url}
+              target="_blank"
+              rel="noreferrer"
+              className="underline-offset-4 hover:text-foreground hover:underline"
+            >
+              {s.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export interface DegreeRow extends ScaleDegree {
   /** What the degree is, in plain words ("lowered third"). */
   role: string;

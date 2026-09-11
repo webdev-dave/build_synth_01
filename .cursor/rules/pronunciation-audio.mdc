@@ -67,6 +67,9 @@ Already shipped — see `public/audio/words/ATTRIBUTION.md`:
 `badkhn` (JEL *badchen*), `kapelye`, `khosidl`, `hora` (JEL circle-dance —
 not Spanish *hour*) — all JEL, CC BY-SA 4.0. Plus `oj-dana` (Polish refrain
 vocable) from Wikimedia Commons `Pl-dana.ogg`, CC BY-SA 3.0 (`.ogg`).
+`misheberakh` (JEL *Mi Shebeirach* `/words/372`, 2026-09-11): sense 1 is the
+prayer itself, which is the name the klezmer mode carries — same spoken word,
+so it ships. (Sense 2, "a telling-off", is the same word; not a conflict.)
 
 **Still silent** — search these before inventing a new source, and record the
 result here if you look:
@@ -77,6 +80,7 @@ result here if you look:
 | `sirba` / sârbă | ro | Commons / `LL-Q7913` | none |
 | `lautari` | ro | Commons / `LL-Q7913` | none |
 | `freygish` | yi | JEL `/search?q=freygish` (2026-09-06) | no entry |
+| `harmonic-minor`, `ukrainian-dorian` (English names) | — | not loanwords | no clip wanted; the loanword is `misheberakh` |
 | `sher` | yi | JEL hits *shiur* / *sherut* — **wrong words** | none for the dance |
 | `bulgar` | yi | JEL `/words/4538` (2026-09-06) | dance sense matches; **no recording** |
 | `klezmorim`, `yidishe-muzik` | yi | JEL no *klezmorim* headword (2026-09-06) | none |

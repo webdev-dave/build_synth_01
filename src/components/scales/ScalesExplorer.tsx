@@ -125,7 +125,7 @@ export function ScalesExplorer() {
                     <CardTitle className="text-base">
                       {scale.name}
                       <NativeSpelling
-                        id={scale.slug}
+                        id={scale.word ?? scale.slug}
                         className="ms-2 text-sm"
                       />
                     </CardTitle>
