@@ -17,6 +17,18 @@ This unifies three threads that already exist separately:
 Those docs stay the source for their own detail; this one owns the
 **catalog decisions, the lesson order, and the per-page checklist**.
 
+## Status log (read this first)
+
+Newest entry on top. Update in the same commit as the work.
+
+- **2026-09-11 · started.** Owner asked for the klezmer pages first and
+  stepped away. Agreed flow: build the **klezmer track** (Phase 0 → slice 2
+  → Phase 3) on one branch / one PR, stop, and wait for owner feedback on
+  the Freygish lesson's tone before Phases 4–7. Owner decision recorded:
+  harmonica cross-links target **harmonica v2 only** (`/harmonica-lab/v2`,
+  `src/components/harmonica/v2/`); the legacy `/harmonica-lab` page is not
+  touched. Open items for the owner live in **Phase 6**.
+
 ## Where things stand (2026-09-11)
 
 - **Live:** `/scales/blues-scale` only. Six-section beginner lesson,
@@ -182,9 +194,11 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
 
 - [ ] Registry rows for `mixolydian`, `phrygian` (`kind: "mode"`).
 - [ ] Add a `positions?: number[]` field on `ScaleLesson` and the reverse
-      link from `src/lib/harmonica/constants.ts` so `/harmonica-lab` can
-      deep-link to `/scales/<slug>` and the scale page can list the
-      position. Both sides in one change.
+      link from `src/lib/harmonica/constants.ts` so the **v2** harmonica lab
+      (`HarmonicaLabV2` / `PositionMatrixV2`) can deep-link to
+      `/scales/<slug>` and the scale page can list the position. Both sides
+      in one change. Legacy `/harmonica-lab` is out of scope (owner
+      decision, 2026-09-11).
 - [ ] `MixolydianLesson.tsx`: major → ♭7; Mixolydian vs blues (the
       2nd-position "full vs blues" toggle, on a piano).
 - [ ] `PhrygianLesson.tsx`: natural minor → ♭2; closing section raises the
@@ -231,6 +245,26 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
       ([synth-scale-type-selector.md](synth-scale-type-selector.md)
       Phase 4), every lesson gets a "Try it on the synth" link with
       `?scale=<root>-<typeId>` from the shared catalog.
+
+### Phase 6 — Needs owner input
+
+Decisions an agent must not make alone. Add to this list rather than
+guessing; strike through with the date when answered.
+
+- [ ] **Freygish lesson tone + structure sign-off** before Phases 4–7 are
+      written in the same voice: how much synagogue / Yiddish context, how
+      hard to lean on the augmented second, whether the standalone framing
+      (no Phrygian or major-scale page as prerequisite) reads well.
+- [x] ~~Harmonica cross-link surface~~ — **v2 only** (2026-09-11).
+- [ ] **Rast**: ship a piano-approximation page at all? If yes, how should
+      the quarter-tone caveat read?
+- [ ] **`dorian` timing**: move up to Phase 2 to serve harmonica 3rd
+      position, or leave in Phase 4?
+- [ ] **Stale `/lessons` scale slugs** (`scales`, `scale-degrees` in
+      `src/lib/lessons/registry.ts`): redirect to `/scales` now or later?
+- [ ] **Promotion to production** — always the owner's. A merged push
+      stages a Vercel build; nothing goes live without `vercel promote`
+      (see `.cursor/rules/deployment.mdc`).
 
 ## Per-page checklist (repeatable)
 
