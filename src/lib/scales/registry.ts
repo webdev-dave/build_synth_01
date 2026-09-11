@@ -16,6 +16,7 @@
  */
 
 import { getGenre } from "@/lib/genres/registry";
+import type { ScaleTypeId } from "@/lib/music/scaleCatalog";
 import { nativeSpellingsOf } from "@/lib/words/registry";
 import {
   filterByHaystack,
@@ -48,10 +49,11 @@ export interface ScaleLesson {
   /** Genre slugs where this scale is heard (cross-link targets). */
   usedIn: string[];
   /**
-   * Key into SCALE_PATTERNS / MODE_PATTERNS in src/lib/music/scales.ts, for
-   * when the interactive keyboard + synth deep-link get wired up.
+   * Catalog id in src/lib/music/scaleCatalog.ts. Lessons read their degrees
+   * from it and the synth's `?scale=` deep-link will target it, so a page and
+   * the instrument can never disagree about the notes.
    */
-  patternKey?: string;
+  patternKey?: ScaleTypeId;
   status: "live" | "soon";
   keywords: string[];
 }
@@ -114,7 +116,7 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "A",
     exampleNotes: "A – C – D – E – G",
     usedIn: ["blues", "rock"],
-    patternKey: "minorPentatonic",
+    patternKey: "pentatonicMinor",
     status: "soon",
     keywords: ["minor pentatonic scale", "pentatonic notes", "pentatonic solo scale"],
   },
@@ -133,6 +135,7 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "E",
     exampleNotes: "E – F – G♯ – A – B – C – D",
     usedIn: ["klezmer"],
+    patternKey: "phrygianDominant",
     status: "soon",
     keywords: [
       "what is the freygish scale",

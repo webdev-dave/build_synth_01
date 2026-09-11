@@ -45,6 +45,26 @@ export {
   type TimeSignature,
 } from "./timeSignatures";
 
+// Scale catalog — the single source of truth for scale/mode definitions
+export {
+  SCALE_CATALOG,
+  SCALE_GROUP_LABELS,
+  SCALE_TYPE_IDS,
+  scaleInfo,
+  degreesOf,
+  patternOf,
+  spellDegrees,
+  spellScale,
+  simpleName,
+  rootNameFor,
+  noteNameAt,
+  type ScaleTypeId,
+  type ScaleTypeInfo,
+  type ScaleDegree,
+  type ScaleGroup,
+  type ScaleParent,
+} from "./scaleCatalog";
+
 // Scale and mode utilities
 export {
   SCALE_PATTERNS,

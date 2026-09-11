@@ -7,6 +7,12 @@ interface RootNotePickerProps {
   /** Pitch class 0–11, C = 0. */
   value: number;
   onChange: (pitchClass: number) => void;
+  /**
+   * Label per pitch class. Defaults to flat names; a lesson passes the
+   * names its own scale would use so the picker agrees with the prose
+   * (G♯ for freygish, A♭ for Ukrainian Dorian, same key).
+   */
+  names?: readonly string[];
   className?: string;
 }
 
@@ -17,6 +23,7 @@ interface RootNotePickerProps {
 export function RootNotePicker({
   value,
   onChange,
+  names = FLAT_NOTE_NAMES,
   className,
 }: RootNotePickerProps) {
   return (
@@ -25,7 +32,7 @@ export function RootNotePicker({
       aria-label="Root note"
       className={cn("flex flex-wrap gap-1", className)}
     >
-      {FLAT_NOTE_NAMES.map((name, pc) => {
+      {names.map((name, pc) => {
         const selected = pc === value;
         return (
           <button

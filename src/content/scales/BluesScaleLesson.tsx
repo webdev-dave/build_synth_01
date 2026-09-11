@@ -69,7 +69,7 @@ function Mono({ children }: { children: ReactNode }) {
 
 export function BluesScaleLesson() {
   return (
-    <ScaleLessonProvider defaultRootPc={DEFAULT_ROOT_PC}>
+    <ScaleLessonProvider defaultRootPc={DEFAULT_ROOT_PC} degrees={BLUES_DEGREES}>
       <section className="mt-8" aria-label="Blues scale lesson">
         <P>
           This page is a lesson, not a poster. Read it top to bottom; every

@@ -25,7 +25,11 @@ import {
   createSynthKeysFromRange,
   type SynthKey,
 } from "@/instruments/synth/templates/basic-synth/utils/synthUtils";
-import { flatName } from "./notes";
+import {
+  noteNameAt,
+  rootNameFor,
+  type ScaleDegree,
+} from "@/lib/music/scaleCatalog";
 
 /** Two octaves: the shape reads 1 → octave → 1 again, and the run always
     plays in the lower one so it ends where the eye expects. */
@@ -67,8 +71,14 @@ export interface ScaleLessonState {
   /** Root pitch class, 0–11 (C = 0). */
   rootPc: number;
   setRootPc: (pc: number) => void;
-  /** Flat-spelled root name ("E♭"). */
+  /** The lesson's primary scale — decides how the root and notes are spelled. */
+  degrees: readonly ScaleDegree[];
+  /** Root name in this scale's spelling ("E♭" in blues; "G♯" in freygish). */
   rootName: string;
+  /** All twelve roots, each spelled the way this scale would spell it. */
+  rootNames: string[];
+  /** Name of the note `offset` semitones above the root, in this scale's spelling. */
+  noteName: (offset: number) => string;
   /** Scientific octave of the root ("A3" → 3). */
   octave: number;
   minOctave: number;
@@ -105,11 +115,18 @@ export function useScaleLesson(): ScaleLessonState {
 interface ScaleLessonProviderProps {
   /** Root pitch class to open on (A = 9 is the guitar-blues classroom key). */
   defaultRootPc: number;
+  /**
+   * The scale the page is about. Spelling follows it: a 7-note scale gets
+   * one letter per degree (so E freygish shows G♯, not A♭), a 5/6-note
+   * scale gets simple flat names.
+   */
+  degrees: readonly ScaleDegree[];
   children: ReactNode;
 }
 
 export function ScaleLessonProvider({
   defaultRootPc,
+  degrees,
   children,
 }: ScaleLessonProviderProps) {
   const [rootPc, setRootPc] = useState(defaultRootPc);
@@ -164,11 +181,23 @@ export function ScaleLessonProvider({
     return next;
   }, [activeKeys, highlight, keys]);
 
+  const rootNames = useMemo(
+    () => Array.from({ length: 12 }, (_, pc) => rootNameFor(pc, degrees)),
+    [degrees],
+  );
+  const noteName = useCallback(
+    (offset: number) => noteNameAt(rootPc, offset, degrees),
+    [rootPc, degrees],
+  );
+
   const value = useMemo<ScaleLessonState>(
     () => ({
       rootPc,
       setRootPc,
-      rootName: flatName(rootPc),
+      degrees,
+      rootName: rootNames[rootPc],
+      rootNames,
+      noteName,
       octave,
       minOctave: MIN_OCTAVE,
       maxOctave,
@@ -187,6 +216,9 @@ export function ScaleLessonProvider({
     }),
     [
       rootPc,
+      degrees,
+      rootNames,
+      noteName,
       octave,
       maxOctave,
       shiftOctave,

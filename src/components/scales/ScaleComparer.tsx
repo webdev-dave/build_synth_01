@@ -7,7 +7,7 @@ import { DegreeStrip } from "./DegreeStrip";
 import { LessonToolbar } from "./LessonToolbar";
 import { PlayPatternButton } from "./PlayPatternButton";
 import { useScaleLesson } from "./ScaleLessonProvider";
-import { flatName, type ScaleDegree } from "./notes";
+import { noteNameAt, type ScaleDegree } from "@/lib/music/scaleCatalog";
 import { cn } from "@/lib/utils";
 
 export interface ComparerSide {
@@ -106,7 +106,10 @@ export function ScaleComparer({
               <span key={d.offset}>
                 {i > 0 && " and "}
                 <span className="font-mono">{d.label}</span> (
-                <span className="font-mono">{flatName(rootPc + d.offset)}</span>)
+                <span className="font-mono">
+                  {noteNameAt(rootPc, d.offset, current.degrees)}
+                </span>
+                )
               </span>
             ))}{" "}
             that {other.name.toLowerCase()} doesn&apos;t. Flip the toggle and watch
