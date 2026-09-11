@@ -190,7 +190,7 @@ export const HISTORY_ARTICLES: HistoryArticle[] = [
     answer:
       "Klezmer is the celebration music of the Ashkenazi Jews of Eastern Europe, played above all for weddings by professional musicians called klezmorim. Carried to America in the great migration of 1881–1924 and captured on 78rpm records in New York, it was nearly silenced by assimilation and the Holocaust — then revived from the 1970s, when 'klezmer' first became the name of a genre.",
     genres: ["klezmer", "yiddish-theater", "yiddish-folk"],
-    scales: ["freygish"],
+    scales: ["freygish", "ukrainian-dorian", "harmonic-minor"],
     // Bibliography — public-domain / open-archive first. Order here sets the
     // footnote numbering rendered by the citation components.
     sources: [

@@ -1,27 +1,36 @@
 /**
  * Scale and mode definitions
+ *
+ * The patterns below are views onto SCALE_CATALOG (scaleCatalog.ts), which
+ * is the single source of truth. Keep adding scales there, not here.
  */
+
+import { patternOf } from "./scaleCatalog";
 
 /** Common scale patterns as semitone intervals from root */
 export const SCALE_PATTERNS = {
-  major: [0, 2, 4, 5, 7, 9, 11],
-  minor: [0, 2, 3, 5, 7, 8, 10],
-  harmonicMinor: [0, 2, 3, 5, 7, 8, 11],
-  melodicMinor: [0, 2, 3, 5, 7, 9, 11],
-  pentatonicMajor: [0, 2, 4, 7, 9],
-  pentatonicMinor: [0, 3, 5, 7, 10],
-  blues: [0, 3, 5, 6, 7, 10],
+  major: patternOf("major"),
+  minor: patternOf("minor"),
+  harmonicMinor: patternOf("harmonicMinor"),
+  melodicMinor: patternOf("melodicMinor"),
+  pentatonicMajor: patternOf("pentatonicMajor"),
+  pentatonicMinor: patternOf("pentatonicMinor"),
+  blues: patternOf("blues"),
+  majorBlues: patternOf("majorBlues"),
+  phrygianDominant: patternOf("phrygianDominant"),
+  ukrainianDorian: patternOf("ukrainianDorian"),
+  doubleHarmonic: patternOf("doubleHarmonic"),
 } as const;
 
 /** Mode patterns (all derived from major scale rotation) */
 export const MODE_PATTERNS = {
-  ionian: [0, 2, 4, 5, 7, 9, 11], // Same as major
-  dorian: [0, 2, 3, 5, 7, 9, 10],
-  phrygian: [0, 1, 3, 5, 7, 8, 10],
-  lydian: [0, 2, 4, 6, 7, 9, 11],
-  mixolydian: [0, 2, 4, 5, 7, 9, 10],
-  aeolian: [0, 2, 3, 5, 7, 8, 10], // Same as natural minor
-  locrian: [0, 1, 3, 5, 6, 8, 10],
+  ionian: patternOf("major"),
+  dorian: patternOf("dorian"),
+  phrygian: patternOf("phrygian"),
+  lydian: patternOf("lydian"),
+  mixolydian: patternOf("mixolydian"),
+  aeolian: patternOf("minor"),
+  locrian: patternOf("locrian"),
 } as const;
 
 /** Step patterns for modes (W = whole step, H = half step) */

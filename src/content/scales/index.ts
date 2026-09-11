@@ -10,9 +10,15 @@
 import type { ComponentType } from "react";
 
 import { BluesScaleLesson } from "./BluesScaleLesson";
+import { FreygishLesson } from "./FreygishLesson";
+import { HarmonicMinorLesson } from "./HarmonicMinorLesson";
+import { UkrainianDorianLesson } from "./UkrainianDorianLesson";
 
 const SCALE_CONTENT: Record<string, ComponentType> = {
   "blues-scale": BluesScaleLesson,
+  "harmonic-minor": HarmonicMinorLesson,
+  freygish: FreygishLesson,
+  "ukrainian-dorian": UkrainianDorianLesson,
 };
 
 export function getScaleContent(slug: string): ComponentType | undefined {

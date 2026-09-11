@@ -13,6 +13,8 @@ interface PlayPatternButtonProps {
   withOctave?: boolean;
   /** Play back down after reaching the top. */
   descend?: boolean;
+  /** Start the run this many semitones above the page root (a parent scale's home). */
+  rootOffset?: number;
   className?: string;
 }
 
@@ -26,13 +28,17 @@ export function PlayPatternButton({
   offsets,
   withOctave = true,
   descend = true,
+  rootOffset = 0,
   className,
 }: PlayPatternButtonProps) {
   const { rootMidi, audioContext, initializeAudio, scheduleNote, setHighlight } =
     useScaleLesson();
   const noteNumbers = useMemo(
-    () => [...offsets, ...(withOctave ? [12] : [])].map((o) => rootMidi + o),
-    [offsets, withOctave, rootMidi],
+    () =>
+      [...offsets, ...(withOctave ? [12] : [])].map(
+        (o) => rootMidi + rootOffset + o,
+      ),
+    [offsets, withOctave, rootMidi, rootOffset],
   );
 
   return (

@@ -32,11 +32,14 @@ export function LessonToolbar({
   children,
   className,
 }: LessonToolbarProps) {
-  const { rootPc, setRootPc, lockToScale, setLockToScale } = useScaleLesson();
+  const { rootPc, setRootPc, rootNames, lockToScale, setLockToScale } =
+    useScaleLesson();
 
   return (
     <div className={cn("space-y-3", className)}>
-      {root && <RootNotePicker value={rootPc} onChange={setRootPc} />}
+      {root && (
+        <RootNotePicker value={rootPc} onChange={setRootPc} names={rootNames} />
+      )}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {children}
         {octave && <OctaveStepper />}

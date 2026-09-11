@@ -58,7 +58,7 @@ export default async function ScalePage({ params }: ScalePageProps) {
   // it would wrap the page's own name ("the blues [scale]"), and the lesson
   // body defines it deliberately where a beginner needs it.
   const linkTerms = makeTermLinker({ skip: ["scale"] });
-  const word = getWord(scale.slug);
+  const word = getWord(scale.word ?? scale.slug);
 
   const faqJsonLd = {
     "@context": "https://schema.org",

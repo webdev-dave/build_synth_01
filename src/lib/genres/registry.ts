@@ -132,7 +132,7 @@ export const GENRES: Genre[] = [
     about:
       "Klezmer grew up around the Jewish wedding in the towns of Eastern Europe, absorbing the modes of synagogue prayer and the dance music of its Romanian, Ukrainian, and Ottoman neighbours. Carried to America in the great migration of 1881–1924, it was captured on 78rpm records in New York, nearly silenced by assimilation and the Holocaust, and revived from the 1970s into a global genre. What makes a tune sound like klezmer is a stack of layers — mode, ornament, groove, and form — which is exactly what this page will pull apart.",
     signatureLayers: ["scale", "rhythm", "form", "texture"],
-    scales: ["freygish"],
+    scales: ["freygish", "ukrainian-dorian", "harmonic-minor"],
     status: "soon",
     keywords: [
       "what is klezmer",

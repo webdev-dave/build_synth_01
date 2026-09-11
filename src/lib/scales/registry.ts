@@ -16,6 +16,7 @@
  */
 
 import { getGenre } from "@/lib/genres/registry";
+import type { ScaleTypeId } from "@/lib/music/scaleCatalog";
 import { nativeSpellingsOf } from "@/lib/words/registry";
 import {
   filterByHaystack,
@@ -48,10 +49,17 @@ export interface ScaleLesson {
   /** Genre slugs where this scale is heard (cross-link targets). */
   usedIn: string[];
   /**
-   * Key into SCALE_PATTERNS / MODE_PATTERNS in src/lib/music/scales.ts, for
-   * when the interactive keyboard + synth deep-link get wired up.
+   * Catalog id in src/lib/music/scaleCatalog.ts. Lessons read their degrees
+   * from it and the synth's `?scale=` deep-link will target it, so a page and
+   * the instrument can never disagree about the notes.
    */
-  patternKey?: string;
+  patternKey?: ScaleTypeId;
+  /**
+   * Loanword id in src/lib/words/registry.ts when it differs from the slug
+   * (the page is /scales/ukrainian-dorian; the word is `misheberakh`).
+   * Defaults to the slug.
+   */
+  word?: string;
   status: "live" | "soon";
   keywords: string[];
 }
@@ -114,9 +122,34 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "A",
     exampleNotes: "A – C – D – E – G",
     usedIn: ["blues", "rock"],
-    patternKey: "minorPentatonic",
+    patternKey: "pentatonicMinor",
     status: "soon",
     keywords: ["minor pentatonic scale", "pentatonic notes", "pentatonic solo scale"],
+  },
+  {
+    slug: "harmonic-minor",
+    name: "Harmonic minor",
+    kind: "scale",
+    question: "What is the harmonic minor scale?",
+    summary:
+      "Natural minor with its seventh raised — one changed note that gives the scale a pull toward home and the wide augmented-second step that klezmer, flamenco, and Middle Eastern music share.",
+    answer:
+      "The harmonic minor scale is the natural minor scale with one note changed: the seventh is raised a half step, so the scale runs 1, 2, ♭3, 4, 5, ♭6, 7. The raised seventh sits one key below the root and leans into it, and the gap it leaves between ♭6 and 7 — three half steps written as a single step — is the augmented second. Two of klezmer's modes, freygish and Ukrainian Dorian, use exactly these notes from a different home.",
+    history:
+      "Western classical harmony raised the minor scale's seventh so that the chord on the fifth would be major and pull toward the root — the 'harmonic' in the name is that chord. Melodies avoided the resulting augmented second, and the melodic minor smoothed it away. Music further east kept the leap: Eastern Ashkenazi prayer, klezmer, Romanian and Greek dance music, and flamenco all treat the augmented second as a colour rather than a problem.",
+    formula: "1 – 2 – ♭3 – 4 – 5 – ♭6 – 7",
+    exampleKey: "A",
+    exampleNotes: "A – B – C – D – E – F – G♯",
+    usedIn: ["klezmer"],
+    patternKey: "harmonicMinor",
+    status: "live",
+    keywords: [
+      "what is the harmonic minor scale",
+      "harmonic minor notes",
+      "harmonic minor vs natural minor",
+      "raised seventh minor scale",
+      "augmented second scale",
+    ],
   },
   {
     slug: "freygish",
@@ -133,13 +166,43 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "E",
     exampleNotes: "E – F – G♯ – A – B – C – D",
     usedIn: ["klezmer"],
-    status: "soon",
+    patternKey: "phrygianDominant",
+    status: "live",
     keywords: [
       "what is the freygish scale",
       "ahava rabbah mode",
       "phrygian dominant scale",
       "jewish scale klezmer",
+      "hijaz scale piano",
+      "middle eastern scale",
       "freygish notes",
+    ],
+  },
+  {
+    slug: "ukrainian-dorian",
+    name: "Ukrainian Dorian",
+    kind: "mode",
+    question: "What is the Ukrainian Dorian scale?",
+    summary:
+      "Dorian with a raised fourth — Mi Sheberakh to klezmer musicians: the mode of the doina, with the augmented second tucked between ♭3 and ♯4.",
+    answer:
+      "Ukrainian Dorian — known in klezmer as Mi Sheberakh, after the prayer — is a seven-note minor scale with a raised fourth: 1, 2, ♭3, ♯4, 5, 6, ♭7. It is the Dorian mode with one key moved up, and that move opens an augmented second between ♭3 and ♯4. Klezmer treats it as a mode in its own right, the home of the doina; it uses the same notes as freygish and harmonic minor, each started from a different degree.",
+    history:
+      "Cantorial tradition names the mode after the prayers sung in it — Mi Sheberakh ('He who blessed') and Av HaRachamim — and since the 1980s klezmer musicians have borrowed the first name for the dance and doina repertoire. The same scale runs through Ukrainian (as the Hutsul mode), Romanian, and Greek music, and lines up with the Turkish makam Nikriz. In the synagogue it tends to be a passing colour; in klezmer it is a stable home, as common as freygish in some dance collections.",
+    formula: "1 – 2 – ♭3 – ♯4 – 5 – 6 – ♭7",
+    exampleKey: "D",
+    exampleNotes: "D – E – F – G♯ – A – B – C",
+    usedIn: ["klezmer"],
+    patternKey: "ukrainianDorian",
+    word: "misheberakh",
+    status: "live",
+    keywords: [
+      "what is the ukrainian dorian scale",
+      "mi sheberakh mode",
+      "misheberakh scale klezmer",
+      "dorian sharp 4",
+      "romanian minor scale",
+      "doina mode",
     ],
   },
   {
@@ -187,7 +250,7 @@ function scaleHaystack(scale: ScaleLesson): string {
     scale.exampleNotes,
     ...scale.keywords,
     ...relatedNames(scale.usedIn, getGenre),
-    ...nativeSpellingsOf(scale.slug),
+    ...nativeSpellingsOf(scale.word ?? scale.slug),
   ]);
 }
 

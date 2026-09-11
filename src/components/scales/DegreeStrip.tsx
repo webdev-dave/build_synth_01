@@ -14,6 +14,8 @@ interface DegreeStripProps {
   degrees: ScaleDegree[];
   /** The one offset that gets the burnt-orange spotlight, if any. */
   spotlightOffset?: number;
+  /** Semitones above the page root where this strip's degree 1 sits. */
+  rootOffset?: number;
   className?: string;
 }
 
@@ -25,10 +27,19 @@ interface DegreeStripProps {
 export function DegreeStrip({
   degrees,
   spotlightOffset,
+  rootOffset = 0,
   className,
 }: DegreeStripProps) {
-  const { rootPc, rootMidi, audioContext, initializeAudio, scheduleNote, setHighlight } =
-    useScaleLesson();
+  const {
+    rootPc: pageRootPc,
+    rootMidi: pageRootMidi,
+    audioContext,
+    initializeAudio,
+    scheduleNote,
+    setHighlight,
+  } = useScaleLesson();
+  const rootPc = (pageRootPc + rootOffset) % 12;
+  const rootMidi = pageRootMidi + rootOffset;
   const [activeOffset, setActiveOffset] = useState<number | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 

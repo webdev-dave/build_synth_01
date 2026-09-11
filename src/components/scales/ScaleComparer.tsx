@@ -1,13 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { ScaleKeyboard } from "./ScaleKeyboard";
 import { DegreeStrip } from "./DegreeStrip";
 import { LessonToolbar } from "./LessonToolbar";
 import { PlayPatternButton } from "./PlayPatternButton";
 import { useScaleLesson } from "./ScaleLessonProvider";
-import { flatName, type ScaleDegree } from "./notes";
+import {
+  noteNameAt,
+  rootNameFor,
+  type ScaleDegree,
+} from "@/lib/music/scaleCatalog";
 import { cn } from "@/lib/utils";
 
 export interface ComparerSide {
@@ -17,6 +21,13 @@ export interface ComparerSide {
   degrees: ScaleDegree[];
   /** Offset to spotlight on this side (the note under discussion), if any. */
   spotlightOffset?: number;
+  /**
+   * This side's degree 1 sits `rootOffset` semitones above the page root.
+   * Use it to show a parent scale on its child's page: E freygish → A
+   * harmonic minor is `rootOffset: 5`. The keyboard lights the same keys;
+   * only the numbering and the starting note of the run move.
+   */
+  rootOffset?: number;
 }
 
 interface ScaleComparerProps {
@@ -27,11 +38,30 @@ interface ScaleComparerProps {
   className?: string;
 }
 
+const mod12 = (n: number) => ((n % 12) + 12) % 12;
+
+/** Semitone offsets of a side, measured from the *page* root. */
+function pageOffsets(side: ComparerSide): Set<number> {
+  const shift = side.rootOffset ?? 0;
+  return new Set(side.degrees.map((d) => mod12(d.offset + shift)));
+}
+
+/** The diatonic number a label refers to ("♭3" → 3). */
+function degreeNumber(label: string): number {
+  return parseInt(label.replace(/[^0-9]/g, ""), 10);
+}
+
 /**
  * A/B two patterns on one keyboard: same root, same octave, same audio —
- * the only thing that changes when you flip the toggle is which keys are in.
- * The keyboard is always locked here so the *added* note is audible as a key
- * that was silent a moment ago and now plays.
+ * the only thing that changes when you flip the toggle is which keys are in
+ * (or, for a re-homed parent scale, which key is called 1). The keyboard is
+ * always locked here so an *added* note is audible as a key that was silent
+ * a moment ago and now plays.
+ *
+ * The caption names exactly what the toggle did, in one of three shapes:
+ * one side has extra notes (blues vs pentatonic), one note is swapped for
+ * another on the same degree (Phrygian vs freygish: ♭3 → 3), or the two
+ * sides are the same keys with a different home (freygish vs harmonic minor).
  */
 export function ScaleComparer({
   a,
@@ -40,15 +70,117 @@ export function ScaleComparer({
   className,
 }: ScaleComparerProps) {
   const [side, setSide] = useState<"a" | "b">(defaultSide);
-  const { rootName, rootPc } = useScaleLesson();
+  const { rootPc } = useScaleLesson();
   const current = side === "a" ? a : b;
   const other = side === "a" ? b : a;
 
-  // The note(s) one side has and the other lacks — named so the caption can
-  // say exactly what the toggle just did.
+  const currentShift = current.rootOffset ?? 0;
+  const otherShift = other.rootOffset ?? 0;
+  const currentRootPc = mod12(rootPc + currentShift);
+  const otherRootPc = mod12(rootPc + otherShift);
+  const currentRootName = rootNameFor(currentRootPc, current.degrees);
+  const otherRootName = rootNameFor(otherRootPc, other.degrees);
+  const nameOf = (s: ComparerSide, d: ScaleDegree) =>
+    noteNameAt(mod12(rootPc + (s.rootOffset ?? 0)), d.offset, s.degrees);
+
+  const curKeys = pageOffsets(current);
+  const othKeys = pageOffsets(other);
   const added = current.degrees.filter(
-    (d) => !other.degrees.some((o) => o.offset === d.offset),
+    (d) => !othKeys.has(mod12(d.offset + currentShift)),
   );
+  const removed = other.degrees.filter(
+    (d) => !curKeys.has(mod12(d.offset + otherShift)),
+  );
+  const sameKeys = added.length === 0 && removed.length === 0;
+  const reHomed = sameKeys && currentShift !== otherShift;
+
+  // Pair each swapped-in note with the swapped-out note on the same degree
+  // number, so the caption can say "♭3 (G) became 3 (G♯)".
+  const swaps = added
+    .map((inDeg) => ({
+      inDeg,
+      outDeg: removed.find((o) => degreeNumber(o.label) === degreeNumber(inDeg.label)),
+    }))
+    .filter((s): s is { inDeg: ScaleDegree; outDeg: ScaleDegree } => Boolean(s.outDeg));
+  const isSwap = swaps.length > 0 && swaps.length === added.length && added.length === removed.length;
+
+  const Note = ({ s, d }: { s: ComparerSide; d: ScaleDegree }) => (
+    <>
+      <span className="font-mono">{d.label}</span> (
+      <span className="font-mono">{nameOf(s, d)}</span>)
+    </>
+  );
+
+  let caption: ReactNode;
+  if (reHomed) {
+    const homeDegree = other.degrees.find(
+      (d) => mod12(d.offset + otherShift) === mod12(currentShift),
+    );
+    caption = (
+      <>
+        <span className="font-medium text-foreground">
+          {currentRootName} {current.name.toLowerCase()}
+        </span>{" "}
+        uses exactly the same keys as {otherRootName} {other.name.toLowerCase()}.
+        Nothing turns on or off — only <span className="font-mono">1</span>{" "}
+        moves. Home is now <span className="font-mono">{currentRootName}</span>
+        {homeDegree && (
+          <>
+            , which was the{" "}
+            <span className="font-mono">{homeDegree.label}</span> of{" "}
+            {otherRootName} {other.name.toLowerCase()}
+          </>
+        )}
+        . Play both runs and hear how the same notes settle in a different place.
+      </>
+    );
+  } else if (isSwap) {
+    caption = (
+      <>
+        <span className="font-medium text-foreground">{current.name}</span>{" "}
+        keeps every other note but changes{" "}
+        {swaps.map(({ inDeg, outDeg }, i) => (
+          <span key={inDeg.offset}>
+            {i > 0 && " and "}
+            <Note s={other} d={outDeg} /> to <Note s={current} d={inDeg} />
+          </span>
+        ))}
+        . Flip the toggle and watch one key go dark while its neighbour lights
+        up.
+      </>
+    );
+  } else if (added.length > 0) {
+    caption = (
+      <>
+        <span className="font-medium text-foreground">{current.name}</span>{" "}
+        has{" "}
+        {added.map((d, i) => (
+          <span key={d.offset}>
+            {i > 0 && " and "}
+            <Note s={current} d={d} />
+          </span>
+        ))}{" "}
+        that {other.name.toLowerCase()} doesn&apos;t. Flip the toggle and watch
+        that key switch between a red dot (locked out) and a green number (in
+        the scale).
+      </>
+    );
+  } else {
+    caption = (
+      <>
+        <span className="font-medium text-foreground">{current.name}</span>{" "}
+        is {other.name.toLowerCase()} with{" "}
+        {removed.map((d, i) => (
+          <span key={d.offset}>
+            {i > 0 && " and "}
+            <Note s={other} d={d} />
+          </span>
+        ))}{" "}
+        removed — flip the toggle to see {removed.length === 1 ? "it" : "them"}{" "}
+        come back.
+      </>
+    );
+  }
 
   return (
     <div className={cn("space-y-3", className)}>
@@ -85,41 +217,26 @@ export function ScaleComparer({
 
       <LessonToolbar>
         <PlayPatternButton
-          label={`Play ${rootName} ${current.name.toLowerCase()}`}
+          label={`Play ${currentRootName} ${current.name.toLowerCase()}`}
           offsets={current.degrees.map((d) => d.offset)}
+          rootOffset={currentShift}
         />
       </LessonToolbar>
 
-      <ScaleKeyboard degrees={current.degrees} lockToScale />
+      <ScaleKeyboard
+        degrees={current.degrees}
+        lockToScale
+        rootOffset={currentShift}
+      />
 
       <DegreeStrip
         degrees={current.degrees}
         spotlightOffset={current.spotlightOffset}
+        rootOffset={currentShift}
       />
 
       <p className="text-xs leading-relaxed text-muted-foreground" aria-live="polite">
-        {added.length > 0 ? (
-          <>
-            <span className="font-medium text-foreground">{current.name}</span>{" "}
-            has{" "}
-            {added.map((d, i) => (
-              <span key={d.offset}>
-                {i > 0 && " and "}
-                <span className="font-mono">{d.label}</span> (
-                <span className="font-mono">{flatName(rootPc + d.offset)}</span>)
-              </span>
-            ))}{" "}
-            that {other.name.toLowerCase()} doesn&apos;t. Flip the toggle and watch
-            that key switch between a red dot (locked out) and a green number
-            (in the scale).
-          </>
-        ) : (
-          <>
-            <span className="font-medium text-foreground">{current.name}</span>{" "}
-            is {other.name.toLowerCase()} with a note removed — flip the toggle
-            to see which key comes back.
-          </>
-        )}
+        {caption}
       </p>
     </div>
   );

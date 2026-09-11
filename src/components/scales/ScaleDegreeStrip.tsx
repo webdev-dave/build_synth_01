@@ -1,6 +1,8 @@
 "use client";
 
-import { flatName, type ScaleDegree } from "./notes";
+import { useMemo } from "react";
+
+import { spellDegrees, type ScaleDegree } from "@/lib/music/scaleCatalog";
 import { cn } from "@/lib/utils";
 
 interface ScaleDegreeStripProps {
@@ -31,12 +33,19 @@ export function ScaleDegreeStrip({
   onPlay,
   className,
 }: ScaleDegreeStripProps) {
+  // Spelled as a set, not note by note: a 7-note scale gets one letter per
+  // degree, so the strip reads E F G♯ A B C D rather than E F A♭ A B C D.
+  const names = useMemo(
+    () => spellDegrees(rootPitchClass, degrees),
+    [rootPitchClass, degrees],
+  );
+
   return (
     <div className={cn("flex flex-wrap gap-1.5", className)}>
-      {degrees.map(({ offset, label }) => {
+      {degrees.map(({ offset, label }, i) => {
         const isSpotlight = offset === spotlightOffset;
         const isActive = offset === activeOffset;
-        const note = flatName(rootPitchClass + offset);
+        const note = names[i];
         return (
           <button
             key={offset}
