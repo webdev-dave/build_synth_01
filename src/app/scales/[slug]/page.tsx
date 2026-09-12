@@ -3,7 +3,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, Hammer } from "lucide-react";
 
-import { SCALES, getScale } from "@/lib/scales/registry";
+import { SCALES, aliasNames, getScale } from "@/lib/scales/registry";
+import { ScaleAliases } from "@/components/scales/ScaleAliases";
 import { getGenre } from "@/lib/genres/registry";
 import { getArticlesByScale } from "@/lib/history/registry";
 import { getCousinsByScale } from "@/lib/cousins/registry";
@@ -32,11 +33,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const scale = getScale(slug);
   if (!scale) return { title: "Scale" };
+  const alts = aliasNames(scale);
   return {
     title: scale.question,
-    description: scale.answer,
+    // The alternate names ride in the description too: that is the text a
+    // search engine or an LLM quotes, so "also called Bhairavi" must be in it.
+    description: alts.length
+      ? `${scale.answer} Also called ${alts.join(", ")}.`
+      : scale.answer,
     alternates: { canonical: `/scales/${scale.slug}` },
-    keywords: scale.keywords,
+    keywords: [...scale.keywords, ...alts],
     robots: scale.status === "soon" ? { index: false, follow: true } : undefined,
   };
 }
@@ -66,15 +72,35 @@ export default async function ScalePage({ params }: ScalePageProps) {
   const linkTerms = makeTermLinker({ skip: ["scale"] });
   const word = getWord(scale.word ?? scale.slug);
 
+  const alts = aliasNames(scale);
   const faqJsonLd = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
+    // The scale as a named thing with its other names, so structured-data
+    // consumers can match "Bhairavi thaat" to this page.
+    about: {
+      "@type": "Thing",
+      name: scale.name,
+      ...(alts.length ? { alternateName: alts } : {}),
+    },
     mainEntity: [
       {
         "@type": "Question",
         name: scale.question,
         acceptedAnswer: { "@type": "Answer", text: scale.answer },
       },
+      ...(alts.length
+        ? [
+            {
+              "@type": "Question",
+              name: `What else is the ${scale.name.toLowerCase()} called?`,
+              acceptedAnswer: {
+                "@type": "Answer",
+                text: `${scale.name} is also known as ${alts.join(", ")}.`,
+              },
+            },
+          ]
+        : []),
     ],
   };
 
@@ -96,7 +122,10 @@ export default async function ScalePage({ params }: ScalePageProps) {
             {soon && <Badge variant="secondary">Coming soon</Badge>}
           </div>
           {word && <WordBanner word={word} />}
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          {/* Other names sit under the title: a reader who arrived by one of
+              them should see it before reading a word of the answer. */}
+          <ScaleAliases aliases={scale.aliases} variant="header" className="mt-3" />
+          <p className="mt-5 text-base leading-relaxed text-foreground">
             {linkTerms(scale.answer)}
           </p>
           {scale.history && (

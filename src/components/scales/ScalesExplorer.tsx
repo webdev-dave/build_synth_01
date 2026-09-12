@@ -11,6 +11,7 @@ import {
 } from "@/lib/scales/registry";
 import { genreOptionsFrom } from "@/lib/search/options";
 import { NativeSpelling } from "@/components/words/NativeSpelling";
+import { ScaleAliases } from "@/components/scales/ScaleAliases";
 import { Badge } from "@/components/ui/badge";
 import {
   Card,
@@ -61,7 +62,7 @@ export function ScalesExplorer() {
       }
       query={query}
       onQueryChange={setQuery}
-      placeholder="Search a scale, formula, or genre…"
+      placeholder="Search a scale, another name for it, a formula, or a genre…"
       searchLabel="Search scales"
       controlsId="scales-grid"
       groups={[
@@ -138,6 +139,7 @@ export function ScalesExplorer() {
                   <span className="mt-1 font-mono text-xs text-muted-foreground">
                     {scale.formula}
                   </span>
+                  <ScaleAliases aliases={scale.aliases} />
                   <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
                     {soon ? "Preview" : "Explore"}
                     <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

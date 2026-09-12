@@ -6,13 +6,16 @@ import { ScalesExplorer } from "@/components/scales/ScalesExplorer";
 export const metadata: Metadata = {
   title: "Scales & Modes — Built, Heard, and Played",
   description:
-    "A deep dive into how scales and modes are built — the blues scale, the major scale, pentatonics, and the modes. See the formula, hear the sound, play each one.",
+    "A deep dive into how scales and modes are built — the blues scale, the major scale, pentatonics, the modes, and maqam Rast — with the names each goes by in other traditions (Hindustani thaats, Arabic maqamat, Jewish prayer modes). See the formula, hear the sound, play each one.",
   alternates: { canonical: "/scales" },
   keywords: [
     "music scales explained",
     "scales and modes",
     "what is the blues scale",
     "scale formulas",
+    "scale names in other traditions",
+    "maqam to western scale",
+    "thaat to western scale",
   ],
 };
 

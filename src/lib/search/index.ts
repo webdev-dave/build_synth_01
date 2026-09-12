@@ -20,7 +20,7 @@ import {
 } from "@/lib/catalog/songs";
 import { ARTISTS } from "@/lib/catalog/artists";
 import { GENRES } from "@/lib/genres/registry";
-import { SCALES } from "@/lib/scales/registry";
+import { SCALES, aliasNames, aliasSearchTerms } from "@/lib/scales/registry";
 import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
@@ -238,9 +238,14 @@ function buildIndex(): SearchEntry[] {
           scale.formula,
           scale.exampleNotes,
           ...scale.keywords,
-          ...nativeSpellingsOf(scale.slug),
+          ...aliasSearchTerms(scale),
+          ...nativeSpellingsOf(scale.word ?? scale.slug),
         ],
         scale.status !== "live",
+        // "Bhairavi", "Kurd", "Ahava Rabbah" rank like the page title, so
+        // a reader who knows the scale by another tradition's name lands
+        // on it as directly as one who typed "Phrygian".
+        aliasNames(scale),
       ),
     );
   }

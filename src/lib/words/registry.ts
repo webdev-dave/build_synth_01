@@ -394,6 +394,53 @@ export const WORDS: SpokenWord[] = [
     },
     audio: JEL("khosidl.mp3", "4540"),
   },
+
+  /* --------------------------------------------------------------------
+   * Scale and mode names across traditions (src/lib/scales/registry.ts
+   * `aliases`). Standard orthographies: Devanagari for Hindustani thaats
+   * and ragas, Arabic for maqamat, unpointed Hebrew for prayer modes,
+   * Turkish diacritics for makams, Chinese for the pentatonic modes.
+   * No recordings — spelling only. Carnatic melakarta names are left
+   * Latin-only in the scale registry until a script we can stand behind
+   * is attested (deliberate; see the scales plan).
+   * ------------------------------------------------------------------ */
+  // Hindustani thaats — Bhatkhande's ten; Devanagari as in the standard
+  // theory texts and Wikipedia's raga articles.
+  { id: "bilaval", latin: "Bilaval", alsoSpelled: ["Bilawal"], aliases: ["Bilawal thaat", "Bilaval thaat"], native: { spelling: "बिलावल", language: "Hindi", lang: "hi" } },
+  { id: "asavari", latin: "Asavari", alsoSpelled: ["Asawari"], aliases: ["Asavari thaat"], native: { spelling: "आसावरी", language: "Hindi", lang: "hi" } },
+  { id: "kafi", latin: "Kafi", aliases: ["Kafi thaat"], native: { spelling: "काफ़ी", language: "Hindi", lang: "hi" } },
+  { id: "bhairavi", latin: "Bhairavi", aliases: ["Bhairavi thaat"], native: { spelling: "भैरवी", language: "Hindi", lang: "hi" } },
+  { id: "kalyan", latin: "Kalyan", alsoSpelled: ["Kalyaan"], aliases: ["Kalyan thaat", "Yaman"], native: { spelling: "कल्याण", language: "Hindi", lang: "hi" } },
+  { id: "khamaj", latin: "Khamaj", aliases: ["Khamaj thaat"], native: { spelling: "खमाज", language: "Hindi", lang: "hi" } },
+  { id: "bhairav", latin: "Bhairav", aliases: ["Bhairav thaat"], native: { spelling: "भैरव", language: "Hindi", lang: "hi" } },
+  // Hindustani ragas whose note set matches a page.
+  { id: "bhupali", latin: "Bhupali", alsoSpelled: ["Bhoopali", "Bhoop"], aliases: ["Bhoopali", "Bhoop", "Bhup"], native: { spelling: "भूपाली", language: "Hindi", lang: "hi" } },
+  { id: "dhani", latin: "Dhani", native: { spelling: "धानी", language: "Hindi", lang: "hi" } },
+  { id: "patdeep", latin: "Patdeep", alsoSpelled: ["Patdip"], native: { spelling: "पटदीप", language: "Hindi", lang: "hi" } },
+  { id: "kirwani", latin: "Kirwani", alsoSpelled: ["Keeravani", "Kiravani"], aliases: ["Keeravani", "Kiravani"], native: { spelling: "कीरवाणी", language: "Hindi", lang: "hi" } },
+  // Arabic maqamat.
+  { id: "ajam", latin: "Ajam", alsoSpelled: ["ʿAjam"], aliases: ["maqam ajam", "ʿAjam"], native: { spelling: "عجم", language: "Arabic", lang: "ar" } },
+  { id: "nahawand", latin: "Nahawand", alsoSpelled: ["Nahwand"], aliases: ["maqam nahawand", "Nahwand"], native: { spelling: "نهاوند", language: "Arabic", lang: "ar" } },
+  { id: "kurd", latin: "Kurd", aliases: ["maqam kurd"], native: { spelling: "كرد", language: "Arabic", lang: "ar" } },
+  { id: "hijaz", latin: "Hijaz", alsoSpelled: ["Hejaz"], aliases: ["maqam hijaz", "Hejaz"], native: { spelling: "حجاز", language: "Arabic", lang: "ar" } },
+  { id: "hijaz-kar", latin: "Hijaz Kar", alsoSpelled: ["Hijazkar"], aliases: ["Hijazkar", "maqam hijaz kar"], native: { spelling: "حجاز كار", language: "Arabic", lang: "ar" } },
+  { id: "nikriz", latin: "Nikriz", aliases: ["maqam nikriz"], native: { spelling: "نكريز", language: "Arabic", lang: "ar" } },
+  { id: "rast", latin: "Rast", aliases: ["maqam rast", "Maqam Rast"], native: { spelling: "راست", language: "Arabic", lang: "ar" } },
+  // Jewish prayer modes not already registered above.
+  { id: "adonai-malakh", latin: "Adonai Malakh", alsoSpelled: ["Adonoi Malach"], aliases: ["Adonoi Malach", "Adonai Malach"], native: { spelling: "אדני מלך", language: "Hebrew", lang: "he-IL" } },
+  { id: "magen-avot", latin: "Magen Avot", alsoSpelled: ["Mogen Ovos"], aliases: ["Mogen Ovos", "Magein Avot"], native: { spelling: "מגן אבות", language: "Hebrew", lang: "he-IL" } },
+  // Turkish makams — Turkish orthography is Latin with diacritics, so the
+  // native form is the diacritic spelling.
+  { id: "hicaz", latin: "Hicaz", aliases: ["Hicaz makamı"], native: { spelling: "Hicaz", language: "Turkish", lang: "tr" } },
+  { id: "hicazkar", latin: "Hicazkâr", alsoSpelled: ["Hicazkar"], aliases: ["Hicazkar"], native: { spelling: "Hicazkâr", language: "Turkish", lang: "tr" } },
+  { id: "kurdi", latin: "Kürdî", alsoSpelled: ["Kurdi"], aliases: ["Kurdi", "Kürdi"], native: { spelling: "Kürdî", language: "Turkish", lang: "tr" } },
+  { id: "nikriz-tr", latin: "Nikrîz", native: { spelling: "Nikrîz", language: "Turkish", lang: "tr" } },
+  { id: "rast-tr", latin: "Rast makamı", aliases: ["Turkish Rast"], native: { spelling: "Rast makamı", language: "Turkish", lang: "tr" } },
+  { id: "buselik", latin: "Buselik", alsoSpelled: ["Bûselik"], native: { spelling: "Bûselik", language: "Turkish", lang: "tr" } },
+  // Chinese pentatonic modes (宫 gōng, 羽 yǔ) and the Japanese min'yō scale.
+  { id: "gong-mode", latin: "Gong mode", alsoSpelled: ["gōng"], aliases: ["gong", "gōng", "gong scale"], native: { spelling: "宫", language: "Chinese", lang: "zh-Hans" } },
+  { id: "yu-mode", latin: "Yu mode", alsoSpelled: ["yǔ"], aliases: ["yu", "yǔ", "yu scale"], native: { spelling: "羽", language: "Chinese", lang: "zh-Hans" } },
+  { id: "minyo", latin: "Min'yō scale", alsoSpelled: ["minyo"], aliases: ["minyo", "min'yo scale", "minyo scale"], native: { spelling: "民謡音階", language: "Japanese", lang: "ja" } },
 ];
 
 /** Words that have a real human recording get a speaker button. */

@@ -27,12 +27,36 @@ import {
 
 export type ScaleKind = "scale" | "mode";
 
+/**
+ * A name the same note set goes by somewhere else — Western theory, a
+ * Hindustani thaat, an Arabic maqam, a Jewish prayer mode. Listed so a
+ * reader who knows the scale as "Bhairavi" or "Kurd" finds the Phrygian
+ * page: shown on the hub tile and page header, ranked like the title in
+ * search, and mirrored into meta keywords / JSON-LD `alternateName`.
+ *
+ * Native scripts come from src/lib/words/registry.ts, looked up by phrase.
+ * `approx` marks a match that is one of shape only — the tradition tunes or
+ * ornaments it differently (maqam thirds, ragas with characteristic
+ * phrases) — and renders as "≈".
+ */
+export interface ScaleAlias {
+  name: string;
+  /** Where the name is used ("Hindustani thaat", "Arabic maqam"). */
+  tradition?: string;
+  approx?: boolean;
+}
+
+const alias = (name: string, tradition?: string, approx = false): ScaleAlias =>
+  approx ? { name, tradition, approx } : tradition ? { name, tradition } : { name };
+
 export interface ScaleLesson {
   /** URL slug under /scales ("blues-scale", "dorian"). */
   slug: string;
   /** Display name ("Blues scale"). */
   name: string;
   kind: ScaleKind;
+  /** Other names for the same notes, across traditions. Empty when there are none worth knowing. */
+  aliases: ScaleAlias[];
   /** Search-shaped question used as the page <h1> and title. */
   question: string;
   /** One-liner for the hub card. */
@@ -75,6 +99,11 @@ export const SCALES: ScaleLesson[] = [
     slug: "blues-scale",
     name: "Blues scale",
     kind: "scale",
+    aliases: [
+      alias("Minor blues scale"),
+      alias("Hexatonic blues scale"),
+      alias("Blue note scale"),
+    ],
     question: "What is the blues scale?",
     summary:
       "Six notes behind most blues, rock, and jazz solos: the five-note minor pentatonic plus one extra key, the flattened fifth 'blue note.'",
@@ -100,6 +129,13 @@ export const SCALES: ScaleLesson[] = [
     slug: "major-scale",
     name: "Major scale",
     kind: "scale",
+    aliases: [
+      alias("Ionian mode", "Western mode"),
+      alias("Do-re-mi scale"),
+      alias("Bilaval", "Hindustani thaat"),
+      alias("Shankarabharanam", "Carnatic melakarta"),
+      alias("Ajam", "Arabic maqam", true),
+    ],
     question: "What is the major scale?",
     summary:
       "The seven-note baseline every other scale is measured against: W–W–H–W–W–W–H.",
@@ -127,6 +163,12 @@ export const SCALES: ScaleLesson[] = [
     slug: "minor-pentatonic",
     name: "Minor pentatonic",
     kind: "scale",
+    aliases: [
+      alias("Yu mode", "Chinese pentatonic"),
+      alias("Min'yō scale", "Japanese folk"),
+      alias("Dhani", "Hindustani raga", true),
+      alias("Shuddha Dhanyasi", "Carnatic raga", true),
+    ],
     question: "What is the minor pentatonic scale?",
     summary:
       "Five notes, none of them neighbours — the safest scale to solo with, and the blues scale minus its blue note.",
@@ -152,6 +194,12 @@ export const SCALES: ScaleLesson[] = [
     slug: "harmonic-minor",
     name: "Harmonic minor",
     kind: "scale",
+    aliases: [
+      alias("Aeolian ♯7", "Western mode"),
+      alias("Mohammedan scale", "older Western name"),
+      alias("Kirwani", "Hindustani / Carnatic raga"),
+      alias("Nahawand", "Arabic maqam", true),
+    ],
     question: "What is the harmonic minor scale?",
     summary:
       "Natural minor with its seventh raised — one changed note that gives the scale a pull toward home and the wide augmented-second step that klezmer, flamenco, and Middle Eastern music share.",
@@ -177,6 +225,15 @@ export const SCALES: ScaleLesson[] = [
     slug: "freygish",
     name: "Freygish",
     kind: "mode",
+    aliases: [
+      alias("Phrygian dominant", "Western mode"),
+      alias("Ahava Rabbah", "Jewish prayer mode"),
+      alias("Spanish Phrygian"),
+      alias("Spanish Gypsy scale", "older Western name"),
+      alias("Hijaz", "Arabic maqam", true),
+      alias("Hicaz", "Turkish makam", true),
+      alias("Vakulabharanam", "Carnatic melakarta"),
+    ],
     question: "What is the freygish scale?",
     summary:
       "Flattened second, major third, and the augmented-second leap between them — the signature mode of klezmer, also known as Ahava Rabbah or Phrygian dominant.",
@@ -204,6 +261,14 @@ export const SCALES: ScaleLesson[] = [
     slug: "ukrainian-dorian",
     name: "Ukrainian Dorian",
     kind: "mode",
+    aliases: [
+      alias("Mi Sheberakh", "Jewish prayer mode"),
+      alias("Romanian minor"),
+      alias("Dorian ♯4", "Western mode"),
+      alias("Ukrainian minor"),
+      alias("Nikriz", "Arabic maqam", true),
+      alias("Nikrîz", "Turkish makam", true),
+    ],
     question: "What is the Ukrainian Dorian scale?",
     summary:
       "Dorian with a raised fourth — Mi Sheberakh to klezmer musicians: the mode of the doina, with the augmented second tucked between ♭3 and ♯4.",
@@ -231,6 +296,10 @@ export const SCALES: ScaleLesson[] = [
     slug: "dorian",
     name: "Dorian mode",
     kind: "mode",
+    aliases: [
+      alias("Kafi", "Hindustani thaat"),
+      alias("Kharaharapriya", "Carnatic melakarta"),
+    ],
     question: "What is the Dorian mode?",
     summary:
       "The major scale started from its second degree — minor, but with a bright raised sixth.",
@@ -255,6 +324,15 @@ export const SCALES: ScaleLesson[] = [
     slug: "natural-minor",
     name: "Natural minor",
     kind: "scale",
+    aliases: [
+      alias("Aeolian mode", "Western mode"),
+      alias("Relative minor"),
+      alias("Asavari", "Hindustani thaat"),
+      alias("Natabhairavi", "Carnatic melakarta"),
+      alias("Nahawand", "Arabic maqam", true),
+      alias("Buselik", "Turkish makam", true),
+      alias("Magen Avot", "Jewish prayer mode", true),
+    ],
     question: "What is the natural minor scale?",
     summary:
       "The major scale's darker twin: same seven keys as its relative major, or the major scale with the third, sixth, and seventh each lowered a key.",
@@ -278,6 +356,11 @@ export const SCALES: ScaleLesson[] = [
     slug: "major-pentatonic",
     name: "Major pentatonic",
     kind: "scale",
+    aliases: [
+      alias("Gong mode", "Chinese pentatonic"),
+      alias("Bhupali", "Hindustani raga", true),
+      alias("Mohanam", "Carnatic raga", true),
+    ],
     question: "What is the major pentatonic scale?",
     summary:
       "Five bright notes with no half steps: the major scale minus its fourth and seventh, and the same keys as the minor pentatonic three keys down.",
@@ -299,6 +382,12 @@ export const SCALES: ScaleLesson[] = [
     slug: "mixolydian",
     name: "Mixolydian mode",
     kind: "mode",
+    aliases: [
+      alias("Dominant scale"),
+      alias("Khamaj", "Hindustani thaat"),
+      alias("Harikambhoji", "Carnatic melakarta"),
+      alias("Adonai Malakh", "Jewish prayer mode", true),
+    ],
     question: "What is the Mixolydian mode?",
     summary:
       "The major scale with a lowered seventh — the bright, unresolved sound of harmonica second position, rock riffs, and dominant chords.",
@@ -324,6 +413,12 @@ export const SCALES: ScaleLesson[] = [
     slug: "phrygian",
     name: "Phrygian mode",
     kind: "mode",
+    aliases: [
+      alias("Bhairavi", "Hindustani thaat"),
+      alias("Hanumatodi", "Carnatic melakarta"),
+      alias("Kurd", "Arabic maqam"),
+      alias("Kürdî", "Turkish makam"),
+    ],
     question: "What is the Phrygian mode?",
     summary:
       "Natural minor with a lowered second — the note one key above home that leans back onto it. Dark, tense, and one raised third away from freygish.",
@@ -349,6 +444,11 @@ export const SCALES: ScaleLesson[] = [
     slug: "lydian",
     name: "Lydian mode",
     kind: "mode",
+    aliases: [
+      alias("Kalyan", "Hindustani thaat"),
+      alias("Yaman", "Hindustani raga", true),
+      alias("Mechakalyani", "Carnatic melakarta"),
+    ],
     question: "What is the Lydian mode?",
     summary:
       "The major scale with a raised fourth — brighter than bright, floating rather than settled. The fourth mode of the major scale.",
@@ -366,6 +466,7 @@ export const SCALES: ScaleLesson[] = [
     slug: "locrian",
     name: "Locrian mode",
     kind: "mode",
+    aliases: [alias("Half-diminished scale")],
     question: "What is the Locrian mode?",
     summary:
       "The darkest mode of the major scale: Phrygian with the fifth lowered too, so even the home chord is unstable.",
@@ -383,6 +484,12 @@ export const SCALES: ScaleLesson[] = [
     slug: "melodic-minor",
     name: "Melodic minor",
     kind: "scale",
+    aliases: [
+      alias("Jazz minor scale"),
+      alias("Ascending melodic minor"),
+      alias("Gourimanohari", "Carnatic melakarta"),
+      alias("Patdeep", "Hindustani raga", true),
+    ],
     question: "What is the melodic minor scale?",
     summary:
       "Harmonic minor with the sixth raised as well — a minor scale below, a major scale above, and no augmented second. The jazz minor.",
@@ -405,6 +512,16 @@ export const SCALES: ScaleLesson[] = [
     slug: "double-harmonic",
     name: "Double harmonic",
     kind: "scale",
+    aliases: [
+      alias("Double harmonic major"),
+      alias("Byzantine scale"),
+      alias("Arabic scale", "Western label"),
+      alias("Gypsy major", "older Western name"),
+      alias("Hijaz Kar", "Arabic maqam", true),
+      alias("Hicazkâr", "Turkish makam", true),
+      alias("Bhairav", "Hindustani thaat"),
+      alias("Mayamalavagowla", "Carnatic melakarta"),
+    ],
     question: "What is the double harmonic scale?",
     summary:
       "Freygish with its seventh raised too, so it carries two augmented seconds — the scale often sold as 'the Arabic scale,' also called Hijaz Kar or Byzantine.",
@@ -428,6 +545,7 @@ export const SCALES: ScaleLesson[] = [
     slug: "major-blues",
     name: "Major blues",
     kind: "scale",
+    aliases: [alias("Major blues scale"), alias("Blues major")],
     question: "What is the major blues scale?",
     summary:
       "The major pentatonic plus one blue note, the ♭3 — the sunny twin of the usual blues scale, behind country, gospel, and swing licks.",
@@ -450,6 +568,10 @@ export const SCALES: ScaleLesson[] = [
     slug: "rast",
     name: "Rast",
     kind: "scale",
+    aliases: [
+      alias("Maqam Rast", "Arabic maqam"),
+      alias("Rast makamı", "Turkish makam", true),
+    ],
     question: "What is maqam Rast?",
     summary:
       "The foundational Arabic maqam: a major-scale shape whose third and seventh sit a quarter tone flat — playable on a piano only if two of its keys are bent.",
@@ -484,6 +606,25 @@ export interface ScaleFilters {
   status?: "live" | "soon";
 }
 
+/**
+ * Every string a searcher might type for this scale's other names: the
+ * alias itself, its tradition, and any native-script / alternate Latin
+ * spellings the words registry knows ("Bhairavi" → भैरवी; "Hijaz Kar" →
+ * "Hijazkar", حجاز كار).
+ */
+export function aliasSearchTerms(scale: ScaleLesson): string[] {
+  return scale.aliases.flatMap((a) => [
+    a.name,
+    ...(a.tradition ? [a.tradition] : []),
+    ...nativeSpellingsOf(a.name),
+  ]);
+}
+
+/** Just the alias names, for title-ranked search and meta keywords. */
+export function aliasNames(scale: ScaleLesson): string[] {
+  return scale.aliases.map((a) => a.name);
+}
+
 function scaleHaystack(scale: ScaleLesson): string {
   return joinHaystack([
     scale.name,
@@ -496,6 +637,7 @@ function scaleHaystack(scale: ScaleLesson): string {
     scale.formula,
     scale.exampleNotes,
     ...scale.keywords,
+    ...aliasSearchTerms(scale),
     ...relatedNames(scale.usedIn, getGenre),
     ...nativeSpellingsOf(scale.word ?? scale.slug),
   ]);
