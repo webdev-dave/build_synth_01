@@ -46,18 +46,22 @@ export function LessonsExplorer() {
         {matches.map((lesson) => (
           <Link
             key={lesson.slug}
-            href={`/lessons/${lesson.slug}`}
+            href={lesson.movedTo ?? `/lessons/${lesson.slug}`}
             className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
           >
             <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
               <CardHeader>
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-base">{lesson.title}</CardTitle>
-                  <Badge variant="secondary">Soon</Badge>
+                  {lesson.movedTo ? (
+                    <Badge variant="outline">In Scales</Badge>
+                  ) : (
+                    <Badge variant="secondary">Soon</Badge>
+                  )}
                 </div>
                 <CardDescription>{lesson.summary}</CardDescription>
                 <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                  Preview
+                  {lesson.movedTo ? "Open" : "Preview"}
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
                 </span>
               </CardHeader>

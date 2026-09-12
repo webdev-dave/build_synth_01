@@ -21,6 +21,16 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-12 · Phase 5 + 6 · catalog complete.** `/scales/double-harmonic`,
+  `/scales/major-blues`, `/scales/rast` live — **all 17 catalog pages now
+  have lessons**; nothing is stubbed "soon". Rast is the first page on the
+  quarter-tone strip and `ScaleComparer` has a "same keys, bent pitch"
+  mode for it. The two stale `/lessons` scale slugs redirect into the
+  Scales module. Only open item: the **synth deep link**, blocked on the
+  Synth v2 type selector (separate plan). Verified: `tsc`, lint,
+  catalog + alias scripts, curl of all three pages and both redirects
+  (308), production `next build`. Pushed to `main` and promoted at the
+  owner's request ("deploy to live app").
 - **2026-09-12 · Phase 4 live.** `/scales/natural-minor`,
   `/scales/major-pentatonic`, `/scales/dorian`, `/scales/lydian`,
   `/scales/locrian`, `/scales/melodic-minor` — 14 of 17 catalog pages now
@@ -347,9 +357,17 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
 
 ### Phase 5 — follow-ons
 
-- [ ] `double-harmonic`: Freygish → raised 7th; two augmented seconds.
-- [ ] `major-blues`: major pent → ♭3; comparer against the live blues page's
-      minor blues as the symmetric twin.
+- [x] `double-harmonic` (E, key-for-key from freygish): comparer freygish →
+      double harmonic (swap, the 7th); the two augmented seconds played as
+      a pair; the palindrome (1–3–1–2–1–3–1); an "About the name" section
+      that files the Western nicknames against Hijaz Kar / Hicazkâr /
+      Bhairav, with the Maqam World note that the Hijaz leap is "usually
+      played smaller than notated". Sources: Marcus 1993, Maqam World jins
+      Hijaz. Reverse link: `augmented-second` concept (2026-09-12).
+- [x] `major-blues` (C): comparer major pentatonic → major blues (added
+      ♭3), slide / lick buttons, comparer re-homed to A minor blues — the
+      blues page's own keys. `usedIn: ["blues"]` ↔ blues genre `scales`;
+      `blue-notes` concept lists it (2026-09-12).
 - [x] **Detune layer** (built 2026-09-11, own commit before `rast`):
       `src/lib/music/detune.ts` — `DetuneMap` (12 cents, C = 0), presets
       (Rast C/G, Bayati D/G; Sikah/Saba share switches so aren't repeated),
@@ -368,10 +386,21 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
       with −50 on 3 and 7. `ScaleLessonProvider` presses the switches for a
       quarter-tone scale and follows the root. Piano roll / concept demos
       pass no `detune` and are unchanged.
-- [ ] `rast`: on the detune layer. Comparer mode "same keys, bent pitch"
-      (C major → Rast: two cells lit). One-sentence intonation caveat.
-      Sources: Marcus 1993, Abu Shumays (Ableton maqam guide), Yamaha /
-      Korg Oriental manuals for the panel itself.
+- [x] `rast` (C) on the detune layer (2026-09-12). Opens with the E and B
+      switches pressed (provider does that for any scale with `cents`).
+      `ScaleComparer` grew the **"same keys, bent pitch"** mode: when a side
+      has quarter tones, selecting it presses `detuneMapFor(root, degrees)`
+      on the page-wide strip and selecting the other side releases to
+      `NO_DETUNE` — so flipping Major ↔ Rast visibly toggles the switches
+      on the main keyboard; caption names the bent degrees ("½♭3 (E½♭), a
+      quarter tone below the piano's E"). Pages with no quarter-tone side
+      never touch the strip. Only one comparer per page may carry a
+      quarter-tone side (they would fight over the strip) — the Mixolydian
+      stand-in is prose + two run buttons instead. One-sentence caveat in
+      section 5 (−50 ¢ is a setting; ~345–355 ¢ by region; Turkish Rast
+      nearer a major third). Section 6: jins Rast + Nahawand on the 5th
+      (the ♭7 descent), locked to the ascending form. Sources: Maqam World
+      Rast, Abu Shumays "Maqam Analysis: A Primer", Marcus 1993.
 - [ ] Synth deep link: once Synth v2 has the type selector
       ([synth-scale-type-selector.md](synth-scale-type-selector.md)
       Phase 4), every lesson gets a "Try it on the synth" link with
@@ -398,11 +427,18 @@ guessing; strike through with the date when answered.
       Shumays). Panel lives on **`KeyboardV2` everywhere**, collapsed, off
       by default. Catalog grows an optional per-degree `cents` field.
 - [x] ~~**`dorian` timing**~~ — moot; shipped in Phase 4 (2026-09-12).
-- [ ] **Stale `/lessons` scale slugs** (`scales`, `scale-degrees` in
-      `src/lib/lessons/registry.ts`): redirect to `/scales` now or later?
-- [ ] **Promotion to production** — always the owner's. A merged push
-      stages a Vercel build; nothing goes live without `vercel promote`
-      (see `.cursor/rules/deployment.mdc`).
+- [x] ~~**Stale `/lessons` scale slugs**~~ — **redirected** (2026-09-12).
+      `Lesson.movedTo`: `scales` → `/scales/major-scale`, `scale-degrees`
+      → `/scales/major-scale#degrees`. `/lessons/[slug]` calls
+      `permanentRedirect` (static export renders it as a meta-refresh
+      page); the `/lessons` hub card and global search link straight to the
+      target with an "In Scales" badge instead of "Soon". Synth v2 learning
+      panel links (`lessonSlug`) keep working through the redirect.
+- [x] ~~**Promotion to production**~~ — owner asked for the Phase 4–6 work
+      to go live (2026-09-12, "deploy to live app"). Still: a push only
+      stages; promotion is a separate, deliberate `vercel promote`
+      (see `.cursor/rules/deployment.mdc`). Future changes need a fresh
+      go-ahead.
 
 ## Per-page checklist (repeatable)
 

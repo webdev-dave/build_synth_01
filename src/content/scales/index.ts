@@ -10,11 +10,13 @@
 import type { ComponentType } from "react";
 
 import { BluesScaleLesson } from "./BluesScaleLesson";
+import { DoubleHarmonicLesson } from "./DoubleHarmonicLesson";
 import { DorianLesson } from "./DorianLesson";
 import { FreygishLesson } from "./FreygishLesson";
 import { HarmonicMinorLesson } from "./HarmonicMinorLesson";
 import { LocrianLesson } from "./LocrianLesson";
 import { LydianLesson } from "./LydianLesson";
+import { MajorBluesLesson } from "./MajorBluesLesson";
 import { MajorPentatonicLesson } from "./MajorPentatonicLesson";
 import { MajorScaleLesson } from "./MajorScaleLesson";
 import { MelodicMinorLesson } from "./MelodicMinorLesson";
@@ -22,6 +24,7 @@ import { MinorPentatonicLesson } from "./MinorPentatonicLesson";
 import { MixolydianLesson } from "./MixolydianLesson";
 import { NaturalMinorLesson } from "./NaturalMinorLesson";
 import { PhrygianLesson } from "./PhrygianLesson";
+import { RastLesson } from "./RastLesson";
 import { UkrainianDorianLesson } from "./UkrainianDorianLesson";
 
 const SCALE_CONTENT: Record<string, ComponentType> = {
@@ -39,6 +42,9 @@ const SCALE_CONTENT: Record<string, ComponentType> = {
   "harmonic-minor": HarmonicMinorLesson,
   freygish: FreygishLesson,
   "ukrainian-dorian": UkrainianDorianLesson,
+  "double-harmonic": DoubleHarmonicLesson,
+  "major-blues": MajorBluesLesson,
+  rast: RastLesson,
 };
 
 export function getScaleContent(slug: string): ComponentType | undefined {

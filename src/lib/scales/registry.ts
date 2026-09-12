@@ -532,7 +532,7 @@ export const SCALES: ScaleLesson[] = [
     exampleNotes: "C – D♭ – E – F – G – A♭ – B",
     usedIn: [],
     patternKey: "doubleHarmonic",
-    status: "soon",
+    status: "live",
     keywords: [
       "what is the double harmonic scale",
       "double harmonic major",
@@ -554,9 +554,9 @@ export const SCALES: ScaleLesson[] = [
     formula: "1 – 2 – ♭3 – 3 – 5 – 6",
     exampleKey: "C",
     exampleNotes: "C – D – E♭ – E – G – A",
-    usedIn: [],
+    usedIn: ["blues"],
     patternKey: "majorBlues",
-    status: "soon",
+    status: "live",
     keywords: [
       "what is the major blues scale",
       "major blues scale notes",
@@ -582,7 +582,7 @@ export const SCALES: ScaleLesson[] = [
     exampleNotes: "C – D – E½♭ – F – G – A – B½♭",
     usedIn: [],
     patternKey: "rast",
-    status: "soon",
+    status: "live",
     keywords: [
       "what is maqam rast",
       "rast scale notes",

@@ -7,7 +7,11 @@
  * the links that point at it.
  */
 
-import { filterByHaystack, joinHaystack, sortByLabel } from "@/lib/search/normalize";
+import {
+  filterByHaystack,
+  joinHaystack,
+  sortByLabel,
+} from "@/lib/search/normalize";
 
 export interface Lesson {
   slug: string;
@@ -17,20 +21,30 @@ export interface Lesson {
   /** Where to play the idea until the lesson is written. */
   tryHref?: string;
   tryLabel?: string;
+  /**
+   * The lesson was written somewhere else. `/lessons/<slug>` redirects there,
+   * the hub card and search link straight to it, and old links from the
+   * synth's learning panel keep working.
+   */
+  movedTo?: string;
 }
 
 export const LESSONS: Lesson[] = [
+  // The two scale lessons graduated into the Scales module — every scale
+  // page opens with "what a scale is" and "counting from home".
   {
     slug: "scales",
     title: "Scales",
     summary:
       "What a scale is, how whole and half steps shape it, and why C major lives on the white keys.",
+    movedTo: "/scales/major-scale",
   },
   {
     slug: "scale-degrees",
     title: "Scale degrees",
     summary:
       "Numbering notes 1–7 from the root — the map that makes melodies and chords portable to any key.",
+    movedTo: "/scales/major-scale#degrees",
   },
   {
     slug: "chords",

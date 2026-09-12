@@ -312,11 +312,7 @@ function buildIndex(): SearchEntry[] {
         `/languages/${language.slug}`,
         language.name,
         language.summary,
-        [
-          language.question,
-          language.nativeName,
-          ...language.keywords,
-        ],
+        [language.question, language.nativeName, ...language.keywords],
         language.status !== "live",
       ),
     );
@@ -327,11 +323,11 @@ function buildIndex(): SearchEntry[] {
       entry(
         "lessons",
         "lessons",
-        `/lessons/${lesson.slug}`,
+        lesson.movedTo ?? `/lessons/${lesson.slug}`,
         lesson.title,
         lesson.summary,
         [],
-        true, // every lesson is a placeholder today
+        !lesson.movedTo, // unwritten lessons are placeholders; moved ones are live elsewhere
       ),
     );
   }
@@ -418,9 +414,14 @@ export function searchAll(query: string): SearchResultGroup[] {
     .map((e) => ({ e, score: scoreEntry(e, tokens) }))
     .filter((r) => r.score > 0);
 
-  const buckets = new Map<SearchGroup, { best: number; items: SearchEntry[] }>();
+  const buckets = new Map<
+    SearchGroup,
+    { best: number; items: SearchEntry[] }
+  >();
   // Stable relevance order inside each group.
-  scored.sort((a, b) => b.score - a.score || a.e.title.length - b.e.title.length);
+  scored.sort(
+    (a, b) => b.score - a.score || a.e.title.length - b.e.title.length,
+  );
   for (const { e, score } of scored) {
     const bucket = buckets.get(e.group) ?? { best: 0, items: [] };
     bucket.best = Math.max(bucket.best, score);

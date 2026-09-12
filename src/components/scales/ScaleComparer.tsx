@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { ScaleKeyboard } from "./ScaleKeyboard";
 import { DegreeStrip } from "./DegreeStrip";
@@ -8,10 +8,13 @@ import { LessonToolbar } from "./LessonToolbar";
 import { PlayPatternButton } from "./PlayPatternButton";
 import { useScaleLesson } from "./ScaleLessonProvider";
 import {
+  detuneMapFor,
+  hasQuarterTones,
   noteNameAt,
   rootNameFor,
   type ScaleDegree,
 } from "@/lib/music/scaleCatalog";
+import { NO_DETUNE, centsSuffix } from "@/lib/music/detune";
 import { cn } from "@/lib/utils";
 
 export interface ComparerSide {
@@ -71,12 +74,30 @@ export function ScaleComparer({
   className,
 }: ScaleComparerProps) {
   const [side, setSide] = useState<"a" | "b">(defaultSide);
-  const { rootPc } = useScaleLesson();
+  const { rootPc, setDetuneCents } = useScaleLesson();
   const current = side === "a" ? a : b;
   const other = side === "a" ? b : a;
 
   const currentShift = current.rootOffset ?? 0;
   const otherShift = other.rootOffset ?? 0;
+
+  /*
+   * A quarter-tone side (Rast) is only honest if the keys actually bend
+   * while it is selected and stop bending when the other side is. The strip
+   * is page-wide, so flipping this toggle presses and releases the switches
+   * on the main keyboard too — which is the lesson. Pages with no
+   * quarter-tone side never touch the strip.
+   */
+  const quarterToneComparer =
+    hasQuarterTones(a.degrees) || hasQuarterTones(b.degrees);
+  useEffect(() => {
+    if (!quarterToneComparer) return;
+    setDetuneCents(
+      hasQuarterTones(current.degrees)
+        ? detuneMapFor(mod12(rootPc + currentShift), current.degrees)
+        : NO_DETUNE,
+    );
+  }, [quarterToneComparer, current, currentShift, rootPc, setDetuneCents]);
   const currentRootPc = mod12(rootPc + currentShift);
   const otherRootPc = mod12(rootPc + otherShift);
   const currentRootName = rootNameFor(currentRootPc, current.degrees);
@@ -94,6 +115,18 @@ export function ScaleComparer({
   );
   const sameKeys = added.length === 0 && removed.length === 0;
   const reHomed = sameKeys && currentShift !== otherShift;
+  // Same keys, same home, but some degree carries a different cents value:
+  // the piano shape is shared and only the tuning of a few keys differs.
+  const bent =
+    sameKeys && !reHomed
+      ? current.degrees.filter((d) => {
+          const twin = other.degrees.find(
+            (o) =>
+              mod12(o.offset + otherShift) === mod12(d.offset + currentShift),
+          );
+          return (twin?.cents ?? 0) !== (d.cents ?? 0);
+        })
+      : [];
 
   // Pair each swapped-in note with the swapped-out note on the same degree
   // number, so the caption can say "♭3 (G) became 3 (G♯)".
@@ -120,7 +153,43 @@ export function ScaleComparer({
   );
 
   let caption: ReactNode;
-  if (reHomed) {
+  if (bent.length > 0) {
+    const bentNames = bent.map((d) => {
+      const twin = other.degrees.find(
+        (o) => mod12(o.offset + otherShift) === mod12(d.offset + currentShift),
+      );
+      return { d, twin };
+    });
+    const currentBent = bent.some((d) => (d.cents ?? 0) !== 0);
+    caption = (
+      <>
+        <span className="font-medium text-foreground">
+          {currentRootName} {current.name}
+        </span>{" "}
+        uses exactly the same keys as {otherRootName} {other.name.toLowerCase()}{" "}
+        — none turn on or off. What changes is the <em>tuning</em> of{" "}
+        {bentNames.map(({ d, twin }, i) => (
+          <span key={d.offset}>
+            {i > 0 && (i === bentNames.length - 1 ? ", and " : ", ")}
+            <Note s={current} d={d} />
+            {twin && d.cents ? (
+              <>
+                ,{" "}
+                {Math.abs(d.cents) === 50
+                  ? "a quarter tone"
+                  : centsSuffix(d.cents)}{" "}
+                {d.cents < 0 ? "below" : "above"} the piano&apos;s{" "}
+                <span className="font-mono">{nameOf(other, twin)}</span>
+              </>
+            ) : null}
+          </span>
+        ))}
+        {currentBent ? "" : ", back at the piano's own pitch"}. Flip the toggle
+        and watch the switches on the tuning strip above press and release; play
+        both runs and listen to those keys move.
+      </>
+    );
+  } else if (reHomed) {
     const homeDegree = other.degrees.find(
       (d) => mod12(d.offset + otherShift) === mod12(currentShift),
     );

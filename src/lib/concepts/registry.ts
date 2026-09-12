@@ -173,7 +173,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "Blue notes are the microtonal pitches that don't sit on the piano's keys — a singer or guitarist slides just below the major third, the fifth, or the seventh, landing in the cracks between notes. Fixed-pitch instruments approximate them with the flattened third, fifth, and seventh, which is exactly what the blues scale freezes into place. The effect is older than the blues: it comes out of the vocal traditions of work songs, field hollers, and spirituals, themselves carrying West African habits of bending and sliding pitch rather than landing square on a fixed note.",
     href: conceptHome("blue-notes"),
-    scales: ["blues-scale", "minor-pentatonic"],
+    scales: ["blues-scale", "major-blues", "minor-pentatonic"],
     genres: ["blues"],
     history: ["blues"],
     status: "live",
@@ -477,7 +477,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "An augmented second is a major second widened by a half-step: three semitones between two neighbouring letter names, such as F to G♯. It sounds the same as a minor third in equal temperament, but it behaves differently — it's a *step* in a scale, not a leap between chord tones, and Western classical voice-leading treated it as an error to be smoothed away. Scales that keep it are exactly the ones that sound 'exotic' to major-scale ears: the harmonic minor (between its sixth and raised seventh) and the freygish / Phrygian dominant mode of klezmer, flamenco, and Middle Eastern music (between its flattened second and major third).",
     href: conceptHome("augmented-second"),
-    scales: ["freygish", "harmonic-minor", "ukrainian-dorian", "melodic-minor"],
+    scales: ["freygish", "harmonic-minor", "ukrainian-dorian", "melodic-minor", "double-harmonic"],
     history: ["klezmer"],
     status: "live",
     keywords: [

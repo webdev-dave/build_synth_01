@@ -93,7 +93,7 @@ export const GENRES: Genre[] = [
     about:
       "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
     signatureLayers: ["scale", "form", "rhythm", "harmony"],
-    scales: ["blues-scale", "minor-pentatonic", "mixolydian"],
+    scales: ["blues-scale", "major-blues", "minor-pentatonic", "mixolydian"],
     compareWith: "rock",
     status: "live",
     keywords: [

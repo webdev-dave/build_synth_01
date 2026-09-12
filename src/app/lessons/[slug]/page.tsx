@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { ArrowRight, Hammer } from "lucide-react";
 
 import { LESSONS, getLesson } from "@/lib/lessons/registry";
@@ -32,6 +32,9 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const { slug } = await params;
   const lesson = getLesson(slug);
   if (!lesson) notFound();
+  // Static export has no server redirects; Next renders this as a
+  // meta-refresh page, which is enough for old links and crawlers.
+  if (lesson.movedTo) permanentRedirect(lesson.movedTo);
 
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
@@ -45,9 +48,7 @@ export default async function LessonPage({ params }: LessonPageProps) {
             </h1>
             <Badge variant="secondary">Coming soon</Badge>
           </div>
-          <p className="mt-2 text-sm text-muted-foreground">
-            {lesson.summary}
-          </p>
+          <p className="mt-2 text-sm text-muted-foreground">{lesson.summary}</p>
         </header>
 
         <div className="mt-8 rounded-lg border border-dashed p-6 text-center">
