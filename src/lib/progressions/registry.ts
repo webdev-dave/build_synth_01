@@ -53,7 +53,10 @@ export interface BarEdit {
 export interface ProgressionVariant {
   id: string;
   label: string;
-  /** One line: what changes and why players do it. */
+  /**
+   * Why players do it — the clause after the dash. The *what* ("swaps bar 2
+   * from I7 to IV7") is computed from `edits`, so it transposes.
+   */
   blurb: string;
   edits: BarEdit[];
 }
@@ -150,14 +153,14 @@ export const PROGRESSIONS: Progression[] = [
         id: "quick-change",
         label: "Quick change",
         blurb:
-          "Bar 2 goes to IV instead of staying on I — the IV arrives early and comes straight back, so the first line moves sooner.",
+          "the IV arrives early and comes straight back, so the first line moves sooner.",
         edits: [{ bar: 1, chord: IV7 }],
       },
       {
         id: "turnaround",
         label: "Turnaround",
         blurb:
-          "Bar 12 goes to V instead of resting on I — the last bar leans forward into the next chorus rather than settling.",
+          "the last bar leans forward into the next chorus instead of settling.",
         edits: [{ bar: 11, chord: V7 }],
       },
     ],

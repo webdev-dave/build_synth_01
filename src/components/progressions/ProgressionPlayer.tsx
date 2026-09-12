@@ -4,6 +4,7 @@ import { Play, Square } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { useLessonClock } from "@/components/lessons/LessonClock";
+import { Segmented } from "@/components/lessons/Segmented";
 import { cn } from "@/lib/utils";
 import { useProgression } from "./ProgressionProvider";
 
@@ -80,37 +81,15 @@ export function ProgressionPlayer({
       )}
 
       {voicing && (
-        <div
-          role="group"
-          aria-label="Voicing"
-          className="inline-flex overflow-hidden rounded-md border border-input"
-        >
-          {(
-            [
-              { id: true, label: "Smooth" },
-              { id: false, label: "Root position" },
-            ] as const
-          ).map((opt) => {
-            const on = smoothVoicing === opt.id;
-            return (
-              <button
-                key={opt.label}
-                type="button"
-                aria-pressed={on}
-                onClick={() => setSmoothVoicing(opt.id)}
-                className={cn(
-                  "border-l border-input px-3 py-1.5 text-xs font-medium transition-colors first:border-l-0",
-                  "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                  on
-                    ? "bg-secondary text-secondary-foreground"
-                    : "text-muted-foreground hover:bg-accent/50 hover:text-foreground",
-                )}
-              >
-                {opt.label}
-              </button>
-            );
-          })}
-        </div>
+        <Segmented
+          label="Voicing"
+          options={[
+            { id: "smooth", label: "Smooth" },
+            { id: "root", label: "Root position" },
+          ]}
+          value={smoothVoicing ? "smooth" : "root"}
+          onChange={(id) => setSmoothVoicing(id === "smooth")}
+        />
       )}
     </div>
   );
