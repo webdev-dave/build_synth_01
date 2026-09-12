@@ -21,6 +21,20 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-11 (evening) · PR #4 merged and promoted; owner sign-off;
+  Phase 1 started.** Owner reviewed the live klezmer pages and signed off
+  on tone and structure ("all sound and feel good") — the Phase 6 gate is
+  struck through, Phases 1/2/4/5 proceed in the same voice. Two more owner
+  decisions landed the same evening: (a) **Rast ships as a playable page**,
+  built the way Middle Eastern keyboardists actually play it — a
+  per-pitch-class *detune* (Korg/Yamaha "Oriental scale" panel: press E and
+  B, every E and B on the keyboard drops a quarter tone), not prose-first;
+  (b) that scale panel lives on **`KeyboardV2` everywhere**, collapsed and
+  off by default, so `/synth` gains it too. Owner asked for the remaining work
+  **directly on `main`** (no feature branches / PRs), one commit per phase.
+  Sequence: Phase 1 → Phase 2 → detune layer → Phase 4 → Phase 5 (Rast on
+  the detune layer). Pushing stages a Vercel build; promotion stays the
+  owner's call.
 - **2026-09-11 · klezmer track built; paused for owner review.** Branch
   `cursor/scales-catalog-plan-0d4e`, PR #4 to `main`. Shipped: Phase 0
   (catalog + `spellDegrees`, `notes.ts` derives from it, `patternKey`
@@ -212,11 +226,18 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
       G → G♯") — today it assumes one side is a superset.
 - [x] `ScaleComparer`: add a **re-home** mode (`parentOffset`) that keeps the
       key set and shifts the root, for "same notes, home on the 5th."
-- [ ] `MajorScaleLesson.tsx`: white keys in C, W–W–H–W–W–W–H, degrees 1–7,
-      why plain numbers belong to major, comparer vs natural minor.
-- [ ] `MinorPentatonicLesson.tsx`: reuse blues section 3, add the relative
-      pair comparer (A minor pent ↔ C major pent), point forward to blues.
-- [ ] Flip both to `"live"`; map in `src/content/scales/index.ts`.
+- [x] `MajorScaleLesson.tsx`: white keys in C, W–W–H–W–W–W–H, degrees 1–7,
+      why plain numbers belong to major, comparer vs natural minor — both
+      ways (relative: re-home on 6; parallel: ♭3 ♭6 ♭7 swap).
+- [x] `MinorPentatonicLesson.tsx`: why nothing clashes (no half steps),
+      natural minor → pentatonic (subset), relative pair comparer (A minor
+      pent ↔ C major pent), blue-note hand-off, Kubik / Folkways sources.
+- [x] Flip both to `"live"`; map in `src/content/scales/index.ts`.
+- [x] Stub every remaining slug as `"soon"` (natural-minor,
+      major-pentatonic, mixolydian, phrygian, lydian, locrian,
+      melodic-minor, double-harmonic, major-blues, rast) so links resolve
+      before their lessons land. `exampleNotes` / `formula` verified against
+      `spellScale` by the assertion script (1331 checks). Built 2026-09-11.
 
 ### Phase 2 — harmonica-position modes
 
@@ -275,8 +296,18 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
 - [ ] `double-harmonic`: Freygish → raised 7th; two augmented seconds.
 - [ ] `major-blues`: major pent → ♭3; comparer against the live blues page's
       minor blues as the symmetric twin.
-- [ ] `rast`: prose-heavy; approximate keyboard; explicit quarter-tone
-      caveat.
+- [ ] **Detune layer** (its own PR, before `rast`): `useAudioSynthesis`
+      takes `detuneCents: Record<pitchClass, number>` (Web Audio `detune`
+      is already in cents); `KeyboardV2` grows a collapsible 12-cell scale
+      panel (lit = green, bent keys carry a ½♭ marker); presets; playback
+      (`PlayPatternButton`, comparer) goes through the same detune so
+      nothing lies. `spellDegrees` learns a half-flat accidental (`E½♭`).
+      Catalog: optional `cents` per degree; Rast = `0 200 350 500 700 900
+      1050`.
+- [ ] `rast`: on the detune layer. Comparer mode "same keys, bent pitch"
+      (C major → Rast: two cells lit). One-sentence intonation caveat.
+      Sources: Marcus 1993, Abu Shumays (Ableton maqam guide), Yamaha /
+      Korg Oriental manuals for the panel itself.
 - [ ] Synth deep link: once Synth v2 has the type selector
       ([synth-scale-type-selector.md](synth-scale-type-selector.md)
       Phase 4), every lesson gets a "Try it on the synth" link with
@@ -287,13 +318,21 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
 Decisions an agent must not make alone. Add to this list rather than
 guessing; strike through with the date when answered.
 
-- [ ] **Freygish lesson tone + structure sign-off** before Phases 4–7 are
-      written in the same voice: how much synagogue / Yiddish context, how
-      hard to lean on the augmented second, whether the standalone framing
-      (no Phrygian or major-scale page as prerequisite) reads well.
+- [x] ~~**Freygish lesson tone + structure sign-off**~~ — **approved as
+      shipped** (2026-09-11). Later pages keep this voice: standalone
+      framing, degree vocabulary introduced inline, one idea per section
+      with the widget that plays it directly beneath.
 - [x] ~~Harmonica cross-link surface~~ — **v2 only** (2026-09-11).
-- [ ] **Rast**: ship a piano-approximation page at all? If yes, how should
-      the quarter-tone caveat read?
+- [x] ~~**Rast**: ship a piano-approximation page at all?~~ — **Yes, and
+      not as an approximation** (2026-09-11). Build it the way Arabic-market
+      keyboards do: a 12-cell scale panel (C–B) above the keys; a lit cell
+      detunes every key of that name (default −50 ¢, adjustable per cell,
+      Korg Pa: ±99, Yamaha PSR-A: −64…+63); presets (Rast = E½♭ + B½♭,
+      Bayati, Sikah, Saba) recall in one click. Lesson caveat is one
+      sentence: the cents are a starting point; the pitch is learned by ear
+      and varies by region (Syrian E½♭ ≈ 356 ¢, Egyptian ≈ 342 ¢ — Abu
+      Shumays). Panel lives on **`KeyboardV2` everywhere**, collapsed, off
+      by default. Catalog grows an optional per-degree `cents` field.
 - [ ] **`dorian` timing**: move up to Phase 2 to serve harmonica 3rd
       position, or leave in Phase 4?
 - [ ] **Stale `/lessons` scale slugs** (`scales`, `scale-degrees` in

@@ -12,9 +12,13 @@ import type { ComponentType } from "react";
 import { BluesScaleLesson } from "./BluesScaleLesson";
 import { FreygishLesson } from "./FreygishLesson";
 import { HarmonicMinorLesson } from "./HarmonicMinorLesson";
+import { MajorScaleLesson } from "./MajorScaleLesson";
+import { MinorPentatonicLesson } from "./MinorPentatonicLesson";
 import { UkrainianDorianLesson } from "./UkrainianDorianLesson";
 
 const SCALE_CONTENT: Record<string, ComponentType> = {
+  "major-scale": MajorScaleLesson,
+  "minor-pentatonic": MinorPentatonicLesson,
   "blues-scale": BluesScaleLesson,
   "harmonic-minor": HarmonicMinorLesson,
   freygish: FreygishLesson,

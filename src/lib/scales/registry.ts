@@ -98,14 +98,23 @@ export const SCALES: ScaleLesson[] = [
     summary:
       "The seven-note baseline every other scale is measured against: W–W–H–W–W–W–H.",
     answer:
-      "The major scale is a seven-note scale built from the step pattern whole–whole–half–whole–whole–whole–half. In C it's the white keys, C to C, and it's the reference point every other scale is described against.",
+      "The major scale is a seven-note scale built from the step pattern whole–whole–half–whole–whole–whole–half. In C it is the white keys, C to C, and it is the reference point every other scale is described against: its degrees are the plain numbers 1 to 7, and a ♭ or ♯ on any other scale means 'one key away from where the major scale puts it.'",
+    history:
+      "The major scale is the do-re-mi scale of European music, and the piano was laid out around it: the two half steps in C fall exactly where two white keys touch with no black key between them (E–F and B–C). Its relative minor shares every key from a different home, and its seven modes — Dorian, Mixolydian, and the rest — are the same seven notes with each degree in turn treated as home.",
     formula: "1 – 2 – 3 – 4 – 5 – 6 – 7",
     exampleKey: "C",
     exampleNotes: "C – D – E – F – G – A – B",
     usedIn: [],
     patternKey: "major",
-    status: "soon",
-    keywords: ["what is the major scale", "major scale notes", "major scale steps"],
+    status: "live",
+    keywords: [
+      "what is the major scale",
+      "major scale notes",
+      "major scale steps",
+      "whole whole half pattern",
+      "relative minor",
+      "do re mi scale",
+    ],
   },
   {
     slug: "minor-pentatonic",
@@ -123,8 +132,14 @@ export const SCALES: ScaleLesson[] = [
     exampleNotes: "A – C – D – E – G",
     usedIn: ["blues", "rock"],
     patternKey: "pentatonicMinor",
-    status: "soon",
-    keywords: ["minor pentatonic scale", "pentatonic notes", "pentatonic solo scale"],
+    status: "live",
+    keywords: [
+      "minor pentatonic scale",
+      "pentatonic notes",
+      "pentatonic solo scale",
+      "why pentatonic never sounds wrong",
+      "minor pentatonic vs major pentatonic",
+    ],
   },
   {
     slug: "harmonic-minor",
@@ -221,6 +236,222 @@ export const SCALES: ScaleLesson[] = [
     patternKey: "dorian",
     status: "soon",
     keywords: ["what is dorian mode", "dorian scale notes", "dorian vs minor"],
+  },
+  // ---------------------------------------------------------------------
+  // Stubs for the rest of the catalog (docs/plans/scales-catalog-and-lessons.md).
+  // They exist so every cross-link on a live page resolves; each flips to
+  // "live" when its lesson lands. Copy is true standalone (it is the meta
+  // description), so a stub is still a real answer.
+  // ---------------------------------------------------------------------
+  {
+    slug: "natural-minor",
+    name: "Natural minor",
+    kind: "scale",
+    question: "What is the natural minor scale?",
+    summary:
+      "The major scale's darker twin: same seven keys as its relative major, or the major scale with the third, sixth, and seventh each lowered a key.",
+    answer:
+      "The natural minor scale is a seven-note scale running 1, 2, ♭3, 4, 5, ♭6, ♭7 — the major scale with its third, sixth, and seventh each lowered one half step. It is also the sixth mode of the major scale: A minor uses exactly the white keys of C major, started from A. The lowered third is what makes it sound minor.",
+    formula: "1 – 2 – ♭3 – 4 – 5 – ♭6 – ♭7",
+    exampleKey: "A",
+    exampleNotes: "A – B – C – D – E – F – G",
+    usedIn: [],
+    patternKey: "minor",
+    status: "soon",
+    keywords: [
+      "what is the natural minor scale",
+      "natural minor notes",
+      "aeolian mode",
+      "relative minor of c major",
+    ],
+  },
+  {
+    slug: "major-pentatonic",
+    name: "Major pentatonic",
+    kind: "scale",
+    question: "What is the major pentatonic scale?",
+    summary:
+      "Five bright notes with no half steps: the major scale minus its fourth and seventh, and the same keys as the minor pentatonic three keys down.",
+    answer:
+      "The major pentatonic is a five-note scale — 1, 2, 3, 5, 6 — made by removing the fourth and seventh from the major scale. With no half steps left, no two notes clash, which is why it carries so much folk, country, and gospel melody. It shares its keys with the minor pentatonic whose root sits three half steps below: C major pentatonic and A minor pentatonic are the same five notes.",
+    formula: "1 – 2 – 3 – 5 – 6",
+    exampleKey: "C",
+    exampleNotes: "C – D – E – G – A",
+    usedIn: [],
+    patternKey: "pentatonicMajor",
+    status: "soon",
+    keywords: [
+      "what is the major pentatonic scale",
+      "major pentatonic notes",
+      "major pentatonic vs minor pentatonic",
+    ],
+  },
+  {
+    slug: "mixolydian",
+    name: "Mixolydian mode",
+    kind: "mode",
+    question: "What is the Mixolydian mode?",
+    summary:
+      "The major scale with a lowered seventh — the bright, unresolved sound of harmonica second position, rock riffs, and dominant chords.",
+    answer:
+      "Mixolydian is the major scale with one change: the seventh is lowered a half step, giving 1, 2, 3, 4, 5, 6, ♭7. It is the fifth mode of the major scale — G Mixolydian uses the white keys of C major, started from G. The ♭7 keeps it from settling the way major does, which is why it fits blues-rock riffs and the harmonica's second position.",
+    formula: "1 – 2 – 3 – 4 – 5 – 6 – ♭7",
+    exampleKey: "G",
+    exampleNotes: "G – A – B – C – D – E – F",
+    usedIn: [],
+    patternKey: "mixolydian",
+    status: "soon",
+    keywords: [
+      "what is mixolydian mode",
+      "mixolydian scale notes",
+      "major scale flat 7",
+      "harmonica second position scale",
+    ],
+  },
+  {
+    slug: "phrygian",
+    name: "Phrygian mode",
+    kind: "mode",
+    question: "What is the Phrygian mode?",
+    summary:
+      "Natural minor with a lowered second — the note one key above home that leans back onto it. Dark, tense, and one raised third away from freygish.",
+    answer:
+      "Phrygian is a minor mode with a lowered second: 1, ♭2, ♭3, 4, 5, ♭6, ♭7. It is the third mode of the major scale — E Phrygian uses the white keys of C major, started from E. The ♭2 sits one half step above the root and pulls hard toward it, which gives the mode its dark, Spanish-tinged tension. Raise its third and it becomes freygish, the klezmer and flamenco scale.",
+    formula: "1 – ♭2 – ♭3 – 4 – 5 – ♭6 – ♭7",
+    exampleKey: "E",
+    exampleNotes: "E – F – G – A – B – C – D",
+    usedIn: [],
+    patternKey: "phrygian",
+    status: "soon",
+    keywords: [
+      "what is phrygian mode",
+      "phrygian scale notes",
+      "minor scale flat 2",
+      "phrygian vs phrygian dominant",
+    ],
+  },
+  {
+    slug: "lydian",
+    name: "Lydian mode",
+    kind: "mode",
+    question: "What is the Lydian mode?",
+    summary:
+      "The major scale with a raised fourth — brighter than bright, floating rather than settled. The fourth mode of the major scale.",
+    answer:
+      "Lydian is the major scale with its fourth raised a half step: 1, 2, 3, ♯4, 5, 6, 7. It is the fourth mode of the major scale — F Lydian uses the white keys of C major, started from F. The ♯4 removes the major scale's pull from 4 down to 3 and leaves the mode hovering, which is why film scores reach for it when they want wonder without resolution.",
+    formula: "1 – 2 – 3 – ♯4 – 5 – 6 – 7",
+    exampleKey: "F",
+    exampleNotes: "F – G – A – B – C – D – E",
+    usedIn: [],
+    patternKey: "lydian",
+    status: "soon",
+    keywords: ["what is lydian mode", "lydian scale notes", "major scale sharp 4"],
+  },
+  {
+    slug: "locrian",
+    name: "Locrian mode",
+    kind: "mode",
+    question: "What is the Locrian mode?",
+    summary:
+      "The darkest mode of the major scale: Phrygian with the fifth lowered too, so even the home chord is unstable.",
+    answer:
+      "Locrian is the seventh mode of the major scale — B Locrian uses the white keys of C major, started from B — and runs 1, ♭2, ♭3, 4, ♭5, ♭6, ♭7. It is Phrygian with one more note lowered, the fifth. A lowered fifth means the chord built on the root is diminished rather than minor, so the mode never quite settles; it turns up in metal riffs and as a passing colour more than as a home.",
+    formula: "1 – ♭2 – ♭3 – 4 – ♭5 – ♭6 – ♭7",
+    exampleKey: "B",
+    exampleNotes: "B – C – D – E – F – G – A",
+    usedIn: [],
+    patternKey: "locrian",
+    status: "soon",
+    keywords: ["what is locrian mode", "locrian scale notes", "diminished mode"],
+  },
+  {
+    slug: "melodic-minor",
+    name: "Melodic minor",
+    kind: "scale",
+    question: "What is the melodic minor scale?",
+    summary:
+      "Harmonic minor with the sixth raised as well — a minor scale below, a major scale above, and no augmented second. The jazz minor.",
+    answer:
+      "The melodic minor scale is natural minor with both the sixth and seventh raised: 1, 2, ♭3, 4, 5, 6, 7. Classical practice used that form going up and plain natural minor coming down; jazz uses the raised form in both directions and calls it the jazz minor. Only the ♭3 separates it from the major scale, so it sounds minor at the bottom and major at the top, with the smooth step-by-step climb that harmonic minor's augmented second interrupts.",
+    formula: "1 – 2 – ♭3 – 4 – 5 – 6 – 7",
+    exampleKey: "A",
+    exampleNotes: "A – B – C – D – E – F♯ – G♯",
+    usedIn: [],
+    patternKey: "melodicMinor",
+    status: "soon",
+    keywords: [
+      "what is the melodic minor scale",
+      "melodic minor notes",
+      "jazz minor scale",
+      "melodic minor vs harmonic minor",
+    ],
+  },
+  {
+    slug: "double-harmonic",
+    name: "Double harmonic",
+    kind: "scale",
+    question: "What is the double harmonic scale?",
+    summary:
+      "Freygish with its seventh raised too, so it carries two augmented seconds — the scale often sold as 'the Arabic scale,' also called Hijaz Kar or Byzantine.",
+    answer:
+      "The double harmonic scale runs 1, ♭2, 3, 4, 5, ♭6, 7: a lowered second and a raised seventh around a major third and fifth. That leaves two augmented seconds — between ♭2 and 3, and between ♭6 and 7 — where most scales have none. It is freygish (Phrygian dominant) with the seventh raised, and it is known as Hijaz Kar in Arabic music and as the Byzantine or 'Arabic' scale in Western labels.",
+    formula: "1 – ♭2 – 3 – 4 – 5 – ♭6 – 7",
+    exampleKey: "C",
+    exampleNotes: "C – D♭ – E – F – G – A♭ – B",
+    usedIn: [],
+    patternKey: "doubleHarmonic",
+    status: "soon",
+    keywords: [
+      "what is the double harmonic scale",
+      "double harmonic major",
+      "hijaz kar scale",
+      "byzantine scale piano",
+      "arabic scale piano",
+    ],
+  },
+  {
+    slug: "major-blues",
+    name: "Major blues",
+    kind: "scale",
+    question: "What is the major blues scale?",
+    summary:
+      "The major pentatonic plus one blue note, the ♭3 — the sunny twin of the usual blues scale, behind country, gospel, and swing licks.",
+    answer:
+      "The major blues scale is the major pentatonic — 1, 2, 3, 5, 6 — with one extra key squeezed in: the ♭3, giving 1, 2, ♭3, 3, 5, 6. That ♭3 rubbing against the 3 is its blue note, the way the ♭5 is the minor blues scale's. The two scales are twins: C major blues and A minor blues are the same six keys.",
+    formula: "1 – 2 – ♭3 – 3 – 5 – 6",
+    exampleKey: "C",
+    exampleNotes: "C – D – E♭ – E – G – A",
+    usedIn: [],
+    patternKey: "majorBlues",
+    status: "soon",
+    keywords: [
+      "what is the major blues scale",
+      "major blues scale notes",
+      "major blues vs minor blues",
+      "country blues scale",
+    ],
+  },
+  {
+    slug: "rast",
+    name: "Rast",
+    kind: "scale",
+    question: "What is maqam Rast?",
+    summary:
+      "The foundational Arabic maqam: a major-scale shape whose third and seventh sit a quarter tone flat — playable on a piano only if two of its keys are bent.",
+    answer:
+      "Rast is the foundational maqam of Arabic music. Its shape is the major scale's — 1, 2, 3, 4, 5, 6, 7 — but the third and seventh are 'half-flat,' roughly a quarter tone below the piano's E and B. On a twelve-key instrument that means either approximating it (C major or C Mixolydian) or doing what Middle Eastern keyboardists do: retuning every E and B down about fifty cents so the same white keys sound Rast.",
+    formula: "1 – 2 – 3½♭ – 4 – 5 – 6 – 7½♭",
+    exampleKey: "C",
+    exampleNotes: "C – D – E½♭ – F – G – A – B½♭",
+    usedIn: [],
+    status: "soon",
+    keywords: [
+      "what is maqam rast",
+      "rast scale notes",
+      "quarter tone scale piano",
+      "arabic keyboard quarter tones",
+      "half flat E",
+    ],
   },
 ];
 

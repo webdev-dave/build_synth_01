@@ -361,7 +361,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "A mode takes one parent scale and starts it from a different degree, so the same set of notes takes on a new home note and a new character. The major scale has seven modes — Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, and Locrian — each running from the next degree up. They share the same seven pitches; what changes is which note feels like 'home,' and that shift is enough to swing a scale from bright to dark.",
     href: conceptHome("mode"),
-    scales: ["dorian", "freygish", "ukrainian-dorian"],
+    scales: ["major-scale", "dorian", "freygish", "ukrainian-dorian"],
     status: "live",
     keywords: [
       "what is a musical mode",
