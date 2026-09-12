@@ -98,6 +98,11 @@ export interface Genre {
   signatureLayers: GenreLayer[];
   /** Scale registry slugs this genre draws on (first is the signature scale). */
   scales: string[];
+  /**
+   * Progression registry slugs — the harmony layer (first is the signature
+   * progression). Reverse of `Progression.usedIn`; keep both in step.
+   */
+  progressions?: string[];
   /** Foil genre slug for the "same clock, different feel" comparison, if any. */
   compareWith?: string;
   /** "live" pages are indexed + in the sitemap; "soon" pages are placeholders. */
@@ -119,6 +124,7 @@ export const GENRES: Genre[] = [
       "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. It traveled again from the 1950s: Britain's blues boom sent the music back to America amplified, and scenes grew from Ireland and Norway to Mali, Japan, and Australia. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
     signatureLayers: ["scale", "form", "rhythm", "harmony"],
     scales: ["blues-scale", "major-blues", "minor-pentatonic", "mixolydian"],
+    progressions: ["twelve-bar-blues", "i-iv-v", "dominant-seventh"],
     compareWith: "rock",
     status: "live",
     keywords: [
@@ -142,6 +148,7 @@ export const GENRES: Genre[] = [
       "Rock grew directly out of the blues, keeping its scale and often its I–IV–V harmony but trading the shuffle for a hard, straight backbeat. It's the natural foil to the blues — same notes, different pulse.",
     signatureLayers: ["rhythm", "harmony", "scale"],
     scales: ["blues-scale", "minor-pentatonic", "mixolydian"],
+    progressions: ["power-chord", "i-iv-v", "twelve-bar-blues", "i-v-vi-iv"],
     compareWith: "blues",
     status: "soon",
     keywords: ["what makes rock rock", "backbeat", "power chords", "rock rhythm"],
@@ -245,6 +252,7 @@ export const GENRES: Genre[] = [
       "Reggae is the clearest proof that a genre can be a groove before it is anything else. Its identity lives almost entirely in where the weight falls, which makes it the perfect contrast to a straight rock backbeat.",
     signatureLayers: ["rhythm", "texture", "harmony"],
     scales: [],
+    progressions: ["i-v-vi-iv"],
     compareWith: "rock",
     status: "soon",
     keywords: ["what makes reggae reggae", "one drop", "reggae skank", "offbeat"],
@@ -273,6 +281,7 @@ function genreHaystack(genre: Genre): string {
     genre.about,
     ...genre.keywords,
     ...genre.scales,
+    ...(genre.progressions ?? []),
     ...genre.signatureLayers,
     ...genre.signatureLayers.map((layer) => LAYER_INFO[layer].label),
     ...nativeSpellingsOf(genre.slug),

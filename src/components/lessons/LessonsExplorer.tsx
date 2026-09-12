@@ -13,6 +13,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { HubSearch } from "@/components/content/HubSearch";
+import { moduleNameFor } from "@/components/lessons/MovedLesson";
 
 export function LessonsExplorer() {
   const [query, setQuery] = useState("");
@@ -54,7 +55,9 @@ export function LessonsExplorer() {
                 <div className="flex items-center gap-2">
                   <CardTitle className="text-base">{lesson.title}</CardTitle>
                   {lesson.movedTo ? (
-                    <Badge variant="outline">In Scales</Badge>
+                    <Badge variant="outline">
+                      In {moduleNameFor(lesson.movedTo) ?? "another module"}
+                    </Badge>
                   ) : (
                     <Badge variant="secondary">Soon</Badge>
                   )}

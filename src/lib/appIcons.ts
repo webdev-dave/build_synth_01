@@ -64,6 +64,19 @@ const PianoRoll: LucideIcon = createLucideIcon("PianoRoll", [
 ]);
 
 /**
+ * Custom chord-chart icon in Lucide's style: one row of four bar cells, the
+ * first carrying a Roman-numeral stroke — a progression chart as a player
+ * writes it, distinct from the piano roll's note bars.
+ */
+const ChordChart: LucideIcon = createLucideIcon("ChordChart", [
+  ["rect", { x: "2", y: "7", width: "20", height: "10", rx: "2", key: "body" }],
+  ["path", { d: "M7 7v10", key: "bar1" }],
+  ["path", { d: "M12 7v10", key: "bar2" }],
+  ["path", { d: "M17 7v10", key: "bar3" }],
+  ["path", { d: "M4.5 10.5v3", key: "numeral" }],
+]);
+
+/**
  * Maps a nav/app id (see NAV_ITEMS in navigation.ts) to a Lucide icon.
  * Shared by the global nav and the homepage app grid so icons stay consistent.
  */
@@ -75,6 +88,7 @@ export const APP_ICONS: Record<string, LucideIcon> = {
   "drum-machine": DrumMachine,
   genres: Disc3,
   scales: Waypoints,
+  progressions: ChordChart,
   history: BookOpen,
   map: Map,
   concepts: BookMarked,

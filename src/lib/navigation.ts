@@ -76,6 +76,15 @@ export const NAV_ITEMS: NavItem[] = [
     section: "theory",
   },
   {
+    id: "progressions",
+    label: "Chords & Progressions",
+    icon: "🎸",
+    href: "/progressions",
+    description: "How chords are built and how they move — chart, key, and player",
+    inNav: false,
+    section: "theory",
+  },
+  {
     id: "history",
     label: "History",
     icon: "📖",

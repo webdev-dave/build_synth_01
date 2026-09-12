@@ -59,6 +59,10 @@ know about.
 | History → genres / scales | `HistoryArticle.genres` / `.scales` | `getArticleByGenre` / `getArticlesByScale` |
 | Cousin → songs | `CousinArticle.members` | `CatalogSong.cousins` + `getCousinsBySong` |
 | Song → cousins | `CatalogSong.cousins` | `CousinArticle.members` |
+| Genre → progressions | `Genre.progressions` | `Progression.usedIn` + `getProgressionsByGenre` |
+| Progression → scales | `Progression.scales` | `getProgressionsByScale` (scale page "Play it over") |
+| Progression → form | `Progression.forms` | `Form.progressions` (when `/forms` exists) |
+| Concept → lesson spoke | `Concept.href` (delegation) | the spoke's `<Term>` mentions; `/concepts/<slug>` renders a moved notice |
 
 **When you add one side, add the other in the same change.** A scale that
 shows up in blues (`usedIn: ["blues"]`) must also appear on the blues
