@@ -4,11 +4,7 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
-import {
-  SCALES,
-  searchScales,
-  type ScaleKind,
-} from "@/lib/scales/registry";
+import { SCALES, searchScales, type ScaleKind } from "@/lib/scales/registry";
 import { genreOptionsFrom } from "@/lib/search/options";
 import { NativeSpelling } from "@/components/words/NativeSpelling";
 import { ScaleAliases } from "@/components/scales/ScaleAliases";
@@ -110,7 +106,7 @@ export function ScalesExplorer() {
     >
       <div
         id="scales-grid"
-        className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+        className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3"
       >
         {matches.map((scale) => {
           const soon = scale.status === "soon";
@@ -121,7 +117,14 @@ export function ScalesExplorer() {
               className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                <CardHeader>
+                {/* Four short rows of uniform height: title, a one-line hook,
+                    formula, other names. The card is the link — the hover
+                    border and the arrow that surfaces in the title row say
+                    so — so there is no separate Explore row to align. */}
+                {/* Explicit rhythm instead of the header's uniform space-y:
+                    a breath after the title, the hook, then the two metadata
+                    rows spaced as a pair. */}
+                <CardHeader className="space-y-0 p-6 sm:p-7">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base">
                       {scale.name}
@@ -134,16 +137,27 @@ export function ScalesExplorer() {
                       <Badge variant="outline">Mode</Badge>
                     )}
                     {soon && <Badge variant="secondary">Soon</Badge>}
+                    <ArrowRight
+                      aria-hidden
+                      className="ms-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:-translate-x-1 motion-safe:group-hover:translate-x-0"
+                    />
                   </div>
-                  <CardDescription>{scale.summary}</CardDescription>
-                  <span className="mt-1 font-mono text-xs text-muted-foreground">
+                  {/* The full sentence lives on the page; here one line is
+                      enough to say what the scale is for. */}
+                  <CardDescription
+                    className="mt-2.5 line-clamp-1"
+                    title={scale.summary}
+                  >
+                    {scale.summary}
+                  </CardDescription>
+                  <span className="mt-5 block font-mono text-xs text-muted-foreground">
                     {scale.formula}
                   </span>
-                  <ScaleAliases aliases={scale.aliases} />
-                  <span className="mt-1 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors group-hover:text-foreground">
-                    {soon ? "Preview" : "Explore"}
-                    <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                  </span>
+                  <ScaleAliases
+                    aliases={scale.aliases}
+                    variant="line"
+                    className="mt-2.5"
+                  />
                 </CardHeader>
               </Card>
             </Link>

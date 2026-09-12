@@ -5,79 +5,81 @@ import { NativeSpelling } from "@/components/words/NativeSpelling";
 interface ScaleAliasesProps {
   aliases: ScaleAlias[];
   /**
-   * "tile": names only, at most `max` pills plus a "+N more" pill — a hub
-   * card has to stay scannable. "header": every alias as a pill with its
-   * native script and tradition.
+   * "line": one quiet sentence for hub cards — "Also Bhairavi · Kurd ·
+   * Kürdî", names only, at most `max`. It reads as metadata next to the
+   * formula, so the card's link stays the only control-shaped thing.
+   * "header": every alias as a pill with its native script and tradition,
+   * under a page title.
    */
-  variant?: "tile" | "header";
+  variant?: "line" | "header";
   max?: number;
   className?: string;
 }
 
-const TILE_MAX = 3;
+const LINE_MAX = 3;
 
 /**
- * "Also called …" — the other names a scale goes by, as pills. The same
- * list feeds search and SEO; this is the visible copy of it, so a reader
- * who knows the notes as Bhairavi sees that word on the Phrygian card and
- * trusts they are in the right place.
+ * The other names a scale goes by. The same list feeds search and SEO;
+ * this is the visible copy of it, so a reader who knows the notes as
+ * Bhairavi sees that word on the Phrygian card and trusts they are in the
+ * right place.
  */
 export function ScaleAliases({
   aliases,
-  variant = "tile",
-  max = TILE_MAX,
+  variant = "line",
+  max = LINE_MAX,
   className,
 }: ScaleAliasesProps) {
   if (aliases.length === 0) return null;
-  const header = variant === "header";
-  const shown = header ? aliases : aliases.slice(0, max);
-  const hidden = aliases.length - shown.length;
+
+  if (variant === "line") {
+    const shown = aliases.slice(0, max);
+    return (
+      <p
+        className={cn("text-xs text-muted-foreground", className)}
+        aria-label="Other names for this scale"
+      >
+        <span className="text-muted-foreground/70">Also </span>
+        {shown.map((a, i) => (
+          <span key={a.name}>
+            {i > 0 && <span className="text-muted-foreground/50"> · </span>}
+            {a.name}
+          </span>
+        ))}
+      </p>
+    );
+  }
 
   return (
-    <div className={cn(header ? "mt-3" : "mt-2", className)}>
-      <span
-        className={cn(
-          "block text-[11px] font-medium uppercase tracking-wider text-muted-foreground",
-          header ? "mb-2" : "mb-1.5",
-        )}
-      >
+    <div className={cn("mt-3", className)}>
+      <span className="mb-2 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
         Also called
       </span>
-      <ul className="flex flex-wrap gap-1.5" aria-label="Other names for this scale">
-        {shown.map((a) => (
+      <ul className="flex flex-wrap items-center gap-1.5" aria-label="Other names for this scale">
+        {aliases.map((a) => (
           <li key={a.name}>
-            <Pill header={header} alias={a} />
+            <Pill alias={a} />
           </li>
         ))}
-        {hidden > 0 && (
-          <li>
-            <span className="inline-flex items-center rounded-full border border-dashed border-border px-2 py-0.5 text-[11px] text-muted-foreground">
-              +{hidden} more
-            </span>
-          </li>
-        )}
       </ul>
     </div>
   );
 }
 
-function Pill({ alias, header }: { alias: ScaleAlias; header: boolean }) {
+function Pill({ alias }: { alias: ScaleAlias }) {
   return (
     <span
-      className={cn(
-        "inline-flex items-baseline gap-1.5 rounded-full border border-border bg-muted/30 leading-none",
-        header ? "px-2.5 py-1 text-xs" : "px-2 py-0.5 text-[11px]",
-      )}
-      title={header && alias.approx ? "Same shape; tuned or ornamented differently" : undefined}
+      className="inline-flex items-baseline gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs leading-none"
+      title={alias.approx ? "Same shape; tuned or ornamented differently" : undefined}
     >
-      {header && alias.approx && (
+      {alias.approx && (
         <span aria-label="approximately" className="text-muted-foreground">
           ≈
         </span>
       )}
       <span className="text-foreground">{alias.name}</span>
-      {header && <NativeSpelling id={alias.name} className="text-xs" />}
-      {header && alias.tradition && (
+      <NativeSpelling id={alias.name} className="text-xs" />
+      {alias.tradition && (
         <span className="text-[10px] text-muted-foreground">{alias.tradition}</span>
       )}
     </span>

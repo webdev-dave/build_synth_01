@@ -21,6 +21,25 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-12 · alternate names + hub tiles.** Every registry row carries
+  `aliases: ScaleAlias[]` (`{ name, tradition?, approx? }` — Hindustani
+  thaat, Carnatic melakarta, Arabic maqam, Turkish makam, Jewish shteyger,
+  Chinese / Japanese pentatonic names, and the Western nicknames). One
+  list feeds four surfaces: global search (`titleAliases`, so "kurd" ranks
+  `/scales/phrygian` like its title; native scripts from the words
+  registry match too — "भैरवी", "حجاز"), the `/scales` hub search
+  (`scaleHaystack`), page metadata (description "Also called …",
+  keywords, JSON-LD `about.alternateName` + a second FAQ question), and
+  the visible copy: full pills with native script + tradition under each
+  page title (`ScaleAliases variant="header"`), one quiet "Also A · B · C"
+  line on the hub tiles (`variant="line"`, three names). `≈` marks
+  same-shape-different-intonation names (Hijaz, Nahawand, Yaman…).
+  ~30 loanwords registered with native spellings; **Carnatic names stay
+  Latin-only** until an attested Telugu/Tamil/Kannada spelling is
+  verified; no audio added (human recordings only). Hub tiles redesigned
+  after owner iteration: title row (+ arrow on hover), summary clamped to
+  one line, formula, alias line; **no Explore/Preview row** — the card is
+  the link. Commits `b9b8211` + the tile commit that follows it.
 - **2026-09-11 (evening) · PR #4 merged and promoted; owner sign-off;
   Phase 1 started.** Owner reviewed the live klezmer pages and signed off
   on tone and structure ("all sound and feel good") — the Phase 6 gate is
@@ -295,6 +314,11 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
       `locrian`, `melodic-minor`: registry row + three-to-four-section
       lesson, one comparer each (see inventory). Melodic minor copy states
       the ascending-only decision.
+- [x] Alternate names on every row (`aliases`), searchable everywhere and
+      indexable (2026-09-12; see status log). New rows must fill `aliases`
+      — the assertion script checks each alias resolves to a name that is
+      not the row's own and that any alias with a registered word has a
+      native spelling.
 
 ### Phase 5 — follow-ons
 
