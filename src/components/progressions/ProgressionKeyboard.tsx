@@ -76,10 +76,11 @@ export function ProgressionKeyboard({
     (noteNumber: number) => scaleLabels[mod12(noteNumber)] !== null,
     [scaleLabels],
   );
-  // With the lock off every key plays, but the green degrees still draw the
-  // scale — "in" is what the picture shows, the lock is whether it enforces.
-  const inScale =
-    mode === "chord" ? chordOnly : lockMode === "off" ? scaleOnly : isNoteIn;
+  // The picture and the lock are two different questions. Green degrees
+  // always draw the scale (chord view: the chord); which keys *play* is the
+  // page-wide lock — chord tones, the scale, or everything.
+  const inScale = mode === "chord" ? chordOnly : scaleOnly;
+  const playable = mode === "chord" ? chordOnly : isNoteIn;
 
   const markedKeys = useMemo(() => {
     if (mode !== "overlay") return undefined;
@@ -93,6 +94,7 @@ export function ProgressionKeyboard({
       keys={keys}
       activeKeys={activeKeys}
       isNoteInScale={inScale}
+      isNotePlayable={playable}
       lockToScale={mode === "chord" ? true : lockMode !== "off"}
       scaleDegrees={labels}
       onNoteStart={startNote}

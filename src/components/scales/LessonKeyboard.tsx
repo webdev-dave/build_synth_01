@@ -19,6 +19,8 @@ interface LessonKeyboardProps {
   onNoteStop: (note: string) => void;
   /** Keys to ring as chord tones (see KeyboardV2 `markedKeys`). */
   markedKeys?: Set<string>;
+  /** What the lock lets through when that differs from the scale (see KeyboardV2). */
+  isNotePlayable?: (noteNumber: number) => boolean;
   /** Show the quarter-tone strip under this keyboard (the page's main one). */
   detune?: KeyboardDetune;
   className?: string;
@@ -38,6 +40,7 @@ export function LessonKeyboard({
   onNoteStart,
   onNoteStop,
   markedKeys,
+  isNotePlayable,
   detune,
   className,
 }: LessonKeyboardProps) {
@@ -54,6 +57,7 @@ export function LessonKeyboard({
         onNoteStart={onNoteStart}
         onNoteStop={onNoteStop}
         markedKeys={markedKeys}
+        isNotePlayable={isNotePlayable}
         detune={detune}
       />
     </div>

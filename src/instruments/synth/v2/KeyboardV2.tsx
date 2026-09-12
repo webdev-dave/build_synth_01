@@ -39,6 +39,14 @@ interface KeyboardV2Props {
    */
   markedKeys?: Set<string>;
   /**
+   * What the lock lets through, when that differs from what is *in* the
+   * scale — a chord lock over a scale overlay keeps the scale's green
+   * degrees on the picture while only the chord's tones play. Defaults to
+   * `isNoteInScale`. A locked-out key that is still in the scale dims
+   * instead of greying to "out of key".
+   */
+  isNotePlayable?: (noteNumber: number) => boolean;
+  /**
    * Quarter-tone strip under the keys (collapsed, off by default). When
    * given, bent keys name themselves "E½♭" so what reads is what sounds.
    * Omit for keyboards whose engine has no detune (piano roll, demos).
@@ -64,6 +72,7 @@ export function KeyboardV2({
   onNoteStart,
   onNoteStop,
   markedKeys,
+  isNotePlayable,
   detune,
 }: KeyboardV2Props) {
   // "E" reads "E½♭" while its switch is on — the label must not lie.
@@ -94,8 +103,9 @@ export function KeyboardV2({
   }, []);
 
   const isDisabled = useCallback(
-    (k: SynthKey) => hasScale && lockToScale && !isNoteInScale(k.noteNumber),
-    [hasScale, lockToScale, isNoteInScale],
+    (k: SynthKey) =>
+      hasScale && lockToScale && !(isNotePlayable ?? isNoteInScale)(k.noteNumber),
+    [hasScale, lockToScale, isNotePlayable, isNoteInScale],
   );
 
   const pressKey = (e: React.PointerEvent, k: SynthKey) => {
@@ -194,6 +204,7 @@ export function KeyboardV2({
                       "bg-neutral-400 hover:bg-neutral-300"
                     : "bg-neutral-100 hover:bg-white",
                 disabled && "cursor-not-allowed hover:bg-neutral-400",
+                disabled && inScale && "opacity-60 hover:bg-neutral-100",
               )}
             >
               {/* Fixed-height text band, so the dot above it never shifts. */}
@@ -293,6 +304,7 @@ export function KeyboardV2({
                       "border-neutral-500 bg-neutral-600 hover:bg-neutral-500"
                     : "border-neutral-700 bg-neutral-900 hover:bg-neutral-800",
                 disabled && "cursor-not-allowed hover:bg-neutral-600",
+                disabled && inScale && "opacity-60 hover:bg-neutral-900",
               )}
             >
               <span className="pointer-events-none absolute inset-x-0 bottom-1.5 flex h-6 flex-col items-center justify-end gap-0.5">
