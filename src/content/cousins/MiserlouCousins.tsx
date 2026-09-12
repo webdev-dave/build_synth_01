@@ -56,8 +56,15 @@ export function MiserlouCousins() {
       <P>
         <Word id="misirlou">Misirlou</Word> is Greek{" "}
         <em>Μισιρλού</em> — the feminine form of a borrowing from Turkish{" "}
-        <em>Mısırlı</em>, “Egyptian.” The Turkish word itself comes from
-        Arabic <em>Miṣr</em>, Egypt. So the song is about an Egyptian woman,
+        <Word id="misirli">
+          <em>Mısırlı</em>
+        </Word>
+        , “Egyptian.” The Turkish word itself comes from
+        Arabic{" "}
+        <Word id="misr">
+          <em>Miṣr</em>
+        </Word>
+        , Egypt. So the song is about an Egyptian woman,
         named in the language of the Ottoman street rather than in Greek{" "}
         <em>Αιγύπτια</em>.<Ref id="wikipedia-misirlou" />
       </P>
@@ -67,7 +74,7 @@ export function MiserlouCousins() {
         original author is unknown.<Ref id="wikipedia-misirlou" /> A later
         claim that it derives from Sayed Darwish’s “Bint Misr” is treated as
         doubtful.<Ref id="wikipedia-misirlou" /> Same neighborhood of modes is
-        not the same kinship: the melody walks a Hijaz / double-harmonic
+        not the same kinship: the melody walks a <Word id="hijaz">Hijaz</Word> / double-harmonic
         pattern — the interval shape klezmer calls{" "}
         <Term id="freygish">freygish</Term> — and that scale is a street, not
         a family tree.
@@ -92,7 +99,8 @@ export function MiserlouCousins() {
         A few years later{" "}
         <ArtistLink id="michalis-patrinos">Michalis Patrinos</ArtistLink>{" "}
         recorded it in Athens as <SongLink id="misirlou-patrinos" /> — slower,
-        a rebetiko / tsifteteli, sometimes titled{" "}
+        a <Word id="rebetiko">rebetiko</Word> /{" "}
+        <Word id="tsifteteli">tsifteteli</Word>, sometimes titled{" "}
         <em>Mousourlou</em>. A New York side followed in 1931.
         <Ref id="wikipedia-misirlou" />
         <Ref id="shira-misirlou" />
@@ -156,7 +164,7 @@ export function MiserlouCousins() {
         on Deltone, later the sound most of the English-speaking world thinks{" "}
         <em>is</em> Misirlou.<Ref id="wikipedia-misirlou" /> His father and
         uncles were Lebanese-American musicians. Dale said he had seen an
-        uncle play the tune on one string of the oud, and he won a bet by
+        uncle play the tune on one string of the <Word id="oud">oud</Word>, and he won a bet by
         doing the same on guitar, at rock-and-roll speed.
         <Ref id="npr-dale" />
         <Ref id="npr-misirlou" />

@@ -21,6 +21,13 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-12 · loanword speakers.** Periodic scan + hunt for human
+  pronunciation clips (no TTS). Shipped Commons / Lingua Libre audio on
+  `maqam`, `jins`, `ajam`, `oud`, `misr`, `kafi`, `yu-mode`; first mentions
+  wrapped in the freygish / double-harmonic / Rast / klezmer / Misirlou
+  pages; scale-alias header pills now show a speaker when a clip exists.
+  Hijaz, Rast, and most thaat/makam names stay silent — no matching clip.
+  Catalog: `.cursor/rules/pronunciation-audio.mdc`.
 - **2026-09-12 · Phase 5 + 6 · catalog complete.** `/scales/double-harmonic`,
   `/scales/major-blues`, `/scales/rast` live — **all 17 catalog pages now
   have lessons**; nothing is stubbed "soon". Rast is the first page on the

@@ -100,7 +100,11 @@ export function FreygishLesson() {
           &ldquo;Phrygian.&rdquo; Cantors say{" "}
           <Word id="ahava-rabbah">Ahava Rabbah</Word>, after the prayer whose
           chant uses it. Western theory says <em>Phrygian dominant</em>. Arabic
-          and Turkish musicians hear their maqam <em>Hijaz</em> in it — with a
+          and Turkish musicians hear their <Word id="maqam">maqam</Word>{" "}
+          <Word id="hijaz">
+            <em>Hijaz</em>
+          </Word>{" "}
+          in it — with a
           caveat this page comes back to. Same seven keys, four homes.
         </P>
         <div className="mt-4 space-y-3">
@@ -307,7 +311,8 @@ export function FreygishLesson() {
           high and the <Mono>3</Mono> a little low, narrowing the stretch into
           something no piano key can reach. What this page plays is the
           piano&rsquo;s honest approximation of Hijaz, the same way the blues
-          scale freezes a bent note onto the nearest key. On a voice, an oud, or
+          scale freezes a bent note onto the nearest key. On a voice, an{" "}
+          <Word id="oud">oud</Word>, or
           a clarinet, the interval lives between the keys — and klezmer&rsquo;s
           sobbing <Term id="krechtz">krechtz</Term> is one way of getting there.
         </P>

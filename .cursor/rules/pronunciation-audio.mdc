@@ -51,16 +51,21 @@ register a word in a **new** language, add the row in the same change
 | Language | BCP-47 | Lingua Libre QID | Best sources (try in this order) | Gotchas |
 |---|---|---|---|---|
 | **Yiddish** | `yi` | `Q8641` | **JEL**; then Commons `LL-Q8641`; yi.wiktionary | JEL is the strongest for klezmer/Jewish terms. Lingua Libre Yiddish is sparse (none of our words as of 2026-09-05). |
-| **Hebrew** | `he-IL` | `Q9288` | **JEL**; then Commons `LL-Q9288`; he.wiktionary | Prayer/mode names (*Ahava Rabbah*) often live on JEL, not Hebrew Wiktionary. |
+| **Hebrew** | `he-IL` | `Q9288` | **JEL**; then Commons `LL-Q9288`; he.wiktionary | Prayer/mode names (*Ahava Rabbah*) often live on JEL, not Hebrew Wiktionary. A clip of *אהבה* (“love”) is **not** *Ahava Rabbah*. |
+| **Arabic** | `ar` | `Q13955` | Commons `incategory:"Lingua Libre pronunciation-ara" <word>`; then `Ar-<word>.ogg` / en.wiktionary under **Arabic**; ar.wiktionary | CirrusSearch ignores Arabic script unless you filter with `incategory:`. Maqam names are often the same spoken word as a place or ethnonym (*حجاز*, *عجم*) — that match is OK; a **different vocalization** (verb *عَجَمَ*, *جَنَّسَ*) is not. Prefer the bare word over a compound (`عود ميثاء` ≠ *oud*). |
+| **Hindi** | `hi` | `Q1568` | Commons `incategory:"Lingua Libre pronunciation-hin" <word>`; then `Hi-<word>.ogg`; hi/en.wiktionary | Thaat/raga names are often also everyday words (*काफ़ी*). Same spoken word → OK. Most of our thaats had no clip as of 2026-09-12. |
 | **Romanian** | `ro-RO` | `Q7913` | Commons `LL-Q7913`; ro.wiktionary; Commons filename search | Dance terms (*doina*, *hora*, *sârbă*) often have only the common-noun / other-language sense recorded. **Do not attach the wrong sense.** |
-| **Greek** | `el` | `Q9129` | Commons `LL-Q9129`; el.wiktionary | *Misirlou* (Μισιρλού) is a song title / proper name — Lingua Libre is unlikely. Don’t attach a random “Egypt” clip. |
+| **Greek** | `el` | `Q9129` | Commons `LL-Q9129` / `incategory:"Lingua Libre pronunciation-ell"`; el.wiktionary | *Misirlou* (Μισιρλού) is a song title / proper name — Lingua Libre is unlikely. Don’t attach a random “Egypt” clip. *ρεμπέτικο* / *τσιφτετέλι* had none as of 2026-09-12. |
+| **Turkish** | `tr` | `Q256` | Commons `incategory:"Lingua Libre pronunciation-tur"`; `Tr-<word>.ogg` | Makam names are Latin-with-diacritics. *Mısır* is “Egypt,” not *Mısırlı* (“Egyptian”). |
+| **Chinese** | `zh-Hans` | `Q9192` | Commons `Zh-<pinyin>.ogg` (**check the character in the description**); then `LL-Q9192` / `LL-Q727694` | Tone and character must both match. `Zh-gōng.oga` is **功**, not 宫; `Zh-yǔ.ogg` is **雨**, not 羽. |
+| **Japanese** | `ja` | `Q5287` | Commons `Ja-<word>.ogg`; `LL-Q5287`; ja.wiktionary | *民謡音階* is a technical compound — a clip of 民謡 alone is not the same spoken word. |
 | **Polish** | `pl` | `Q809` | Commons `LL-Q809`; Commons `Pl-<word>.ogg`; pl.wiktionary | Latin script, so there's no native parenthetical — the value is the *speaker*. Lingua Libre Polish is large. `oj-dana.ogg` (refrain vocable) shipped from `File:Pl-dana.ogg`, CC BY-SA 3.0. |
 
 English (`en`, `Q1860`) is not a registry language, but Lingua Libre English
 sometimes has a human saying a loanword that has entered English (e.g.
 *klezmer*). Prefer a recording in the home language when one exists.
 
-### Words still needing a clip (2026-09-06)
+### Words still needing a clip (2026-09-12)
 
 Already shipped — see `public/audio/words/ATTRIBUTION.md`:
 `krechtz` (JEL *krekhts*), `nigun`, `klezmer`, `freylekhs` (JEL *freilach*),
@@ -70,6 +75,15 @@ vocable) from Wikimedia Commons `Pl-dana.ogg`, CC BY-SA 3.0 (`.ogg`).
 `misheberakh` (JEL *Mi Shebeirach* `/words/372`, 2026-09-11): sense 1 is the
 prayer itself, which is the name the klezmer mode carries — same spoken word,
 so it ships. (Sense 2, "a telling-off", is the same word; not a conflict.)
+
+**2026-09-12 Commons / Lingua Libre / Wiktionary / JEL hunt** shipped:
+`maqam` (`LL-Q13955` Rashed Aljahdali, مقام — Wiktionary lists the music
+sense on the same noun), `ajam` (same speaker, عجم — the ethnonym the
+maqam is named for), `jins` (`Ar-جنس.ogg`, جِنْس “kind/genus”), `oud`
+(`Ar-عود.ogg` — same word as “wood,” the instrument’s name), `misr`
+(`Ar-Misr2.oga`, مصر “Egypt”), `kafi` (Lingua Libre Hindi काफ़ी),
+`yu-mode` (Lingua Libre 羽). Scale-alias header pills play these when the
+name matches.
 
 **Still silent** — search these before inventing a new source, and record the
 result here if you look:
@@ -89,9 +103,17 @@ result here if you look:
 | `yiddish-theater` | yi | JEL `/search?q=theater` (2026-09-06) | *teatron* — **wrong word** |
 | `yiddish-folk` / folkslid | yi | JEL `/search?q=folkslid` (2026-09-06) | none |
 | `tsimbl` | yi | JEL `/search?q=tsimbl` + `tsimbal` (2026-09-06) | none |
-| `ahava-rabbah`, `kley-zemer` | he | JEL *ahava* hits other compounds (2026-09-06) | none for the prayer name |
+| `ahava-rabbah`, `kley-zemer` | he | JEL *ahava* hits other compounds (2026-09-06); recheck 2026-09-12 | JEL *ahave* `/words/4066` is **love**, no clip; Commons `He-אַהֲבָה.ogg` is “love,” not the prayer name. `כלי` / `מגן` clips are the common nouns, not *kley zemer* / *Magen Avot*. |
+| `adonai-malakh`, `magen-avot` | he | JEL + Commons `LL-Q9288` (2026-09-12) | none for the prayer names |
 | `misirlou` | el | song title, not a dictionary headword | spelling only |
+| `misirli` | tr | Commons `LL-Q256` *Mısır* (2026-09-12) | *Mısır* = Egypt, **not** *Mısırlı* |
+| `rebetiko`, `tsifteteli` | el | Commons `LL-Q9129` / ell + en.wiktionary (2026-09-12) | none |
 | `shvesters` | yi | JEL `/search?q=shvester` (2026-09-06) | none |
+| `hijaz`, `hijaz-kar`, `nahawand`, `kurd`, `nikriz`, `rast`, `bayati` | ar | Commons `incategory:"Lingua Libre pronunciation-ara"` + en.wiktionary (2026-09-12) | none in Arabic. Persian `راست` exists — **do not** attach to the Arabic *Rast* entry |
+| `bilaval`, `asavari`, `bhairavi`, `kalyan`, `khamaj`, `bhairav`, `bhupali`, `dhani`, `patdeep`, `kirwani` | hi | Commons `LL-Q1568` / Hindi pronunciation + hi/en.wiktionary (2026-09-12) | none (`kafi` shipped) |
+| `hicaz`, `hicazkar`, `kurdi`, `nikriz-tr`, `rast-tr`, `buselik` | tr | Commons `LL-Q256` (2026-09-12) | none |
+| `gong-mode` | zh-Hans | Commons `Zh-gōng.oga` (2026-09-12) | file is **功**, not 宫 |
+| `minyo` | ja | Commons / en.wiktionary 民謡 (2026-09-12) | none for the compound |
 
 JEL *daven* (`/words/127`) is a real human clip of the verb — **do not** attach
 it to `davening`. The English gerund and the Yiddish infinitive are not the
@@ -128,6 +150,8 @@ Record new rejects here so we don't re-try them.
 ```bash
 # Commons / Lingua Libre (namespace 6 = File):
 curl -s "https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srsearch=LL-Q7913%20doina&format=json"
+# Arabic / Hindi / etc: CirrusSearch drops the script unless you filter by category
+curl -s "https://commons.wikimedia.org/w/api.php?action=query&list=search&srnamespace=6&srsearch=incategory:%22Lingua%20Libre%20pronunciation-ara%22%20مصر&format=json"
 # Audio attached to a Wiktionary page (then check the language heading):
 curl -s "https://en.wiktionary.org/w/api.php?action=query&prop=images&titles=klezmer&format=json"
 # Real URL + license + speaker for a Commons file:

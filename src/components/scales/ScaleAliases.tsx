@@ -1,6 +1,8 @@
 import { cn } from "@/lib/utils";
 import type { ScaleAlias } from "@/lib/scales/registry";
 import { NativeSpelling } from "@/components/words/NativeSpelling";
+import { PronounceButton } from "@/components/words/PronounceButton";
+import { getWord, hasAudio } from "@/lib/words/registry";
 
 interface ScaleAliasesProps {
   aliases: ScaleAlias[];
@@ -67,9 +69,11 @@ export function ScaleAliases({
 }
 
 function Pill({ alias }: { alias: ScaleAlias }) {
+  const word = getWord(alias.name);
+  const listen = hasAudio(word) ? word : undefined;
   return (
     <span
-      className="inline-flex items-baseline gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs leading-none"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs leading-none"
       title={alias.approx ? "Same shape; tuned or ornamented differently" : undefined}
     >
       {alias.approx && (
@@ -79,6 +83,7 @@ function Pill({ alias }: { alias: ScaleAlias }) {
       )}
       <span className="text-foreground">{alias.name}</span>
       <NativeSpelling id={alias.name} className="text-xs" />
+      {listen && <PronounceButton word={listen} />}
       {alias.tradition && (
         <span className="text-[10px] text-muted-foreground">{alias.tradition}</span>
       )}

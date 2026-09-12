@@ -213,7 +213,8 @@ export function KlezmerHistory() {
           freygish scale
         </Link>{" "}
         is what most ears mean by &ldquo;the Jewish scale,&rdquo; though the
-        same notes serve flamenco and the Arabic maqam Hijaz — a scale is a
+        same notes serve flamenco and the Arabic{" "}
+        <Word id="maqam">maqam</Word> <Word id="hijaz">Hijaz</Word> — a scale is a
         meeting place, not a passport.<Ref id="stroum-jewish" />
       </P>
       <P>

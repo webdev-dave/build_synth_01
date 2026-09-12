@@ -65,6 +65,19 @@ const JEL = (path: string, wordId: string): WordAudio => ({
   license: "CC BY-SA 4.0",
 });
 
+/** Wikimedia Commons / Lingua Libre recordings. `file` is the File: title. */
+const COMMONS = (
+  path: string,
+  file: string,
+  speaker: string,
+  license: string,
+): WordAudio => ({
+  src: `/audio/words/${path}`,
+  source: `Wikimedia Commons — ${speaker}`,
+  sourceUrl: `https://commons.wikimedia.org/wiki/File:${file.replace(/ /g, "_")}`,
+  license,
+});
+
 export const WORDS: SpokenWord[] = [
   {
     id: "krechtz",
@@ -240,13 +253,78 @@ export const WORDS: SpokenWord[] = [
     id: "misirlou",
     latin: "Misirlou",
     alsoSpelled: ["Miserlou"],
-    aliases: ["Misirlou", "Miserlou", "Mısırlı", "Mousourlou"],
+    aliases: ["Misirlou", "Miserlou", "Mousourlou"],
     native: {
       // Wikipedia “Misirlou”; Greek feminine of Turkish Mısırlı (“Egyptian”).
       spelling: "Μισιρλού",
       language: "Greek",
       lang: "el",
     },
+  },
+  {
+    id: "misirli",
+    latin: "Mısırlı",
+    aliases: ["Misirli"],
+    native: {
+      // Turkish source of Greek Μισιρλού; Wikipedia “Misirlou”.
+      spelling: "Mısırlı",
+      language: "Turkish",
+      lang: "tr",
+    },
+  },
+  {
+    id: "misr",
+    latin: "Miṣr",
+    alsoSpelled: ["Misr"],
+    aliases: ["Misr"],
+    native: {
+      // Arabic for Egypt; Wikipedia “Egypt” / “Misirlou”.
+      spelling: "مصر",
+      language: "Arabic",
+      lang: "ar",
+    },
+    audio: COMMONS("misr.oga", "Ar-Misr2.oga", "Haddara", "CC BY 3.0"),
+  },
+  {
+    // Wikipedia “Rebetiko”; Greek ρεμπέτικο.
+    id: "rebetiko",
+    latin: "rebetiko",
+    alsoSpelled: ["rembetiko"],
+    aliases: ["rebetika", "rembetika"],
+    native: {
+      spelling: "ρεμπέτικο",
+      language: "Greek",
+      lang: "el",
+    },
+  },
+  {
+    // Wikipedia “Tsifteteli”; el.wikipedia “Τσιφτετέλι”.
+    id: "tsifteteli",
+    latin: "tsifteteli",
+    alsoSpelled: ["çiftetelli"],
+    aliases: ["ciftetelli"],
+    native: {
+      spelling: "τσιφτετέλι",
+      language: "Greek",
+      lang: "el",
+    },
+  },
+  {
+    id: "oud",
+    latin: "oud",
+    alsoSpelled: ["‘ud"],
+    native: {
+      // Wikipedia “Oud”; same Arabic word as “wood,” the instrument’s name.
+      spelling: "عود",
+      language: "Arabic",
+      lang: "ar",
+    },
+    audio: COMMONS(
+      "oud.ogg",
+      "Ar-عود.ogg",
+      "Nhaily Mustapha",
+      "CC BY 3.0 US",
+    ),
   },
   {
     id: "dos-kelbl",
@@ -400,15 +478,27 @@ export const WORDS: SpokenWord[] = [
    * `aliases`). Standard orthographies: Devanagari for Hindustani thaats
    * and ragas, Arabic for maqamat, unpointed Hebrew for prayer modes,
    * Turkish diacritics for makams, Chinese for the pentatonic modes.
-   * No recordings — spelling only. Carnatic melakarta names are left
-   * Latin-only in the scale registry until a script we can stand behind
-   * is attested (deliberate; see the scales plan).
+   * Audio only when a verified human clip of the matching word exists.
+   * Carnatic melakarta names are left Latin-only in the scale registry
+   * until a script we can stand behind is attested (see the scales plan).
    * ------------------------------------------------------------------ */
   // Hindustani thaats — Bhatkhande's ten; Devanagari as in the standard
   // theory texts and Wikipedia's raga articles.
   { id: "bilaval", latin: "Bilaval", alsoSpelled: ["Bilawal"], aliases: ["Bilawal thaat", "Bilaval thaat"], native: { spelling: "बिलावल", language: "Hindi", lang: "hi" } },
   { id: "asavari", latin: "Asavari", alsoSpelled: ["Asawari"], aliases: ["Asavari thaat"], native: { spelling: "आसावरी", language: "Hindi", lang: "hi" } },
-  { id: "kafi", latin: "Kafi", aliases: ["Kafi thaat"], native: { spelling: "काफ़ी", language: "Hindi", lang: "hi" } },
+  {
+    id: "kafi",
+    latin: "Kafi",
+    aliases: ["Kafi thaat"],
+    native: { spelling: "काफ़ी", language: "Hindi", lang: "hi" },
+    // Lingua Libre Hindi काफ़ी — same spoken word as the thaat / raga.
+    audio: COMMONS(
+      "kafi.wav",
+      "LL-Q1568 (hin)-SHUBHAM KR SONI-काफ़ी.wav",
+      "SHUBHAM KR SONI",
+      "CC0",
+    ),
+  },
   { id: "bhairavi", latin: "Bhairavi", aliases: ["Bhairavi thaat"], native: { spelling: "भैरवी", language: "Hindi", lang: "hi" } },
   { id: "kalyan", latin: "Kalyan", alsoSpelled: ["Kalyaan"], aliases: ["Kalyan thaat", "Yaman"], native: { spelling: "कल्याण", language: "Hindi", lang: "hi" } },
   { id: "khamaj", latin: "Khamaj", aliases: ["Khamaj thaat"], native: { spelling: "खमाज", language: "Hindi", lang: "hi" } },
@@ -418,14 +508,64 @@ export const WORDS: SpokenWord[] = [
   { id: "dhani", latin: "Dhani", native: { spelling: "धानी", language: "Hindi", lang: "hi" } },
   { id: "patdeep", latin: "Patdeep", alsoSpelled: ["Patdip"], native: { spelling: "पटदीप", language: "Hindi", lang: "hi" } },
   { id: "kirwani", latin: "Kirwani", alsoSpelled: ["Keeravani", "Kiravani"], aliases: ["Keeravani", "Kiravani"], native: { spelling: "कीरवाणी", language: "Hindi", lang: "hi" } },
-  // Arabic maqamat.
-  { id: "ajam", latin: "Ajam", alsoSpelled: ["ʿAjam"], aliases: ["maqam ajam", "ʿAjam"], native: { spelling: "عجم", language: "Arabic", lang: "ar" } },
+  // Arabic maqamat and the words the lessons teach them with.
+  {
+    id: "maqam",
+    latin: "maqam",
+    aliases: ["maqamat", "makam"],
+    native: {
+      // Wikipedia “Arabic maqam”; Wiktionary مقام includes the music sense.
+      spelling: "مقام",
+      language: "Arabic",
+      lang: "ar",
+    },
+    audio: COMMONS(
+      "maqam.wav",
+      "LL-Q13955 (ara)-Rashed Aljahdali-مقام.wav",
+      "Rashed Aljahdali",
+      "CC BY 4.0",
+    ),
+  },
+  {
+    id: "jins",
+    latin: "jins",
+    aliases: ["ajnas"],
+    native: {
+      // Wikipedia “Jins (maqam)”; Arabic جنس “kind / genus,” the same word.
+      spelling: "جنس",
+      language: "Arabic",
+      lang: "ar",
+    },
+    audio: COMMONS("jins.ogg", "Ar-جنس.ogg", "Nhaily Mustapha", "CC BY 3.0 US"),
+  },
+  {
+    id: "ajam",
+    latin: "Ajam",
+    alsoSpelled: ["ʿAjam"],
+    aliases: ["maqam ajam", "ʿAjam"],
+    native: { spelling: "عجم", language: "Arabic", lang: "ar" },
+    // Lingua Libre عجم — the word the maqam is named for (non-Arabs / Persians).
+    audio: COMMONS(
+      "ajam.wav",
+      "LL-Q13955 (ara)-Rashed Aljahdali-عجم.wav",
+      "Rashed Aljahdali",
+      "CC BY 4.0",
+    ),
+  },
   { id: "nahawand", latin: "Nahawand", alsoSpelled: ["Nahwand"], aliases: ["maqam nahawand", "Nahwand"], native: { spelling: "نهاوند", language: "Arabic", lang: "ar" } },
   { id: "kurd", latin: "Kurd", aliases: ["maqam kurd"], native: { spelling: "كرد", language: "Arabic", lang: "ar" } },
   { id: "hijaz", latin: "Hijaz", alsoSpelled: ["Hejaz"], aliases: ["maqam hijaz", "Hejaz"], native: { spelling: "حجاز", language: "Arabic", lang: "ar" } },
   { id: "hijaz-kar", latin: "Hijaz Kar", alsoSpelled: ["Hijazkar"], aliases: ["Hijazkar", "maqam hijaz kar"], native: { spelling: "حجاز كار", language: "Arabic", lang: "ar" } },
   { id: "nikriz", latin: "Nikriz", aliases: ["maqam nikriz"], native: { spelling: "نكريز", language: "Arabic", lang: "ar" } },
   { id: "rast", latin: "Rast", aliases: ["maqam rast", "Maqam Rast"], native: { spelling: "راست", language: "Arabic", lang: "ar" } },
+  {
+    // Wikipedia “Bayati (maqam)”; mentioned on the Rast lesson as a preset.
+    id: "bayati",
+    latin: "Bayati",
+    alsoSpelled: ["Bayat"],
+    aliases: ["maqam bayati"],
+    native: { spelling: "بياتي", language: "Arabic", lang: "ar" },
+  },
   // Jewish prayer modes not already registered above.
   { id: "adonai-malakh", latin: "Adonai Malakh", alsoSpelled: ["Adonoi Malach"], aliases: ["Adonoi Malach", "Adonai Malach"], native: { spelling: "אדני מלך", language: "Hebrew", lang: "he-IL" } },
   { id: "magen-avot", latin: "Magen Avot", alsoSpelled: ["Mogen Ovos"], aliases: ["Mogen Ovos", "Magein Avot"], native: { spelling: "מגן אבות", language: "Hebrew", lang: "he-IL" } },
@@ -439,7 +579,20 @@ export const WORDS: SpokenWord[] = [
   { id: "buselik", latin: "Buselik", alsoSpelled: ["Bûselik"], native: { spelling: "Bûselik", language: "Turkish", lang: "tr" } },
   // Chinese pentatonic modes (宫 gōng, 羽 yǔ) and the Japanese min'yō scale.
   { id: "gong-mode", latin: "Gong mode", alsoSpelled: ["gōng"], aliases: ["gong", "gōng", "gong scale"], native: { spelling: "宫", language: "Chinese", lang: "zh-Hans" } },
-  { id: "yu-mode", latin: "Yu mode", alsoSpelled: ["yǔ"], aliases: ["yu", "yǔ", "yu scale"], native: { spelling: "羽", language: "Chinese", lang: "zh-Hans" } },
+  {
+    id: "yu-mode",
+    latin: "Yu mode",
+    alsoSpelled: ["yǔ"],
+    aliases: ["yu", "yǔ", "yu scale"],
+    native: { spelling: "羽", language: "Chinese", lang: "zh-Hans" },
+    // Lingua Libre 羽 — same character as the pentatonic degree (feather / yǔ).
+    audio: COMMONS(
+      "yu-mode.wav",
+      "LL-Q9192 (cmn)-雲角-羽.wav",
+      "雲角",
+      "CC BY-SA 4.0",
+    ),
+  },
   { id: "minyo", latin: "Min'yō scale", alsoSpelled: ["minyo"], aliases: ["minyo", "min'yo scale", "minyo scale"], native: { spelling: "民謡音階", language: "Japanese", lang: "ja" } },
 ];
 

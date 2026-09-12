@@ -97,7 +97,8 @@ export function UkrainianDorianLesson() {
           <Word id="misheberakh">Mi Sheberakh</Word> — &ldquo;He who
           blessed&rdquo; — after a synagogue prayer sung in it, and it is the
           mode of the <Term id="doina">doina</Term>, the free-rhythm lament.
-          Ukrainians call it the Hutsul mode, Greeks hear it as Nikriz. Same
+          Ukrainians call it the Hutsul mode, Greeks hear it as{" "}
+          <Word id="nikriz">Nikriz</Word>. Same
           seven keys wherever the name comes from.
         </P>
         <div className="mt-4 space-y-3">
