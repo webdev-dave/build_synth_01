@@ -301,14 +301,24 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
 - [ ] `double-harmonic`: Freygish → raised 7th; two augmented seconds.
 - [ ] `major-blues`: major pent → ♭3; comparer against the live blues page's
       minor blues as the symmetric twin.
-- [ ] **Detune layer** (its own PR, before `rast`): `useAudioSynthesis`
-      takes `detuneCents: Record<pitchClass, number>` (Web Audio `detune`
-      is already in cents); `KeyboardV2` grows a collapsible 12-cell scale
-      panel (lit = green, bent keys carry a ½♭ marker); presets; playback
-      (`PlayPatternButton`, comparer) goes through the same detune so
-      nothing lies. `spellDegrees` learns a half-flat accidental (`E½♭`).
-      Catalog: optional `cents` per degree; Rast = `0 200 350 500 700 900
-      1050`.
+- [x] **Detune layer** (built 2026-09-11, own commit before `rast`):
+      `src/lib/music/detune.ts` — `DetuneMap` (12 cents, C = 0), presets
+      (Rast C/G, Bayati D/G; Sikah/Saba share switches so aren't repeated),
+      `applyDetune`, `centsSuffix` ("½♭" / "½♯" / "−40¢").
+      `useAudioSynthesis` returns `detuneCents` / `setDetuneCents`; new
+      voices get `osc.detune`, held voices retune live, `scheduleNote`
+      looks up the switch from the nearest MIDI note so every run and
+      comparer bends too; the Hz readout shows the bent pitch.
+      `KeyboardV2` takes optional `detune` and renders `TuningStrip`
+      (`src/instruments/synth/v2/TuningStrip.tsx`) under the keys —
+      collapsed, off, green switch = on, bent keys read "E½♭". Live on
+      `/synth/v2` and every lesson's main keyboard (comparers share the
+      state but hide the strip). Catalog: `ScaleDegree.cents`,
+      `hasQuarterTones`, `detuneMapFor(root, degrees)`; `spellDegrees`
+      appends the suffix; group `maqam`; entry `rast` = `1 2 ½♭3 4 5 6 ½♭7`
+      with −50 on 3 and 7. `ScaleLessonProvider` presses the switches for a
+      quarter-tone scale and follows the root. Piano roll / concept demos
+      pass no `detune` and are unchanged.
 - [ ] `rast`: on the detune layer. Comparer mode "same keys, bent pitch"
       (C major → Rast: two cells lit). One-sentence intonation caveat.
       Sources: Marcus 1993, Abu Shumays (Ableton maqam guide), Yamaha /

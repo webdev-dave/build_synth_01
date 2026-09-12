@@ -4,7 +4,15 @@ import { useCallback, useEffect, useRef } from "react";
 
 import { cn } from "@/lib/utils";
 import { niceNote } from "@/lib/music";
+import { centsSuffix, type DetuneMap } from "@/lib/music/detune";
 import type { SynthKey } from "../templates/basic-synth/utils/synthUtils";
+import { TuningStrip } from "./TuningStrip";
+
+export interface KeyboardDetune {
+  /** Cents per pitch class (C = 0) the audio engine is applying right now. */
+  cents: DetuneMap;
+  onChange: (next: DetuneMap) => void;
+}
 
 interface KeyboardV2Props {
   keys: SynthKey[];
@@ -22,6 +30,12 @@ interface KeyboardV2Props {
   keyLabels: Record<string, string> | null;
   onNoteStart: (noteNumber: number, note: string) => void;
   onNoteStop: (note: string) => void;
+  /**
+   * Quarter-tone strip under the keys (collapsed, off by default). When
+   * given, bent keys name themselves "E½♭" so what reads is what sounds.
+   * Omit for keyboards whose engine has no detune (piano roll, demos).
+   */
+  detune?: KeyboardDetune;
 }
 
 /**
@@ -41,7 +55,10 @@ export function KeyboardV2({
   keyLabels,
   onNoteStart,
   onNoteStop,
+  detune,
 }: KeyboardV2Props) {
+  // "E" reads "E½♭" while its switch is on — the label must not lie.
+  const bend = (noteNumber: number) => centsSuffix(detune?.cents[noteNumber % 12] ?? 0);
   // One entry per touch/mouse pointer so multi-touch chords and glides work.
   const pointerNotes = useRef<Map<number, string>>(new Map());
   const stopRef = useRef(onNoteStop);
@@ -119,6 +136,7 @@ export function KeyboardV2({
   const blackWidthPct = (0.6 / whiteCount) * 100;
 
   return (
+    <>
     <div
       role="group"
       aria-label="Synth keyboard"
@@ -141,7 +159,7 @@ export function KeyboardV2({
           const degree = scaleDegrees?.[k.noteNumber % 12] ?? null;
           // Every key names itself; C keys keep the octave for orientation.
           const baseName = k.note.replace(/\d+$/, "");
-          const noteName = baseName === "C" ? k.note : baseName;
+          const noteName = (baseName === "C" ? k.note : baseName) + bend(k.noteNumber);
           return (
             <button
               key={k.note}
@@ -228,7 +246,7 @@ export function KeyboardV2({
           const degree = scaleDegrees?.[k.noteNumber % 12] ?? null;
           // "C#4" → "C♯" (the synth speaks sharps; octave stays off the
           // narrow black keys).
-          const noteName = niceNote(k.note.replace(/\d+$/, ""));
+          const noteName = niceNote(k.note.replace(/\d+$/, "")) + bend(k.noteNumber);
           return (
             <button
               key={k.note}
@@ -307,5 +325,7 @@ export function KeyboardV2({
         })}
       </div>
     </div>
+    {detune && <TuningStrip cents={detune.cents} onChange={detune.onChange} />}
+    </>
   );
 }

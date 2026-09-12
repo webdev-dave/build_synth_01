@@ -17,6 +17,12 @@ interface ScaleKeyboardProps {
    * one of its modes (E freygish): same keys, different numbering.
    */
   rootOffset?: number;
+  /**
+   * Quarter-tone strip under the keys. On by default for a lesson's main
+   * keyboard; the comparer turns it off so one page shows one strip (the
+   * state is shared, so its keys still bend and still say so).
+   */
+  tuningStrip?: boolean;
   className?: string;
 }
 
@@ -29,6 +35,7 @@ export function ScaleKeyboard({
   degrees,
   lockToScale,
   rootOffset = 0,
+  tuningStrip = true,
   className,
 }: ScaleKeyboardProps) {
   const {
@@ -39,6 +46,8 @@ export function ScaleKeyboard({
     lockToScale: pageLock,
     startNote,
     stopNote,
+    detuneCents,
+    setDetuneCents,
   } = useScaleLesson();
 
   const homeMidi = rootMidi + rootOffset;
@@ -63,6 +72,7 @@ export function ScaleKeyboard({
       scaleDegrees={scaleDegrees}
       onNoteStart={startNote}
       onNoteStop={stopNote}
+      detune={tuningStrip ? { cents: detuneCents, onChange: setDetuneCents } : undefined}
       className={className}
     />
   );

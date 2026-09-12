@@ -455,10 +455,11 @@ export const SCALES: ScaleLesson[] = [
       "The foundational Arabic maqam: a major-scale shape whose third and seventh sit a quarter tone flat — playable on a piano only if two of its keys are bent.",
     answer:
       "Rast is the foundational maqam of Arabic music. Its shape is the major scale's — 1, 2, 3, 4, 5, 6, 7 — but the third and seventh are 'half-flat,' roughly a quarter tone below the piano's E and B. On a twelve-key instrument that means either approximating it (C major or C Mixolydian) or doing what Middle Eastern keyboardists do: retuning every E and B down about fifty cents so the same white keys sound Rast.",
-    formula: "1 – 2 – 3½♭ – 4 – 5 – 6 – 7½♭",
+    formula: "1 – 2 – ½♭3 – 4 – 5 – 6 – ½♭7",
     exampleKey: "C",
     exampleNotes: "C – D – E½♭ – F – G – A – B½♭",
     usedIn: [],
+    patternKey: "rast",
     status: "soon",
     keywords: [
       "what is maqam rast",

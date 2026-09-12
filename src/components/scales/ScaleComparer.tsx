@@ -251,6 +251,7 @@ export function ScaleComparer({
         degrees={current.degrees}
         lockToScale
         rootOffset={currentShift}
+        tuningStrip={false}
       />
 
       <DegreeStrip

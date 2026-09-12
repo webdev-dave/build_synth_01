@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardV2 } from "@/instruments/synth/v2/KeyboardV2";
+import { KeyboardV2, type KeyboardDetune } from "@/instruments/synth/v2/KeyboardV2";
 import type { SynthKey } from "@/instruments/synth/templates/basic-synth/utils/synthUtils";
 import { cn } from "@/lib/utils";
 
@@ -17,6 +17,8 @@ interface LessonKeyboardProps {
   scaleDegrees: (number | string | null)[] | null;
   onNoteStart: (noteNumber: number, note: string) => void;
   onNoteStop: (note: string) => void;
+  /** Show the quarter-tone strip under this keyboard (the page's main one). */
+  detune?: KeyboardDetune;
   className?: string;
 }
 
@@ -33,6 +35,7 @@ export function LessonKeyboard({
   scaleDegrees,
   onNoteStart,
   onNoteStop,
+  detune,
   className,
 }: LessonKeyboardProps) {
   return (
@@ -47,6 +50,7 @@ export function LessonKeyboard({
         keyLabels={null}
         onNoteStart={onNoteStart}
         onNoteStop={onNoteStop}
+        detune={detune}
       />
     </div>
   );

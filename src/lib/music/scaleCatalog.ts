@@ -31,25 +31,35 @@ export type ScaleTypeId =
   | "majorBlues"
   | "phrygianDominant"
   | "ukrainianDorian"
-  | "doubleHarmonic";
+  | "doubleHarmonic"
+  | "rast";
 
 /** One scale degree: semitones above the root and its label ("1", "♭3", "♯4"). */
 export interface ScaleDegree {
   offset: number;
   label: string;
+  /**
+   * Cents the degree sits away from its 12-TET `offset` — the quarter tones
+   * of maqam (Rast's 3rd is E lowered 50¢, so `offset: 4, cents: -50`).
+   * Omitted means exactly on the key. The keyboard's tuning panel reads
+   * this to bend the right keys; spelling appends "½♭" / "½♯".
+   */
+  cents?: number;
 }
 
 export type ScaleGroup =
   | "common"
   | "modes"
   | "pentatonic"
-  | "harmonicMinorFamily";
+  | "harmonicMinorFamily"
+  | "maqam";
 
 export const SCALE_GROUP_LABELS: Record<ScaleGroup, string> = {
   common: "Common",
   modes: "Modes of the major scale",
   pentatonic: "Pentatonic & blues",
   harmonicMinorFamily: "Harmonic-minor family",
+  maqam: "Maqam (quarter tones)",
 };
 
 /**
@@ -215,6 +225,28 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     group: "harmonicMinorFamily",
     feel: "Two augmented seconds — Phrygian dominant with a raised 7th",
   },
+  // Beyond the audited table; hand-verified 2026-09-11 against the
+  // Korg/Yamaha "Oriental scale" convention (quarter tone = −50¢) and
+  // Marcus (1993) / Abu Shumays on Rast intonation: the 3rd and 7th are
+  // half-flat, so on C the white keys with E and B bent. Real Rast thirds
+  // range roughly 340–360¢ by region; −50 is the keyboard setting, not a
+  // measurement, and the lesson copy says so.
+  rast: {
+    id: "rast",
+    name: "Rast",
+    aliases: ["Maqam Rast"],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      { offset: 4, label: "½♭3", cents: -50 },
+      d(5, "4"),
+      d(7, "5"),
+      d(9, "6"),
+      { offset: 11, label: "½♭7", cents: -50 },
+    ],
+    group: "maqam",
+    feel: "A major-scale shape with the 3rd and 7th a quarter tone flat — the foundational Arabic maqam",
+  },
 };
 
 export const SCALE_TYPE_IDS = Object.keys(SCALE_CATALOG) as ScaleTypeId[];
@@ -231,6 +263,24 @@ export function degreesOf(id: ScaleTypeId): ScaleDegree[] {
 /** Semitone offsets above the root, ascending. */
 export function patternOf(id: ScaleTypeId): number[] {
   return SCALE_CATALOG[id].degrees.map((deg) => deg.offset);
+}
+
+/** True when any degree sits off its 12-TET key (Rast). */
+export function hasQuarterTones(degrees: readonly ScaleDegree[]): boolean {
+  return degrees.some((deg) => (deg.cents ?? 0) !== 0);
+}
+
+/**
+ * Cents per pitch class (C = 0) that make a 12-TET keyboard sound this
+ * scale from `rootPc` — the switches a Middle Eastern keyboard player would
+ * press. All zeros for an ordinary scale.
+ */
+export function detuneMapFor(rootPc: number, degrees: readonly ScaleDegree[]): number[] {
+  const map = Array<number>(12).fill(0);
+  for (const deg of degrees) {
+    if (deg.cents) map[mod12(rootPc + deg.offset)] = deg.cents;
+  }
+  return map;
 }
 
 /* ------------------------------------------------------------------------ */
@@ -304,6 +354,22 @@ function rootCandidates(rootPc: number): SpelledNote[] {
  * the lesson pages already use.
  */
 export function spellDegrees(rootPc: number, degrees: readonly ScaleDegree[]): string[] {
+  return spellOnKeys(rootPc, degrees).map((name, i) => name + centsSuffix(degrees[i].cents ?? 0));
+}
+
+/**
+ * "½♭" / "½♯" for the quarter tones, raw signed cents otherwise. Kept here
+ * (duplicating lib/music/detune) so this file stays import-free for scripts.
+ */
+function centsSuffix(cents: number): string {
+  if (cents === 0) return "";
+  if (cents === -50) return "½♭";
+  if (cents === 50) return "½♯";
+  return `${cents > 0 ? "+" : "−"}${Math.abs(cents)}¢`;
+}
+
+/** Spelling of the 12-TET keys under each degree, before any cents suffix. */
+function spellOnKeys(rootPc: number, degrees: readonly ScaleDegree[]): string[] {
   const root = mod12(rootPc);
   if (degrees.length !== 7) {
     return degrees.map((deg) => simpleName(root + deg.offset));

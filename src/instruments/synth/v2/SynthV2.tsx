@@ -168,6 +168,8 @@ export function SynthV2() {
     activeNoteFreq,
     waveType,
     setWaveType,
+    detuneCents,
+    setDetuneCents,
     handleNoteStart,
     stopNote,
   } = useAudioSynthesis(audioContext, () => {}, keys);
@@ -386,6 +388,7 @@ export function SynthV2() {
           keyLabels={keyLabels}
           onNoteStart={startNote}
           onNoteStop={stopNote}
+          detune={{ cents: detuneCents, onChange: setDetuneCents }}
         />
       </Card>
 

@@ -1,12 +1,19 @@
 import { useState, useCallback, useRef, useEffect } from "react";
 import { noteNumberToFrequency } from "../utils/synthUtils";
 import type { SynthKey } from "../utils/synthUtils";
+import {
+  NO_DETUNE,
+  applyDetune,
+  midiFromFrequency,
+  type DetuneMap,
+} from "@/lib/music/detune";
 
 export type OscillatorType = "sine" | "square" | "sawtooth" | "triangle";
 
 interface ActiveVoice {
   oscillator: OscillatorNode;
   gain: GainNode;
+  noteNumber: number;
 }
 
 interface UseAudioSynthesisReturn {
@@ -15,6 +22,13 @@ interface UseAudioSynthesisReturn {
   activeNoteFreq: number | null;
   waveType: OscillatorType;
   setWaveType: (type: OscillatorType) => void;
+  /**
+   * Cents per pitch class (C = 0) applied to every voice, held or
+   * scheduled — the quarter-tone strip of a Middle Eastern keyboard.
+   * Changing it retunes notes that are already sounding.
+   */
+  detuneCents: DetuneMap;
+  setDetuneCents: (map: DetuneMap) => void;
   handleNoteStart: (noteNumber: number, note: string) => Promise<void>;
   stopNote: (note: string) => void;
   scheduleNote: (frequency: number, startTime: number, duration: number) => void;
@@ -23,6 +37,8 @@ interface UseAudioSynthesisReturn {
 
 /** Seconds of release ramp before the oscillator is torn down. */
 const RELEASE = 0.1;
+
+const pitchClass = (noteNumber: number) => ((noteNumber % 12) + 12) % 12;
 
 export function useAudioSynthesis(
   actx: AudioContext | null,
@@ -48,6 +64,18 @@ export function useAudioSynthesis(
   const keysRef = useRef(keys);
   keysRef.current = keys;
 
+  const [detuneCents, setDetuneState] = useState<DetuneMap>(NO_DETUNE);
+  const detuneRef = useRef<DetuneMap>(NO_DETUNE);
+  const centsFor = useCallback(
+    (noteNumber: number) => detuneRef.current[pitchClass(noteNumber)] ?? 0,
+    [],
+  );
+  /** The pitch a key actually sounds at, detune included — what the Hz readout must show. */
+  const soundingFrequency = useCallback(
+    (noteNumber: number) => applyDetune(noteNumberToFrequency(noteNumber), centsFor(noteNumber)),
+    [centsFor],
+  );
+
   const publishVoices = useCallback(() => {
     setActiveOscillators(new Map(voicesRef.current));
   }, []);
@@ -72,23 +100,24 @@ export function useAudioSynthesis(
 
       osc.type = waveTypeRef.current;
       osc.frequency.setValueAtTime(frequency, actx.currentTime);
+      osc.detune.setValueAtTime(centsFor(noteNumber), actx.currentTime);
       gain.gain.setValueAtTime(0.1, actx.currentTime);
 
       osc.connect(gain);
       gain.connect(actx.destination);
       osc.start();
 
-      voicesRef.current.set(note, { oscillator: osc, gain });
+      voicesRef.current.set(note, { oscillator: osc, gain, noteNumber });
       publishVoices();
 
       setActiveKeys((prev) => {
         const next = new Set(prev);
         next.add(note);
-        setActiveNoteFreq(next.size === 1 ? frequency : null);
+        setActiveNoteFreq(next.size === 1 ? soundingFrequency(noteNumber) : null);
         return next;
       });
     },
-    [actx, publishVoices]
+    [actx, publishVoices, centsFor, soundingFrequency]
   );
 
   const stopNote = useCallback(
@@ -116,7 +145,7 @@ export function useAudioSynthesis(
         if (next.size === 1) {
           const remaining = keysRef.current.find((k) => k.note === [...next][0]);
           setActiveNoteFreq(
-            remaining ? noteNumberToFrequency(remaining.noteNumber) : null
+            remaining ? soundingFrequency(remaining.noteNumber) : null
           );
         } else if (next.size === 0) {
           setActiveNoteFreq(null);
@@ -125,7 +154,7 @@ export function useAudioSynthesis(
         return next;
       });
     },
-    [actx, publishVoices]
+    [actx, publishVoices, soundingFrequency]
   );
 
   const scheduleNote = useCallback(
@@ -139,7 +168,10 @@ export function useAudioSynthesis(
 
       osc.type = waveTypeRef.current;
       osc.frequency.setValueAtTime(frequency, t);
-      
+      // Scheduled runs hand us a frequency, not a key; the nearest 12-TET
+      // note tells us which switch on the tuning strip applies.
+      osc.detune.setValueAtTime(centsFor(midiFromFrequency(frequency)), t);
+
       const attackTime = 0.01;
       const actualDuration = Math.max(duration, attackTime + 0.01);
       
@@ -157,7 +189,7 @@ export function useAudioSynthesis(
       osc.start(t);
       osc.stop(t + actualDuration);
     },
-    [actx]
+    [actx, centsFor]
   );
 
   const updateWaveType = useCallback((newWaveType: OscillatorType) => {
@@ -167,6 +199,27 @@ export function useAudioSynthesis(
       oscillator.type = newWaveType;
     });
   }, []);
+
+  /*
+   * Flipping a switch on the strip retunes held notes too — a player holding
+   * an E while pressing the E switch hears it bend, as on the hardware.
+   */
+  const setDetuneCents = useCallback(
+    (map: DetuneMap) => {
+      detuneRef.current = map;
+      setDetuneState(map);
+      if (!actx) return;
+      const now = actx.currentTime;
+      voicesRef.current.forEach(({ oscillator, noteNumber }) => {
+        oscillator.detune.setTargetAtTime(map[pitchClass(noteNumber)] ?? 0, now, 0.02);
+      });
+      if (voicesRef.current.size === 1) {
+        const [only] = voicesRef.current.values();
+        setActiveNoteFreq(soundingFrequency(only.noteNumber));
+      }
+    },
+    [actx, soundingFrequency],
+  );
 
   // Never leave a note sounding after the instrument unmounts.
   useEffect(() => {
@@ -189,6 +242,8 @@ export function useAudioSynthesis(
     activeNoteFreq,
     waveType,
     setWaveType: updateWaveType,
+    detuneCents,
+    setDetuneCents,
     handleNoteStart,
     stopNote,
     scheduleNote,

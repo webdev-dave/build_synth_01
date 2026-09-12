@@ -14,6 +14,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   type ReactNode,
@@ -26,10 +27,13 @@ import {
   type SynthKey,
 } from "@/instruments/synth/templates/basic-synth/utils/synthUtils";
 import {
+  detuneMapFor,
+  hasQuarterTones,
   noteNameAt,
   rootNameFor,
   type ScaleDegree,
 } from "@/lib/music/scaleCatalog";
+import type { DetuneMap } from "@/lib/music/detune";
 
 /** Two octaves: the shape reads 1 → octave → 1 again, and the run always
     plays in the lower one so it ends where the eye expects. */
@@ -100,6 +104,9 @@ export interface ScaleLessonState {
   /** Finger on a key — also the gesture that unlocks audio. */
   startNote: (noteNumber: number, note: string) => void;
   stopNote: (note: string) => void;
+  /** Quarter-tone strip state, shared by every keyboard and run on the page. */
+  detuneCents: DetuneMap;
+  setDetuneCents: (map: DetuneMap) => void;
 }
 
 const ScaleLessonContext = createContext<ScaleLessonState | null>(null);
@@ -155,8 +162,25 @@ export function ScaleLessonProvider({
   }, [rootMidi, rootIsBlack]);
 
   const { audioContext, initializeAudio } = useSharedAudioContext();
-  const { activeKeys, handleNoteStart, stopNote, scheduleNote } =
-    useAudioSynthesis(audioContext, () => {}, keys);
+  const {
+    activeKeys,
+    handleNoteStart,
+    stopNote,
+    scheduleNote,
+    detuneCents,
+    setDetuneCents,
+  } = useAudioSynthesis(audioContext, () => {}, keys);
+
+  /*
+   * A quarter-tone scale (Rast) arrives with its switches already pressed,
+   * and they follow the root: Rast on C bends E and B, on G bends B and F♯.
+   * Ordinary scales leave the strip alone so a user's own bends survive a
+   * root change.
+   */
+  const quarterTones = hasQuarterTones(degrees);
+  useEffect(() => {
+    if (quarterTones) setDetuneCents(detuneMapFor(rootPc, degrees));
+  }, [quarterTones, rootPc, degrees, setDetuneCents]);
 
   const startNote = useCallback(
     (noteNumber: number, note: string) => {
@@ -213,6 +237,8 @@ export function ScaleLessonProvider({
       scheduleNote,
       startNote,
       stopNote,
+      detuneCents,
+      setDetuneCents,
     }),
     [
       rootPc,
@@ -231,6 +257,8 @@ export function ScaleLessonProvider({
       scheduleNote,
       startNote,
       stopNote,
+      detuneCents,
+      setDetuneCents,
     ],
   );
 
