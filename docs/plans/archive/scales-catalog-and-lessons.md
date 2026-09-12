@@ -6,11 +6,11 @@ scale/mode pages to write under `/scales/[slug]` — including where the
 
 This unifies three threads that already exist separately:
 
-- [genres-and-scales-modules.md](genres-and-scales-modules.md) — the
+- [genres-and-scales-modules.md](../genres-and-scales-modules.md) — the
   `/scales` hub + spoke structure and the live blues-scale lesson.
 - [synth-scale-type-selector.md](synth-scale-type-selector.md) — the
   verified 14-scale theory table and `SCALE_CATALOG` / `spellScale` design.
-- [lessons-module.md](lessons-module.md) Phases 3–4 — the original lesson
+- [lessons-module.md](../lessons-module.md) Phases 3–4 — the original lesson
   order (major → blues → Phrygian → dorian, pentatonics, harmonic minor,
   Rast).
 
@@ -21,6 +21,9 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-12 · Archived.** All 17 `/scales` lessons live; synth deep
+  link shipped with the Type selector. This plan is complete. Moved to
+  `docs/plans/archive/`.
 - **2026-09-12 · loanword speakers.** Periodic scan + hunt for human
   pronunciation clips (no TTS). Shipped Commons / Lingua Libre audio on
   `maqam`, `jins`, `ajam`, `oud`, `misr`, `kafi`, `yu-mode`; first mentions
@@ -499,5 +502,5 @@ guessing; strike through with the date when answered.
 | Harmonica positions (cross-link) | `src/lib/harmonica/constants.ts` |
 | Genre / history / concept reverse links | `src/lib/genres/registry.ts`, `src/lib/history/registry.ts`, `src/lib/concepts/registry.ts` |
 | Loanwords | `src/lib/words/registry.ts`, `.cursor/rules/pronunciation-audio.mdc` |
-| Synth type selector (sibling plan) | `docs/plans/synth-scale-type-selector.md` |
+| Synth type selector (sibling plan) | `docs/plans/archive/synth-scale-type-selector.md` |
 | Module structure (sibling plan) | `docs/plans/genres-and-scales-modules.md` |

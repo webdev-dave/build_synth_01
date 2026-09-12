@@ -12,6 +12,20 @@ A new **Genre Lab** at `/genres` that teaches music genres the Instrumaps way:
 > widgets in Phases 2–4 are still unbuilt; the live pages carry crawlable
 > copy + honest "coming soon" blocks until then. The scale layer links out to
 > the **Scales module** (`/scales/blues-scale`), it is not rebuilt here.
+>
+> **Page reading order (2026-09-12):** every genre page lists layers as
+> **scale → harmony → rhythm → form** (then meter, texture). That is
+> `LAYER_PAGE_ORDER` / `orderLayersForPage`. `signatureLayers` still ranks
+> *which* layers define the genre; it no longer controls on-page order.
+>
+> **Layer homes (2026-09-12):** each recurring layer gets its own lesson
+> module, not a section that grows in place and not `/lessons` —
+> harmony → `/progressions`, rhythm + meter → `/rhythm` (code module still `grooves`), form → `/forms`,
+> parallel to `/scales`. The groove engine, `GrooveGrid` / `GroovePlayer` /
+> `BeatComparer` in Phases 2–4 below are now built **as the grooves
+> module** (shared clock in `src/lib/music/`, not `src/lib/genres/schedule.ts`);
+> the genre page shows a short `GrooveTeaser` and doors into the spoke.
+> Umbrella: [genre-layer-lessons.md](genre-layer-lessons.md).
 
 The core question per genre is *"what actually makes this sound like this?"*
 The answer is almost never one thing. A genre is a **stack of layers** — rhythm,
@@ -260,7 +274,7 @@ Next-hit control steps through the same `DrumHit[]`.
   groove. Reuse synth chord voicing; don't invent a second instrument.
 - **`ScaleChip`** — the genre's typical scale, linking to `/lessons/…` and
   optionally deep-linking the synth with that type locked (see
-  [synth-scale-type-selector.md](synth-scale-type-selector.md)).
+  [synth-scale-type-selector.md](archive/synth-scale-type-selector.md)).
 - **`FormMap`** — 12-bar blues as a 12-cell map that lights the current bar.
   The "map" metaphor applied to form.
 - **`LayerStack`** — the hub/genre header that shows which layers are

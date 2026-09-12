@@ -6,7 +6,7 @@ import { GenresExplorer } from "@/components/genres/GenresExplorer";
 export const metadata: Metadata = {
   title: "Music Genres — What Makes Each One Itself",
   description:
-    "Hear what makes a genre sound like itself. Every genre is a stack of layers — rhythm, meter, harmony, scale, and form — and each page leads with the one that defines it.",
+    "Hear what makes a genre sound like itself. Every genre is a stack of layers — scale, harmony, rhythm, and form — read in that order.",
   alternates: { canonical: "/genres" },
   keywords: [
     "music genres explained",
@@ -28,9 +28,9 @@ export default function GenresPage() {
           <p className="mt-3 max-w-2xl text-base leading-relaxed text-muted-foreground">
             What actually makes a genre sound like itself? It&apos;s almost
             never one thing. Every genre is a <strong>stack of layers</strong> —
-            rhythm, meter, harmony, scale, form, texture — and each one leads
-            with the layer that defines it. Reggae is a groove long before it is
-            a chord chart; the blues is a form, a feel, and a scale at once.
+            scale, harmony, rhythm, then form — and every page reads them in
+            that order. The blues is a scale, a set of chords, a feel, and a
+            12-bar shape at once.
           </p>
         </header>
 

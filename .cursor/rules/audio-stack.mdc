@@ -1,0 +1,64 @@
+---
+description: Sound is raw Web Audio — no audio frameworks (Tone.js etc.). Adoption rule for DSP dependencies, and the six lifecycle guardrails that keep audio from glitching. Read before writing sound code or adding an audio package.
+globs: src/lib/audio/**,src/instruments/**,src/components/**/use*Audio*.ts,src/contexts/AudioContext.tsx,src/hooks/useSharedAudioContext.ts,src/components/scales/ScaleLessonProvider.tsx,src/components/progressions/**,src/components/grooves/**,src/components/forms/**,package.json
+alwaysApply: false
+---
+
+# Audio stack: native Web Audio, libraries as ingredients only
+
+Full reasoning: `docs/audio-stack.md`. Feel rules: `AGENTS.md` §5.
+
+## Do not install an audio framework
+
+No `tone`, `@elemaudio/*`, `howler`, `pizzicato`, or anything that owns the
+`AudioContext`, the clock, or "now". Instrumaps runs on **one** shared
+context (`AudioContextProvider`) and **one** clock (`useLessonClock`) that
+drives both sound and visuals. A framework that owns time becomes
+load-bearing in the UI. Data-only packages (`@tonejs/midi` for parsing) are
+fine — they never touch the audio thread.
+
+## Adoption rule — a sound dependency needs all three
+
+1. Native nodes genuinely cannot make the sound (custom DSP via
+   `AudioWorklet`), not "saves typing".
+2. It sits behind our interface: `src/lib/audio/voices/*.ts` or `Effect`
+   signatures do not change if the inside is swapped.
+3. MIT / BSD / LGPL-compatible, and it is an **algorithm**, not a framework.
+
+"It would be faster with Tone" is never a reason. Revisit per component,
+never wholesale.
+
+## Six guardrails every sound file follows
+
+| Never | Always |
+|---|---|
+| `new AudioContext()` in a component | `useSharedAudioContext()`; `resume()` inside the gesture handler |
+| schedule from `setTimeout` / render | absolute `when` from `AudioContext.currentTime` via the shared clock |
+| start a source without an end | `stop(t)` + `onended` cleanup; envelopes reach 0 before stop |
+| connect straight to `destination` | through `createLessonBus()` (gain → lowpass → reverb → compressor limiter) |
+| unbounded voices | cap ~32, steal oldest |
+| React state per step / per hit | refs + `requestAnimationFrame`; state only for what the user sees change |
+
+```ts
+// ❌ BAD — private context, timer scheduling, no end, straight out
+const ctx = new AudioContext();
+setTimeout(() => { const o = ctx.createOscillator(); o.connect(ctx.destination); o.start(); }, 500);
+
+// ✅ GOOD — shared context, absolute time, bounded, on the bus
+kickAt(ctx, bus, when, velocity);  // src/lib/audio/voices/drums.ts builds, envelopes, stops
+```
+
+## Where sound code lives
+
+- `src/lib/audio/` — UI-free recipes: `bus.ts`, `noise.ts`, `voices/*.ts`.
+  Pure functions taking `(ctx, bus, …, when)`; checkable from `/tmp`.
+- React bindings (`ProgressionProvider`, `useDrumKit`) call the recipes;
+  they do not build node graphs themselves.
+- Music theory stays in `src/lib/music/`; it names voices, never makes them.
+
+## Samples
+
+Synthesis first (`AGENTS.md` §5). If a voice tops out after tuning by ear,
+an openly-licensed one-shot may drop in behind the **same** function
+signature, credited, under `public/audio/`. Per voice, noted in the file
+header — never a wholesale switch.

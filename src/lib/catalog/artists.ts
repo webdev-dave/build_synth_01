@@ -790,6 +790,399 @@ export const ARTISTS: Artist[] = [
       "Yiddish blues",
     ],
   },
+
+  // ───────────────── The blues abroad (see /history/blues#abroad) ─────────────
+  {
+    slug: "chris-barber",
+    places: ["united-kingdom", "london"],
+    name: "Chris Barber",
+    era: "1930–2021",
+    micro:
+      "English trad-jazz trombonist who used his own popularity to import the blues — the tours that put Big Bill Broonzy and Muddy Waters in front of British audiences were his.",
+    bio: "Chris Barber led one of Britain's most popular bands of the 1950s, and spent that success on music his fans had never heard. Because the Musicians' Union barred visiting American instrumentalists, he first exploited the fact that singers belonged to a different union, then worked through the 1956 exchange agreement: Big Bill Broonzy and Brother John Sellers on a British concert tour in 1957, Sister Rosetta Tharpe, Sonny Terry and Brownie McGhee, and in October 1958 Muddy Waters with pianist Otis Spann. Barber spent decades afterwards correcting the legend that Muddy's electric guitar had scandalized Britain — Muddy, he said, never played loud. He kept touring into his late eighties and died in 2021.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "fRoots — “Blues History” interview",
+        url: "https://www.chrisbarber.net/archives/froots/froots.htm",
+      },
+      {
+        label: "Record Collector — The Demon Barber of British Blues",
+        url: "https://recordcollectormag.com/articles/the-demon-barber-of-british-blues",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Chris_Barber",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Chris Barber",
+      "British blues tours 1957 1958",
+      "Muddy Waters UK tour",
+    ],
+  },
+  {
+    slug: "big-bill-broonzy",
+    places: ["chicago", "united-kingdom"],
+    name: "Big Bill Broonzy",
+    era: "c. 1893–1958",
+    micro:
+      "Prolific Chicago bluesman who reinvented himself as a solo “folk blues” singer for European audiences — the first of the great bluesmen many Britons ever heard live.",
+    bio: "Born Lee Conley Bradley in the Mississippi Delta — the year is disputed, either 1893 or 1903, and he encouraged the confusion — Broonzy moved north in the 1920s and became one of the most recorded bluesmen of the pre-war Chicago era, first with a country style and later fronting small bands. After the war, as electric bands took over, he recast himself as a lone acoustic songster for the folk audience, and from 1951 toured Europe repeatedly. In 1957 he crossed Britain on a concert tour with Chris Barber's band, one of the first sustained encounters between British audiences and a working American blues singer. He died of cancer in Chicago in 1958.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Big_Bill_Broonzy",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Big Bill Broonzy",
+      "folk blues Europe tour",
+      "Chicago blues 1930s",
+    ],
+  },
+  {
+    slug: "alexis-korner",
+    places: ["london", "united-kingdom"],
+    name: "Alexis Korner",
+    era: "1928–1984",
+    micro:
+      "Paris-born, London-raised guitarist called the “father of British blues” — his Blues Incorporated was the band nearly every British blues musician passed through.",
+    bio: "Alexis Korner was born in Paris in 1928 and moved to London as a teenager. He played in Chris Barber's band, then teamed with harmonica player Cyril Davies to run the London Blues and Barrelhouse Club, and in 1961 the pair formed Blues Incorporated — the first amplified rhythm-and-blues band in Britain, with a deliberately fluid line-up. Their Rhythm and Blues Night, opened at the Ealing Jazz Club on 17 March 1962, is generally treated as the moment British blues became its own scene; Korner introduced Mick Jagger and Keith Richards to Brian Jones there. He was inducted into the Rock & Roll Hall of Fame in 2024, alongside John Mayall, under the Musical Influence Award.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "The Ealing Club — history",
+        url: "https://www.ealingclub.com/ealingclubhistory/",
+      },
+      {
+        label: "Rock & Roll Hall of Fame — Class of 2024",
+        url: "https://rockhall.com/inductees/classes/2024/",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Alexis_Korner",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Alexis Korner",
+      "Blues Incorporated",
+      "Ealing Club 1962",
+      "father of British blues",
+    ],
+  },
+  {
+    slug: "john-mayall",
+    places: ["united-kingdom", "london"],
+    name: "John Mayall",
+    era: "1933–2024",
+    micro:
+      "The “godfather of British blues” — a bandleader whose Bluesbreakers worked less like a group than a school for guitarists.",
+    bio: "John Mayall was born in Cheshire in 1933 and taught himself piano, guitar, and harmonica on his father's jazz and blues records. Alexis Korner talked him into moving to London, where he formed the Bluesbreakers; from 1963 the band held down a Marquee Club residency, and between 1965 and 1969 its revolving line-ups launched Eric Clapton (who left for Cream), Peter Green, John McVie, and Mick Fleetwood (who formed Fleetwood Mac), and Mick Taylor (who joined the Rolling Stones). The 1966 album Blues Breakers with Eric Clapton is usually credited with lighting the electric blues boom on both sides of the Atlantic. He was awarded an OBE in 2005, toured until 2022, and was inducted into the Rock & Roll Hall of Fame in 2024. He died in California that July.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "BBC News — obituary",
+        url: "https://www.bbc.com/news/articles/c80ej3j9j72o",
+      },
+      {
+        label: "Rock & Roll Hall of Fame — Class of 2024",
+        url: "https://rockhall.com/inductees/classes/2024/",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/John_Mayall",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "John Mayall",
+      "Bluesbreakers",
+      "godfather of British blues",
+    ],
+  },
+  {
+    slug: "the-rolling-stones",
+    places: ["london", "united-kingdom"],
+    name: "The Rolling Stones",
+    era: "formed 1962",
+    micro:
+      "The London band that formed at a blues night and took its name from a Muddy Waters record — then used its fame to put American bluesmen on American television.",
+    bio: "The Rolling Stones came together in 1962 out of the crowd at Alexis Korner and Cyril Davies's blues night at the Ealing Club, where Brian Jones met Mick Jagger and Keith Richards; Charlie Watts arrived from Blues Incorporated. Their name came from Muddy Waters's “Rollin' Stone,” and their early sets were largely covers of Chess Records material — Waters, Howlin' Wolf, Jimmy Reed, Willie Dixon. That debt was not private: when ABC's Shindig! booked them in May 1965, they made Howlin' Wolf's appearance a condition of their own and sat at his feet while he played, giving him his first performance on American national television.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Open Culture — the Stones introduce Howlin’ Wolf (1965)",
+        url: "https://www.openculture.com/2024/07/the-rolling-stones-introduce-bluesman-howlin-wolf-on-us-tv-1965.html",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/The_Rolling_Stones",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Rolling Stones blues covers",
+      "Rollin' Stone Muddy Waters name",
+      "Shindig Howlin' Wolf 1965",
+    ],
+  },
+  {
+    slug: "howlin-wolf",
+    places: ["mississippi", "chicago", "germany", "united-kingdom"],
+    name: "Howlin’ Wolf",
+    era: "1910–1976",
+    micro:
+      "Born Chester Burnett — the huge voice of Chicago blues, and Muddy Waters’s great rival at Chess Records.",
+    bio: "Chester Arthur Burnett was born in Mississippi in 1910 and worked as a farmer and juke-joint singer before recording in Memphis and moving to Chicago in the early 1950s. At Chess he cut “Smokestack Lightning,” “Spoonful,” “Little Red Rooster,” and “Killing Floor” — much of it written by or with Willie Dixon — in a voice that no British singer ever managed to imitate. His 1964 European tour with the American Folk Blues Festival found him larger crossover crowds than he had at home; the following year the Rolling Stones made his booking a condition of their own Shindig! appearance, and he played American national television for the first time at 54. He died in 1976.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Open Culture — Howlin’ Wolf on Shindig! (1965)",
+        url: "https://www.openculture.com/2024/07/the-rolling-stones-introduce-bluesman-howlin-wolf-on-us-tv-1965.html",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Howlin%27_Wolf",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Howlin' Wolf",
+      "Chester Burnett",
+      "Chess Records",
+      "Smokestack Lightning",
+    ],
+  },
+  {
+    slug: "willie-dixon",
+    places: ["mississippi", "chicago", "germany"],
+    name: "Willie Dixon",
+    era: "1915–1992",
+    micro:
+      "Chess Records’ bassist, songwriter, and talent broker — the man who wrote much of the Chicago blues canon and helped ship it to Europe.",
+    bio: "Willie Dixon was born in Vicksburg, Mississippi, in 1915 and became the central working musician of Chess Records in Chicago: house bassist, arranger, producer, and above all songwriter, with “Hoochie Coochie Man,” “Little Red Rooster,” “Spoonful,” and “I Just Want to Make Love to You” among the songs British bands later treated as standards. When the German promoters Horst Lippmann and Fritz Rau wanted to bring American blues to Europe, it was Dixon's contacts that made the American Folk Blues Festival possible from 1962, and he toured with it as bassist and de facto musical director. He spent his later years fighting for songwriters' royalties and founded the Blues Heaven Foundation. He died in 1992.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Wikipedia — American Folk Blues Festival",
+        url: "https://en.wikipedia.org/wiki/American_Folk_Blues_Festival",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Willie_Dixon",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Willie Dixon",
+      "Chess Records songwriter",
+      "American Folk Blues Festival",
+    ],
+  },
+  {
+    slug: "memphis-slim",
+    places: ["memphis", "chicago", "france"],
+    name: "Memphis Slim",
+    era: "1915–1988",
+    micro:
+      "Blues pianist born Peter Chatman who moved to Paris in 1962 and spent the rest of his life as Europe’s resident bluesman.",
+    bio: "Memphis Slim was born John Len Chatman in Memphis in 1915 and made his name in Chicago from the late 1930s, leading the House Rockers and cutting hundreds of sides. In 1959 he formed a duo with Willie Dixon, first left the United States in 1960, and returned to Europe in 1962 with the first American Folk Blues Festival tour — then stayed. He lived in Paris for the rest of his life, playing the Latin Quarter clubs, appearing constantly on French television, acting in films, and scoring one. France made him a Commander of the Ordre des Arts et des Lettres. He died in Paris in 1988 and is buried in Memphis.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Memphis_Slim",
+      },
+      {
+        label: "The New York Times — obituary (1988)",
+        url: "https://www.nytimes.com/1988/02/27/obituaries/memphis-slim-singer-of-blues-is-dead-at-72.html",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Memphis Slim",
+      "Peter Chatman",
+      "blues in Paris",
+      "American blues expatriate",
+    ],
+  },
+  {
+    slug: "van-morrison",
+    places: ["belfast", "united-kingdom"],
+    name: "Van Morrison",
+    era: "b. 1945",
+    micro:
+      "Belfast singer whose band Them turned a seaman’s mission into the north of Ireland’s rhythm-and-blues headquarters.",
+    bio: "Van Morrison was born in Belfast in 1945 and grew up on his father's American blues, jazz, and gospel records. After showband work he fronted Them, whose residency at the Maritime Hotel — an old seaman's mission turned R&B club — made Belfast the place in Ireland where the blues was played hard, and produced “Gloria,” “Here Comes the Night,” and “Mystic Eyes.” He left for America and a long solo career, beginning with Astral Weeks (1968), which is not a blues record but could not have been made by someone who had not played them.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Van_Morrison",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Van Morrison",
+      "Them Belfast",
+      "Maritime Hotel R&B",
+      "Irish blues",
+    ],
+  },
+  {
+    slug: "rory-gallagher",
+    places: ["ireland", "belfast", "united-kingdom"],
+    name: "Rory Gallagher",
+    era: "1948–1995",
+    micro:
+      "Irish blues guitarist who found the music in shortwave static in Cork, then made Belfast his base — a live player’s player who never chased a hit.",
+    bio: "Rory Gallagher was born in Ballyshannon, County Donegal, in 1948 and raised in Cork, where he hunted American Forces Network and Radio Luxembourg for the blues that Irish state radio would not play. He formed Taste in Cork, then based himself in Belfast from 1967: the city sat outside the Federation of Irish Musicians' reach, had a hard blues and jazz scene around record-shop owner Dougie Knight and pianist Jim Daly, and gave Taste a residency at the Maritime that Them had made famous. He went solo in 1971 and built his reputation almost entirely on stage — Irish Tour '74, recorded through the worst of the Troubles, is the record most often held up as the evidence. He died in London in 1995, at 47.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Louder — The Making of Irish Tour ’74",
+        url: "https://www.loudersound.com/features/rory-gallagher-the-making-of-irish-tour-74",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Rory_Gallagher",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Rory Gallagher",
+      "Taste",
+      "Irish Tour '74",
+      "Irish blues guitar",
+    ],
+  },
+  {
+    slug: "cuby-and-blizzards",
+    places: ["netherlands"],
+    name: "Cuby + Blizzards",
+    era: "formed 1964",
+    micro:
+      "Dutch blues band from the village of Grolloo whose farmhouse became a waystation for visiting American and British bluesmen.",
+    bio: "Cuby + Blizzards were founded in 1964 in Grolloo, in the Dutch province of Drenthe, by singer Harry Muskee — whose dog Cuby gave the band its name — and guitarist Eelco Gelling. Their sound had no real precedent in the Netherlands, and hits like “Back Home” (1966) and “Window of My Eyes” (1967) made them a national band. Grolloo mattered as much as the records: the Chicago pianist Eddie Boyd rehearsed at Muskee's farm for three days before they cut Praise the Blues together in Hilversum in March 1967, John Mayall stayed there the same year, and Alexis Korner sat in with them on Live in Düsseldorf (1968). Muskee died in 2011.",
+    genres: ["blues", "rock"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Cuby_%2B_Blizzards",
+      },
+      {
+        label: "Cuby Museum Grolloo — Praise the Blues",
+        url: "https://www.cubymuseumgrolloo.nl/archief/edboyd.htm",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Cuby + Blizzards",
+      "Harry Muskee",
+      "Dutch blues",
+      "Praise the Blues Eddie Boyd",
+    ],
+  },
+  {
+    slug: "ali-farka-toure",
+    places: ["mali", "west-african-savanna"],
+    name: "Ali Farka Touré",
+    era: "1939–2006",
+    micro:
+      "Malian guitarist whose music the West sold as “desert blues” — a label he rejected for the rest of his life.",
+    bio: "Ali Ibrahim “Farka” Touré was born in the Timbuktu region of Mali in 1939 and made his home in Niafunké, on the Niger river. His hypnotic, repetitive guitar drew constant comparison to John Lee Hooker — journalists called him “the African John Lee Hooker” — and the comparison first built his international career and then infuriated him: he said he played traditional Songhai music, not the blues, and that the traffic had run the other way. His collaborations with Ry Cooder (Talking Timbuktu, 1994) and Toumani Diabaté brought him a worldwide audience, and he became the godfather of the Festival au Désert, playing its closing concert every year from 2003. He died in Bamako in 2006.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "The Guardian — obituary (2006)",
+        url: "https://www.theguardian.com/news/2006/mar/08/guardianobituaries.artsobituaries",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Ali_Farka_Toure",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Ali Farka Touré",
+      "desert blues",
+      "Malian blues",
+      "Talking Timbuktu",
+    ],
+  },
+  {
+    slug: "tinariwen",
+    places: ["mali"],
+    name: "Tinariwen",
+    era: "formed late 1970s",
+    micro:
+      "Tuareg collective from the Sahara whose guitar music is filed under “desert blues” — though they say they first heard American blues on tour in the 2000s.",
+    bio: "Tinariwen — the name is Tamasheq for “deserts” — formed among Tuareg exiles in southern Algeria and northern Mali in the late 1970s. Founder Ibrahim Ag Alhabib built his first guitar from an oil can, a stick, and a bicycle brake wire, and learned on old Tuareg melodies, Arabic pop, and Ali Farka Touré's cassettes. Their songs of exile and rebellion circulated for years on tape before their first studio album in the early 1990s and their international touring from the early 2000s; Tassili (2011) won a Grammy. Members have said the resemblance to American blues is not borrowed — they had not heard it until they left the Sahara, and the bootlegs that did reach them were Dire Straits and Jimi Hendrix.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "Tinariwen — official biography",
+        url: "https://www.tinariwen.com/About",
+      },
+      {
+        label: "Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Tinariwen",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Tinariwen",
+      "Tuareg guitar",
+      "desert blues",
+      "Sahara blues band",
+    ],
+  },
+  {
+    slug: "downchild",
+    places: ["canada"],
+    name: "Downchild Blues Band",
+    era: "formed 1969",
+    micro:
+      "Toronto blues band, named for a Sonny Boy Williamson song, whose bar-band repertoire the Blues Brothers carried onto American radio.",
+    bio: "Downchild was formed in Toronto in 1969 by the guitarist and harmonica player Donnie “Mr. Downchild” Walsh and his brother, the singer Richard “Hock” Walsh, and took its name from Sonny Boy Williamson's “Mr. Downchild.” Two years as house band at Grossman's Tavern built the jump-and-Chicago-blues style that made them Canada's first nationally known blues act, with the 1973 hit “Flip, Flop and Fly.” Dan Aykroyd and John Belushi modeled the Blues Brothers on the Walsh brothers and recorded two Downchild songs — “(I Got Everything I Need) Almost” and “Shot Gun Blues” — on Briefcase Full of Blues in 1978.",
+    genres: ["blues"],
+    history: ["blues"],
+    links: [
+      {
+        label: "The Canadian Encyclopedia",
+        url: "https://thecanadianencyclopedia.ca/en/article/downchild-emc",
+      },
+      {
+        label: "Canadian Songwriters Hall of Fame",
+        url: "https://www.cshf.ca/song/ive-got-everything-i-need-almost/",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Downchild Blues Band",
+      "Donnie Walsh",
+      "Canadian blues",
+      "Blues Brothers Briefcase Full of Blues",
+    ],
+  },
 ];
 
 export function getArtist(slug: string): Artist | undefined {

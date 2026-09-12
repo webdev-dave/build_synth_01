@@ -3,8 +3,9 @@
 /**
  * HomeMapTeaser — a quiet, non-interactive preview of the Music History Map
  * for the bottom of the homepage. One job: show that music history has a
- * geography here (tinted places, historical overlays, city dots) and carry
- * the click through to /map, where the real bidirectional map lives.
+ * geography here (tinted places, historical overlays, city dots — no
+ * names; those wait until you zoom in on /map) and carry the click
+ * through to /map, where the real bidirectional map lives.
  *
  * Deliberately lighter than MusicMap: world countries only (no US states
  * layer), no zoom, no per-feature handlers — the whole picture is one link.

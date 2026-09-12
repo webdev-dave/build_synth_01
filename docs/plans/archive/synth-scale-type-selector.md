@@ -13,43 +13,29 @@ Second goal: a **two-way link** with the Scales module — the learn panel
 links to the scale's page, and every scale lesson links back into the synth
 with that scale preselected (`?scale=D-dorian`).
 
-## Status (2026-09-12) — read this first
+## Status (2026-09-12) — complete
 
-**Phases A–E shipped 2026-09-12** (see the log at the end). Only Phase F
-remains, by design.
+**Requested work shipped and live** (Phases A–E, commit `b9abf30`,
+promoted as `instrumaps-d9fks7tcq`). The Type dropdown, catalog-driven
+dots/lock/degrees, learn-panel card, and live `?scale=` deep links are
+on `/synth/v2`. Phase F (locked embed, sibling cycling) was never in
+this pass — parked follow-ons, not leftover work.
 
-The theory layer this plan asked for **already shipped** with the Scales
-module. What is left is the synth UI itself, and that is what the owner has
-now asked for:
+This plan is **done**. Archived to `docs/plans/archive/`.
 
-> A dropdown on the synth to pick a scale or mode type. While it is selected
-> the learn panel shows basic info about it with a link to read more on the
-> scale's page — and the green/red in-scale dots, lock, and degree numbers
-> all work correctly for that scale.
-
-### Already done (do not rebuild)
+### Already in place (do not rebuild)
 
 | Was planned as | Exists today |
 |---|---|
-| Phase 1 catalog `SCALE_CATALOG` | `src/lib/music/scaleCatalog.ts` — 17 types (the audited 14 + `majorBlues`, `doubleHarmonic`, `rast`), quality-aware degrees, `group`, `feel`, `aliases`, `parent`, per-degree `cents` for Rast |
-| `spellScale` letter-once spelling | `spellScale`, `spellDegrees`, `rootNameFor`, `noteNameAt`, `simpleName` in the same file (picks the double-accidental-free root per scale) |
-| Quality-aware degree labels on keys | `KeyboardV2.scaleDegrees` accepts `string` labels ("♭3", "♯4", "½♭3"); every lesson keyboard uses them |
-| Maqam context | Quarter-tone tuning strip on `KeyboardV2` (`TuningStrip.tsx`), `useAudioSynthesis.detuneCents`, `detuneMapFor`; live on `/synth/v2` and every lesson |
-| Lesson pages to link to | 17 live `/scales/<slug>` pages; `ScaleLesson.patternKey` maps each slug to its catalog id (`src/lib/scales/registry.ts`) |
-| Follow-ons "double harmonic", "major blues" | Both in the catalog with lessons |
+| Phase 1 catalog `SCALE_CATALOG` | `src/lib/music/scaleCatalog.ts` — 17 types (the audited 14 + `majorBlues`, `doubleHarmonic`, `rast`), quality-aware degrees, `group`, `feel`, `aliases`, `parent`/`relative`, per-degree `cents` for Rast |
+| `spellScale` letter-once spelling | `spellScale`, `spellDegrees`, `rootNameFor`, `noteNameAt`, `simpleName` in the same file |
+| Quality-aware degree labels on keys | `KeyboardV2.scaleDegrees` accepts `string` labels ("♭3", "♯4", "½♭3") |
+| Maqam context | Quarter-tone tuning strip on `KeyboardV2`; Rast presses it from the Type dropdown |
+| Lesson pages to link to | 17 live `/scales/<slug>` pages; `getScaleByPatternKey` + `LessonToolbar` "Try it on the synth" |
+| Synth membership / labels | `pitchClassInScale`, `degreeLabelMap` — v2 no longer uses `useScaleLogic` for scale lock (kept for `identifyChord` / v1 / MidiLab) |
 
-### Still true
-
-- `SynthV2.tsx` has a local `SCALE_PATTERNS` (major/minor only), feeds
-  `useScaleLogic` a `"C major"` string for `isNoteInScale`, and its
-  `degreeMap` emits ordinals 1–7. The type control is a 2-option
-  `Segmented`. The learn panel's `scale` concept has one hard-coded
-  relative-major/minor sentence and links to `/lessons/scales` (which now
-  redirects to `/scales/major-scale`).
-- `useScaleLogic` is also used by Synth v1 and MidiLab. Leave it alone;
-  v2 stops depending on it for membership and keeps it for `identifyChord`.
-- The theory section below is the audited source of truth for the
-  patterns; it still holds.
+The theory section below is still the audited source of truth for the
+patterns.
 
 ---
 
@@ -412,6 +398,8 @@ promotion is a separate, owner-approved step
 
 ## Log
 
+- **2026-09-12 · Archived.** Requested work complete; Phase F stays
+  parked. Moved to `docs/plans/archive/`.
 - **2026-09-12 · Phases A–E shipped.** `/synth/v2` has a **Type** dropdown
   (native `<select>`, optgroups from `SCALE_GROUP_LABELS`, all 17 catalog
   types incl. Rast) in its own labelled column right after the root, so

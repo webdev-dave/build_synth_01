@@ -9,8 +9,9 @@
  * fetched from /geo/*; what's selectable and what it means comes from
  * src/lib/places/registry.ts.
  *
- * Visual honesty: places with content get a quiet warm tint and a dot;
- * everything else stays neutral. Clicking anywhere still answers — unmapped
+ * Visual honesty: places with content get a quiet warm tint and a city dot.
+ * Names stay off the globe and only land once you zoom into that area.
+ * Everything else stays neutral. Clicking anywhere still answers — unmapped
  * features report their name so the panel can say "not mapped yet."
  */
 import {
@@ -32,6 +33,14 @@ import {
 } from "@/lib/places/registry";
 import { cn } from "@/lib/utils";
 import { loadGeoData, type NamedFeature } from "./geoData";
+import {
+  CITY_LABEL_MIN_ZOOM,
+  LABEL_MIN_ZOOM,
+  landLabelFontSvg,
+  landmassLabelVisible,
+  mainlandFeature,
+  zoomForLandLabel,
+} from "./mapLabels";
 
 /** What a map click/zoom resolves to. */
 export type MapSelection =
@@ -66,7 +75,12 @@ interface MusicMapProps {
 
 const W = 960;
 const H = 520;
-const MAX_K = 24;
+const MAX_K = 40;
+/**
+ * Click zoom per scale: a city is a point, so it earns a closer look than the
+ * country (8) or state (12) shapes that hold it.
+ */
+const CITY_K = 28;
 
 interface ViewTransform {
   k: number;
@@ -75,6 +89,36 @@ interface ViewTransform {
 }
 
 const WORLD_VIEW: ViewTransform = { k: 1, tx: 0, ty: 0 };
+
+function LandLabel({
+  name,
+  x,
+  y,
+  k,
+  emphasized,
+}: {
+  name: string;
+  x: number;
+  y: number;
+  k: number;
+  emphasized?: boolean;
+}) {
+  return (
+    <text
+      x={x}
+      y={y}
+      textAnchor="middle"
+      dominantBaseline="middle"
+      className={cn(
+        "pointer-events-none font-mono",
+        emphasized ? "fill-foreground" : "fill-foreground/80",
+      )}
+      fontSize={landLabelFontSvg(k, emphasized)}
+    >
+      {name}
+    </text>
+  );
+}
 
 /** Keep the content covering the viewport: no drifting into empty space. */
 function clampView(v: ViewTransform): ViewTransform {
@@ -164,12 +208,18 @@ export function MusicMap({
 
   // ── Zoom helpers ─────────────────────────────────────────────────────────
   const zoomToBounds = useCallback(
-    (bounds: [[number, number], [number, number]], maxK = MAX_K) => {
+    (
+      bounds: [[number, number], [number, number]],
+      maxK = MAX_K,
+      /** Bump in so a small country (Ireland) still gets its name. */
+      ensureLabel = false,
+    ) => {
       const [[x0, y0], [x1, y1]] = bounds;
-      const k = Math.min(
+      let k = Math.min(
         maxK,
         Math.max(1, 0.85 / Math.max((x1 - x0) / W, (y1 - y0) / H)),
       );
+      if (ensureLabel) k = Math.min(MAX_K, Math.max(k, zoomForLandLabel(bounds)));
       const cx = (x0 + x1) / 2;
       const cy = (y0 + y1) / 2;
       setView(clampView({ k, tx: W / 2 - k * cx, ty: H / 2 - k * cy }));
@@ -178,10 +228,13 @@ export function MusicMap({
   );
 
   const zoomToPoint = useCallback(
-    (lngLat: [number, number], k = 7) => {
+    (lngLat: [number, number], k = CITY_K) => {
       const p = projection(lngLat);
       if (!p) return;
-      setView(clampView({ k, tx: W / 2 - k * p[0], ty: H / 2 - k * p[1] }));
+      const zoom = Math.max(k, CITY_LABEL_MIN_ZOOM + 0.05);
+      setView(
+        clampView({ k: zoom, tx: W / 2 - zoom * p[0], ty: H / 2 - zoom * p[1] }),
+      );
     },
     [projection],
   );
@@ -279,7 +332,12 @@ export function MusicMap({
         geom = countries.find((c) => String(c.id) === place.geo.countryId);
       else if (place.geo.stateId)
         geom = states.find((s) => String(s.id) === place.geo.stateId);
-      if (geom) zoomToBounds(path.bounds(geom), place.geo.stateId ? 12 : 8);
+      if (geom)
+        zoomToBounds(
+          path.bounds(mainlandFeature(geom, path)),
+          place.geo.stateId ? 12 : 8,
+          true,
+        );
     },
     [countries, states, overlays, path, zoomToBounds, zoomToPoint],
   );
@@ -323,7 +381,7 @@ export function MusicMap({
         geom = countries.find((c) => String(c.id) === p.geo.countryId);
       else if (p.geo.stateId)
         geom = states.find((s) => String(s.id) === p.geo.stateId);
-      if (geom) extend(path.bounds(geom));
+      if (geom) extend(path.bounds(mainlandFeature(geom, path)));
     }
 
     if (x0 === Infinity) return;
@@ -376,7 +434,11 @@ export function MusicMap({
         return;
       }
       zoomedRef.current = featureKey;
-      zoomToBounds(path.bounds(geom), featureKey.startsWith("state:") ? 12 : 8);
+      zoomToBounds(
+        path.bounds(mainlandFeature(geom, path)),
+        featureKey.startsWith("state:") ? 12 : 8,
+        true,
+      );
       onSelect?.(
         place
           ? { kind: "place", id: place.id }
@@ -395,7 +457,7 @@ export function MusicMap({
     };
 
   // ── Style helpers ────────────────────────────────────────────────────────
-  const zoomedIn = view.k > 2.2;
+  const zoomedIn = view.k > LABEL_MIN_ZOOM;
   const transform = `translate(${view.tx}, ${view.ty}) scale(${view.k})`;
 
   const cityPlaces = PLACES.filter((p) => p.geo.point);
@@ -570,6 +632,56 @@ export function MusicMap({
             );
           })}
 
+          {/* Featured country / state names — off the globe; on the landmass
+              only once you've zoomed in over that shape. */}
+          {countries.map((c, i) => {
+            const id = c.id != null ? String(c.id) : undefined;
+            const place = id ? placeByCountryId(id) : undefined;
+            if (!place || !isFocused(place)) return null;
+            const land = mainlandFeature(c, path);
+            if (
+              place.id !== selectedId &&
+              !landmassLabelVisible(path.bounds(land), view.k)
+            )
+              return null;
+            const [x, y] = path.centroid(land);
+            if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+            const featureKey = id ?? c.properties?.name ?? `country-${i}`;
+            return (
+              <LandLabel
+                key={`country-label-${featureKey}`}
+                name={place.name}
+                x={x}
+                y={y}
+                k={view.k}
+                emphasized={place.id === selectedId}
+              />
+            );
+          })}
+          {states.map((s) => {
+            const id = String(s.id);
+            const place = placeByStateId(id);
+            if (!place || !isFocused(place)) return null;
+            const land = mainlandFeature(s, path);
+            if (
+              place.id !== selectedId &&
+              !landmassLabelVisible(path.bounds(land), view.k)
+            )
+              return null;
+            const [x, y] = path.centroid(land);
+            if (!Number.isFinite(x) || !Number.isFinite(y)) return null;
+            return (
+              <LandLabel
+                key={`state-label-${id}`}
+                name={place.name}
+                x={x}
+                y={y}
+                k={view.k}
+                emphasized={place.id === selectedId}
+              />
+            );
+          })}
+
           {/* City points */}
           {cityPlaces.map((p) => {
             const proj = projection(p.geo.point!);
@@ -617,13 +729,19 @@ export function MusicMap({
                 >
                   <title>{p.name}</title>
                 </circle>
-                {zoomedIn && (
+                {(isSelected || view.k > CITY_LABEL_MIN_ZOOM) && (
                   <text
                     x={proj[0]}
-                    y={proj[1] - 6 / view.k}
+                    y={proj[1] - (isSelected ? 13 : 6) / view.k}
                     textAnchor="middle"
-                    className="pointer-events-none fill-foreground/80 font-mono"
-                    fontSize={10 / view.k}
+                    className={cn(
+                      "pointer-events-none font-mono",
+                      isSelected ? "fill-foreground" : "fill-foreground/80",
+                    )}
+                    // The picked city is the loudest name in view; the rest stay quiet.
+                    fontSize={
+                      isSelected ? landLabelFontSvg(view.k, true) : 10 / view.k
+                    }
                   >
                     {p.name}
                   </text>

@@ -116,6 +116,10 @@ are places with relationships, and the app shows you the connections.
 - **Lightweight synthesis over samples** where practical (oscillators,
   generated impulse responses) — no audio files to load, and it keeps us
   honest about what's actually sounding.
+- **Raw Web Audio, no audio frameworks.** One shared `AudioContext`, one
+  clock, recipes in `src/lib/audio/`. Libraries are ingredients behind our
+  own interfaces, never the kitchen. Why and when to revisit:
+  `docs/audio-stack.md`; guardrails: `.cursor/rules/audio-stack.mdc`.
 
 ## 6. Interaction
 

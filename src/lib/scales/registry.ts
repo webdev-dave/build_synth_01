@@ -319,7 +319,7 @@ export const SCALES: ScaleLesson[] = [
     keywords: ["what is dorian mode", "dorian scale notes", "dorian vs minor"],
   },
   // ---------------------------------------------------------------------
-  // Stubs for the rest of the catalog (docs/plans/scales-catalog-and-lessons.md).
+  // Stubs for the rest of the catalog (docs/plans/archive/scales-catalog-and-lessons.md).
   // They exist so every cross-link on a live page resolves; each flips to
   // "live" when its lesson lands. Copy is true standalone (it is the meta
   // description), so a stub is still a real answer.

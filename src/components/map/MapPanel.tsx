@@ -160,9 +160,10 @@ export function MapPanel({
           Reading the map
         </h2>
         <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-          Tinted places have a story we&rsquo;ve written; dots are cities;
-          dashed shapes are historical regions — places like the Pale of
-          Settlement or the Mississippi Delta that no modern border shows.
+          Tinted places have a story we&rsquo;ve written; dots are cities.
+          Zoom into a region and country, state, and city names sit on the
+          map. Dashed shapes are historical regions — places like the Pale
+          of Settlement or the Mississippi Delta that no modern border shows.
           Click anything, or search above, including by historical names
           (Kishinev, Vilna, Bessarabia&hellip;).
         </p>

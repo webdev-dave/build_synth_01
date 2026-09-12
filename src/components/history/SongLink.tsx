@@ -297,7 +297,14 @@ export function SongLink({
             </a>
           ) : null}
 
-          <GenrePills slugs={song.genres} compact className="mt-1 px-2.5" />
+          {/* `inline`: the panel is span-only so it can open inside a prose
+              <p>; a <ul> here would break hydration. */}
+          <GenrePills
+            slugs={song.genres}
+            compact
+            inline
+            className="mt-1 px-2.5"
+          />
 
           {/* Cross-links into the catalog — the song's own page and its
               artists' pages, so every mention is a doorway into the graph. */}

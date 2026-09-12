@@ -44,7 +44,7 @@ for what stays in `/lessons`.
    `.cursor/rules/history-articles.mdc` ("Bidirectional links").
 4. **Modes are scales.** Dorian et al. live under `/scales/[slug]` with
    `kind: "mode"`, so the synth's planned `?scale=…` deep-link
-   ([synth-scale-type-selector.md](synth-scale-type-selector.md)) has one
+   ([synth-scale-type-selector.md](archive/synth-scale-type-selector.md)) has one
    unambiguous landing target.
 5. **Blues first for both modules.** This overrides Genre Lab's old
    "reggae-first" milestone (that was a rhythm-widget proof, not a URL
@@ -123,6 +123,24 @@ section and puts the widget that plays it directly underneath.
 - Reuse: any future scale lesson wraps its sections in
   `ScaleLessonProvider` and composes the same widgets with its own
   `ScaleDegree[]`.
+
+## Shipped 2026-09-12: genre scale layer = door first, short piano second
+
+The genre page's Scale layer used to embed the *entire* scale lesson (six
+sections, "read this page top to bottom" intro included) and only linked to
+`/scales/<slug>` at the bottom. Now, for any genre with `scales`:
+
+- **"View the full lesson" comes first** (`ScaleLayerPanel` in
+  `GenreLayers.tsx`) — a card above the answer/formula so the reader knows
+  the deep-dive exists before reading or playing here. Label falls back to
+  "About this scale" when the spoke is still a placeholder (doors, not dead
+  ends).
+- **`ScaleTeaser`** (`src/components/scales/ScaleTeaser.tsx`) is the short
+  version: root/octave/lock toolbar + play button, degree chips, one locked
+  keyboard. Generic — reads `ScaleLesson.patternKey` via `degreesOf()`, opens
+  on `exampleKey`. Klezmer's Freygish row lights up with zero extra code.
+- The client bundle no longer pulls all 17 lessons: `hasLesson` is resolved
+  in the server page, `GenreLayers` no longer imports `src/content/scales`.
 
 ## Next slices (when we build content)
 

@@ -3,7 +3,11 @@
 import { useCallback, useMemo } from "react";
 
 import { LessonKeyboard } from "./LessonKeyboard";
+import { TryOnSynthLink } from "./TryOnSynthLink";
 import { useScaleLesson } from "./ScaleLessonProvider";
+import { typeIdForDegrees } from "@/lib/music/scaleCatalog";
+import { synthHrefFor } from "@/lib/music/scaleParam";
+import { cn } from "@/lib/utils";
 import type { ScaleDegree } from "./notes";
 
 interface ScaleKeyboardProps {
@@ -63,17 +67,31 @@ export function ScaleKeyboard({
     return map;
   }, [homePc, degrees]);
 
+  // Same deep link the old toolbar used, but under this piano — a comparer
+  // side with a shifted root opens that scale, not the page's home one.
+  const typeId = useMemo(() => typeIdForDegrees(degrees), [degrees]);
+  const synthHref = typeId ? synthHrefFor(homePc, typeId) : null;
+
   return (
-    <LessonKeyboard
-      keys={keys}
-      activeKeys={displayActiveKeys}
-      isNoteInScale={isNoteInScale}
-      lockToScale={lockToScale ?? pageLock}
-      scaleDegrees={scaleDegrees}
-      onNoteStart={startNote}
-      onNoteStop={stopNote}
-      detune={tuningStrip ? { cents: detuneCents, onChange: setDetuneCents } : undefined}
-      className={className}
-    />
+    <div
+      className={cn(
+        // The next lesson H2 is `mt-10`; eat part of that now that a
+        // link sits under the keys, or the header floats too far below.
+        className,
+        synthHref && tuningStrip && "-mb-6",
+      )}
+    >
+      <LessonKeyboard
+        keys={keys}
+        activeKeys={displayActiveKeys}
+        isNoteInScale={isNoteInScale}
+        lockToScale={lockToScale ?? pageLock}
+        scaleDegrees={scaleDegrees}
+        onNoteStart={startNote}
+        onNoteStop={stopNote}
+        detune={tuningStrip ? { cents: detuneCents, onChange: setDetuneCents } : undefined}
+      />
+      {synthHref && <TryOnSynthLink href={synthHref} className="mt-2" />}
+    </div>
   );
 }

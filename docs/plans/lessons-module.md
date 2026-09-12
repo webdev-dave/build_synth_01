@@ -11,6 +11,15 @@
 > migrated/redirected to `/scales` when that registry is next touched. The
 > widget designs in Phase 2 are still the plan — they get built **on the
 > `/scales` pages**.
+>
+> **Role change (2026-09-12).** "Lessons" is the **parent bucket** of every
+> theory module — concepts, scales, progressions, grooves, forms, genres,
+> history — not a peer of them. `/lessons` becomes the curriculum index
+> that lists those modules; spoke URLs stay flat (`/scales/x`, never
+> `/lessons/scales/x`). `chords` and `time-signatures` here move to
+> `/progressions` and `/rhythm` when those spokes are live; waveforms /
+> octaves / frequency become `/concepts/*` pages with Play-it demos.
+> Architecture + phases: [genre-layer-lessons.md](genre-layer-lessons.md).
 
 ## Overview
 
@@ -90,7 +99,7 @@ in this order so vocabulary builds:
       (from `ToDo.md`)
 - [x] ~~"Try it on the synth" deep-link from a lesson into the main synth~~ —
       shipped 2026-09-12 as `/synth/v2?scale=D-dorian` from every `/scales`
-      lesson (preselected, not locked; see synth-scale-type-selector.md)
+      lesson (preselected, not locked; see archive/synth-scale-type-selector.md)
 - [ ] Consider MDX if writing volume grows (not worth the pipeline for 3 lessons)
 
 ---

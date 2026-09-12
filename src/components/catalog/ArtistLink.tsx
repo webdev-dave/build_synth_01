@@ -95,7 +95,9 @@ export function ArtistLink({ id, children }: ArtistLinkProps) {
           <span className="mt-1.5 block text-sm leading-relaxed text-foreground">
             {artist.micro}
           </span>
-          <GenrePills slugs={artist.genres} compact className="mt-2" />
+          {/* `inline`: the popover is span-only so it can open inside a
+              prose <p>; a <ul> here would break hydration. */}
+          <GenrePills slugs={artist.genres} compact inline className="mt-2" />
           <Link
             href={`/artists/${artist.slug}`}
             className="group/more mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"

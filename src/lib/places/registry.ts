@@ -492,6 +492,174 @@ export const PLACES: Place[] = [
     status: "stub",
   },
 
+  // ────────────────────── Blues abroad (adopted scenes) ─────────────────────
+  // These are places that took the blues in, not places it came from. The
+  // blurbs say so: no second birthplace, and no `songLabels` — the Piano Roll's
+  // blues library is American, and tagging these with it would claim otherwise.
+  {
+    id: "united-kingdom",
+    kind: "country",
+    name: "United Kingdom",
+    aliases: [{ name: "Britain", era: "common short name" }],
+    geo: { countryId: "826" },
+    music: {
+      blurb:
+        "The loudest case of the blues abroad. British audiences knew the music from records long before they could see it — the Musicians' Union barred visiting American instrumentalists — until Chris Barber worked around the rules and toured Big Bill Broonzy in 1957 and Muddy Waters in October 1958. The scene that followed sent the music back: British bands rebuilt their sets from Chess Records 78s, and used their own fame to put American bluesmen in front of American audiences.",
+      genres: ["blues", "rock"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "ireland",
+    kind: "country",
+    name: "Ireland",
+    geo: { countryId: "372" },
+    music: {
+      blurb:
+        "Rory Gallagher grew up in Cork hunting the blues out of shortwave static, because Irish state radio would not play it. He formed Taste there before moving north to Belfast in 1967 — the Republic's showband circuit had little room for a blues band. This shape is the Republic; Belfast has its own marker.",
+      genres: ["blues", "rock"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "germany",
+    kind: "country",
+    name: "Germany",
+    geo: { countryId: "276" },
+    music: {
+      blurb:
+        "Europe's blues infrastructure was built here. From 1962 the promoters Horst Lippmann and Fritz Rau ran the American Folk Blues Festival out of Germany, using Willie Dixon's Chicago contacts to book musicians who had never worked outside the United States, and touring the continent and Britain almost every year into the 1970s. German television taped the shows, which is why much of that generation of bluesmen survives on film at all.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "france",
+    kind: "country",
+    name: "France",
+    geo: { countryId: "250" },
+    music: {
+      blurb:
+        "Where some of the touring bluesmen stopped touring. Memphis Slim came over with the first American Folk Blues Festival in 1962 and simply stayed, living in Paris until his death in 1988 — a fixture of Latin Quarter clubs and French television, and eventually a Commander of the Ordre des Arts et des Lettres. The Paris Olympia had hosted the festival's sold-out first French concerts in October 1962.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "netherlands",
+    kind: "country",
+    name: "Netherlands",
+    geo: { countryId: "528" },
+    music: {
+      blurb:
+        "The Dutch scene had a village at its center. Cuby + Blizzards, from Grolloo in Drenthe, turned Harry Muskee's farmhouse into a waystation: the Chicago pianist Eddie Boyd rehearsed there before they recorded Praise the Blues together in 1967, John Mayall stayed the same year, and Alexis Korner sat in with the band in 1968.",
+      genres: ["blues", "rock"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "norway",
+    kind: "country",
+    name: "Norway",
+    aliases: [{ name: "Notodden", era: "the blues town in Telemark" }],
+    geo: { countryId: "578" },
+    music: {
+      blurb:
+        "An industrial town of about twelve thousand became a blues capital. Notodden's ironworks closed in 1988; that same year a handful of local musicians put their own savings behind a blues festival. It now draws tens of thousands each August, houses a European blues archive and museum, and took the Memphis Blues Foundation's award for the best international blues festival in 2010.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "mali",
+    kind: "country",
+    name: "Mali",
+    aliases: [{ name: "Timbuktu", era: "Ali Farka Touré's home region" }],
+    geo: { countryId: "466" },
+    music: {
+      blurb:
+        "Not a homecoming, though it is often sold as one. Malian and Saharan guitar music has been marketed in the West as \"desert blues\" since the 1990s, and the resemblance is real — but Ali Farka Touré rejected the label all his life, and Tinariwen say they had not heard American blues until they toured abroad in the 2000s. Mali sits inside the West African savanna overlay: what the two share is ancestry, not a round trip.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "japan",
+    kind: "country",
+    name: "Japan",
+    geo: { countryId: "392" },
+    music: {
+      blurb:
+        "Japan reached the blues backwards. Its blues boom came in the 1970s — after rock, not before it — as musicians chasing what \"real rock\" meant traced it back to the source, producing the Kansai blues scene of Kyoto and Osaka. The Tokyo label P-Vine started in 1976 to put blues and R&B on Japanese shelves, and named itself after the Peavine railroad branch that Delta bluesmen sang about.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "australia",
+    kind: "country",
+    name: "Australia",
+    geo: { countryId: "036" },
+    music: {
+      blurb:
+        "A festival scene, grown far from any migration route. Byron Bay's Bluesfest opened in New South Wales in 1990 as an indoor Easter weekend for six thousand people, with American blues acts sharing the bill with Australian ones, and became a five-day event drawing over a hundred thousand.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "canada",
+    kind: "country",
+    name: "Canada",
+    aliases: [{ name: "Toronto", era: "Downchild's home city" }],
+    geo: { countryId: "124" },
+    music: {
+      blurb:
+        "Toronto's Downchild Blues Band, formed in 1969 and house band at Grossman's Tavern, became the country's first nationally known blues act. Dan Aykroyd and John Belushi modeled the Blues Brothers on the Walsh brothers who led it and recorded two Downchild songs on Briefcase Full of Blues in 1978 — a bar-band repertoire that reached American radio.",
+      genres: ["blues"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "london",
+    kind: "city",
+    name: "London",
+    aliases: [
+      { name: "Ealing", era: "the 1962 blues club's west London suburb" },
+    ],
+    geo: { point: [-0.1276, 51.5072] },
+    music: {
+      blurb:
+        "British blues became its own scene in a basement opposite Ealing Broadway station. Alexis Korner and Cyril Davies opened a Rhythm and Blues Night there on 17 March 1962 — Korner reckoned about a hundred people in London cared about the blues, and all of them turned up. Within a month Brian Jones met Mick Jagger and Keith Richards at the club and the Rolling Stones took shape; John Mayall's Bluesbreakers held the other key residency, at the Marquee.",
+      genres: ["blues", "rock"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+  {
+    id: "belfast",
+    kind: "city",
+    name: "Belfast",
+    geo: { point: [-5.9301, 54.5973] },
+    music: {
+      blurb:
+        "The north of Ireland's rhythm-and-blues headquarters was an old seaman's mission: the Maritime Hotel, where Van Morrison's band Them played. Rory Gallagher moved up from Cork in 1967 and took a residency in the same room — Belfast sat outside the Federation of Irish Musicians' reach and had a hard blues and jazz scene to play to.",
+      genres: ["blues", "rock"],
+      history: ["blues"],
+    },
+    status: "rich",
+  },
+
   // ─────────────────────────── Misirlou geography ─────────────────────────
   {
     id: "istanbul",
@@ -534,11 +702,29 @@ export const PLACES: Place[] = [
   },
 
   // ─────────────────────────── Shared / crossover ──────────────────────────
+  // The state keeps the full name and the city goes by "NYC" — they sit on
+  // top of each other on the map, so one label has to give.
+  {
+    id: "new-york-state",
+    kind: "state",
+    name: "New York",
+    geo: { stateId: "36" },
+    music: {
+      blurb:
+        "New York City is the story here — where immigrant klezmer became American music, and where the blues first reached records. Select the city for the full chapter.",
+      genres: ["klezmer", "yiddish-theater", "blues"],
+      history: ["klezmer", "blues"],
+      songLabels: ["klezmer"],
+    },
+    status: "stub",
+  },
   {
     id: "new-york",
     kind: "city",
-    name: "New York",
+    name: "NYC",
     aliases: [
+      { name: "New York City", era: "full name" },
+      { name: "New York", era: "common short name for the city" },
       { name: "Lower East Side", era: "immigrant klezmer's first American home" },
       { name: "Second Avenue", era: "the Yiddish theater district" },
     ],

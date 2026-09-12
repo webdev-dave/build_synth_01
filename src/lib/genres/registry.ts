@@ -1,11 +1,13 @@
 /**
  * Genre registry — the single list of genres the Genre Lab knows about.
  *
- * A genre is a *stack of layers* (rhythm, meter, harmony, scale, form,
- * texture); each genre leads with the layer that actually defines it. This
- * registry is the source of truth for the `/genres` hub, the `/genres/[slug]`
- * pages, and the sitemap. Interactive widgets (groove player, 12-bar map)
- * come later — see docs/plans/genre-lab-module.md.
+ * A genre is a *stack of layers* (scale, harmony, rhythm, form — then
+ * meter and texture). `signatureLayers` names which layers define a
+ * genre; the page always *reads* them in `LAYER_PAGE_ORDER` (pitch,
+ * then time, then the large shape). This registry is the source of
+ * truth for the `/genres` hub, the `/genres/[slug]` pages, and the
+ * sitemap. Interactive widgets (groove player, 12-bar map) come later
+ * — see docs/plans/genre-lab-module.md.
  *
  * Cross-links are data, not hardcoded prose: a genre points at the scale
  * slugs it uses (`scales`), and the scale registry points back (`usedIn`).
@@ -17,15 +19,37 @@ import { nativeSpellingsOf } from "@/lib/words/registry";
 import { filterByHaystack, joinHaystack, sortByLabel } from "@/lib/search/normalize";
 
 export type GenreLayer =
+  | "scale"
+  | "harmony"
   | "rhythm"
   | "meter"
-  | "harmony"
-  | "scale"
   | "form"
   | "texture";
 
+/**
+ * Reading order on every genre page and the hub legend. Pitch first
+ * (the notes, then the chords), then time (the groove, then the count),
+ * then the large shape, then how the parts sit on top of each other.
+ */
+export const LAYER_PAGE_ORDER: readonly GenreLayer[] = [
+  "scale",
+  "harmony",
+  "rhythm",
+  "meter",
+  "form",
+  "texture",
+] as const;
+
 /** Shared one-line definition of each layer, reused by hub legend + spokes. */
 export const LAYER_INFO: Record<GenreLayer, { label: string; blurb: string }> = {
+  scale: {
+    label: "Scale",
+    blurb: "The collection of notes a melody and solo draw from.",
+  },
+  harmony: {
+    label: "Harmony",
+    blurb: "The chords and how they move — the progression under the melody.",
+  },
   rhythm: {
     label: "Rhythm",
     blurb: "Where the weight sits — which beats are loud, which are silent on purpose.",
@@ -33,14 +57,6 @@ export const LAYER_INFO: Record<GenreLayer, { label: string; blurb: string }> = 
   meter: {
     label: "Meter",
     blurb: "How the bar is counted: 4/4, 3/4, 12/8, and the feel each one carries.",
-  },
-  harmony: {
-    label: "Harmony",
-    blurb: "The chords and how they move — the progression under the melody.",
-  },
-  scale: {
-    label: "Scale",
-    blurb: "The collection of notes a melody and solo draw from.",
   },
   form: {
     label: "Form",
@@ -51,6 +67,11 @@ export const LAYER_INFO: Record<GenreLayer, { label: string; blurb: string }> = 
     blurb: "How the parts are layered: what plays the groove, what fills the space.",
   },
 };
+
+/** Keep only the layers this genre claims, in page reading order. */
+export function orderLayersForPage(layers: readonly GenreLayer[]): GenreLayer[] {
+  return LAYER_PAGE_ORDER.filter((layer) => layers.includes(layer));
+}
 
 export interface Genre {
   /** URL slug under /genres. Kebab-case, no article ("blues", not "the-blues"). */
@@ -69,7 +90,11 @@ export interface Genre {
   answer: string;
   /** Short crawlable body paragraph (origin / why it matters). Honest, not a bio. */
   about: string;
-  /** Layers that define this genre, most-defining first. */
+  /**
+   * Layers that define this genre. Order here is "how much this is
+   * the identity" (search, metadata); the page sorts them with
+   * `orderLayersForPage` before rendering.
+   */
   signatureLayers: GenreLayer[];
   /** Scale registry slugs this genre draws on (first is the signature scale). */
   scales: string[];
@@ -91,7 +116,7 @@ export const GENRES: Genre[] = [
     answer:
       "The blues is a musical form that took shape in African-American communities of the southern United States, drawing on older West African traditions of call-and-response and bent pitch. You can recognise it by three things happening at once: a repeating 12-bar chord pattern built on I, IV and V; a shuffle or swung feel; and the blues scale, whose flattened 'blue' notes give it that aching sound.",
     about:
-      "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
+      "Those West African practices traveled with enslaved people and became work songs, field hollers, and spirituals. Out of that music, around the turn of the 20th century in the southern United States, the blues took its familiar shape — and became the root system of jazz, rhythm and blues, and rock and roll. It traveled again from the 1950s: Britain's blues boom sent the music back to America amplified, and scenes grew from Ireland and Norway to Mali, Japan, and Australia. What makes a piece sound like the blues is rarely one thing — it's a stack of layers working together, which is exactly what this page pulls apart.",
     signatureLayers: ["scale", "form", "rhythm", "harmony"],
     scales: ["blues-scale", "major-blues", "minor-pentatonic", "mixolydian"],
     compareWith: "rock",

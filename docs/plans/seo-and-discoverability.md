@@ -230,7 +230,7 @@ have weak, text-only competition — we beat them by being *playable*):
   "how does the Middle Eastern / Hijaz scale work". → one landing page per
   scale/mode, each deep-linking the synth pre-locked to that scale
   (the `?scale=E-phrygianDominant` deep link already planned in
-  `synth-scale-type-selector.md` — perfect SEO landing target).
+  `archive/synth-scale-type-selector.md` — perfect SEO landing target).
 - **Harmonica positions** (Harmonica Lab): "what key harmonica for a song in
   G", "2nd position harmonica chart", "cross harp key chart", "harmonica for
   blues in E". → position/key landing pages backed by the real 12×5 matrix.
@@ -509,6 +509,6 @@ teaches" mission.
 | Per-page metadata to fill | `src/app/{midi-lab,melody-lab,about,contact}/page.tsx` |
 | Lesson metadata (`generateMetadata`) + schema | `src/app/lessons/[slug]/page.tsx` |
 | Sitemap/llms.txt source of truth | `src/lib/lessons/registry.ts` |
-| Scale deep-link landing target | `src/instruments/synth/v2/` (`?scale=` — see `synth-scale-type-selector.md`) |
+| Scale deep-link landing target | `src/instruments/synth/v2/` (`?scale=` — see `archive/synth-scale-type-selector.md`) |
 | New content backlog | `docs/keyword-map.md` (to create) |
-| Sibling plans | `docs/plans/lessons-module.md`, `docs/plans/synth-scale-type-selector.md` |
+| Sibling plans | `docs/plans/lessons-module.md`, `docs/plans/archive/synth-scale-type-selector.md` |

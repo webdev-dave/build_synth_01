@@ -1,14 +1,16 @@
 # ToDo — plan & sketch tracking
 
 Source of truth for inventory, build status, and what to implement next.
-The specs themselves live in `docs/plans/` and `docs/sketches/`; this file
-tracks them. Ranked items are ordered **most urgent / important → least**.
+The specs themselves live in `docs/plans/` (active) and
+`docs/plans/archive/` (shipped), plus `docs/sketches/`. This file tracks
+them. Ranked items are ordered **most urgent / important → least**.
 Unranked items stay **not specified** — do not treat their list order as
 priority.
 
-Update this file when a plan or sketch is added, shipped, blocked, or
-re-ranked. Promote a tightened sketch into `docs/plans/` when decisions
-harden.
+Update this file when a plan or sketch is added, shipped, archived,
+blocked, or re-ranked. Promote a tightened sketch into `docs/plans/`
+when decisions harden. Move a finished plan to `docs/plans/archive/`
+and list it under Archived below.
 
 ---
 
@@ -24,10 +26,20 @@ harden.
 | Yiddish / Jewish music (dataset + learn-through-song) | [docs/plans/klezmer-yiddish-dataset.md](docs/plans/klezmer-yiddish-dataset.md) | Track A: klezmer melody corpus. Track B: lyric+audio language module | **Not started.** Blocked on `SongDocument` (`src/lib/song/` does not exist). Track B is exploration. | not specified |
 | Interactive Dance Tutorial | [docs/plans/dance-tutorial-module.md](docs/plans/dance-tutorial-module.md) | `/dance` beat-synced footwork lessons; first style West Coast Swing | **Not started.** Spec says sketch first — not a build order to start blindly. | not specified (doc: hold on build) |
 | Self-hosted MIDI library + agentic finder | [docs/plans/self-hosted-midi-library.md](docs/plans/self-hosted-midi-library.md) | Load songs into the Piano Roll; later an allowlist-first agent finds MIDI by title+artist and caches the user's pick | **Not started.** Blocked on `SongDocument`; agent/DB blocked on dropping `output: "export"`. First milestone is client-only (open `.mid` + PD seed). | not specified |
-| Genres + Scales modules (structure + SEO) | [docs/plans/genres-and-scales-modules.md](docs/plans/genres-and-scales-modules.md) | `/genres` + `/scales` hubs & `[slug]` spokes, typed registries, cross-links, per-page metadata + FAQ JSON-LD, first `sitemap.ts`/`robots.ts`, nav | **Partial (2026-09-05).** Structure + SEO shipped; `/scales/blues-scale` now has its interactive lesson (keyboard, pentatonic-vs-blues comparer, degree strip). Next: song embed on the blues pages (blocked on sourcing a PD blues `.mid`), then genre groove widgets. | not specified |
-| Scales catalog + lesson roadmap | [docs/plans/scales-catalog-and-lessons.md](docs/plans/scales-catalog-and-lessons.md) | One `SCALE_CATALOG` + `spellScale` in `src/lib/music`, a lesson template, and the ordered list of `/scales/[slug]` pages (major → pentatonic → harmonica modes → harmonic-minor family incl. freygish → fill → double harmonic / Rast) | **In progress on `main` (2026-09-11).** PR #4 merged + promoted (catalog, primitives, klezmer block live). Owner signed off on tone. Phases 1–2 live: `/scales/major-scale`, `/scales/minor-pentatonic`, `/scales/mixolydian`, `/scales/phrygian`; harmonica v2 lab ↔ scale pages linked by position. Quarter-tone strip (Korg/Yamaha-style, −50¢ switches C–B, presets) live under `KeyboardV2` on `/synth/v2` and lesson keyboards. Alternate names (thaat / melakarta / maqam / makam / Western nicknames) on every scale, searchable in global + hub search, in metadata + JSON-LD, shown under page titles and on hub tiles (2026-09-12). **Catalog complete (2026-09-12):** all 17 `/scales/*` pages have lessons, incl. Rast on the quarter-tone strip with a "same keys, bent pitch" comparer; stale `/lessons/scales` + `/lessons/scale-degrees` redirect into Scales. "Try it on the synth" deep link shipped with the selector below — **plan complete.** | not specified |
-| Synth v2 scale-type selector | [docs/plans/synth-scale-type-selector.md](docs/plans/synth-scale-type-selector.md) | A **Type** dropdown on `/synth/v2` (all 17 catalog scales, grouped), green/red dots + lock + quality-aware degree labels from the shared catalog, a learn-panel card per scale with a "Read about…" link to `/scales`, `?scale=D-dorian` deep links both ways | **Shipped 2026-09-12** (Phases A–E). Phase F (locked embed, sibling cycling) deliberately parked. | not specified |
-| Genre Lab (what makes a genre itself) | [docs/plans/genre-lab-module.md](docs/plans/genre-lab-module.md) | `/genres` hub + per-genre pages; layer stack (rhythm first, then harmony/scale/form); reggae vs rock as the format proof | **Structure shipped; widgets not started.** `/genres` + `[slug]` + registry live (blues first, not reggae). Groove player / grid / comparer unbuilt. | not specified (doc: widgets next) |
+| Genres + Scales modules (structure + SEO) | [docs/plans/genres-and-scales-modules.md](docs/plans/genres-and-scales-modules.md) | `/genres` + `/scales` hubs & `[slug]` spokes, typed registries, cross-links, per-page metadata + FAQ JSON-LD, first `sitemap.ts`/`robots.ts`, nav | **Partial (2026-09-05).** Structure + SEO shipped; `/scales/blues-scale` now has its interactive lesson (keyboard, pentatonic-vs-blues comparer, degree strip). 2026-09-12: genre Scale layer leads with a "View the full lesson" door + short `ScaleTeaser` piano (generic across genres). Next: song embed on the blues pages (blocked on sourcing a PD blues `.mid`), then genre groove widgets. | not specified |
+| Genre Lab (what makes a genre itself) | [docs/plans/genre-lab-module.md](docs/plans/genre-lab-module.md) | `/genres` hub + per-genre pages; layer stack (rhythm first, then harmony/scale/form); reggae vs rock as the format proof | **Structure shipped; widgets not started.** `/genres` + `[slug]` + registry live (blues first, not reggae). Groove widgets now planned under the grooves module in the genre-layer-lessons umbrella. | not specified (doc: widgets next) |
+| Genre layers → lesson modules (umbrella) | [docs/plans/genre-layer-lessons.md](docs/plans/genre-layer-lessons.md) | Finish the blues page's Harmony / Rhythm / Form panels by building `/progressions`, `/rhythm`, `/forms` as sibling lesson modules of `/scales`; shared `LessonEntry` type, layer→module map, generic `LayerPanel`, `LessonSpoke` chrome, `BarTimeline`, one clock; `/lessons` becomes the curriculum index | **Planning complete, decisions locked (2026-09-12).** Nothing built. All six decisions in the doc's §5.1 log (URLs, blues meter row, organ comping voice, v1 response lick, TapPad v1.5, ChordLock = chord tones). Execution plan with slices + exit checks in §5.1. Ready for Slice 0a. | **1** |
+| Progressions module (harmony layer) | [docs/plans/progressions-module.md](docs/plans/progressions-module.md) | Child of the umbrella: `src/lib/music/chords.ts`, `Progression` registry, `ProgressionPlayer` / `ProgressionTeaser`, `/progressions/twelve-bar-blues` lesson, blues Harmony panel | **Planning (2026-09-12).** Nothing built. Builds after umbrella Phase 0. | **1** (Phase 1 of umbrella) |
+| Lesson widgets design (harmony / rhythm / form interactivity) | [docs/plans/lesson-widgets-design.md](docs/plans/lesson-widgets-design.md) | Child of the umbrella: what each layer's widgets show, press, and sound; the hear→see→change-one-thing→do-it loop; time-true drum grid, swing slider, three-strip form map, chord×scale overlay, chord lock; shared `useLessonClock`; drum machine as primitive-first; v1 / v1.5 / later per layer | **Design locked (2026-09-12).** The four questions are decided in-doc §6: organ comping voice, response lick sounds in v1, TapPad v1.5, ChordLock defaults to chord tones. | **1** (informs Phases 1–3) |
+
+### Archived
+
+Requested work shipped. Specs stay in `docs/plans/archive/` for history.
+
+| Plan | File | Shipped |
+|------|------|---------|
+| Scales catalog + lesson roadmap | [docs/plans/archive/scales-catalog-and-lessons.md](docs/plans/archive/scales-catalog-and-lessons.md) | 2026-09-12 — all 17 `/scales` lessons live |
+| Synth v2 scale-type selector | [docs/plans/archive/synth-scale-type-selector.md](docs/plans/archive/synth-scale-type-selector.md) | 2026-09-12 — Type dropdown + live `?scale=` (Phase F parked) |
 
 ---
 
@@ -73,6 +85,7 @@ Ranked items first (**most urgent → next**). Everything below that is
 
 | Item | Kind | Next slice | Local order | Ranking |
 |------|------|------------|-------------|---------|
+| Genre layers → lesson modules | plan | Decisions locked. Slice 0a: `lessons/types.ts` + `LessonSpoke`, move `/scales/[slug]` onto it with a byte-identical curl diff; then 0b–0d (layer map + `LayerPanel`, `music/chords.ts`, `music/clock.ts` + `BarTimeline`); Checkpoint 1 (eyes); then Phase 1 = progressions module + blues Harmony panel | §5.1 slice table in-doc (Phases 0 → 5: harmony → rhythm/meter → form → `/lessons` hub → rock as data-only proof) | **1** |
 | IP / security tightening | plan | Phase 1 secret scan + dep license audit; then proprietary `LICENSE` + README; then repo rename; ™ on the wordmark | in-doc weekend fast-path | **2** |
 | Hero demo: "Yesterday" | fix | Correct the notes/harmony in `heroTune.ts` so the homepage demo of *Yesterday* is musically honest. Listen through the attract-mode phrase and fix wrong pitches, durations, and chords. | not specified | **3** |
 | Reroute WebDev Dave portfolio → Instrumaps | admin | Point the WebDev Dave portfolio domain/link at instrumaps.com and retire/redirect the old beginner-era portfolio projects, since this site outclasses them by a mile. | not specified | **4** |

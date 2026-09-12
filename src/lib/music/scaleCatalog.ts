@@ -8,7 +8,7 @@
  * widgets, the scale registry, and (later) the synth's type selector all
  * read this table, so they cannot disagree about what a scale is.
  *
- * Theory reference and audit: docs/plans/synth-scale-type-selector.md
+ * Theory reference and audit: docs/plans/archive/synth-scale-type-selector.md
  * ("Music theory foundation"). Entries beyond that audited table are marked
  * in comments and were hand-verified when added.
  *

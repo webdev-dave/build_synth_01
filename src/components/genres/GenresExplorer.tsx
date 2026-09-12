@@ -7,6 +7,7 @@ import { ArrowRight } from "lucide-react";
 import {
   GENRES,
   LAYER_INFO,
+  LAYER_PAGE_ORDER,
   searchGenres,
   type GenreLayer,
 } from "@/lib/genres/registry";
@@ -20,14 +21,7 @@ import {
 } from "@/components/ui/card";
 import { HubSearch, toggleChipGroup } from "@/components/content/HubSearch";
 
-const LAYER_ORDER: GenreLayer[] = [
-  "rhythm",
-  "meter",
-  "harmony",
-  "scale",
-  "form",
-  "texture",
-];
+const LAYER_ORDER = LAYER_PAGE_ORDER;
 
 export function GenresExplorer() {
   const [query, setQuery] = useState("");
