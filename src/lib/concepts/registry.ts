@@ -159,7 +159,7 @@ export const CONCEPTS: Concept[] = [
       "A five-note scale. With no half-steps between its notes, nothing clashes — which is why it's the safe backbone of blues, rock, and folk melodies.",
     // Delegated: the scale page is the real, playable home.
     href: "/scales/minor-pentatonic",
-    scales: ["minor-pentatonic"],
+    scales: ["minor-pentatonic", "major-pentatonic"],
     genres: ["blues", "rock"],
     history: ["blues"],
     status: "live",
@@ -342,7 +342,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "A tritone spans three whole tones — six half-steps — which lands it precisely halfway across the octave. That symmetry makes it the most unstable interval in tonal music; medieval theorists nicknamed it diabolus in musica, 'the devil in music.' It's the flattened fifth the blues scale adds to the minor pentatonic, and it's the gap between the third and seventh of a dominant seventh chord — the very tension that makes such a chord lean home toward the tonic.",
     href: conceptHome("tritone"),
-    scales: ["blues-scale"],
+    scales: ["blues-scale", "lydian", "locrian"],
     genres: ["blues"],
     history: ["blues"],
     status: "live",
@@ -361,7 +361,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "A mode takes one parent scale and starts it from a different degree, so the same set of notes takes on a new home note and a new character. The major scale has seven modes — Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, and Locrian — each running from the next degree up. They share the same seven pitches; what changes is which note feels like 'home,' and that shift is enough to swing a scale from bright to dark.",
     href: conceptHome("mode"),
-    scales: ["major-scale", "mixolydian", "phrygian", "dorian", "freygish", "ukrainian-dorian"],
+    scales: ["major-scale", "mixolydian", "phrygian", "dorian", "lydian", "locrian", "natural-minor", "freygish", "ukrainian-dorian"],
     status: "live",
     keywords: [
       "what is a musical mode",
@@ -477,7 +477,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "An augmented second is a major second widened by a half-step: three semitones between two neighbouring letter names, such as F to G♯. It sounds the same as a minor third in equal temperament, but it behaves differently — it's a *step* in a scale, not a leap between chord tones, and Western classical voice-leading treated it as an error to be smoothed away. Scales that keep it are exactly the ones that sound 'exotic' to major-scale ears: the harmonic minor (between its sixth and raised seventh) and the freygish / Phrygian dominant mode of klezmer, flamenco, and Middle Eastern music (between its flattened second and major third).",
     href: conceptHome("augmented-second"),
-    scales: ["freygish", "harmonic-minor", "ukrainian-dorian"],
+    scales: ["freygish", "harmonic-minor", "ukrainian-dorian", "melodic-minor"],
     history: ["klezmer"],
     status: "live",
     keywords: [

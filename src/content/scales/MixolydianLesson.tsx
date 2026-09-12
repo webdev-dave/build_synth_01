@@ -64,15 +64,18 @@ export function MixolydianLesson() {
         <P>
           The keyboard below is locked to <RootName /> Mixolydian. Keys with a
           green number are in the <Term id="scale">scale</Term> and play; keys
-          with a red dot stay silent. Press <Mono>Play</Mono>. It sounds like
-          a major scale — bright, open — right up to the last step, where
+          with a red dot stay silent. Press <Mono>Play</Mono>. It sounds like a
+          major scale — bright, open — right up to the last step, where
           something refuses to close. That refusal is the whole mode. If you
           have heard a blues harmonica, a Southern-rock riff, or a funk vamp
           that sits on one chord for a minute, you have heard it.
         </P>
         <div className="mt-4 space-y-3">
           <LessonToolbar root octave lock>
-            <PlayPatternButton label="Play the scale" offsets={MIXOLYDIAN_OFFSETS} />
+            <PlayPatternButton
+              label="Play the scale"
+              offsets={MIXOLYDIAN_OFFSETS}
+            />
           </LessonToolbar>
           <ScaleKeyboard degrees={MIXOLYDIAN} />
         </div>
@@ -81,29 +84,35 @@ export function MixolydianLesson() {
         <H2 id="degrees">2. Counting from home: one flat</H2>
         <P>
           Every scale has a home note, the <Term id="root">root</Term> — here{" "}
-          <RootName />, and the picker above moves it. The other notes are
-          named by how far above the root they sit: their{" "}
-          <Term id="scale-degree">scale degrees</Term>. Count keys to the
-          right, black and white alike; each key is one{" "}
-          <Term id="steps">half step</Term>. The plain numbers 1 to 7 belong
-          to the <LessonLink href="/scales/major-scale">major scale</LessonLink>;
-          a <Term id="flats-and-sharps">flat</Term> (<Mono>♭</Mono>) means
+          <RootName />, and the picker above moves it. The other notes are named
+          by how far above the root they sit: their{" "}
+          <Term id="scale-degree">scale degrees</Term>. Count keys to the right,
+          black and white alike; each key is one{" "}
+          <Term id="steps">half step</Term>. The plain numbers 1 to 7 belong to
+          the <LessonLink href="/scales/major-scale">major scale</LessonLink>; a{" "}
+          <Term id="flats-and-sharps">flat</Term> (<Mono>♭</Mono>) means
           &ldquo;that note, one key lower.&rdquo;
         </P>
         <DegreeTable rows={DEGREE_ROWS} spotlightOffset={FLAT_SEVENTH} />
         <P>
           Six plain numbers and one flat. Everything through the <Mono>6</Mono>{" "}
-          is the major scale, unchanged — the bright major third is still
-          there. Only the seventh has moved, from one key below the root to
-          two. Click a chip to hear each degree in <RootName />.
+          is the major scale, unchanged — the bright major third is still there.
+          Only the seventh has moved, from one key below the root to two. Click
+          a chip to hear each degree in <RootName />.
         </P>
-        <DegreeStrip degrees={MIXOLYDIAN} spotlightOffset={FLAT_SEVENTH} className="mt-4" />
+        <DegreeStrip
+          degrees={MIXOLYDIAN}
+          spotlightOffset={FLAT_SEVENTH}
+          className="mt-4"
+        />
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="lower-the-seventh">3. Move one key: major becomes Mixolydian</H2>
+        <H2 id="lower-the-seventh">
+          3. Move one key: major becomes Mixolydian
+        </H2>
         <P>
           Take the major scale in <RootName /> and lower its <Mono>7</Mono> —{" "}
-          <NoteAt offset={MAJOR_SEVENTH} /> — one key to{" "}
+          <NoteAt offset={MAJOR_SEVENTH} degrees={MAJOR} /> — one key to{" "}
           <NoteAt offset={FLAT_SEVENTH} />. Nothing else changes. Flip the
           toggle and watch one key go dark while its lower neighbour lights;
           play both runs and listen to the top of the scale. Major climbs the
@@ -122,13 +131,13 @@ export function MixolydianLesson() {
           defaultSide="b"
         />
         <P>
-          Why does one key matter so much? In the major scale the{" "}
-          <Mono>7</Mono> sits a single key below home and leans into it — the{" "}
+          Why does one key matter so much? In the major scale the <Mono>7</Mono>{" "}
+          sits a single key below home and leans into it — the{" "}
           <em>leading tone</em>, the note that makes <Mono>7 → 1</Mono> feel
           like arriving. Mixolydian has no leading tone. Its <Mono>♭7</Mono> is
           two keys away and does not lean anywhere in particular. Press both
-          pairs and hear the difference: the first one arrives; the second
-          one just moves.
+          pairs and hear the difference: the first one arrives; the second one
+          just moves.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -156,10 +165,10 @@ export function MixolydianLesson() {
           <Mono>♭7</Mono> on top. That four-note chord is a{" "}
           <Term id="dominant">dominant seventh</Term>, the sound of a blues
           chord, a rock-and-roll chord, a funk vamp. In the major scale that
-          chord only lives on the fifth degree, where it pulls toward home.
-          In Mixolydian it lives <em>on</em> home, so the pull points at the
-          chord you are already on. The music leans and never falls; it can
-          sit on one chord as long as it likes.
+          chord only lives on the fifth degree, where it pulls toward home. In
+          Mixolydian it lives <em>on</em> home, so the pull points at the chord
+          you are already on. The music leans and never falls; it can sit on one
+          chord as long as it likes.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -173,15 +182,17 @@ export function MixolydianLesson() {
         </div>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="same-keys">5. Same keys, different home: a major scale from its fifth</H2>
+        <H2 id="same-keys">
+          5. Same keys, different home: a major scale from its fifth
+        </H2>
         <P>
           Now the map view. Take the seven keys of <RootName /> Mixolydian and,
           without turning any on or off, call the <Mono>4</Mono> home instead.
           You are now playing the{" "}
           <LessonLink href="/scales/major-scale">major scale</LessonLink> on{" "}
           <NoteAt offset={5} />. In <Mono>G</Mono> that is <Mono>C</Mono> major:
-          the same white keys, settling one note lower. Flip the toggle and
-          only the green <Mono>1</Mono> moves.
+          the same white keys, settling one note lower. Flip the toggle and only
+          the green <Mono>1</Mono> moves.
         </P>
         <ScaleComparer
           className="mt-4"
@@ -197,41 +208,49 @@ export function MixolydianLesson() {
         </P>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="cross-harp">6. Why blues harmonica lives here: second position</H2>
+        <H2 id="cross-harp">
+          6. Why blues harmonica lives here: second position
+        </H2>
         <P>
           A ten-hole diatonic harmonica is built around one major scale — a
-          &ldquo;C harp&rdquo; blows and draws the notes of C major. Play it
-          in C and you get the major scale: <em>first position</em>, straight
-          harp. But most blues players pick up that same C harp and play in{" "}
+          &ldquo;C harp&rdquo; blows and draws the notes of C major. Play it in
+          C and you get the major scale: <em>first position</em>, straight harp.
+          But most blues players pick up that same C harp and play in{" "}
           <Mono>G</Mono> — the key a fifth up. The notes have not changed. The
           home has. A C harp played in G is playing G Mixolydian, and that is{" "}
           <em>second position</em>, cross harp, the position most blues harp is
           played in.
         </P>
         <P>
-          Two things make it work. The <Mono>♭7</Mono> is already there, so
-          the scale matches the dominant-seventh chords of a blues. And on a
-          harp the notes that can be bent — drawn and pulled down in pitch —
-          are the draw notes, and in second position the draw notes land on
-          the strong degrees. Bend the <Mono>3</Mono> down and you get the{" "}
-          <Mono>♭3</Mono>; bend the <Mono>5</Mono> and you get the{" "}
-          <Mono>♭5</Mono>. Those are the two{" "}
-          <Term id="blue-notes">blue notes</Term>, and with them the player
+          Two things make it work. The <Mono>♭7</Mono> is already there, so the
+          scale matches the dominant-seventh chords of a blues. And on a harp
+          the notes that can be bent — drawn and pulled down in pitch — are the
+          draw notes, and in second position the draw notes land on the strong
+          degrees. Bend the <Mono>3</Mono> down and you get the <Mono>♭3</Mono>;
+          bend the <Mono>5</Mono> and you get the <Mono>♭5</Mono>. Those are the
+          two <Term id="blue-notes">blue notes</Term>, and with them the player
           slides from Mixolydian into the{" "}
-          <LessonLink href="/scales/blues-scale">blues scale</LessonLink>.
-          Flip the toggle to see which notes each scale has that the other
-          lacks — a harp player moves between the two constantly.
+          <LessonLink href="/scales/blues-scale">blues scale</LessonLink>. Flip
+          the toggle to see which notes each scale has that the other lacks — a
+          harp player moves between the two constantly.
         </P>
         <ScaleComparer
           className="mt-4"
           a={{ id: "mixolydian", name: "Mixolydian", degrees: MIXOLYDIAN }}
-          b={{ id: "blues", name: "Blues scale", degrees: BLUES, spotlightOffset: 6 }}
+          b={{
+            id: "blues",
+            name: "Blues scale",
+            degrees: BLUES,
+            spotlightOffset: 6,
+          }}
         />
         <P>
-          A piano cannot bend, so this keyboard shows the two scales as
-          separate lists. On a harmonica they are one instrument&rsquo;s worth
-          of notes and the bends in between. The{" "}
-          <LessonLink href="/harmonica-lab/v2?position=2">Harmonica Lab</LessonLink>{" "}
+          A piano cannot bend, so this keyboard shows the two scales as separate
+          lists. On a harmonica they are one instrument&rsquo;s worth of notes
+          and the bends in between. The{" "}
+          <LessonLink href="/harmonica-lab/v2?position=2">
+            Harmonica Lab
+          </LessonLink>{" "}
           shows exactly which hole and which bend gives each note in second
           position, for any key of harp.
         </P>
@@ -251,7 +270,10 @@ export function MixolydianLesson() {
         </P>
         <div className="mt-4">
           <LessonToolbar octave lock>
-            <PlayPatternButton label="Play Mixolydian" offsets={MIXOLYDIAN_OFFSETS} />
+            <PlayPatternButton
+              label="Play Mixolydian"
+              offsets={MIXOLYDIAN_OFFSETS}
+            />
           </LessonToolbar>
         </div>
       </section>

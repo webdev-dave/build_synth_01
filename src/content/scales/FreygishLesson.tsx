@@ -89,23 +89,26 @@ export function FreygishLesson() {
         <P>
           The keyboard below is locked to <RootName /> freygish. Keys with a
           green number are in the <Term id="scale">scale</Term> and play; keys
-          with a red dot stay silent. Press <Mono>Play</Mono>. If you have
-          heard klezmer, flamenco, or almost any film score that wants to say
-          &ldquo;somewhere east of here,&rdquo; you know this run already —
-          the lift at the second note, the wide stretch right after it.
+          with a red dot stay silent. Press <Mono>Play</Mono>. If you have heard
+          klezmer, flamenco, or almost any film score that wants to say
+          &ldquo;somewhere east of here,&rdquo; you know this run already — the
+          lift at the second note, the wide stretch right after it.
         </P>
         <P>
           One scale, several names. Klezmer musicians say{" "}
           <Term id="freygish">freygish</Term>, a Yiddish take on
           &ldquo;Phrygian.&rdquo; Cantors say{" "}
-          <Word id="ahava-rabbah">Ahava Rabbah</Word>, after the prayer
-          whose chant uses it. Western theory says <em>Phrygian dominant</em>.
-          Arabic and Turkish musicians hear their maqam <em>Hijaz</em> in it —
-          with a caveat this page comes back to. Same seven keys, four homes.
+          <Word id="ahava-rabbah">Ahava Rabbah</Word>, after the prayer whose
+          chant uses it. Western theory says <em>Phrygian dominant</em>. Arabic
+          and Turkish musicians hear their maqam <em>Hijaz</em> in it — with a
+          caveat this page comes back to. Same seven keys, four homes.
         </P>
         <div className="mt-4 space-y-3">
           <LessonToolbar root octave lock>
-            <PlayPatternButton label="Play the scale" offsets={FREYGISH_OFFSETS} />
+            <PlayPatternButton
+              label="Play the scale"
+              offsets={FREYGISH_OFFSETS}
+            />
           </LessonToolbar>
           <ScaleKeyboard degrees={FREYGISH} />
         </div>
@@ -114,41 +117,45 @@ export function FreygishLesson() {
         <H2 id="degrees">2. Counting from home: what the numbers mean</H2>
         <P>
           Every scale has a home note, the <Term id="root">root</Term> — here{" "}
-          <RootName />, and the picker above moves it. The other notes are
-          named by how far above the root they sit: their{" "}
-          <Term id="scale-degree">scale degrees</Term>. Count keys to the
-          right, black and white alike; each key is one{" "}
-          <Term id="steps">half step</Term>. The plain numbers 1 to 7 belong
-          to the major scale, the do-re-mi scale everything is measured
-          against. A <Term id="flats-and-sharps">flat</Term> (<Mono>♭</Mono>)
-          in front of a number means &ldquo;that note, one key lower.&rdquo;
+          <RootName />, and the picker above moves it. The other notes are named
+          by how far above the root they sit: their{" "}
+          <Term id="scale-degree">scale degrees</Term>. Count keys to the right,
+          black and white alike; each key is one{" "}
+          <Term id="steps">half step</Term>. The plain numbers 1 to 7 belong to
+          the major scale, the do-re-mi scale everything is measured against. A{" "}
+          <Term id="flats-and-sharps">flat</Term> (<Mono>♭</Mono>) in front of a
+          number means &ldquo;that note, one key lower.&rdquo;
         </P>
         <DegreeTable rows={DEGREE_ROWS} spotlightOffset={MAJOR_THIRD} />
         <P>
           Read the table top to bottom and one line stands out. The second,
           sixth, and seventh are all lowered — that is a dark, minor-leaning
-          shape — and then the third is <em>not</em>. A plain{" "}
-          <Mono>3</Mono>, the bright major third, sitting in the middle of all
-          those flats. That contradiction is the whole scale. Click the chips
-          to hear each degree in <RootName />.
+          shape — and then the third is <em>not</em>. A plain <Mono>3</Mono>,
+          the bright major third, sitting in the middle of all those flats. That
+          contradiction is the whole scale. Click the chips to hear each degree
+          in <RootName />.
         </P>
-        <DegreeStrip degrees={FREYGISH} spotlightOffset={MAJOR_THIRD} className="mt-4" />
+        <DegreeStrip
+          degrees={FREYGISH}
+          spotlightOffset={MAJOR_THIRD}
+          className="mt-4"
+        />
         <P>
-          A spelling note: this page writes the scale one letter per degree,
-          so the third reads <NoteAt offset={MAJOR_THIRD} /> even though the
-          keyboard labels that key with a sharp or the same key could be
-          called by a flat name. One key, two names — nothing is out of tune.
+          A spelling note: this page writes the scale one letter per degree, so
+          the third reads <NoteAt offset={MAJOR_THIRD} /> even though the
+          keyboard labels that key with a sharp or the same key could be called
+          by a flat name. One key, two names — nothing is out of tune.
         </P>
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="flat-two">3. The ♭2: a note that leans on home</H2>
         <P>
-          Start with the second degree. In the major scale it is two keys
-          above the root; here it is one — <NoteAt offset={FLAT_SECOND} />,
-          the very next key up from <RootName />. A note that close to home
-          cannot sit still. Play it and hold it and your ear is already
-          pulling it back down. Press <Mono>Hear ♭2 fall</Mono>: that little
-          sigh downward is in nearly every klezmer phrase ending.
+          Start with the second degree. In the major scale it is two keys above
+          the root; here it is one — <NoteAt offset={FLAT_SECOND} />, the very
+          next key up from <RootName />. A note that close to home cannot sit
+          still. Play it and hold it and your ear is already pulling it back
+          down. Press <Mono>Hear ♭2 fall</Mono>: that little sigh downward is in
+          nearly every klezmer phrase ending.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -170,14 +177,17 @@ export function FreygishLesson() {
         </P>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="raise-the-third">4. Raise one key: Phrygian becomes freygish</H2>
+        <H2 id="raise-the-third">
+          4. Raise one key: Phrygian becomes freygish
+        </H2>
         <P>
-          Take Phrygian and move exactly one note: the lowered third goes up
-          one key to a major third. In <RootName /> that is{" "}
-          <NoteAt offset={3} /> becoming <NoteAt offset={MAJOR_THIRD} />.
-          Everything else stays. Flip the toggle and watch one key go dark
-          while its neighbour lights; play both and listen to the second
-          step of the run. Phrygian walks up gently. Freygish stretches.
+          Take Phrygian and move exactly one note: the lowered third goes up one
+          key to a major third. In <RootName /> that is{" "}
+          <NoteAt offset={3} degrees={PHRYGIAN} /> becoming{" "}
+          <NoteAt offset={MAJOR_THIRD} />. Everything else stays. Flip the
+          toggle and watch one key go dark while its neighbour lights; play both
+          and listen to the second step of the run. Phrygian walks up gently.
+          Freygish stretches.
         </P>
         <ScaleComparer
           className="mt-4"
@@ -200,8 +210,8 @@ export function FreygishLesson() {
           the major scale is wider than two. Because it still runs from one
           degree to the very next, it counts as a <em>second</em> — a widened
           one, an <Term id="augmented-second">augmented second</Term>. On the
-          keys it covers the same distance as a minor third, but it behaves
-          like a step: melodies walk across it rather than leaping over it.
+          keys it covers the same distance as a minor third, but it behaves like
+          a step: melodies walk across it rather than leaping over it.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -214,18 +224,19 @@ export function FreygishLesson() {
           </LessonToolbar>
         </div>
         <P>
-          A half step followed at once by a step-and-a-half: cramped, then
-          wide. That pairing is the interval most ears file as &ldquo;the
-          Jewish scale&rdquo; or &ldquo;the Arabic scale.&rdquo; It is neither
-          alone. The same two keys sit at the heart of the Ottoman, Balkan,
-          Greek, Romanian, and Andalusian musics that klezmer grew up beside,
-          and the sound crossed between them for centuries. What is
-          distinctive is not owning the interval; it is what each tradition
-          does around it.
+          A half step followed at once by a step-and-a-half: cramped, then wide.
+          That pairing is the interval most ears file as &ldquo;the Jewish
+          scale&rdquo; or &ldquo;the Arabic scale.&rdquo; It is neither alone.
+          The same two keys sit at the heart of the Ottoman, Balkan, Greek,
+          Romanian, and Andalusian musics that klezmer grew up beside, and the
+          sound crossed between them for centuries. What is distinctive is not
+          owning the interval; it is what each tradition does around it.
         </P>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="same-keys">6. Same keys, different home: harmonic minor and Mi Sheberakh</H2>
+        <H2 id="same-keys">
+          6. Same keys, different home: harmonic minor and Mi Sheberakh
+        </H2>
         <P>
           Now the map view. Take the seven keys of <RootName /> freygish and,
           without turning any on or off, call the <Mono>4</Mono> home instead.
@@ -249,7 +260,9 @@ export function FreygishLesson() {
         <P>
           Do it once more with the <Mono>♭7</Mono> (<NoteAt offset={10} />) as
           home and you get klezmer&rsquo;s other great mode,{" "}
-          <LessonLink href="/scales/ukrainian-dorian">Ukrainian Dorian</LessonLink>{" "}
+          <LessonLink href="/scales/ukrainian-dorian">
+            Ukrainian Dorian
+          </LessonLink>{" "}
           — <Word id="misheberakh">Mi Sheberakh</Word>, the mode of the{" "}
           <Term id="doina">doina</Term>. Start Mi Sheberakh on its own second
           degree and you are back in freygish; the two modes lean on each other
@@ -281,23 +294,22 @@ export function FreygishLesson() {
         <P>
           Two honest limits. First, real freygish melodies do not stay inside
           the octave above the root. They dip <em>below</em> it — to the{" "}
-          <Mono>♭7</Mono> underneath and often to a natural sixth there, a
-          note the scale above the root does not have. The lock on this page
-          keeps you to seven keys per octave so the shape is clear; a
-          clarinetist would not be so tidy. Unlock the keyboard and try
-          approaching <RootName /> from two keys below.
+          <Mono>♭7</Mono> underneath and often to a natural sixth there, a note
+          the scale above the root does not have. The lock on this page keeps
+          you to seven keys per octave so the shape is clear; a clarinetist
+          would not be so tidy. Unlock the keyboard and try approaching{" "}
+          <RootName /> from two keys below.
         </P>
         <P>
           Second, the maqam. Arabic and Turkish <em>Hijaz</em> is built on the
           same shape — half step, augmented second, half step — but it is not a
-          fixed set of twelve keys. Performers pull the <Mono>♭2</Mono> a
-          little high and the <Mono>3</Mono> a little low, narrowing the
-          stretch into something no piano key can reach. What this page plays
-          is the piano&rsquo;s honest approximation of Hijaz, the same way the
-          blues scale freezes a bent note onto the nearest key. On a voice, an
-          oud, or a clarinet, the interval lives between the keys — and
-          klezmer&rsquo;s sobbing <Term id="krechtz">krechtz</Term> is one way
-          of getting there.
+          fixed set of twelve keys. Performers pull the <Mono>♭2</Mono> a little
+          high and the <Mono>3</Mono> a little low, narrowing the stretch into
+          something no piano key can reach. What this page plays is the
+          piano&rsquo;s honest approximation of Hijaz, the same way the blues
+          scale freezes a bent note onto the nearest key. On a voice, an oud, or
+          a clarinet, the interval lives between the keys — and klezmer&rsquo;s
+          sobbing <Term id="krechtz">krechtz</Term> is one way of getting there.
         </P>
 
         {/* ---------------------------------------------------------------- */}
@@ -306,16 +318,21 @@ export function FreygishLesson() {
           Keep the lock on and play the green keys in any order. End phrases on{" "}
           <Mono>1</Mono>, and try arriving from <Mono>♭2</Mono> above rather
           than from below — that downward sigh is the signature. Walk{" "}
-          <Mono>♭2 → 3</Mono> slowly until the wide step stops sounding like
-          a mistake. Then go to{" "}
+          <Mono>♭2 → 3</Mono> slowly until the wide step stops sounding like a
+          mistake. Then go to{" "}
           <LessonLink href="/genres/klezmer">What is klezmer?</LessonLink> for
           the dances and ornaments the scale lives in, and{" "}
-          <LessonLink href="/history/klezmer">Where did klezmer come from?</LessonLink>{" "}
+          <LessonLink href="/history/klezmer">
+            Where did klezmer come from?
+          </LessonLink>{" "}
           for how a synagogue mode became wedding music.
         </P>
         <div className="mt-4">
           <LessonToolbar octave lock>
-            <PlayPatternButton label="Play freygish" offsets={FREYGISH_OFFSETS} />
+            <PlayPatternButton
+              label="Play freygish"
+              offsets={FREYGISH_OFFSETS}
+            />
           </LessonToolbar>
         </div>
 

@@ -66,7 +66,8 @@ const SOURCES = [
     url: "https://www.klezmershack.com/articles/horowitz/horowitz.klezmodes.html",
   },
   {
-    label: "Wikipedia, “Ukrainian Dorian scale” — names across Jewish, Ukrainian (Hutsul), Romanian, and Greek music",
+    label:
+      "Wikipedia, “Ukrainian Dorian scale” — names across Jewish, Ukrainian (Hutsul), Romanian, and Greek music",
     url: "https://en.wikipedia.org/wiki/Ukrainian_Dorian_scale",
   },
   {
@@ -85,24 +86,26 @@ export function UkrainianDorianLesson() {
         <H2 id="hear-it">1. First, hear it</H2>
         <P>
           The keyboard is locked to <RootName /> Ukrainian Dorian. Green keys
-          are in the <Term id="scale">scale</Term>; red dots stay silent.
-          Press <Mono>Play</Mono>. It starts like an ordinary minor scale and
-          then, on the fourth note, lifts higher than you expect — a stretch,
-          and then the fifth lands as if nothing happened. That lift is the
-          scale.
+          are in the <Term id="scale">scale</Term>; red dots stay silent. Press{" "}
+          <Mono>Play</Mono>. It starts like an ordinary minor scale and then, on
+          the fourth note, lifts higher than you expect — a stretch, and then
+          the fifth lands as if nothing happened. That lift is the scale.
         </P>
         <P>
-          The names. Western theory says <em>Ukrainian Dorian</em>, or
-          Dorian ♯4, or Romanian minor. <Word id="klezmer">Klezmer</Word>{" "}
-          musicians say <Word id="misheberakh">Mi Sheberakh</Word> — &ldquo;He
-          who blessed&rdquo; — after a synagogue prayer sung in it, and it is
-          the mode of the <Term id="doina">doina</Term>, the free-rhythm
-          lament. Ukrainians call it the Hutsul mode, Greeks hear it as
-          Nikriz. Same seven keys wherever the name comes from.
+          The names. Western theory says <em>Ukrainian Dorian</em>, or Dorian
+          ♯4, or Romanian minor. <Word id="klezmer">Klezmer</Word> musicians say{" "}
+          <Word id="misheberakh">Mi Sheberakh</Word> — &ldquo;He who
+          blessed&rdquo; — after a synagogue prayer sung in it, and it is the
+          mode of the <Term id="doina">doina</Term>, the free-rhythm lament.
+          Ukrainians call it the Hutsul mode, Greeks hear it as Nikriz. Same
+          seven keys wherever the name comes from.
         </P>
         <div className="mt-4 space-y-3">
           <LessonToolbar root octave lock>
-            <PlayPatternButton label="Play the scale" offsets={UKRAINIAN_OFFSETS} />
+            <PlayPatternButton
+              label="Play the scale"
+              offsets={UKRAINIAN_OFFSETS}
+            />
           </LessonToolbar>
           <ScaleKeyboard degrees={UKRAINIAN} />
         </div>
@@ -111,8 +114,8 @@ export function UkrainianDorianLesson() {
         <H2 id="degrees">2. Counting from home: the seven degrees</H2>
         <P>
           Notes are named by distance above the <Term id="root">root</Term> —
-          their <Term id="scale-degree">scale degrees</Term>. Count keys to
-          the right of <RootName />, black and white alike; each key is a{" "}
+          their <Term id="scale-degree">scale degrees</Term>. Count keys to the
+          right of <RootName />, black and white alike; each key is a{" "}
           <Term id="steps">half step</Term>. Plain numbers are the major
           scale&rsquo;s notes; a <Term id="flats-and-sharps">flat</Term> (
           <Mono>♭</Mono>) lowers one by a key and a sharp (<Mono>♯</Mono>)
@@ -123,25 +126,31 @@ export function UkrainianDorianLesson() {
         <P>
           Why <Mono>♯4</Mono> and not <Mono>♭5</Mono>? They are the same key.
           The blues scale calls it <Mono>♭5</Mono> because it keeps the plain{" "}
-          <Mono>5</Mono> right next door. Here there is no plain{" "}
-          <Mono>4</Mono> at all — the fourth <em>moved</em> — so the key is
-          spelled as the raised fourth, and the scale keeps one letter per
-          degree: <NoteAt offset={SHARP_FOURTH} />, not the flat name for the
-          same key. Click the chips to hear each degree.
+          <Mono>5</Mono> right next door. Here there is no plain <Mono>4</Mono>{" "}
+          at all — the fourth <em>moved</em> — so the key is spelled as the
+          raised fourth, and the scale keeps one letter per degree:{" "}
+          <NoteAt offset={SHARP_FOURTH} />, not the flat name for the same key.
+          Click the chips to hear each degree.
         </P>
-        <DegreeStrip degrees={UKRAINIAN} spotlightOffset={SHARP_FOURTH} className="mt-4" />
+        <DegreeStrip
+          degrees={UKRAINIAN}
+          spotlightOffset={SHARP_FOURTH}
+          className="mt-4"
+        />
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="from-dorian">3. Start from Dorian, raise one key</H2>
         <P>
-          <strong>Dorian</strong> is a minor scale with a bright spot: its
-          sixth is major, not lowered — <Mono>1 2 ♭3 4 5 6 ♭7</Mono>. In{" "}
-          <RootName /> it is the scale you get from{" "}
-          <LessonLink href="/scales/dorian">the white keys started on D</LessonLink>.
-          Take Dorian and push its fourth up one key: <NoteAt offset={5} />{" "}
-          becomes <NoteAt offset={SHARP_FOURTH} />. Everything else stays.
-          Flip the toggle and watch one key go dark while its neighbour
-          lights; play both and listen to the fourth note of the run.
+          <strong>Dorian</strong> is a minor scale with a bright spot: its sixth
+          is major, not lowered — <Mono>1 2 ♭3 4 5 6 ♭7</Mono>. In <RootName />{" "}
+          it is the scale you get from{" "}
+          <LessonLink href="/scales/dorian">
+            the white keys started on D
+          </LessonLink>
+          . Take Dorian and push its fourth up one key: <NoteAt offset={5} />{" "}
+          becomes <NoteAt offset={SHARP_FOURTH} />. Everything else stays. Flip
+          the toggle and watch one key go dark while its neighbour lights; play
+          both and listen to the fourth note of the run.
         </P>
         <ScaleComparer
           className="mt-4"
@@ -160,9 +169,9 @@ export function UkrainianDorianLesson() {
         <P>
           Raising the fourth opens a gap below it. From <Mono>♭3</Mono> (
           <NoteAt offset={FLAT_THIRD} />) to <Mono>♯4</Mono> (
-          <NoteAt offset={SHARP_FOURTH} />) is three half steps — wider than
-          any step in the major scale. Because it still runs from one degree
-          to the next, it counts as a second, a widened one: the{" "}
+          <NoteAt offset={SHARP_FOURTH} />) is three half steps — wider than any
+          step in the major scale. Because it still runs from one degree to the
+          next, it counts as a second, a widened one: the{" "}
           <Term id="augmented-second">augmented second</Term>. Then{" "}
           <Mono>♯4</Mono> sits one key under the <Mono>5</Mono> and leans up
           into it, the way a leading tone leans into the root. The scale has a
@@ -225,11 +234,10 @@ export function UkrainianDorianLesson() {
           }}
         />
         <P>
-          Western theory calls this scale the fourth{" "}
-          <Term id="mode">mode</Term> of harmonic minor. True of the notes, and
-          handy on a keyboard. Klezmer does not derive it from anything: it is
-          a prayer mode with its own name, its own repertoire, and its own
-          habits.
+          Western theory calls this scale the fourth <Term id="mode">mode</Term>{" "}
+          of harmonic minor. True of the notes, and handy on a keyboard. Klezmer
+          does not derive it from anything: it is a prayer mode with its own
+          name, its own repertoire, and its own habits.
         </P>
 
         {/* ---------------------------------------------------------------- */}
@@ -239,34 +247,36 @@ export function UkrainianDorianLesson() {
           than the lock on this page makes it look. Horowitz observes that in
           klezmer the raised and natural fourth are often used interchangeably,
           or in alternating sections, and Romanian and Ukrainian players will
-          even swap the minor third for a major one. The scale you are
-          playing is the version you would write down; the version you would
-          hear bends.
+          even swap the minor third for a major one. The scale you are playing
+          is the version you would write down; the version you would hear bends.
         </P>
         <P>
           Second, where it lives. In the synagogue, cantorial scholars describe
           Mi Sheberakh less as a home than as an excursion — a colour a chant
           passes through. In klezmer it is a stable home: in Moshe
-          Beregovski&rsquo;s collection about one freylekhs in seven is in
-          the raised-fourth mode from start to finish, and the doina makes it
-          a whole world. Since the 1980s klezmer players have borrowed the
+          Beregovski&rsquo;s collection about one freylekhs in seven is in the
+          raised-fourth mode from start to finish, and the doina makes it a
+          whole world. Since the 1980s klezmer players have borrowed the
           prayer&rsquo;s name for it; the notes are older than the label.
         </P>
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="use-it">7. What to do with it</H2>
         <P>
-          Keep the lock on and improvise. Aim phrases at <Mono>5</Mono> by
-          way of <Mono>♯4</Mono> underneath, and let <Mono>♭3 → ♯4</Mono> be
-          slow and wide. Then unlock the keyboard and try the plain fourth (
+          Keep the lock on and improvise. Aim phrases at <Mono>5</Mono> by way
+          of <Mono>♯4</Mono> underneath, and let <Mono>♭3 → ♯4</Mono> be slow
+          and wide. Then unlock the keyboard and try the plain fourth (
           <NoteAt offset={5} />) in the same phrase — that flicker between the
           two is how the mode actually behaves. When you are ready,{" "}
-          <LessonLink href="/genres/klezmer">What is klezmer?</LessonLink>{" "}
-          has the dances and the doina this scale was made for.
+          <LessonLink href="/genres/klezmer">What is klezmer?</LessonLink> has
+          the dances and the doina this scale was made for.
         </P>
         <div className="mt-4">
           <LessonToolbar octave lock>
-            <PlayPatternButton label="Play Ukrainian Dorian" offsets={UKRAINIAN_OFFSETS} />
+            <PlayPatternButton
+              label="Play Ukrainian Dorian"
+              offsets={UKRAINIAN_OFFSETS}
+            />
           </LessonToolbar>
         </div>
 

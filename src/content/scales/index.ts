@@ -10,19 +10,31 @@
 import type { ComponentType } from "react";
 
 import { BluesScaleLesson } from "./BluesScaleLesson";
+import { DorianLesson } from "./DorianLesson";
 import { FreygishLesson } from "./FreygishLesson";
 import { HarmonicMinorLesson } from "./HarmonicMinorLesson";
+import { LocrianLesson } from "./LocrianLesson";
+import { LydianLesson } from "./LydianLesson";
+import { MajorPentatonicLesson } from "./MajorPentatonicLesson";
 import { MajorScaleLesson } from "./MajorScaleLesson";
+import { MelodicMinorLesson } from "./MelodicMinorLesson";
 import { MinorPentatonicLesson } from "./MinorPentatonicLesson";
 import { MixolydianLesson } from "./MixolydianLesson";
+import { NaturalMinorLesson } from "./NaturalMinorLesson";
 import { PhrygianLesson } from "./PhrygianLesson";
 import { UkrainianDorianLesson } from "./UkrainianDorianLesson";
 
 const SCALE_CONTENT: Record<string, ComponentType> = {
   "major-scale": MajorScaleLesson,
+  "natural-minor": NaturalMinorLesson,
   "minor-pentatonic": MinorPentatonicLesson,
+  "major-pentatonic": MajorPentatonicLesson,
+  dorian: DorianLesson,
   mixolydian: MixolydianLesson,
   phrygian: PhrygianLesson,
+  lydian: LydianLesson,
+  locrian: LocrianLesson,
+  "melodic-minor": MelodicMinorLesson,
   "blues-scale": BluesScaleLesson,
   "harmonic-minor": HarmonicMinorLesson,
   freygish: FreygishLesson,

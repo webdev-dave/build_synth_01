@@ -21,6 +21,13 @@ Those docs stay the source for their own detail; this one owns the
 
 Newest entry on top. Update in the same commit as the work.
 
+- **2026-09-12 · Phase 4 live.** `/scales/natural-minor`,
+  `/scales/major-pentatonic`, `/scales/dorian`, `/scales/lydian`,
+  `/scales/locrian`, `/scales/melodic-minor` — 14 of 17 catalog pages now
+  have lessons; only Phase 5 (`double-harmonic`, `major-blues`, `rast`)
+  remains stubbed. Details in the Phase 4 checklist. Verified: `tsc`,
+  lint, 1547-check catalog script, alias-search script, curl of all six
+  pages with note-spelling spot checks. Not pushed, not promoted.
 - **2026-09-12 · alternate names + hub tiles.** Every registry row carries
   `aliases: ScaleAlias[]` (`{ name, tradition?, approx? }` — Hindustani
   thaat, Carnatic melakarta, Arabic maqam, Turkish makam, Jewish shteyger,
@@ -310,10 +317,28 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
 
 ### Phase 4 — fill the catalog
 
-- [ ] `natural-minor`, `major-pentatonic`, `dorian` (stubbed), `lydian`,
-      `locrian`, `melodic-minor`: registry row + three-to-four-section
-      lesson, one comparer each (see inventory). Melodic minor copy states
-      the ascending-only decision.
+- [x] `natural-minor`, `major-pentatonic`, `dorian`, `lydian`, `locrian`,
+      `melodic-minor` live (2026-09-12). Six lessons in the Phase 1–2 voice,
+      six or seven sections each, classroom keys A / C / D / F / B / A so
+      every white-key mode is white keys and the three minors line up on A.
+      Comparers per the inventory plus one extra where the pair teaches
+      more: natural minor gets both the parallel (A major → A minor, three
+      swaps) and the relative (re-home to C); major pentatonic gets the
+      subset (major − 4 − 7) and the re-home to A minor pentatonic; melodic
+      minor gets harmonic → melodic (6th), major → melodic (only the ♭3),
+      and the classical up/down pair as two runs — the copy states that
+      every keyboard on the site uses the ascending (jazz) form. Locrian is
+      candid that it is a colour and a chord scale, not a key. `dorian` →
+      `?position=3`, `natural-minor` → `?position=4`. Reverse links:
+      `folk-revival` genre ↔ natural-minor / dorian / major-pentatonic;
+      `mode` concept lists all seven modes + natural minor; `tritone` →
+      lydian, locrian; `pentatonic` → major-pentatonic; `augmented-second`
+      → melodic-minor.
+- [x] `NoteAt` grew an optional `degrees` prop: a note that belongs to the
+      *other* scale in a comparison is spelled by that scale (Locrian's
+      "lower the 5 (F♯)" — not G♭). Fixed the same latent misspelling on
+      the Mixolydian, Phrygian, and Freygish pages. `ScaleComparer`'s swap
+      caption pluralises ("3 keys go dark").
 - [x] Alternate names on every row (`aliases`), searchable everywhere and
       indexable (2026-09-12; see status log). New rows must fill `aliases`
       — the assertion script checks each alias resolves to a name that is
@@ -372,8 +397,7 @@ guessing; strike through with the date when answered.
       and varies by region (Syrian E½♭ ≈ 356 ¢, Egyptian ≈ 342 ¢ — Abu
       Shumays). Panel lives on **`KeyboardV2` everywhere**, collapsed, off
       by default. Catalog grows an optional per-degree `cents` field.
-- [ ] **`dorian` timing**: move up to Phase 2 to serve harmonica 3rd
-      position, or leave in Phase 4?
+- [x] ~~**`dorian` timing**~~ — moot; shipped in Phase 4 (2026-09-12).
 - [ ] **Stale `/lessons` scale slugs** (`scales`, `scale-degrees` in
       `src/lib/lessons/registry.ts`): redirect to `/scales` now or later?
 - [ ] **Promotion to production** — always the owner's. A merged push

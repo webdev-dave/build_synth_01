@@ -100,10 +100,17 @@ export function ScaleComparer({
   const swaps = added
     .map((inDeg) => ({
       inDeg,
-      outDeg: removed.find((o) => degreeNumber(o.label) === degreeNumber(inDeg.label)),
+      outDeg: removed.find(
+        (o) => degreeNumber(o.label) === degreeNumber(inDeg.label),
+      ),
     }))
-    .filter((s): s is { inDeg: ScaleDegree; outDeg: ScaleDegree } => Boolean(s.outDeg));
-  const isSwap = swaps.length > 0 && swaps.length === added.length && added.length === removed.length;
+    .filter((s): s is { inDeg: ScaleDegree; outDeg: ScaleDegree } =>
+      Boolean(s.outDeg),
+    );
+  const isSwap =
+    swaps.length > 0 &&
+    swaps.length === added.length &&
+    added.length === removed.length;
 
   const Note = ({ s, d }: { s: ComparerSide; d: ScaleDegree }) => (
     <>
@@ -122,8 +129,8 @@ export function ScaleComparer({
         <span className="font-medium text-foreground">
           {currentRootName} {current.name.toLowerCase()}
         </span>{" "}
-        uses exactly the same keys as {otherRootName} {other.name.toLowerCase()}.
-        Nothing turns on or off — only <span className="font-mono">1</span>{" "}
+        uses exactly the same keys as {otherRootName} {other.name.toLowerCase()}
+        . Nothing turns on or off — only <span className="font-mono">1</span>{" "}
         moves. Home is now <span className="font-mono">{currentRootName}</span>
         {homeDegree && (
           <>
@@ -132,7 +139,8 @@ export function ScaleComparer({
             {otherRootName} {other.name.toLowerCase()}
           </>
         )}
-        . Play both runs and hear how the same notes settle in a different place.
+        . Play both runs and hear how the same notes settle in a different
+        place.
       </>
     );
   } else if (isSwap) {
@@ -146,8 +154,11 @@ export function ScaleComparer({
             <Note s={other} d={outDeg} /> to <Note s={current} d={inDeg} />
           </span>
         ))}
-        . Flip the toggle and watch one key go dark while its neighbour lights
-        up.
+        . Flip the toggle and watch{" "}
+        {swaps.length === 1
+          ? "one key go dark while its neighbour lights up"
+          : `${swaps.length} keys go dark while their neighbours light up`}
+        .
       </>
     );
   } else if (added.length > 0 && removed.length > 0) {
@@ -155,8 +166,7 @@ export function ScaleComparer({
     // say both halves so no key changes without being named.
     caption = (
       <>
-        <span className="font-medium text-foreground">{current.name}</span>{" "}
-        adds{" "}
+        <span className="font-medium text-foreground">{current.name}</span> adds{" "}
         {added.map((d, i) => (
           <span key={d.offset}>
             {i > 0 && " and "}
@@ -176,8 +186,7 @@ export function ScaleComparer({
   } else if (added.length > 0) {
     caption = (
       <>
-        <span className="font-medium text-foreground">{current.name}</span>{" "}
-        has{" "}
+        <span className="font-medium text-foreground">{current.name}</span> has{" "}
         {added.map((d, i) => (
           <span key={d.offset}>
             {i > 0 && " and "}
@@ -192,8 +201,8 @@ export function ScaleComparer({
   } else {
     caption = (
       <>
-        <span className="font-medium text-foreground">{current.name}</span>{" "}
-        is {other.name.toLowerCase()} with{" "}
+        <span className="font-medium text-foreground">{current.name}</span> is{" "}
+        {other.name.toLowerCase()} with{" "}
         {removed.map((d, i) => (
           <span key={d.offset}>
             {i > 0 && " and "}
@@ -260,7 +269,10 @@ export function ScaleComparer({
         rootOffset={currentShift}
       />
 
-      <p className="text-xs leading-relaxed text-muted-foreground" aria-live="polite">
+      <p
+        className="text-xs leading-relaxed text-muted-foreground"
+        aria-live="polite"
+      >
         {caption}
       </p>
     </div>

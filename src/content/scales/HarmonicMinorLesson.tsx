@@ -74,20 +74,25 @@ export function HarmonicMinorLesson() {
         <LessonIntro />
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="natural-minor">1. Start from the scale you already know: natural minor</H2>
+        <H2 id="natural-minor">
+          1. Start from the scale you already know: natural minor
+        </H2>
         <P>
           A <Term id="scale">scale</Term> is a short list of the twelve piano
           notes that a piece treats as home. The natural minor scale is the
           dark, settled one: in <RootName /> it runs{" "}
           <Mono>1 2 ♭3 4 5 ♭6 ♭7</Mono>. The flats mean &ldquo;one key lower
           than the major scale would have it&rdquo; — the lowered third is what
-          makes any scale sound minor. Press <Mono>Play</Mono> and get the
-          shape of it in your ear, because the next section changes exactly one
-          of these notes.
+          makes any scale sound minor. Press <Mono>Play</Mono> and get the shape
+          of it in your ear, because the next section changes exactly one of
+          these notes.
         </P>
         <div className="mt-4 space-y-3">
           <LessonToolbar root octave>
-            <PlayPatternButton label="Play natural minor" offsets={NATURAL_OFFSETS} />
+            <PlayPatternButton
+              label="Play natural minor"
+              offsets={NATURAL_OFFSETS}
+            />
           </LessonToolbar>
           <ScaleKeyboard degrees={NATURAL} lockToScale />
         </div>
@@ -99,9 +104,9 @@ export function HarmonicMinorLesson() {
           <NoteAt offset={10} /> — and push it up one key to{" "}
           <NoteAt offset={RAISED_SEVENTH} />. Nothing else changes. That single
           move turns natural minor into <strong>harmonic minor</strong>:{" "}
-          <Mono>1 2 ♭3 4 5 ♭6 7</Mono>. Flip the toggle and watch one key go dark
-          while its neighbour lights up, then play both runs back to back. The
-          top of the scale is where you will hear it.
+          <Mono>1 2 ♭3 4 5 ♭6 7</Mono>. Flip the toggle and watch one key go
+          dark while its neighbour lights up, then play both runs back to back.
+          The top of the scale is where you will hear it.
         </P>
         <ScaleComparer
           className="mt-4"
@@ -119,8 +124,8 @@ export function HarmonicMinorLesson() {
           close to home leans into it — play <NoteAt offset={RAISED_SEVENTH} />{" "}
           and your ear is already waiting for <RootName />. Musicians call that
           note a <em>leading tone</em>. Natural minor has no leading tone (its{" "}
-          <Mono>♭7</Mono> is two keys away); harmonic minor borrows one from
-          the major scale.
+          <Mono>♭7</Mono> is two keys away); harmonic minor borrows one from the
+          major scale.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -136,9 +141,9 @@ export function HarmonicMinorLesson() {
         {/* ---------------------------------------------------------------- */}
         <H2 id="scale-degrees">3. Counting from home: the seven degrees</H2>
         <P>
-          Every note in a scale is named by how far above the root it sits —
-          its <Term id="scale-degree">scale degree</Term>. Count keys to the
-          right of the root, black and white alike; each key is a{" "}
+          Every note in a scale is named by how far above the root it sits — its{" "}
+          <Term id="scale-degree">scale degree</Term>. Count keys to the right
+          of the root, black and white alike; each key is a{" "}
           <Term id="steps">half step</Term>. The table is live: change the root
           at the top and the third column follows.
         </P>
@@ -158,8 +163,8 @@ export function HarmonicMinorLesson() {
         {/* ---------------------------------------------------------------- */}
         <H2 id="augmented-second">4. The gap it opens: the augmented second</H2>
         <P>
-          Moving the seventh up leaves a hole behind it. From{" "}
-          <Mono>♭6</Mono> (<NoteAt offset={FLAT_SIXTH} />) to <Mono>7</Mono> (
+          Moving the seventh up leaves a hole behind it. From <Mono>♭6</Mono> (
+          <NoteAt offset={FLAT_SIXTH} />) to <Mono>7</Mono> (
           <NoteAt offset={RAISED_SEVENTH} />) is now three half steps — wider
           than any step in the major scale, which never goes past two. Because
           it is still written as one step from one degree to the next, it has a
@@ -182,10 +187,10 @@ export function HarmonicMinorLesson() {
           This is the sound people describe as &ldquo;Eastern&rdquo; or
           &ldquo;exotic&rdquo; when they meet it in Western music. Classical
           composers treated it as something to avoid in a melody — the melodic
-          minor scale exists to smooth it away by raising the sixth too.
-          Eastern Ashkenazi prayer, <Word id="klezmer">klezmer</Word>,
-          Romanian and Greek dance music, and flamenco went the other way and
-          made the leap the point.
+          minor scale exists to smooth it away by raising the sixth too. Eastern
+          Ashkenazi prayer, <Word id="klezmer">klezmer</Word>, Romanian and
+          Greek dance music, and flamenco went the other way and made the leap
+          the point.
         </P>
 
         {/* ---------------------------------------------------------------- */}
@@ -195,9 +200,9 @@ export function HarmonicMinorLesson() {
           <Mono>7</Mono>, and the <Mono>2</Mono> above it. In natural minor that
           chord is minor. In harmonic minor the raised <Mono>7</Mono> makes it
           major, and a major chord on the fifth pulls hard toward the root.
-          Western harmony wanted that pull in minor keys, and raised the
-          seventh to get it. The scale is named after the chord it was built to
-          supply: the <Term id="dominant">dominant</Term>.
+          Western harmony wanted that pull in minor keys, and raised the seventh
+          to get it. The scale is named after the chord it was built to supply:
+          the <Term id="dominant">dominant</Term>.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -211,28 +216,37 @@ export function HarmonicMinorLesson() {
         </div>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="two-homes">6. Same keys, different home: freygish and Ukrainian Dorian</H2>
+        <H2 id="two-homes">
+          6. Same keys, different home: freygish and Ukrainian Dorian
+        </H2>
         <P>
           Here is the reason this page comes first. Take the seven keys of{" "}
-          <RootName /> harmonic minor and, without adding or removing any,
-          call the <Mono>5</Mono> home instead. You now have{" "}
+          <RootName /> harmonic minor and, without adding or removing any, call
+          the <Mono>5</Mono> home instead. You now have{" "}
           <LessonLink href="/scales/freygish">freygish</LessonLink> — the
           signature mode of klezmer, also called{" "}
           <Word id="ahava-rabbah">Ahava Rabbah</Word> — starting on{" "}
-          <NoteAt offset={7} />. The augmented second is the same two keys;
-          it now sits between the new scale&rsquo;s <Mono>♭2</Mono> and{" "}
+          <NoteAt offset={7} />. The augmented second is the same two keys; it
+          now sits between the new scale&rsquo;s <Mono>♭2</Mono> and{" "}
           <Mono>3</Mono>. Flip the toggle: nothing turns on or off, only the
           green <Mono>1</Mono> moves.
         </P>
         <ScaleComparer
           className="mt-4"
           a={{ id: "harmonic", name: "Harmonic minor", degrees: HARMONIC }}
-          b={{ id: "freygish", name: "Freygish", degrees: FREYGISH, rootOffset: 7 }}
+          b={{
+            id: "freygish",
+            name: "Freygish",
+            degrees: FREYGISH,
+            rootOffset: 7,
+          }}
         />
         <P>
-          Do it again with the <Mono>4</Mono> as home (<NoteAt offset={5} />) and
-          you get{" "}
-          <LessonLink href="/scales/ukrainian-dorian">Ukrainian Dorian</LessonLink>{" "}
+          Do it again with the <Mono>4</Mono> as home (<NoteAt offset={5} />)
+          and you get{" "}
+          <LessonLink href="/scales/ukrainian-dorian">
+            Ukrainian Dorian
+          </LessonLink>{" "}
           — <Word id="misheberakh">Mi Sheberakh</Word> to klezmer players, the
           mode of the <Term id="doina">doina</Term>. The leap now sits between{" "}
           <Mono>♭3</Mono> and <Mono>♯4</Mono>.
@@ -249,12 +263,12 @@ export function HarmonicMinorLesson() {
         />
         <P>
           One honesty note. Western theory files freygish and Ukrainian Dorian
-          as the fifth and fourth <Term id="mode">modes</Term> of harmonic
-          minor — that is the relationship these keyboards show, and it is
-          true of the notes. Klezmer musicians do not think of them that way.
-          They are prayer modes in their own right, named after the chants sung
-          in them, and in the dance collections they are at least as common as
-          plain minor. The harmonic-minor framing is a map, not the territory.
+          as the fifth and fourth <Term id="mode">modes</Term> of harmonic minor
+          — that is the relationship these keyboards show, and it is true of the
+          notes. Klezmer musicians do not think of them that way. They are
+          prayer modes in their own right, named after the chants sung in them,
+          and in the dance collections they are at least as common as plain
+          minor. The harmonic-minor framing is a map, not the territory.
         </P>
 
         {/* ---------------------------------------------------------------- */}
@@ -264,18 +278,22 @@ export function HarmonicMinorLesson() {
           <Mono>1</Mono>; approach it from <Mono>7</Mono> underneath and feel
           the pull. Walk <Mono>♭6 → 7</Mono> slowly and let the wide step be
           strange. Then go hear the same seven keys from their other two homes —{" "}
-          <LessonLink href="/scales/freygish">What is the freygish scale?</LessonLink>{" "}
+          <LessonLink href="/scales/freygish">
+            What is the freygish scale?
+          </LessonLink>{" "}
           and{" "}
           <LessonLink href="/scales/ukrainian-dorian">
             What is the Ukrainian Dorian scale?
           </LessonLink>{" "}
-          — and{" "}
-          <LessonLink href="/genres/klezmer">What is klezmer?</LessonLink> for
-          the music that lives in them.
+          — and <LessonLink href="/genres/klezmer">What is klezmer?</LessonLink>{" "}
+          for the music that lives in them.
         </P>
         <div className="mt-4">
           <LessonToolbar octave lock>
-            <PlayPatternButton label="Play harmonic minor" offsets={HARMONIC_OFFSETS} />
+            <PlayPatternButton
+              label="Play harmonic minor"
+              offsets={HARMONIC_OFFSETS}
+            />
           </LessonToolbar>
         </div>
 

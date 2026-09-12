@@ -90,13 +90,13 @@ export function MajorScaleLesson() {
         <H2 id="degrees">2. Counting from home: the seven degrees</H2>
         <P>
           Every scale has a home note, the <Term id="root">root</Term> — here{" "}
-          <RootName />, and the picker above moves it. The other notes are
-          named by how far above the root they sit: their{" "}
+          <RootName />, and the picker above moves it. The other notes are named
+          by how far above the root they sit: their{" "}
           <Term id="scale-degree">scale degrees</Term>, numbered 1 to 7. In the
           major scale those numbers come plain, with no{" "}
           <Term id="flats-and-sharps">flat or sharp</Term> in front of them.
-          That is not because the major scale is simple. It is because the
-          major scale is the <em>ruler</em>: every other scale on this site is
+          That is not because the major scale is simple. It is because the major
+          scale is the <em>ruler</em>: every other scale on this site is
           described by how it differs from this one, so this is the one that
           gets to be plain.
         </P>
@@ -109,17 +109,21 @@ export function MajorScaleLesson() {
           change, but that list does not — and that list <em>is</em> the scale.
           Click a chip to hear each degree in <RootName />.
         </P>
-        <DegreeStrip degrees={MAJOR} spotlightOffset={MAJOR_THIRD} className="mt-4" />
+        <DegreeStrip
+          degrees={MAJOR}
+          spotlightOffset={MAJOR_THIRD}
+          className="mt-4"
+        />
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="the-recipe">3. The recipe: whole, whole, half</H2>
         <P>
-          Look at the gaps between neighbours instead of the distance from
-          home. From <Mono>1</Mono> to <Mono>2</Mono> is two keys — a{" "}
+          Look at the gaps between neighbours instead of the distance from home.
+          From <Mono>1</Mono> to <Mono>2</Mono> is two keys — a{" "}
           <Term id="steps">whole step</Term>. <Mono>2</Mono> to <Mono>3</Mono>{" "}
           is two more. Then <Mono>3</Mono> to <Mono>4</Mono> is only one key: a
-          half step. Three more whole steps, then one last half step back to
-          the octave. Written out: <Mono>W W H W W W H</Mono>. That eight-word
+          half step. Three more whole steps, then one last half step back to the
+          octave. Written out: <Mono>W W H W W W H</Mono>. That eight-word
           recipe is the whole major scale, in any key, on any instrument.
         </P>
         <div className="mt-4">
@@ -155,9 +159,9 @@ export function MajorScaleLesson() {
           four keys above the root — in <RootName /> that is{" "}
           <NoteAt offset={MAJOR_THIRD} /> — and a third that wide is called a{" "}
           <em>major</em> third. It is the bright, open, settled sound in the
-          scale. Lower it one key and the whole scale turns minor, whatever
-          else you do. Press the pair below and listen to the character
-          change on the second note.
+          scale. Lower it one key and the whole scale turns minor, whatever else
+          you do. Press the pair below and listen to the character change on the
+          second note.
         </P>
         <div className="mt-4">
           <LessonToolbar octave>
@@ -177,34 +181,41 @@ export function MajorScaleLesson() {
         </div>
         <P>
           The <Mono>7</Mono> matters nearly as much. It sits one key below the
-          root and leans into it — play <NoteAt offset={SEVENTH} /> and your
-          ear is already waiting for <RootName />. Musicians call it the{" "}
+          root and leans into it — play <NoteAt offset={SEVENTH} /> and your ear
+          is already waiting for <RootName />. Musicians call it the{" "}
           <em>leading tone</em>; it is why a major-scale melody that ends on{" "}
           <Mono>7 → 1</Mono> sounds finished. Natural minor does not have one,
           which is half of why minor feels less resolved.
         </P>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="relative-minor">5. Same keys, different home: the relative minor</H2>
+        <H2 id="relative-minor">
+          5. Same keys, different home: the relative minor
+        </H2>
         <P>
           Here is the map view. Take the seven keys of <RootName /> major and,
           without turning any on or off, call the <Mono>6</Mono> home instead.
           You are now playing <strong>natural minor</strong> starting on{" "}
           <NoteAt offset={9} /> — the <em>relative minor</em> of <RootName />{" "}
-          major. In <Mono>C</Mono> that is <Mono>A</Mono> minor: still all
-          white keys, but everything settles on <Mono>A</Mono> and the scale
-          sounds dark instead of bright. Flip the toggle: nothing lights or
-          dims, only the green <Mono>1</Mono> moves.
+          major. In <Mono>C</Mono> that is <Mono>A</Mono> minor: still all white
+          keys, but everything settles on <Mono>A</Mono> and the scale sounds
+          dark instead of bright. Flip the toggle: nothing lights or dims, only
+          the green <Mono>1</Mono> moves.
         </P>
         <ScaleComparer
           className="mt-4"
           a={{ id: "major", name: "Major", degrees: MAJOR }}
-          b={{ id: "relative", name: "Natural minor", degrees: MINOR, rootOffset: 9 }}
+          b={{
+            id: "relative",
+            name: "Natural minor",
+            degrees: MINOR,
+            rootOffset: 9,
+          }}
         />
         <P>
           This is the first <Term id="mode">mode</Term> most people learn
-          without knowing the word: one set of notes, two homes. Every degree
-          of the major scale can be a home in the same way — start on{" "}
+          without knowing the word: one set of notes, two homes. Every degree of
+          the major scale can be a home in the same way — start on{" "}
           <Mono>2</Mono> and you have{" "}
           <LessonLink href="/scales/dorian">Dorian</LessonLink>, on{" "}
           <Mono>5</Mono> and you have{" "}
@@ -213,48 +224,67 @@ export function MajorScaleLesson() {
         </P>
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="parallel-minor">6. Same home, three keys lowered: the parallel minor</H2>
+        <H2 id="parallel-minor">
+          6. Same home, three keys lowered: the parallel minor
+        </H2>
         <P>
           The other way to reach minor is to keep <RootName /> as home and
           change the recipe. Lower the <Mono>3</Mono>, the <Mono>6</Mono>, and
           the <Mono>7</Mono> each by one key and you have <RootName /> natural
-          minor — the <em>parallel</em> minor, same root, different notes.
-          Flip the toggle and watch three keys go dark while their lower
-          neighbours light. The lowered third is the one doing most of the
-          work; the other two follow it.
+          minor — the <em>parallel</em> minor, same root, different notes. Flip
+          the toggle and watch three keys go dark while their lower neighbours
+          light. The lowered third is the one doing most of the work; the other
+          two follow it.
         </P>
         <ScaleComparer
           className="mt-4"
-          a={{ id: "major", name: "Major", degrees: MAJOR, spotlightOffset: MAJOR_THIRD }}
-          b={{ id: "parallel", name: "Natural minor", degrees: MINOR, spotlightOffset: 3 }}
+          a={{
+            id: "major",
+            name: "Major",
+            degrees: MAJOR,
+            spotlightOffset: MAJOR_THIRD,
+          }}
+          b={{
+            id: "parallel",
+            name: "Natural minor",
+            degrees: MINOR,
+            spotlightOffset: 3,
+          }}
         />
         <P>
-          Two routes to the same kind of scale — re-home the keys, or lower
-          some of them — and both are worth having in your hands. Relative
-          thinking tells you which scales share a keyboard. Parallel thinking
-          tells you which single notes make the difference between one
-          character and another. Every scale page on this site uses one or the
-          other, and usually both.
+          Two routes to the same kind of scale — re-home the keys, or lower some
+          of them — and both are worth having in your hands. Relative thinking
+          tells you which scales share a keyboard. Parallel thinking tells you
+          which single notes make the difference between one character and
+          another. Every scale page on this site uses one or the other, and
+          usually both.
         </P>
 
         {/* ---------------------------------------------------------------- */}
         <H2 id="use-it">7. What to do with it</H2>
         <P>
-          Keep the lock on and play the green keys in any order. End phrases
-          on <Mono>1</Mono>; arrive from <Mono>7</Mono> below or <Mono>2</Mono>{" "}
-          above and feel how both lean home. Then take one note away at a time
-          — drop the <Mono>4</Mono> and the <Mono>7</Mono> and you have the
+          Keep the lock on and play the green keys in any order. End phrases on{" "}
+          <Mono>1</Mono>; arrive from <Mono>7</Mono> below or <Mono>2</Mono>{" "}
+          above and feel how both lean home. Then take one note away at a time —
+          drop the <Mono>4</Mono> and the <Mono>7</Mono> and you have the
           five-note{" "}
-          <LessonLink href="/scales/major-pentatonic">major pentatonic</LessonLink>;
-          lower the third and go to{" "}
-          <LessonLink href="/scales/minor-pentatonic">minor pentatonic</LessonLink>{" "}
+          <LessonLink href="/scales/major-pentatonic">
+            major pentatonic
+          </LessonLink>
+          ; lower the third and go to{" "}
+          <LessonLink href="/scales/minor-pentatonic">
+            minor pentatonic
+          </LessonLink>{" "}
           and from there to the{" "}
           <LessonLink href="/scales/blues-scale">blues scale</LessonLink>. Every
           one of them is this scale with a few decisions made.
         </P>
         <div className="mt-4">
           <LessonToolbar octave lock>
-            <PlayPatternButton label="Play the major scale" offsets={MAJOR_OFFSETS} />
+            <PlayPatternButton
+              label="Play the major scale"
+              offsets={MAJOR_OFFSETS}
+            />
           </LessonToolbar>
         </div>
       </section>

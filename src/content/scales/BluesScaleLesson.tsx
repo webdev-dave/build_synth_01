@@ -52,7 +52,10 @@ const DEGREE_ROWS: DegreeRow[] = [
 
 export function BluesScaleLesson() {
   return (
-    <ScaleLessonProvider defaultRootPc={DEFAULT_ROOT_PC} degrees={BLUES_DEGREES}>
+    <ScaleLessonProvider
+      defaultRootPc={DEFAULT_ROOT_PC}
+      degrees={BLUES_DEGREES}
+    >
       <section className="mt-8" aria-label="Blues scale lesson">
         <LessonIntro />
 
@@ -60,8 +63,8 @@ export function BluesScaleLesson() {
         <H2 id="what-is-a-scale">1. First: what a scale is</H2>
         <P>
           A piano has only twelve different notes. After twelve keys the names
-          start over — seven white (<Mono>C D E F G A B</Mono>) and five black
-          — so a keyboard is the same twelve-note pattern repeated at higher and
+          start over — seven white (<Mono>C D E F G A B</Mono>) and five black —
+          so a keyboard is the same twelve-note pattern repeated at higher and
           higher pitch. A <Term id="scale">scale</Term> is a short list of those
           twelve that a piece of music treats as home. Play only the notes on
           the list and everything sounds like it belongs together; the notes
@@ -97,24 +100,23 @@ export function BluesScaleLesson() {
         </P>
         <P>
           Two words that trip people up. A <em>half step</em> is a distance
-          between two notes, not a kind of note — every key on the piano,
-          black or white, is a full note in its own right, so an octave holds
-          twelve notes, not &ldquo;twelve halves.&rdquo; A <em>whole step</em>{" "}
-          is simply two half steps: skip one key. The names come from the major
+          between two notes, not a kind of note — every key on the piano, black
+          or white, is a full note in its own right, so an octave holds twelve
+          notes, not &ldquo;twelve halves.&rdquo; A <em>whole step</em> is
+          simply two half steps: skip one key. The names come from the major
           scale, where most steps are two keys wide and a couple are one key
           wide, so the bigger one was called whole and the smaller one half.
-          (Unrelated: <em>whole note</em> and <em>half note</em> also exist,
-          but they describe how long a note lasts, not how far apart two notes
-          are.)
+          (Unrelated: <em>whole note</em> and <em>half note</em> also exist, but
+          they describe how long a note lasts, not how far apart two notes are.)
         </P>
         <DegreeTable rows={DEGREE_ROWS} spotlightOffset={BLUE_NOTE_OFFSET} />
         <P>
-          Why the odd names — why <Mono>♭3</Mono> and not just{" "}
-          <Mono>3</Mono>? The plain numbers 1 to 7 belong to the major scale,
-          the do-re-mi scale that everything else is measured against; in{" "}
-          <Mono>A</Mono> it runs <Mono>A B C♯ D E F♯ G♯</Mono>. A{" "}
-          <Term id="flats-and-sharps">flat</Term> sign (<Mono>♭</Mono>) in
-          front of a number means &ldquo;that note, one key lower.&rdquo; So{" "}
+          Why the odd names — why <Mono>♭3</Mono> and not just <Mono>3</Mono>?
+          The plain numbers 1 to 7 belong to the major scale, the do-re-mi scale
+          that everything else is measured against; in <Mono>A</Mono> it runs{" "}
+          <Mono>A B C♯ D E F♯ G♯</Mono>. A{" "}
+          <Term id="flats-and-sharps">flat</Term> sign (<Mono>♭</Mono>) in front
+          of a number means &ldquo;that note, one key lower.&rdquo; So{" "}
           <Mono>♭3</Mono> in <Mono>A</Mono> is <Mono>C</Mono>, one key below the
           major scale&rsquo;s <Mono>C♯</Mono>. The blues lowers its third,
           fifth, and seventh — that lowering is what &ldquo;flattening&rdquo;
@@ -133,7 +135,9 @@ export function BluesScaleLesson() {
         />
 
         {/* ---------------------------------------------------------------- */}
-        <H2 id="minor-pentatonic">3. Start with five notes: the minor pentatonic</H2>
+        <H2 id="minor-pentatonic">
+          3. Start with five notes: the minor pentatonic
+        </H2>
         <P>
           Before the blues scale, meet the scale it is built from. Take degrees{" "}
           <Mono>1 ♭3 4 5 ♭7</Mono> — five notes — and you have the{" "}
@@ -158,9 +162,9 @@ export function BluesScaleLesson() {
         {/* ---------------------------------------------------------------- */}
         <H2 id="the-blue-note">4. Add one note: the blue note</H2>
         <P>
-          Now squeeze one more key in: the <Mono>♭5</Mono> — six keys above
-          the root, sitting between the <Mono>4</Mono> and the <Mono>5</Mono>{" "}
-          with no gap on either side. In <RootName /> that key is{" "}
+          Now squeeze one more key in: the <Mono>♭5</Mono> — six keys above the
+          root, sitting between the <Mono>4</Mono> and the <Mono>5</Mono> with
+          no gap on either side. In <RootName /> that key is{" "}
           <NoteAt offset={BLUE_NOTE_OFFSET} />. That single note is the entire
           difference between the minor pentatonic and the blues scale. Five
           notes become six: <Mono>1 ♭3 4 ♭5 5 ♭7</Mono>.
@@ -192,10 +196,10 @@ export function BluesScaleLesson() {
           The <Mono>♭5</Mono> is restless for two reasons. First, its distance
           from the root — six keys, exactly half of the twelve-key octave — is
           the interval musicians call a <Term id="tritone">tritone</Term>, the
-          most unsettled sound in Western music. Second, it is wedged between two
-          notes that are already in the scale, so it never gets to sit still: it
-          wants to slide up into the <Mono>5</Mono> or fall back to the{" "}
-          <Mono>4</Mono>. Press <Mono>Hear the slide</Mono> to hear{" "}
+          most unsettled sound in Western music. Second, it is wedged between
+          two notes that are already in the scale, so it never gets to sit
+          still: it wants to slide up into the <Mono>5</Mono> or fall back to
+          the <Mono>4</Mono>. Press <Mono>Hear the slide</Mono> to hear{" "}
           <Mono>4 → ♭5 → 5</Mono>.
         </P>
         <div className="mt-4">
@@ -215,8 +219,8 @@ export function BluesScaleLesson() {
           in-between pitches are <Term id="blue-notes">blue notes</Term>, and
           they are older than the blues — they come out of work songs, field
           hollers, and spirituals. A piano cannot bend, so the blues scale
-          freezes the bend onto the nearest key. What you are playing here is the
-          piano&rsquo;s honest approximation of a note that, on a voice or a
+          freezes the bend onto the nearest key. What you are playing here is
+          the piano&rsquo;s honest approximation of a note that, on a voice or a
           guitar, lives between the keys.
         </P>
 
@@ -225,11 +229,11 @@ export function BluesScaleLesson() {
         <P>
           You now know the whole scale. Pick the root that matches your song —
           guitar blues usually lives in <Mono>A</Mono> or <Mono>E</Mono>; the
-          picker at the top moves everything. Keep the lock on and play the green
-          keys in any order: with the lock on there are no wrong notes. Land on{" "}
-          <Mono>1</Mono> or <Mono>5</Mono> when you want a phrase to feel
-          finished, and treat <Mono>♭5</Mono> as a note you pass through, not one
-          you stop on. Then take it to a{" "}
+          picker at the top moves everything. Keep the lock on and play the
+          green keys in any order: with the lock on there are no wrong notes.
+          Land on <Mono>1</Mono> or <Mono>5</Mono> when you want a phrase to
+          feel finished, and treat <Mono>♭5</Mono> as a note you pass through,
+          not one you stop on. Then take it to a{" "}
           <Term id="twelve-bar-blues">12-bar blues</Term> —{" "}
           <LessonLink href="/genres/blues">What is the blues?</LessonLink>{" "}
           covers the form and the shuffle the scale sits on.

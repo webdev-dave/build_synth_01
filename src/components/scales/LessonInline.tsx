@@ -1,5 +1,6 @@
 "use client";
 
+import { noteNameAt, type ScaleDegree } from "@/lib/music/scaleCatalog";
 import { useScaleLesson } from "./ScaleLessonProvider";
 
 /**
@@ -15,8 +16,20 @@ export function RootName() {
   return <span className="font-mono">{rootName}</span>;
 }
 
-/** The note `offset` semitones above the current root. */
-export function NoteAt({ offset }: { offset: number }) {
-  const { noteName } = useScaleLesson();
-  return <span className="font-mono">{noteName(offset)}</span>;
+/**
+ * The note `offset` semitones above the current root. Pass `degrees` when
+ * the note belongs to the *other* scale in a comparison — "lower the 5 (F♯)
+ * to ♭5 (F)" on the Locrian page names a Phrygian note, and Phrygian is the
+ * scale that knows to call it F♯ rather than G♭.
+ */
+export function NoteAt({
+  offset,
+  degrees,
+}: {
+  offset: number;
+  degrees?: readonly ScaleDegree[];
+}) {
+  const { noteName, rootPc } = useScaleLesson();
+  const name = degrees ? noteNameAt(rootPc, offset, degrees) : noteName(offset);
+  return <span className="font-mono">{name}</span>;
 }

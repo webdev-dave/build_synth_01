@@ -197,7 +197,7 @@ export const GENRES: Genre[] = [
     about:
       "After the war, singers in the United States and Britain reached for older songs — British ballads, spirituals, union tunes, and pieces borrowed from other languages — and put them on records that sold. Newport (1959) and the Vanguard and Elektra catalogs were the circuit. The revival was not a folk culture; it was a way of performing one. That is why Baez and Donovan sit here, not under klezmer: they sang an English Dona Dona, not a wedding dance.",
     signatureLayers: ["texture", "form", "harmony"],
-    scales: [],
+    scales: ["natural-minor", "dorian", "major-pentatonic"],
     compareWith: "yiddish-folk",
     status: "live",
     keywords: [
