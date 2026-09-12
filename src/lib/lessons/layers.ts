@@ -18,9 +18,11 @@
 
 import type { Genre, GenreLayer } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
+import { getProgression } from "@/lib/progressions/registry";
 import { parseRootName } from "@/lib/music/scaleParam";
 import type { ScaleTypeId } from "@/lib/music/scaleCatalog";
 import { getScaleContent } from "@/content/scales";
+import { getProgressionContent } from "@/content/progressions";
 
 /**
  * What the panel's teaser widget needs, per layer. A discriminated union so
@@ -32,6 +34,14 @@ export type LayerTeaser =
       kind: "scale";
       patternKey: ScaleTypeId;
       defaultRootPc: number;
+      playLabel: string;
+    }
+  | {
+      kind: "progression";
+      slug: string;
+      /** Scale that spells the chart's note names (the lesson's overlay scale). */
+      patternKey: ScaleTypeId;
+      defaultKeyRootPc: number;
       playLabel: string;
     }
   | { kind: "none" };
@@ -100,9 +110,46 @@ const scaleModule: LayerModule = {
   ready: (data) => data.teaser.kind !== "none",
 };
 
+const harmonyModule: LayerModule = {
+  hub: "/progressions",
+  noun: "progression",
+  slugsOf: (genre) => genre.progressions ?? [],
+  resolve: (slug) => {
+    const progression = getProgression(slug);
+    if (!progression) return undefined;
+    // Spell the teaser's chord names with the progression's first scale
+    // (the blues scale on the 12-bar), the same way the lesson does.
+    const patternKey =
+      progression.scales.map((s) => getScale(s)?.patternKey).find(Boolean) ?? "major";
+    return {
+      href: `/progressions/${progression.slug}`,
+      noun: progression.kind === "chord" ? "chord" : "progression",
+      name: progression.name,
+      question: progression.question,
+      answer: progression.answer,
+      formula: progression.formula,
+      exampleKey: progression.exampleKey,
+      exampleNotes: progression.exampleChords,
+      hasLesson: Boolean(getProgressionContent(progression.slug)),
+      // A single chord has no chart to play; its teaser waits for the chord spokes.
+      teaser:
+        progression.kind === "progression"
+          ? {
+              kind: "progression",
+              slug: progression.slug,
+              patternKey,
+              defaultKeyRootPc: parseRootName(progression.exampleKey) ?? 0,
+              playLabel: "Play the chart",
+            }
+          : { kind: "none" },
+    };
+  },
+  ready: (data) => data.teaser.kind !== "none",
+};
+
 export const LAYER_MODULES: Record<GenreLayer, LayerModule | null> = {
   scale: scaleModule,
-  harmony: null,
+  harmony: harmonyModule,
   rhythm: null,
   meter: null,
   form: null,

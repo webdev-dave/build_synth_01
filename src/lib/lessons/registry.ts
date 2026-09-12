@@ -51,6 +51,17 @@ export const LESSONS: Lesson[] = [
     title: "Chords",
     summary:
       "Stacking notes into triads, and what makes a chord sound major, minor, or unresolved.",
+    // Moves to /progressions/dominant-seventh once that chord spoke is live;
+    // until then the 12-bar lesson's first section teaches the triad → 7th.
+    tryHref: "/progressions/twelve-bar-blues#a-chord",
+    tryLabel: "Hear a triad become a seventh",
+  },
+  {
+    slug: "twelve-bar-blues",
+    title: "The 12-bar blues",
+    summary:
+      "Three chords, twelve bars, every one a seventh — the chart played bar by bar, with the blues scale laid over it.",
+    movedTo: "/progressions/twelve-bar-blues",
   },
   {
     slug: "waveforms",

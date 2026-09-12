@@ -6,6 +6,7 @@ import { ScaleAliases } from "@/components/scales/ScaleAliases";
 import { getGenre } from "@/lib/genres/registry";
 import { getArticlesByScale } from "@/lib/history/registry";
 import { getCousinsByScale } from "@/lib/cousins/registry";
+import { getProgressionsByScale } from "@/lib/progressions/registry";
 import { getPosition, posLabel } from "@/lib/harmonica";
 import { getScaleContent } from "@/content/scales";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,9 @@ export default async function ScalePage({ params }: ScalePageProps) {
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
   const articles = getArticlesByScale(scale.slug);
   const cousins = getCousinsByScale(scale.slug);
+  // Only live progression lessons earn a "Play it over" door; a stub would
+  // send the reader to a placeholder.
+  const progressions = getProgressionsByScale(scale.slug).filter((p) => p.status === "live");
   // A mode the harmonica lab already teaches as a position gets a door into
   // the v2 lab with that position pre-selected.
   const positions = (scale.positions ?? [])
@@ -101,6 +105,10 @@ export default async function ScalePage({ params }: ScalePageProps) {
         ...genres.map((genre) => ({
           href: `/genres/${genre.slug}`,
           label: genre.question,
+        })),
+        ...progressions.map((progression) => ({
+          href: `/progressions/${progression.slug}`,
+          label: `Play it over: ${progression.question}`,
         })),
         ...cousins.map((cousin) => ({
           href: `/cousins/${cousin.slug}`,

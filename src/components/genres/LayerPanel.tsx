@@ -5,6 +5,8 @@ import { ArrowRight, BookOpen } from "lucide-react";
 
 import type { LayerPanelData, LayerTeaser } from "@/lib/lessons/layers";
 import { degreesOf } from "@/lib/music/scaleCatalog";
+import { getProgression } from "@/lib/progressions/registry";
+import { ProgressionTeaser } from "@/components/progressions/ProgressionTeaser";
 import { ScaleTeaser } from "@/components/scales/ScaleTeaser";
 
 /**
@@ -83,6 +85,19 @@ function Teaser({ teaser }: { teaser: LayerTeaser }) {
           playLabel={teaser.playLabel}
         />
       );
+    case "progression": {
+      const progression = getProgression(teaser.slug);
+      if (!progression) return null;
+      return (
+        <ProgressionTeaser
+          className="mt-4"
+          progression={progression}
+          patternKey={teaser.patternKey}
+          defaultKeyRootPc={teaser.defaultKeyRootPc}
+          playLabel={teaser.playLabel}
+        />
+      );
+    }
     case "none":
       return null;
   }

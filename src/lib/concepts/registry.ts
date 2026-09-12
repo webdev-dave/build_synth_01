@@ -225,9 +225,9 @@ export const CONCEPTS: Concept[] = [
     aliases: ["12-bar", "12 bar blues", "twelve-bar", "twelve bar", "12-bar form", "12-bar chorus"],
     micro:
       "The most common blues form: a 12-measure chord pattern built on the I, IV, and V chords that repeats for each verse. It's the harmonic loop under thousands of blues, R&B, and rock songs.",
-    definition:
-      "The 12-bar blues is a repeating 12-measure chord progression. In its plain form it spends four bars on the I chord, two on the IV, two back on the I, one on the V, one on the IV, and the last two turning back home (I, then V again to set up the loop). Verses are usually built as an 'AAB' lyric — a line sung, repeated, then answered — which fits neatly across the twelve bars. It became the harmonic skeleton of blues, rhythm and blues, and early rock and roll, which is why so many songs feel familiar the first time you hear them.",
-    href: conceptHome("twelve-bar-blues"),
+    // Delegated (2026-09): the progression lesson plays the chart bar by
+    // bar; /concepts/twelve-bar-blues renders a moved notice for old links.
+    href: "/progressions/twelve-bar-blues",
     genres: ["blues"],
     history: ["blues"],
     status: "live",

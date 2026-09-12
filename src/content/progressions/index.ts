@@ -10,7 +10,11 @@
  */
 import type { ComponentType } from "react";
 
-const PROGRESSION_CONTENT: Record<string, ComponentType> = {};
+import { TwelveBarBluesLesson } from "./TwelveBarBluesLesson";
+
+const PROGRESSION_CONTENT: Record<string, ComponentType> = {
+  "twelve-bar-blues": TwelveBarBluesLesson,
+};
 
 export function getProgressionContent(slug: string): ComponentType | undefined {
   return PROGRESSION_CONTENT[slug];

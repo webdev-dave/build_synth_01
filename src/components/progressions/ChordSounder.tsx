@@ -4,6 +4,7 @@ import { useMemo, useState, type ReactNode } from "react";
 
 import { Button } from "@/components/ui/button";
 import {
+  CHORD_QUALITIES,
   unionPitchClasses,
   withSeventh,
   type ChordSpec,
@@ -28,8 +29,13 @@ interface ChordSounderProps {
   union?: boolean;
   keyboard?: boolean;
   strip?: boolean;
-  /** Extra caption under the strip (the lesson's own sentence about this chord). */
-  caption?: (spec: ChordSpec) => ReactNode;
+  /**
+   * The lesson's own sentence under the strip — one for a plain triad and
+   * one once the seventh is on. Nodes, not a function: the lesson is a
+   * server component and this widget is a client one.
+   */
+  captionTriad?: ReactNode;
+  captionSeventh?: ReactNode;
   className?: string;
 }
 
@@ -48,7 +54,8 @@ export function ChordSounder({
   union = false,
   keyboard = true,
   strip = true,
-  caption,
+  captionTriad,
+  captionSeventh,
   className,
 }: ChordSounderProps) {
   const { nameOf, soundChord, keyRootPc, keyName, nameOfPc } = useProgression();
@@ -120,9 +127,9 @@ export function ChordSounder({
       </ProgressionToolbar>
 
       {strip && <ChordToneStrip chord={selected} />}
-      {caption && (
+      {(captionTriad || captionSeventh) && (
         <p className="text-xs leading-relaxed text-muted-foreground" aria-live="polite">
-          {caption(selected)}
+          {CHORD_QUALITIES[selected.quality].intervals.length > 3 ? captionSeventh : captionTriad}
         </p>
       )}
 

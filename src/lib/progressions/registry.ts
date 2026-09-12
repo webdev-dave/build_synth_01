@@ -171,7 +171,7 @@ export const PROGRESSIONS: Progression[] = [
     scales: ["blues-scale", "minor-pentatonic", "major-blues", "mixolydian"],
     compareWith: "i-iv-v",
     forms: ["twelve-bar-blues"],
-    status: "soon",
+    status: "live",
     keywords: [
       "12 bar blues chords",
       "twelve bar blues progression",

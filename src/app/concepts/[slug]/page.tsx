@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import {
-  GLOSSARY_CONCEPTS,
+  CONCEPTS,
   getConcept,
   conceptHome,
   conceptQuestion,
@@ -18,6 +18,7 @@ import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
+import { MovedLesson } from "@/components/lessons/MovedLesson";
 import { getWord } from "@/lib/words/registry";
 
 interface ConceptPageProps {
@@ -27,11 +28,14 @@ interface ConceptPageProps {
 export const dynamicParams = false;
 
 export function generateStaticParams() {
-  // Only glossary-owned concepts get a page here; delegated terms (e.g.
-  // "pentatonic" → the scale page) never route to /concepts/<slug>.
-  // Former house spelling still generates so /concepts/krekhts can redirect.
+  // Every concept gets a page here. Glossary-owned ones render the
+  // definition; delegated ones (e.g. "12-bar blues" → its progression
+  // lesson, which used to be a glossary page and is in old sitemaps)
+  // render a moved notice instead of 404ing — a static export has no
+  // server redirects. Former house spelling still generates so
+  // /concepts/krekhts can redirect.
   return [
-    ...GLOSSARY_CONCEPTS.map((concept) => ({ slug: concept.slug })),
+    ...CONCEPTS.map((concept) => ({ slug: concept.slug })),
     { slug: "krekhts" },
   ];
 }
@@ -42,6 +46,13 @@ export async function generateMetadata({
   const { slug } = await params;
   const concept = getConcept(slug);
   if (!concept) return { title: "Concept" };
+  if (concept.href !== conceptHome(concept.slug)) {
+    return {
+      title: `${conceptQuestion(concept)} — moved`,
+      description: concept.micro,
+      robots: { index: false, follow: true },
+    };
+  }
   return {
     title: conceptQuestion(concept),
     description: concept.micro,
@@ -55,8 +66,12 @@ export async function generateMetadata({
 export default async function ConceptPage({ params }: ConceptPageProps) {
   const { slug } = await params;
   const concept = getConcept(slug);
-  // Delegated concepts (href points elsewhere) shouldn't render a stub here.
-  if (!concept || concept.href !== conceptHome(concept.slug)) notFound();
+  if (!concept) notFound();
+  // Delegated concepts (href points elsewhere) don't render a stub here —
+  // the reader is sent on to the page that teaches the term.
+  if (concept.href !== conceptHome(concept.slug)) {
+    return <MovedLesson title={concept.term} to={concept.href} />;
+  }
   // Alias / former-spelling URLs (e.g. /concepts/krekhts) → canonical slug.
   if (slug !== concept.slug) redirect(concept.href);
 
