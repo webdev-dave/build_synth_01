@@ -13,6 +13,24 @@ import { Minus, Plus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import { NOTES_SHARP, niceNote } from "@/lib/music";
+import {
+  SCALE_CATALOG,
+  degreeLabelMap,
+  detuneMapFor,
+  hasQuarterTones,
+  pitchClassInScale,
+  relatedScale,
+  rootNameFor,
+  scaleTypesByGroup,
+  namedWithArticle,
+  sentenceName,
+  simpleName,
+  spellScale,
+  type ScaleTypeId,
+} from "@/lib/music/scaleCatalog";
+import { NO_DETUNE } from "@/lib/music/detune";
+import { formatScaleParam, parseScaleParam } from "@/lib/music/scaleParam";
+import { getScaleByPatternKey } from "@/lib/scales/registry";
 import { useSharedAudioContext } from "@/hooks/useSharedAudioContext";
 import useIsMobile from "@/hooks/useIsMobile";
 import { useElementWidth } from "@/hooks/useElementWidth";
@@ -21,11 +39,7 @@ import {
   useAudioSynthesis,
   type OscillatorType,
 } from "../templates/basic-synth/hooks/useAudioSynthesis";
-import {
-  useScaleLogic,
-  type ScaleRoot,
-  type ScaleType,
-} from "../templates/basic-synth/hooks/useScaleLogic";
+import { useScaleLogic } from "../templates/basic-synth/hooks/useScaleLogic";
 import {
   useComputerKeyboard,
   buildNoteToCharMap,
@@ -40,12 +54,26 @@ import { LearnPanel } from "@/components/learn/LearnPanel";
 
 const WAVE_TYPES: OscillatorType[] = ["sine", "square", "sawtooth", "triangle"];
 
-const SCALE_PATTERNS: Record<Exclude<ScaleType, "none">, number[]> = {
-  major: [0, 2, 4, 5, 7, 9, 11],
-  minor: [0, 2, 3, 5, 7, 8, 10],
-};
+const SCALE_GROUPS = scaleTypesByGroup();
+
+const mod12 = (n: number) => ((n % 12) + 12) % 12;
+
+/**
+ * Root options read both names on the black keys ("C♯ / D♭") so a user
+ * hunting for B♭ finds it without the list renaming itself as the scale
+ * type changes. Everywhere else the root is spelled the way the chosen
+ * scale spells it.
+ */
+const ROOT_OPTIONS = NOTES_SHARP.map((sharp, pc) => ({
+  pc,
+  label: sharp.includes("#") ? `${niceNote(sharp)} / ${simpleName(pc)}` : sharp,
+}));
 
 const MAX_OCTAVES = 4;
+
+/** Root and type selects match: one "Scale" phrase, `[D] [Dorian]`. */
+const selectClass =
+  "h-[30px] rounded-md border border-input bg-background px-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:opacity-40";
 
 /*
  * The thinnest a white key gets before we drop an octave instead — roughly
@@ -56,11 +84,21 @@ const MAX_OCTAVES = 4;
  */
 const MIN_WHITE_KEY_PX = 36;
 
+interface SynthV2Props {
+  /**
+   * Honour `?scale=D-dorian` in the page URL — a lesson's "Try it on the
+   * synth" lands with the scale preselected. Read once after mount (the
+   * page is a static export, so there is no server to read it); the synth
+   * is user-driven after that and never writes the URL back.
+   */
+  readScaleFromUrl?: boolean;
+}
+
 /**
  * v2 synth: the same pure Web Audio engine (oscillator → gain → speakers,
  * no external audio libraries) under a redesigned, theme-token UI.
  */
-export function SynthV2() {
+export function SynthV2({ readScaleFromUrl = false }: SynthV2Props = {}) {
   const { audioContext, hasAudioPermission, initializeAudio } =
     useSharedAudioContext();
   const isMobile = useIsMobile();
@@ -71,12 +109,23 @@ export function SynthV2() {
   // Scale selection — root and type both start unset so the dropdown
   // doesn't look like C is already the key. (Declared before the keyboard
   // window because the scale root anchors it.)
-  const { setSelectedScale, isNoteInScale, identifyChord } = useScaleLogic();
-  const [scaleRoot, setScaleRoot] = useState<ScaleRoot | null>(null);
-  const [scaleType, setScaleType] = useState<ScaleType>("none");
+  const { identifyChord } = useScaleLogic();
+  const [rootPc, setRootPc] = useState<number | null>(null);
+  const [typeId, setTypeId] = useState<ScaleTypeId | null>(null);
   const [lockToScale, setLockToScale] = useState(false);
   const [showNumbers, setShowNumbers] = useState(false);
-  const hasScale = scaleRoot !== null && scaleType !== "none";
+  const hasScale = rootPc !== null && typeId !== null;
+  const scale = typeId !== null ? SCALE_CATALOG[typeId] : null;
+
+  // Membership straight from the catalog: the same table the lesson pages
+  // read, so the green and red dots here can't disagree with them.
+  const isNoteInScale = useCallback(
+    (noteNumber: number) =>
+      rootPc === null ||
+      typeId === null ||
+      pitchClassInScale(rootPc, typeId, noteNumber % 12),
+    [rootPc, typeId],
+  );
 
   /*
    * Picking a scale re-frames the keyboard around its root: the window runs
@@ -85,11 +134,21 @@ export function SynthV2() {
    * (D major's 7th, C#, sits above the top C). With no scale the window is
    * C-anchored as on a real piano.
    */
-  const anchorName = scaleRoot ?? "C";
-  const anchorPc = NOTES_SHARP.indexOf(anchorName);
+  const anchorPc = rootPc ?? 0;
+  const anchorName = NOTES_SHARP[anchorPc];
   // A piano row can't start or end on a black key, so a black-key root
   // borrows the white key below as a lead-in (and the one above as lead-out).
   const anchorIsBlack = anchorName.includes("#");
+  // The root as this scale spells it — the same key is B♭ for major, G♯ for
+  // Phrygian dominant, A♭ for Ukrainian Dorian.
+  const rootName =
+    rootPc === null
+      ? null
+      : scale
+        ? rootNameFor(rootPc, scale.degrees)
+        : niceNote(anchorName);
+  const scaleLabel =
+    rootName && scale && typeId ? `${rootName} ${sentenceName(typeId)}` : null;
 
   // How many octaves the keyboard area can hold at a playable key width.
   // n octaves render 7n + 1 white keys (the trailing root), plus one more
@@ -197,49 +256,58 @@ export function SynthV2() {
     ],
   );
 
+  /*
+   * A quarter-tone scale (Rast) presses its switches on the tuning strip the
+   * way a lesson page does, and leaving it for an ordinary scale releases
+   * them. Only switches the scale itself pressed are released — a strip the
+   * user set by hand while no scale was chosen is theirs to keep.
+   */
+  const pressedByScale = useRef(false);
   useEffect(() => {
-    setSelectedScale(
-      hasScale && scaleRoot ? `${scaleRoot} ${scaleType}` : "none",
-    );
-  }, [scaleRoot, scaleType, hasScale, setSelectedScale]);
+    if (rootPc !== null && scale && hasQuarterTones(scale.degrees)) {
+      setDetuneCents(detuneMapFor(rootPc, scale.degrees));
+      pressedByScale.current = true;
+    } else if (pressedByScale.current) {
+      setDetuneCents(NO_DETUNE);
+      pressedByScale.current = false;
+    }
+  }, [rootPc, scale, setDetuneCents]);
 
   // Root-first note names of the current scale ("D E F♯ G A B C♯"),
-  // for the lesson intro.
-  const scaleNoteNames = useMemo(() => {
-    if (!scaleRoot || scaleType === "none") return null;
-    const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
-    return SCALE_PATTERNS[scaleType]
-      .map((iv) => niceNote(NOTES_SHARP[(rootIdx + iv) % 12]))
-      .join(" ");
-  }, [scaleRoot, scaleType]);
+  // spelled one letter per degree.
+  const scaleNoteNames = useMemo(
+    () =>
+      rootPc !== null && typeId !== null
+        ? spellScale(rootPc, typeId).join(" ")
+        : null,
+    [rootPc, typeId],
+  );
 
-  // Every key has a twin sharing the same seven notes: the relative minor
-  // sits 3 half steps below the major root (equivalently, +9 in pitch class).
-  const relativeScale = useMemo(() => {
-    if (!scaleRoot || scaleType === "none") return null;
-    const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
-    return scaleType === "major"
-      ? {
-          root: NOTES_SHARP[(rootIdx + 9) % 12] as ScaleRoot,
-          type: "minor" as const,
-        }
-      : {
-          root: NOTES_SHARP[(rootIdx + 3) % 12] as ScaleRoot,
-          type: "major" as const,
-        };
-  }, [scaleRoot, scaleType]);
+  // The one scale that shares this one's exact note set: a mode's parent
+  // major, Phrygian dominant's harmonic minor, a major key's relative minor.
+  // Data on the catalog, so no scale gets a relationship invented for it.
+  const related = useMemo(() => {
+    if (rootPc === null || typeId === null) return null;
+    const rel = relatedScale(typeId);
+    if (!rel) return null;
+    const targetPc = mod12(rootPc + rel.offsetSemitones);
+    const target = SCALE_CATALOG[rel.scaleId];
+    return {
+      rootPc: targetPc,
+      typeId: rel.scaleId,
+      name: `${rootNameFor(targetPc, target.degrees)} ${sentenceName(rel.scaleId)}`,
+      label: rel.label,
+    };
+  }, [rootPc, typeId]);
 
-  // Pitch class (0–11) → 1-based scale degree, or null for chromatic notes.
-  const degreeMap = useMemo<(number | null)[] | null>(() => {
-    if (!scaleRoot || scaleType === "none") return null;
-    const rootIdx = NOTES_SHARP.indexOf(scaleRoot);
-    const pattern = SCALE_PATTERNS[scaleType];
-    return Array.from({ length: 12 }, (_, pitchClass) => {
-      const interval = (pitchClass - rootIdx + 12) % 12;
-      const idx = pattern.indexOf(interval);
-      return idx === -1 ? null : idx + 1;
-    });
-  }, [scaleRoot, scaleType]);
+  // Pitch class (0–11) → degree label ("♭3"), or null for chromatic notes.
+  const degreeMap = useMemo<(string | null)[] | null>(
+    () =>
+      rootPc !== null && typeId !== null
+        ? degreeLabelMap(rootPc, typeId)
+        : null,
+    [rootPc, typeId],
+  );
 
   // On the keys themselves the numbers are opt-in; the readout always has them.
   const scaleDegrees = showNumbers ? degreeMap : null;
@@ -266,11 +334,14 @@ export function SynthV2() {
   const chord = activeKeys.size > 1 ? identifyChord(activeKeys) : "";
   const singleNoteDegree = useMemo(() => {
     if (!singleNote || !degreeMap) return null;
-    const pitchClass = NOTES_SHARP.indexOf(
-      singleNote.replace(/\d+$/, "") as ScaleRoot,
+    const pitchClass = (NOTES_SHARP as readonly string[]).indexOf(
+      singleNote.replace(/\d+$/, ""),
     );
     return pitchClass === -1 ? null : degreeMap[pitchClass];
   }, [singleNote, degreeMap]);
+
+  // The page that teaches the selected scale — the panel's "read more".
+  const scalePage = typeId !== null ? getScaleByPatternKey(typeId) : undefined;
 
   /*
    * Learning panel: one shared area below the synth showing the mini-lesson
@@ -280,6 +351,43 @@ export function SynthV2() {
    * already-open panel, so simply playing with the synth never forces it open.
    */
   const [conceptId, setConceptId] = useState<SynthConceptId | null>(null);
+
+  /*
+   * Every scale change goes through here so the URL can't drift from the
+   * keyboard: `?scale=D-dorian` is rewritten in place (replaceState — no
+   * navigation, no history entry, no scroll jump) and removed when the
+   * scale is cleared. Copying the address bar always shares what's on
+   * screen. Only when the page owns the URL; an embedded synth leaves it.
+   */
+  const commitScale = useCallback(
+    (nextRoot: number | null, nextType: ScaleTypeId | null) => {
+      setRootPc(nextRoot);
+      setTypeId(nextType);
+      if (!readScaleFromUrl || typeof window === "undefined") return;
+      const url = new URL(window.location.href);
+      if (nextRoot !== null && nextType !== null) {
+        url.searchParams.set("scale", formatScaleParam(nextRoot, nextType));
+      } else {
+        url.searchParams.delete("scale");
+      }
+      window.history.replaceState(window.history.state, "", url);
+    },
+    [readScaleFromUrl],
+  );
+
+  // A deep link arrives like a user who picked root and type: numbers on,
+  // the selected-scale card open. A bad or missing param changes nothing.
+  useEffect(() => {
+    if (!readScaleFromUrl) return;
+    const linked = parseScaleParam(
+      new URLSearchParams(window.location.search).get("scale"),
+    );
+    if (!linked) return;
+    setRootPc(linked.rootPc);
+    setTypeId(linked.typeId);
+    setShowNumbers(true);
+    setConceptId("scale-type");
+  }, [readScaleFromUrl]);
   const toggleConcept = useCallback(
     (id: SynthConceptId) => setConceptId((c) => (c === id ? null : id)),
     [],
@@ -291,29 +399,72 @@ export function SynthV2() {
   const selectedConcept = useMemo(() => {
     if (!conceptId) return null;
     const c = SYNTH_CONCEPTS[conceptId];
-    // The scale lesson opens with the user's actual selection when there is
-    // one — the generic explanation lands better anchored to what's on screen.
+
+    // The selected-scale card is data, not prose: everything below comes
+    // from the catalog + scale registry, so a new catalog entry shows up
+    // here with nothing to write.
+    if (c.id === "scale-type") {
+      // Nothing chosen yet: the label explains what the dropdown is for.
+      if (!scale || !scaleLabel || !scaleNoteNames || rootPc === null) {
+        return {
+          id: c.id,
+          title: c.title,
+          body: c.body,
+          lessonHref: c.lessonHref,
+          lessonLabel: "Browse all scales",
+        };
+      }
+      const body: string[] = [];
+      body.push(
+        scale.aliases?.length
+          ? `${scale.feel}. Also called ${scale.aliases.join(", ")}.`
+          : `${scale.feel}.`,
+      );
+      if (related) {
+        body.push(
+          `Same notes as ${related.name} — ${lowerFirst(related.label)}. Click the link next to the Type label to switch: the marked keys stay put and the numbers re-count from the new home.`,
+        );
+      }
+      if (hasQuarterTones(scale.degrees)) {
+        body.push(
+          "This scale has quarter tones, so the tuning strip under the keys has pressed the switches that bend them — a quarter tone (−50¢) is the keyboard convention; players tune the real thing by ear.",
+        );
+      }
+      return {
+        id: c.id,
+        title: scaleLabel,
+        body,
+        facts: [
+          { label: "Notes", value: scaleNoteNames },
+          {
+            label: "Degrees",
+            value: scale.degrees.map((deg) => deg.label).join(" "),
+          },
+        ],
+        lessonHref: scalePage ? `/scales/${scalePage.slug}` : undefined,
+        lessonLabel: scalePage
+          ? `Read about ${namedWithArticle(scale.id, scalePage.name)}`
+          : undefined,
+      };
+    }
+
+    // The generic scale lesson opens anchored to what's on screen.
     const body =
-      c.id === "scale" && hasScale && scaleNoteNames && relativeScale
+      c.id === "scale" && scaleLabel && scaleNoteNames
         ? [
-            `Your current scale is ${scaleRoot} ${scaleType}, made of ${scaleNoteNames}. ` +
-              `Its relative ${relativeScale.type} is ${relativeScale.root} ${relativeScale.type} — the exact same seven notes; the two keys only disagree about which note is home.`,
+            `Your current scale is ${scaleLabel}, made of ${scaleNoteNames}. Pick a different type in the second dropdown to see how the pattern changes on the same root.`,
             ...c.body,
           ]
         : c.body;
-    return {
-      id: c.id,
-      title: c.title,
-      body,
-      lessonHref: c.lessonSlug ? `/lessons/${c.lessonSlug}` : undefined,
-    };
+    return { id: c.id, title: c.title, body, lessonHref: c.lessonHref };
   }, [
     conceptId,
-    hasScale,
-    scaleRoot,
-    scaleType,
+    scale,
+    scaleLabel,
     scaleNoteNames,
-    relativeScale,
+    rootPc,
+    related,
+    scalePage,
   ]);
 
   return (
@@ -336,15 +487,15 @@ export function SynthV2() {
               <span className="ml-3 text-muted-foreground">
                 {activeNoteFreq?.toFixed(2)} Hz
               </span>
-              {hasScale && (
+              {scaleLabel && (
                 <span className="ml-3">
                   {singleNoteDegree !== null ? (
                     <span className="text-emerald-600">
-                      {ordinal(singleNoteDegree)} of {scaleRoot} {scaleType}
+                      {singleNoteDegree} of {scaleLabel}
                     </span>
                   ) : (
                     <span className="text-muted-foreground">
-                      outside {scaleRoot} {scaleType}
+                      outside {scaleLabel}
                     </span>
                   )}
                 </span>
@@ -437,7 +588,7 @@ export function SynthV2() {
             labelSelected={conceptId === "octave"}
           >
             <Stepper
-              value={`${anchorName}${startOctave}`}
+              value={`${rootName ?? "C"}${startOctave}`}
               onDecrement={() => {
                 adjustOctave(-1);
                 touchConcept("octave");
@@ -453,116 +604,128 @@ export function SynthV2() {
             />
           </Field>
 
-          <Field
-            label="Scale"
-            onLabelClick={() => toggleConcept("scale")}
-            labelSelected={conceptId === "scale"}
-            labelExtra={
-              hasScale && relativeScale ? (
-                // Names the relationship precisely: the relative major/minor
-                // shares every note. Clicking swaps — the marked keys stay
-                // put while the keyboard re-frames around the new home base.
-                // ml-auto pins it to the right edge of the scale section.
-                <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
-                  <span aria-hidden>·</span>
-                  <button
-                    type="button"
-                    title={`${relativeScale.root} ${relativeScale.type} has the same notes — click to switch`}
-                    aria-label={`Switch to the relative ${relativeScale.type}, ${relativeScale.root} ${relativeScale.type}`}
-                    onClick={() => {
-                      setScaleRoot(relativeScale.root);
-                      setScaleType(relativeScale.type);
-                      touchConcept("relative-keys");
-                    }}
-                    className={cn(
-                      "cursor-pointer rounded-sm underline underline-offset-4 transition-colors",
-                      "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
-                    )}
-                  >
-                    relative {relativeScale.type}:{" "}
-                    <span className="font-semibold text-foreground">
-                      {relativeScale.root}
-                    </span>
-                  </button>
-                </span>
-              ) : null
-            }
-          >
-            <select
-              aria-label="Scale root"
-              value={scaleRoot ?? ""}
-              onChange={(e) => {
-                const next = e.target.value;
-                touchConcept("scale");
-                if (next === "") {
-                  setScaleRoot(null);
-                  setScaleType("none");
-                  setLockToScale(false);
-                  setShowNumbers(false);
-                  return;
-                }
-                setScaleRoot(next as ScaleRoot);
-                // Picking a root is the on-switch: default to major and turn the
-                // numbers on, so the scale arrives already labeled 1–7. Only on
-                // first activation, so re-picking a root won't override a manual
-                // toggle-off. Clearing the scale (above) removes them again.
-                if (scaleType === "none") {
-                  setScaleType("major");
-                  setShowNumbers(true);
-                }
-              }}
-              className="h-[30px] rounded-md border border-input bg-background px-2 font-mono text-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          {/* Root and type are two labelled columns in one cell, so they read
+              as one phrase — "[D] [Dorian]" — while each label opens its own
+              lesson: Scale → what a scale is; Type → the selected scale's
+              card (or, with nothing chosen, what the dropdown is for). */}
+          <div className="flex flex-wrap items-start gap-x-3 gap-y-5">
+            <Field
+              label="Scale"
+              onLabelClick={() => toggleConcept("scale")}
+              labelSelected={conceptId === "scale"}
             >
-              <option value="">—</option>
-              {NOTES_SHARP.map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
-            <Segmented
-              ariaLabel="Scale type"
-              value={scaleType}
-              onChange={(t) => {
-                setScaleType(t);
-                touchConcept("scale");
-              }}
-              options={[
-                {
-                  value: "major" as ScaleType,
-                  label: "major",
-                  disabled: scaleRoot === null,
-                },
-                {
-                  value: "minor" as ScaleType,
-                  label: "minor",
-                  disabled: scaleRoot === null,
-                },
-              ]}
-            />
-            <Toggle
-              pressed={lockToScale}
-              onClick={() => {
-                setLockToScale((v) => !v);
-                touchConcept("scale-lock");
-              }}
-              disabled={!hasScale}
+              <select
+                aria-label="Scale root"
+                value={rootPc ?? ""}
+                onChange={(e) => {
+                  const next = e.target.value;
+                  if (next === "") {
+                    commitScale(null, null);
+                    setLockToScale(false);
+                    setShowNumbers(false);
+                    // The selected-scale card falls back to the dropdown's
+                    // explanation on its own; nothing to close.
+                    return;
+                  }
+                  // Picking a root is the on-switch: default to major and turn the
+                  // numbers on, so the scale arrives already labeled 1–7. Only on
+                  // first activation, so re-picking a root won't override a manual
+                  // toggle-off. Clearing the scale (above) removes them again.
+                  commitScale(Number(next), typeId ?? "major");
+                  if (typeId === null) setShowNumbers(true);
+                  touchConcept(typeId === null ? "scale" : "scale-type");
+                }}
+                className={selectClass}
+              >
+                <option value="">—</option>
+                {ROOT_OPTIONS.map((o) => (
+                  <option key={o.pc} value={o.pc}>
+                    {o.label}
+                  </option>
+                ))}
+              </select>
+            </Field>
+
+            <Field
+              label="Type"
+              onLabelClick={() => toggleConcept("scale-type")}
+              labelSelected={conceptId === "scale-type"}
+              labelExtra={
+                hasScale && related ? (
+                  // Names the relationship precisely: the related scale shares
+                  // every note. Clicking swaps — the marked keys stay put while
+                  // the keyboard re-frames around the new home base. ml-auto
+                  // pins it to the right edge of the section.
+                  <span className="ml-auto flex items-center gap-2 font-mono text-[11px] text-muted-foreground">
+                    <span aria-hidden>·</span>
+                    <button
+                      type="button"
+                      title={`${related.name} — ${related.label}. Click to switch.`}
+                      aria-label={`Switch to ${related.name}, which has the same notes`}
+                      onClick={() => {
+                        commitScale(related.rootPc, related.typeId);
+                        touchConcept("relative-keys");
+                      }}
+                      className={cn(
+                        "cursor-pointer rounded-sm underline underline-offset-4 transition-colors",
+                        "hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
+                      )}
+                    >
+                      same notes as{" "}
+                      <span className="font-semibold text-foreground">
+                        {related.name}
+                      </span>
+                    </button>
+                  </span>
+                ) : null
+              }
             >
-              lock
-            </Toggle>
-            <Toggle
-              pressed={showNumbers}
-              onClick={() => {
-                setShowNumbers((v) => !v);
-                // Showing the numbers IS the lesson, so open the panel (unlike
-                // the sound toggles, which only refresh an already-open one).
-                toggleConcept("scale-numbers");
-              }}
-              disabled={!hasScale}
-            >
-              numbers
-            </Toggle>
-          </Field>
+              <select
+                aria-label="Scale type"
+                value={typeId ?? ""}
+                disabled={rootPc === null}
+                onChange={(e) => {
+                  commitScale(rootPc, e.target.value as ScaleTypeId);
+                  // Choosing a type IS the lesson: open the card for it.
+                  setConceptId("scale-type");
+                }}
+                className={cn(selectClass, "max-w-[12rem]")}
+              >
+                {typeId === null && <option value="">—</option>}
+                {SCALE_GROUPS.map((group) => (
+                  <optgroup key={group.group} label={group.label}>
+                    {group.types.map((t) => (
+                      <option key={t.id} value={t.id}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+              <Toggle
+                pressed={lockToScale}
+                onClick={() => {
+                  setLockToScale((v) => !v);
+                  touchConcept("scale-lock");
+                }}
+                disabled={!hasScale}
+              >
+                lock
+              </Toggle>
+              <Toggle
+                pressed={showNumbers}
+                onClick={() => {
+                  setShowNumbers((v) => !v);
+                  // Showing the numbers IS the lesson, so open the panel (unlike
+                  // the sound toggles, which only refresh an already-open one).
+                  toggleConcept("scale-numbers");
+                }}
+                disabled={!hasScale}
+              >
+                numbers
+              </Toggle>
+            </Field>
+          </div>
 
           <Field
             label="Range"
@@ -644,11 +807,8 @@ export function SynthV2() {
   );
 }
 
-/** 1 → "1st", 2 → "2nd", 3 → "3rd", 4+ → "4th"… (scales only reach 7) */
-function ordinal(degree: number): string {
-  const suffix =
-    degree === 1 ? "st" : degree === 2 ? "nd" : degree === 3 ? "rd" : "th";
-  return `${degree}${suffix}`;
+function lowerFirst(s: string): string {
+  return s.charAt(0).toLowerCase() + s.slice(1);
 }
 
 /* ---------- small local controls ---------- */

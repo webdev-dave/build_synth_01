@@ -285,7 +285,7 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     parent: {
       scaleId: "pentatonicMajor",
       offsetSemitones: 3,
-      label: "same notes as the major pentatonic a minor 3rd up",
+      label: "relative major pentatonic (its root a minor 3rd up)",
     },
   },
   blues: {
@@ -406,6 +406,46 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
 
 export const SCALE_TYPE_IDS = Object.keys(SCALE_CATALOG) as ScaleTypeId[];
 
+/**
+ * Names that stay capitalised mid-sentence: the Greek mode names and the
+ * maqam. "D Dorian" but "A natural minor", "C major pentatonic".
+ */
+const PROPER_NOUN_IDS = new Set<ScaleTypeId>([
+  "dorian",
+  "phrygian",
+  "lydian",
+  "mixolydian",
+  "locrian",
+  "phrygianDominant",
+  "ukrainianDorian",
+  "rast",
+]);
+
+/** `name` as it reads after a root or inside a sentence. */
+export function sentenceName(
+  id: ScaleTypeId,
+  name: string = SCALE_CATALOG[id].name,
+): string {
+  if (PROPER_NOUN_IDS.has(id)) return name;
+  return name.charAt(0).toLowerCase() + name.slice(1);
+}
+
+/**
+ * `name` with the article English wants before it: "the Dorian mode",
+ * "the blues scale", "the natural minor" — but bare "Freygish", "Rast",
+ * "Ukrainian Dorian". A proper noun takes "the" only when a common noun
+ * (mode/scale) follows it.
+ */
+export function namedWithArticle(
+  id: ScaleTypeId,
+  name: string = SCALE_CATALOG[id].name,
+): string {
+  const spoken = sentenceName(id, name);
+  const bareProperNoun =
+    PROPER_NOUN_IDS.has(id) && !/\b(mode|scale)$/i.test(spoken);
+  return bareProperNoun ? spoken : `the ${spoken}`;
+}
+
 export function scaleInfo(id: ScaleTypeId): ScaleTypeInfo {
   return SCALE_CATALOG[id];
 }
@@ -448,6 +488,28 @@ export function scaleTypesByGroup(): {
       ),
     }))
     .filter((g) => g.types.length > 0);
+}
+
+/**
+ * The catalog entry with exactly these degrees (offsets and cents), or null.
+ * Lets a lesson that was handed a degree list find the synth's type id for
+ * its "Try it on the synth" link without naming it twice.
+ */
+export function typeIdForDegrees(
+  degrees: readonly ScaleDegree[],
+): ScaleTypeId | null {
+  const key = degreeKey(degrees);
+  return (
+    SCALE_TYPE_IDS.find((id) => degreeKey(SCALE_CATALOG[id].degrees) === key) ??
+    null
+  );
+}
+
+function degreeKey(degrees: readonly ScaleDegree[]): string {
+  return degrees
+    .map((deg) => `${mod12(deg.offset)}${deg.cents ? `@${deg.cents}` : ""}`)
+    .sort()
+    .join(",");
 }
 
 /** True when the pitch class sits in the scale built on `rootPc`. */

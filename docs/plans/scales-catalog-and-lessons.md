@@ -408,10 +408,12 @@ on the freygish page = +5, on the Ukrainian Dorian page = +7).
       nearer a major third). Section 6: jins Rast + Nahawand on the 5th
       (the ♭7 descent), locked to the ascending form. Sources: Maqam World
       Rast, Abu Shumays "Maqam Analysis: A Primer", Marcus 1993.
-- [ ] Synth deep link: once Synth v2 has the type selector
-      ([synth-scale-type-selector.md](synth-scale-type-selector.md)
-      Phase 4), every lesson gets a "Try it on the synth" link with
-      `?scale=<root>-<typeId>` from the shared catalog.
+- [x] Synth deep link (2026-09-12): Synth v2 has the type selector
+      ([synth-scale-type-selector.md](synth-scale-type-selector.md)) and
+      `LessonToolbar` renders "Try it on the synth" next to the root picker
+      with `?scale=<root>-<typeId>` for the reader's *current* root
+      (`typeIdForDegrees` finds the catalog id from the lesson's degrees, so
+      no lesson names it twice).
 
 ### Phase 6 — Needs owner input
 

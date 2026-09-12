@@ -10,8 +10,15 @@ export interface LearnPanelConcept {
   id: string;
   title: string;
   body: string[];
+  /**
+   * Machine-precise lines ("Notes · D E F G A B C") rendered in mono under
+   * the prose — note names and degree formulas, never sentences.
+   */
+  facts?: { label: string; value: string }[];
   /** Route of the full lesson; omit when there's none. */
   lessonHref?: string;
+  /** Link text; defaults to "Open the full lesson". */
+  lessonLabel?: string;
 }
 
 interface LearnPanelProps {
@@ -74,12 +81,25 @@ export function LearnPanel({ concept, onClose }: LearnPanelProps) {
             ))}
           </div>
 
+          {concept.facts && concept.facts.length > 0 && (
+            <dl className="mt-3 space-y-1 font-mono text-xs">
+              {concept.facts.map((fact) => (
+                <div key={fact.label} className="flex flex-wrap gap-x-3">
+                  <dt className="w-16 shrink-0 text-muted-foreground">
+                    {fact.label}
+                  </dt>
+                  <dd className="text-foreground">{fact.value}</dd>
+                </div>
+              ))}
+            </dl>
+          )}
+
           {concept.lessonHref && (
             <Link
               href={concept.lessonHref}
               className="mt-3 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
-              Open the full lesson
+              {concept.lessonLabel ?? "Open the full lesson"}
               <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           )}

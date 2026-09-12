@@ -9,31 +9,47 @@ Dorian, …), pentatonics, blues, and "exotic" harmonic-minor-family scales
 The keyboard's in-scale highlighting, lock-to-scale, degree numbers, and the
 learn panel all follow the chosen type.
 
-Second goal: make the synth **embeddable in lesson pages** with the scale
-type pre-locked to the lesson's topic (selector greyed out), so a Phrygian
-lesson can drop in the real instrument frozen on Phrygian.
+Second goal: a **two-way link** with the Scales module — the learn panel
+links to the scale's page, and every scale lesson links back into the synth
+with that scale preselected (`?scale=D-dorian`).
 
-## Where things stand today
+## Status (2026-09-12) — read this first
 
-- `SynthV2.tsx` already splits **root** (native `<select>`, all 12 chromatic
-  roots) from **type** (a 2-option `Segmented`: major / minor). State is local
-  React (`scaleRoot`, `scaleType`), synced into `useScaleLogic` as a
-  `"C major"`-style string for `isNoteInScale`.
-- The major/minor interval patterns are currently defined in **three places**:
-  `src/lib/music/scales.ts`, `useScaleLogic.ts`, and a local `SCALE_PATTERNS`
-  in `SynthV2.tsx`. The lessons-module plan already flags this duplication.
-- `src/lib/music/scales.ts` already has most of the raw material:
-  `SCALE_PATTERNS` (major, minor, harmonic/melodic minor, pentatonics, blues)
-  and `MODE_PATTERNS` (all seven diatonic modes) + `MODE_INFO` display copy.
-  Missing: Phrygian dominant and Ukrainian Dorian.
-- `KeyboardV2` visualizes membership via an injected `isNoteInScale` and an
-  optional 12-slot `scaleDegrees` map — it is already pattern-agnostic, so it
-  needs almost no changes.
+**Phases A–E shipped 2026-09-12** (see the log at the end). Only Phase F
+remains, by design.
 
-> Note: the screenshot referenced when this was requested didn't come through;
-> the scale list below is a proposal built from the scales named in
-> conversation (Phrygian, blues, Middle Eastern, Ukrainian Dorian) plus what
-> `lib/music` already defines. Easy to add/remove entries before build.
+The theory layer this plan asked for **already shipped** with the Scales
+module. What is left is the synth UI itself, and that is what the owner has
+now asked for:
+
+> A dropdown on the synth to pick a scale or mode type. While it is selected
+> the learn panel shows basic info about it with a link to read more on the
+> scale's page — and the green/red in-scale dots, lock, and degree numbers
+> all work correctly for that scale.
+
+### Already done (do not rebuild)
+
+| Was planned as | Exists today |
+|---|---|
+| Phase 1 catalog `SCALE_CATALOG` | `src/lib/music/scaleCatalog.ts` — 17 types (the audited 14 + `majorBlues`, `doubleHarmonic`, `rast`), quality-aware degrees, `group`, `feel`, `aliases`, `parent`, per-degree `cents` for Rast |
+| `spellScale` letter-once spelling | `spellScale`, `spellDegrees`, `rootNameFor`, `noteNameAt`, `simpleName` in the same file (picks the double-accidental-free root per scale) |
+| Quality-aware degree labels on keys | `KeyboardV2.scaleDegrees` accepts `string` labels ("♭3", "♯4", "½♭3"); every lesson keyboard uses them |
+| Maqam context | Quarter-tone tuning strip on `KeyboardV2` (`TuningStrip.tsx`), `useAudioSynthesis.detuneCents`, `detuneMapFor`; live on `/synth/v2` and every lesson |
+| Lesson pages to link to | 17 live `/scales/<slug>` pages; `ScaleLesson.patternKey` maps each slug to its catalog id (`src/lib/scales/registry.ts`) |
+| Follow-ons "double harmonic", "major blues" | Both in the catalog with lessons |
+
+### Still true
+
+- `SynthV2.tsx` has a local `SCALE_PATTERNS` (major/minor only), feeds
+  `useScaleLogic` a `"C major"` string for `isNoteInScale`, and its
+  `degreeMap` emits ordinals 1–7. The type control is a 2-option
+  `Segmented`. The learn panel's `scale` concept has one hard-coded
+  relative-major/minor sentence and links to `/lessons/scales` (which now
+  redirects to `/scales/major-scale`).
+- `useScaleLogic` is also used by Synth v1 and MidiLab. Leave it alone;
+  v2 stops depending on it for membership and keeps it for `identifyChord`.
+- The theory section below is the audited source of truth for the
+  patterns; it still holds.
 
 ---
 
@@ -173,129 +189,248 @@ No claims in this document remain flagged as uncertain.
 
 ---
 
+## What the user sees (target)
+
+```
+SCALE · same notes as C major →           ← parent / relative link (data-driven)
+[ D ▾ ] [ Dorian ▾ ] [lock] [numbers]     ← root select + type select w/ optgroups
+```
+
+- Picking a **root** turns the scale on (defaults to Major, numbers on —
+  today's behaviour). Picking a **type** re-marks the keyboard immediately:
+  in-scale keys get the green dot (or their degree label when numbers are
+  on), out-of-scale keys get the red dot, and with **lock** on the red ones
+  don't sound. Nothing new to learn — the same three affordances, now true
+  for 17 scales instead of 2.
+- **Numbers are the catalog's labels**, not 1–7: D Dorian shows
+  `1 2 ♭3 4 5 6 ♭7`; A blues shows `1 ♭3 4 ♭5 5 ♭7`; C Rast shows `½♭3`
+  and `½♭7` on the keys the strip has bent. The readout says
+  "♭3 of D Dorian", not "3rd".
+- Picking **Rast** presses the E and B switches on the tuning strip (as
+  the Rast lesson does); picking any other type releases them. The strip
+  stays hand-editable.
+- The **learn panel** opens on the selected scale: title "D Dorian",
+  the catalog's `feel` line, its notes spelled for this root, its degree
+  formula, the parent/relative sentence, other names — and a **"Read
+  about the Dorian mode →"** link to `/scales/dorian`. Change root or type
+  and the panel updates in place.
+- **Deep link**: `/synth/v2?scale=D-dorian` opens preselected. Every scale
+  lesson gets a "Try it on the synth" link built from its root and
+  `patternKey`. This closes the last open item in
+  [scales-catalog-and-lessons.md](scales-catalog-and-lessons.md).
+
 ## Implementation phases
 
-### Phase 1 — Consolidate the theory layer (`src/lib/music`)
+Each phase is one commit on `main`. Verify with `npx tsc --noEmit`, lint
+on touched files, and the checks listed. The push stages a Vercel build;
+promotion is a separate, owner-approved step
+(`.cursor/rules/deployment.mdc`).
 
-- [ ] Extend `scales.ts` with `phrygianDominant` and `ukrainianDorian`
-      patterns; add a unified **scale catalog**:
-      `SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo>` where
-      `ScaleTypeInfo = { name, aliases?, pattern, degrees, group, feel, parent? }`
-      (groups: Common / Modes / Pentatonic & Blues / Harmonic-minor family —
-      these become `<optgroup>`s).
-- [ ] Add `spellScale(root, scaleId)` (letter-once heptatonic spelling;
-      degree-derived for 5/6-note scales) next to the existing `niceNote` /
-      `enharmonic` helpers in `notes.ts`.
-- [ ] Sanity-verify every pattern/degree/spelling against the table above
-      (this doc is the source of truth; a small `scripts/`-style assertion or
-      test file is fine if cheap, otherwise careful review).
+### Phase A — Data (small, no UI)
 
-### Phase 2 — Un-duplicate the synth's scale logic
+- [x] `scaleCatalog.ts`: add `relative?: { scaleId, offsetSemitones }` on
+      `major` (→ `minor`, +9) and `pentatonicMajor` (→ `pentatonicMinor`,
+      +9). Everything else already has `parent`. One helper
+      `relatedScale(id): { scaleId, offsetSemitones, label } | null` returns
+      `parent` if present, else the inverse of `relative`, else null (blues,
+      harmonic/melodic minor, double harmonic, major blues, Rast show no
+      link — they share their exact note set with nothing in the catalog).
+- [x] `src/lib/scales/registry.ts`: `getScaleByPatternKey(id)` — the
+      "read more" target. All 17 pages have `patternKey`; a type with no
+      page simply gets no link (guard, don't crash).
+- [x] `src/lib/music/scaleParam.ts`: `parseScaleParam("D-dorian")` →
+      `{ rootPc: 2, typeId: "dorian" } | null` and `formatScaleParam`.
+      Root accepts `C`, `C#`, `Db`, `C♯`, `D♭` (case-insensitive); type
+      must be a `ScaleTypeId`. Rejects anything else → no preselection.
+- [x] Check: extend `C:/tmp/scale-catalog-check.ts`-style script (kept
+      outside the repo) to assert `relatedScale` round-trips (D Dorian →
+      C major; C major → A minor; A minor → C major) and `parseScaleParam`
+      accepts/rejects the cases above.
 
-- [ ] Refactor `useScaleLogic` so membership comes from a pattern passed in
-      (or from `lib/music` via a `ScaleTypeId`) instead of its hardcoded
-      major/minor record; widen `ScaleType` accordingly. The
-      `"${root} ${type}"` string plumbing can be replaced by explicit
-      `{ root, typeId }` — simpler than widening the template-literal union.
-- [ ] Delete the local `SCALE_PATTERNS` copy in `SynthV2.tsx`; derive
-      `scaleNoteNames`, `degreeMap`, and relative-key info from the catalog +
-      `spellScale`.
-- [ ] Leave Synth v1 (`/synth`, `SynthControls.tsx`) untouched on
-      major/minor — it's the legacy version; don't grow its select.
+### Phase B — Synth state on the catalog
 
-### Phase 3 — The dropdown + keyboard behavior (Synth v2 UI)
+- [x] `SynthV2.tsx`: state becomes `rootPc: number | null` and
+      `typeId: ScaleTypeId | null` (`hasScale = both set`). Delete the local
+      `SCALE_PATTERNS`; derive from `SCALE_CATALOG[typeId].degrees`:
+  - `isNoteInScale(noteNumber)` = pattern includes
+    `mod12(noteNumber − rootPc)`. Computed locally with `useCallback`;
+    `useScaleLogic` is no longer fed a string (keep calling it for
+    `identifyChord` only, or import a pure `identifyChord` if one exists —
+    do not refactor the hook, v1 and MidiLab use it).
+  - `degreeMap: (string | null)[]` from the degree labels — this is what
+    `KeyboardV2.scaleDegrees` already accepts, so the green dot / label /
+    red dot logic needs **no change** in the keyboard.
+  - `scaleNoteNames` = `spellScale(rootPc, typeId).join(" ")` (letter-once,
+    so D Dorian reads "D E F G A B C" and E Phrygian dominant "E F G♯ A B C
+    D", never "A♭").
+  - Root display name = `rootNameFor(rootPc, degrees)` (A♭ vs G♯ follows
+    the scale, as the lessons do).
+  - `windowStart` / anchor logic keeps reading a pitch class; the root
+    `<select>` value becomes the pc as a string.
+- [x] Rast on the synth: `useEffect` — when `typeId` has quarter tones,
+      `setDetuneCents(detuneMapFor(rootPc, degrees))`; when it changes to a
+      type without them, `setDetuneCents(NO_DETUNE)`. Mirror
+      `ScaleLessonProvider`; do not touch the strip when no scale is set,
+      so hand-set switches survive plain playing.
+- [x] Readout: "♭3 of D Dorian" / "outside D Dorian"; chord readout
+      unchanged.
+- [x] Verify: with no scale, behaviour is byte-identical to today; with C
+      major and A minor, dots/lock/numbers match today's output (the two
+      cases users already know); D Dorian lock silences C♯ and F♯ etc.
 
-- [ ] Replace the major/minor `Segmented` with a second native `<select>`
-      styled identically to the root select (same `h-[30px]` mono styling),
-      using `<optgroup>` per catalog group. A 14-option list has outgrown a
-      segmented control; two matching selects side by side reads as one
-      "Scale" phrase: `[D] [Ukrainian Dorian]`.
-- [ ] Keep current behaviors: picking a root with no type auto-selects
-      major + turns numbers on; clearing the root resets type/lock/numbers;
-      `touchConcept("scale")` on change.
-- [ ] Degree labels: switch `degreeMap` to quality-aware labels (Phase 1
-      data); confirm `♭3`/`♯4` render legibly in `KeyboardV2`'s degree balls
-      and in the single-note readout.
-- [ ] Relative/parent link: generalize per the data-driven `parent` scheme;
-      verify swap behavior re-frames correctly (e.g. E Phrygian dominant →
-      A harmonic minor keeps the same marked keys).
-- [ ] Learn panel: scale concept copy becomes catalog-aware — current
-      selection's name, aliases, spelled notes, signature degree ("the ♯4 is
-      what separates Ukrainian Dorian from plain Dorian"), and parent-scale
-      sentence. `MODE_INFO`-style `feel` strings extend to the new entries.
-- [ ] Lock-to-scale needs no logic change (it consumes `isNoteInScale`), but
-      verify locked-out red dots and no-op keys with a 5-note scale selected.
+### Phase C — The type dropdown + relative link
 
-### Phase 4 — Lesson embedding: lockable scale type
+- [x] Replace the major/minor `Segmented` with a native `<select
+      aria-label="Scale type">` styled like the root select (`h-[30px]`,
+      mono), `<optgroup label>` per `SCALE_GROUP_LABELS` in catalog order
+      (Common → Modes → Pentatonic & blues → Harmonic-minor family →
+      Maqam). Option text is `name` ("Phrygian dominant"); the learn panel
+      carries the aliases, the dropdown stays short. Disabled until a root
+      is chosen (as the segmented is now).
+- [x] Root `<select>`: options are the 12 pitch classes; **black keys read
+      both names** ("C♯ / D♭") so a user looking for B♭ finds it without
+      us renaming options as the type changes. The readout and note list
+      use the catalog spelling.
+- [x] `labelExtra` becomes the generalized link from `relatedScale`: for a
+      mode "same notes as **C major** →", for minor "relative major:
+      **C**", for Phrygian dominant "5th mode of **A harmonic minor**".
+      Click swaps root + type; the marked keys stay put and the window
+      re-frames — the existing behaviour, now for every pair. Hidden when
+      `relatedScale` is null.
+- [x] `touchConcept("scale-type")` on type change (see Phase D for what
+      opens).
+- [x] Check on a 5-note scale (A minor pentatonic) and a 6-note scale (A
+      blues): red dots on the right keys, lock no-ops them, labels `♭5`
+      and `5` both present. Check E Phrygian dominant → A harmonic minor
+      swap keeps the same lit keys.
 
-- [ ] Add embed props to `SynthV2` (or a thin `SynthEmbed` wrapper if the
-      page chrome needs trimming): `initialScale?: { root, typeId }` and
-      `lockedScaleTypeId?: ScaleTypeId`.
-- [ ] When locked: type `<select>` renders `disabled` (greyed, native
-      semantics — also correct for a11y), lock/numbers toggles stay usable,
-      root select stays **enabled** (transposing within the lesson's scale
-      type is a feature, not a leak — a Phrygian lesson benefits from hearing
-      E Phrygian and A Phrygian).
-- [ ] A small "locked to this lesson" hint near the greyed select (tooltip or
-      muted caption) so the disabled state reads as intentional, per the
-      "everything interactive looks interactive" rule inverted: things that
-      aren't interactive should say why.
-- [ ] Optional (cheap, high value): read `?scale=E-phrygianDominant` from the
-      URL on `/synth/v2` so lessons can also deep-link with preselection —
-      this is the "try it on the synth" follow-on already in the
-      lessons-module plan.
+### Phase D — Learn panel: the selected scale, with "read more"
 
-### Phase 5 — Follow-ons (later, not in v1)
+- [x] New concept id `"scale-type"` in `synthConcepts.ts` whose body is
+      assembled in `SynthV2` from the catalog (copy stays out of the
+      component where it is static; the dynamic parts are data, not prose):
+  1. **Title**: "D Dorian" (root spelled per scale + name); aliases in the
+     first line when present ("Also called Freygish, Ahava Rabbah, Hijaz").
+  2. `feel` sentence from the catalog.
+  3. "Notes from D: D E F G A B C" and "Degrees: 1 2 ♭3 4 5 6 ♭7" — mono.
+  4. Relationship sentence from `relatedScale` (same wording as the link).
+  5. For Rast: one sentence that the strip has bent E and B a quarter tone
+     (the same caveat the lesson carries — the cents are a setting).
+- [x] `LearnPanel` gets an optional `lessonLabel` so the link can read
+      **"Read about the Dorian mode"** / **"Read about the blues scale"**
+      (from `ScaleLesson.name`) instead of the generic "Open the full
+      lesson"; `lessonHref` = `/scales/${slug}` via
+      `getScaleByPatternKey`. Existing concepts keep the default label.
+- [x] Opening rule: **choosing a type opens the panel** on `scale-type`
+      (like the numbers toggle — the selection *is* the lesson). Changing
+      the root afterwards refreshes it in place (`touchConcept`). Clearing
+      the root closes it if it is showing `scale-type`. The generic
+      **Scale** label still opens the "What is a scale?" concept, whose
+      first paragraph names the current selection and points at the
+      scale-type card ("Your current scale is D Dorian — see below") —
+      keep that one link, drop the hard-coded relative-minor sentence.
+- [x] Update the existing concepts that point at `/lessons/scales` and
+      `/lessons/scale-degrees` to `/scales/major-scale` and
+      `/scales/major-scale#degrees` (they only work via redirect today).
+- [x] Check with curl that `/synth/v2` still renders the idle hint, and in
+      the browser that the panel replaces in place with the fade
+      (`prefers-reduced-motion` → no motion).
 
-- [ ] **Double harmonic major** (0 1 4 5 7 8 11 — Hijaz Kar / "Byzantine"),
-      a natural next Middle-Eastern entry once Phrygian dominant lands.
-- [ ] **Major blues** (0 2 3 4 7 9 — degrees 1 2 ♭3 3 5 6): major pentatonic
-      + its ♭3 blue note, the symmetric twin of the minor blues scale.
-      Suggested in theory review; promote into v1 if desired — the blues
-      infrastructure (6-note degree labels, degree-derived spelling) already
-      covers it.
-- [ ] Flat-named roots in the root select (B♭ vs A♯) driven by the chosen
-      scale type's conventional spelling.
-- [ ] Maqam context (quarter-tones are out of scope for a 12-TET keyboard —
-      be explicit in lesson copy that Hijaz on a piano is an approximation).
-- [ ] Mode-to-mode "sibling" navigation (cycle through all rotations of the
-      current parent scale).
+### Phase E — Deep link both ways
 
----
+- [x] `/synth/v2` reads `?scale=` once on mount via `useSearchParams`
+      inside a `Suspense` boundary (same pattern as `src/app/map/page.tsx`)
+      and applies `parseScaleParam` → root, type, numbers on, panel open
+      on `scale-type`. Ignore the param on the static export's first paint
+      (it's a client effect anyway). Don't write the URL back on every
+      change — the synth is an instrument, not a form; the link is for
+      arriving, not for sharing state (owner may veto).
+- [x] Scale lessons: `LessonToolbar` (or the page footer next to Sources)
+      gets **"Try it on the synth →"** linking to
+      `/synth/v2?scale=${formatScaleParam(rootPc, patternKey)}` using the
+      lesson's *current* root, so a reader who moved to E Dorian lands on
+      E Dorian. Registry rows without `patternKey` show no link.
+- [x] Strike the "Synth deep link" item in
+      `scales-catalog-and-lessons.md` Phase 5 and the `lessons-module.md`
+      item; update `ToDo.md`.
+
+### Phase F — Not in this pass (unchanged from the original plan)
+
+- Embedding the synth in lessons with a locked type (`lockedScaleTypeId`)
+  — the lessons got their own `ScaleKeyboard` instead; revisit only if a
+  page needs the full synth chrome.
+- Mode-to-mode sibling cycling; flat-named root *selection*.
 
 ## Key decisions (open to veto)
 
-1. **Native `<select>` over a shadcn Select.** `src/components/ui/` has no
-   `select.tsx`, the root selector is already a styled native select, and
-   optgroups come free. Matching pair > introducing a new component for one
-   spot.
-2. **One catalog in `lib/music`, everything derives.** Kills the current
-   3-way pattern duplication; lessons widgets (per the lessons-module plan)
-   read the same catalog, so lesson content and synth can never disagree.
-3. **Quality-aware degree labels** (`♭3`, `♯4`) replace ordinal 1–7
-   everywhere. Slightly busier visually, but ordinals are wrong for
-   blues/pentatonics and hide exactly the alterations these scales exist to
-   teach.
-4. **Ionian/Aeolian are not separate entries** from major/minor — one entry,
-   both names shown.
-5. **Root select stays enabled in locked lesson embeds**; only the type is
-   frozen.
+1. **Native `<select>` with optgroups**, matching the root select. 17
+   options have long outgrown a segmented control; two selects read as one
+   phrase `[D] [Dorian]`. No new shadcn component for one spot.
+2. **Rast is in the dropdown** and drives the tuning strip. It is the only
+   entry that changes *sound* rather than *marking*; that is exactly the
+   "hear the concept" moment the strip was built for. If the owner prefers
+   the dropdown to be 12-TET only, drop the `maqam` group — one filter.
+3. **Selecting a type opens the learn panel.** The owner asked for the
+   info to show "while selected"; this is the least surprising way to do
+   it without adding a second panel. Selecting a *root* alone does not
+   open it (playing shouldn't force reading).
+4. **One new concept (`scale-type`) instead of mutating `scale`.** The
+   generic "what is a scale" copy stays reusable; the selected-scale card
+   is fully data-driven from the catalog + registry, so adding a scale to
+   the catalog adds it to the synth with no prose to write.
+5. **Black-key roots show both names**; spelling elsewhere follows the
+   scale. Cheaper than renaming options live and honest about the
+   enharmonic choice.
+6. **`useScaleLogic` is not refactored.** v2 computes membership from the
+   catalog directly; the hook stays for v1 / MidiLab and for
+   `identifyChord`.
+7. **URL stays in sync, silently.** Every scale change (root, type, the
+   same-notes swap, clear) goes through `commitScale()`, which rewrites
+   `?scale=` with `history.replaceState` — no navigation, no history
+   entry, no scroll — and drops the param when the scale is cleared. The
+   address bar always describes what's on the keys, so copying it shares
+   the current state. (Originally "read, not written"; changed 2026-09-12
+   because a stale param drifts from the instrument.) Only the `/synth/v2`
+   page does this (`readScaleFromUrl`); an embedded synth leaves the URL
+   alone.
 
-## Suggested first milestone
-
-Phases 1–3 shipped together (catalog + refactor + dropdown) with the v1 set
-of 14 scale types. Phase 4 lands with the first real lesson page, since
-that's when the lock prop has a consumer.
-
-## Relevant existing files
+## Relevant files
 
 | Purpose | Path |
-|---------|------|
-| Scale/mode theory (extend) | `src/lib/music/scales.ts` |
-| Note spelling helpers | `src/lib/music/notes.ts` |
-| Scale UI + state (main target) | `src/instruments/synth/v2/SynthV2.tsx` |
-| Membership/chord hook (refactor) | `src/instruments/synth/templates/basic-synth/hooks/useScaleLogic.ts` |
-| Keyboard visualization | `src/instruments/synth/v2/KeyboardV2.tsx` |
-| Learn panel copy | `src/instruments/synth/v2/synthConcepts.ts` |
-| Lessons registry (future consumer) | `src/lib/lessons/registry.ts` |
-| Sibling plan | `docs/plans/lessons-module.md` |
+|---|---|
+| Catalog (add `relative`, `relatedScale`) | `src/lib/music/scaleCatalog.ts` |
+| Scale pages (add `getScaleByPatternKey`) | `src/lib/scales/registry.ts` |
+| `?scale=` parse/format (new) | `src/lib/music/scaleParam.ts` |
+| Synth state + controls (main target) | `src/instruments/synth/v2/SynthV2.tsx` |
+| Learn copy (add `scale-type`, fix hrefs) | `src/instruments/synth/v2/synthConcepts.ts` |
+| Panel link label | `src/components/learn/LearnPanel.tsx` |
+| Keyboard (no change expected) | `src/instruments/synth/v2/KeyboardV2.tsx` |
+| Detune presets / `NO_DETUNE` | `src/lib/music/detune.ts` |
+| Lesson "Try it on the synth" | `src/components/scales/LessonToolbar.tsx` |
+| Search-param pattern to copy | `src/app/map/page.tsx` |
+| Untouched (v1 / MidiLab) | `src/instruments/synth/templates/basic-synth/hooks/useScaleLogic.ts` |
+
+## Log
+
+- **2026-09-12 · Phases A–E shipped.** `/synth/v2` has a **Type** dropdown
+  (native `<select>`, optgroups from `SCALE_GROUP_LABELS`, all 17 catalog
+  types incl. Rast) in its own labelled column right after the root, so
+  the two read as one phrase. Membership, degree labels, spelling, and
+  the swap link all derive from `scaleCatalog.ts` (`pitchClassInScale`,
+  `degreeLabelMap`, `spellScale`, `rootNameFor`, `relatedScale`); v2 no
+  longer feeds `useScaleLogic` a string (kept for `identifyChord`). Rast
+  presses the tuning strip and leaving it releases only what it pressed.
+  Learn panel: new `scale-type` concept — choosing a type opens it; the
+  **Type** label re-opens it, or, with nothing chosen, explains the
+  dropdown. Card = feel + aliases, mono Notes/Degrees facts, related-scale
+  sentence, quarter-tone note, "Read about the …" link to the `/scales`
+  page (`getScaleByPatternKey`). Older concepts now link into `/scales`.
+  `LearnPanel` grew `facts` and `lessonLabel`. Deep link: the synth reads
+  `?scale=` from `window.location` once after mount (no Suspense boundary
+  needed on the static export); every lesson's `LessonToolbar` shows
+  "Try it on the synth" with the current root. Owner changes during
+  review: the type dropdown stays beside the root (not a separate row) and
+  gets a label above it like every other control. Black-key roots read
+  "C♯ / D♭". Verified: tsc, lint, `C:/tmp/scale-selector-check.ts` (308
+  checks), catalog script (1547), curl of `/synth/v2` and four lessons,
+  browser pass.

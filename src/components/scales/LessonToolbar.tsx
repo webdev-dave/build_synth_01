@@ -1,10 +1,15 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
+import Link from "next/link";
+import { ArrowRight } from "lucide-react";
 
 import { RootNotePicker } from "./RootNotePicker";
 import { OctaveStepper } from "./OctaveStepper";
 import { useScaleLesson } from "./ScaleLessonProvider";
+import { typeIdForDegrees } from "@/lib/music/scaleCatalog";
+import { synthHrefFor } from "@/lib/music/scaleParam";
+import { APP_ICONS } from "@/lib/appIcons";
 import { cn } from "@/lib/utils";
 
 interface LessonToolbarProps {
@@ -32,13 +37,36 @@ export function LessonToolbar({
   children,
   className,
 }: LessonToolbarProps) {
-  const { rootPc, setRootPc, rootNames, lockToScale, setLockToScale } =
+  const { rootPc, setRootPc, rootNames, degrees, lockToScale, setLockToScale } =
     useScaleLesson();
+
+  // "Try it on the synth" carries the reader's *current* root, so someone
+  // who moved the lesson to E Dorian lands on E Dorian. Only next to the
+  // root picker — once per page, where the root lives.
+  const typeId = useMemo(() => typeIdForDegrees(degrees), [degrees]);
+  const synthHref = root && typeId ? synthHrefFor(rootPc, typeId) : null;
+  const SynthIcon = APP_ICONS.synth;
 
   return (
     <div className={cn("space-y-3", className)}>
       {root && (
-        <RootNotePicker value={rootPc} onChange={setRootPc} names={rootNames} />
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+          <RootNotePicker
+            value={rootPc}
+            onChange={setRootPc}
+            names={rootNames}
+          />
+          {synthHref && (
+            <Link
+              href={synthHref}
+              className="ms-auto inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 transition-colors hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+            >
+              <SynthIcon className="h-3.5 w-3.5" strokeWidth={1.75} />
+              Try it on the synth
+              <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
+          )}
+        </div>
       )}
       <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
         {children}

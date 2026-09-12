@@ -36,7 +36,9 @@ export default function SynthV2Page() {
           </Link>
         </header>
 
-        <SynthV2 />
+        {/* Lessons deep-link here as /synth/v2?scale=D-dorian; the synth
+            reads that itself after mount (no Suspense boundary needed). */}
+        <SynthV2 readScaleFromUrl />
       </div>
     </main>
   );

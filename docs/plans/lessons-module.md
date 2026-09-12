@@ -88,8 +88,9 @@ in this order so vocabulary builds:
 
 - [ ] More lessons: dorian, pentatonics, harmonic minor, eventually Maqam-Rast
       (from `ToDo.md`)
-- [ ] "Try it on the synth" deep-link from a lesson into the main synth with the
-      scale pre-locked in scale mode
+- [x] ~~"Try it on the synth" deep-link from a lesson into the main synth~~ —
+      shipped 2026-09-12 as `/synth/v2?scale=D-dorian` from every `/scales`
+      lesson (preselected, not locked; see synth-scale-type-selector.md)
 - [ ] Consider MDX if writing volume grows (not worth the pipeline for 3 lessons)
 
 ---
