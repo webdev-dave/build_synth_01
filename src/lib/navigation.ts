@@ -3,21 +3,25 @@
  * Centralized definition of all navigation items
  */
 
-export type AppSectionId = "theory" | "music" | "play";
+export type AppSectionId = "lessons" | "music" | "play";
 
 export interface AppSection {
   id: AppSectionId;
   title: string;
   /** Omitted when the title already says it (the instruments/tools group). */
   description?: string;
+  /** The section has a page of its own (Lessons → the curriculum index). */
+  href?: string;
 }
 
 /** Homepage + hamburger groupings. Order here is the order they render. */
 export const APP_SECTIONS: AppSection[] = [
   {
-    id: "theory",
-    title: "Theory",
-    description: "Genres, scales, concepts, and where the sounds came from.",
+    id: "lessons",
+    title: "Lessons",
+    description:
+      "Concepts, scales, chords, rhythm, and form — then the genres that stack them and where the sounds came from.",
+    href: "/lessons",
   },
   {
     id: "music",
@@ -64,7 +68,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/genres",
     description: "What makes a genre sound like itself — layer by layer",
     inNav: false,
-    section: "theory",
+    section: "lessons",
   },
   {
     id: "scales",
@@ -73,7 +77,34 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/scales",
     description: "How scales and modes are built — see it, hear it, play it",
     inNav: false,
-    section: "theory",
+    section: "lessons",
+  },
+  {
+    id: "progressions",
+    label: "Chords & Progressions",
+    icon: "🎸",
+    href: "/progressions",
+    description: "How chords are built and how they move — chart, key, and player",
+    inNav: false,
+    section: "lessons",
+  },
+  {
+    id: "rhythm",
+    label: "Rhythm & Meter",
+    icon: "🥁",
+    href: "/rhythm",
+    description: "Grooves on a step grid that sounds every hit — count, swing, and move the bar lines",
+    inNav: false,
+    section: "lessons",
+  },
+  {
+    id: "forms",
+    label: "Song Forms",
+    icon: "🧩",
+    href: "/forms",
+    description: "How songs are shaped — bars into lines, lines into a chorus, choruses into a song",
+    inNav: false,
+    section: "lessons",
   },
   {
     id: "history",
@@ -82,7 +113,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/history",
     description: "Where the sounds came from — sourced, quoted, and linked",
     inNav: false,
-    section: "theory",
+    section: "lessons",
   },
   {
     id: "map",
@@ -92,7 +123,7 @@ export const NAV_ITEMS: NavItem[] = [
     description: "A world map of music history — click a place, hear its story",
     inNav: false,
     beta: true,
-    section: "theory",
+    section: "lessons",
     parent: "history",
   },
   {
@@ -102,9 +133,9 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/languages",
     description: "Browse genres, songs, and words by the language they speak",
     inNav: false,
-    section: "theory",
+    section: "lessons",
   },
-  /* Reference, so it sits last in Theory: the other pages teach a sound,
+  /* Reference, so it sits last in Lessons: the other pages teach a sound,
      this one defines the words they use. */
   {
     id: "concepts",
@@ -114,7 +145,7 @@ export const NAV_ITEMS: NavItem[] = [
     description:
       "An interactive glossary of the music-theory terms behind the app",
     inNav: false,
-    section: "theory",
+    section: "lessons",
   },
   {
     id: "songs",
@@ -151,6 +182,16 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/synth/v2",
     description: "Web-based synthesizer keyboard",
     inNav: false,
+    section: "play",
+  },
+  {
+    id: "drum-machine",
+    label: "Drum machine",
+    icon: "🥁",
+    href: "/drums",
+    description: "Step sequencer with a swing slider — the rhythm lessons' kit and grid",
+    inNav: false,
+    beta: true,
     section: "play",
   },
   {

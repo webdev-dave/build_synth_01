@@ -4,8 +4,13 @@
 modules those panels open into — and make "add a genre" or "add a layer" a
 registry append, not new architecture.**
 
-> **Status: planning, decisions locked (2026-09-12).** Nothing built. All
-> six user decisions are taken — see §2 item 5 and §5.1 "Decisions log".
+> **Status: built through Phase 5 on branch `cursor/genre-layer-lessons-222e`
+> (2026-09-12), awaiting human review.** All six decisions in §5.1 are
+> honoured. Every slice type-checks, lints, and curl-checks; the three
+> human checkpoints (eyes on the refactor, ears on the organ, ears on the
+> kit) are still open — **see §9 "Build log & review needed"** for what
+> shipped, where the build deviated from this plan, and exactly what needs
+> your eyes and ears. Nothing has been promoted to production.
 > This is the umbrella;
 > per-module detail lives in child plans as they harden:
 > [progressions-module.md](progressions-module.md) (harmony — written),
@@ -18,15 +23,17 @@ registry append, not new architecture.**
 
 ## 1. What we are building
 
-Today `/genres/blues` has four layer panels. One works:
+When this plan was written `/genres/blues` had four layer panels and one
+worked. As built (branch, 2026-09-12) all five open:
 
-| Panel | State today | Opens into | Teaser widget |
-|---|---|---|---|
-| Scale | **live** — door + short answer + `ScaleTeaser` | `/scales/blues-scale` | locked keyboard, play |
-| Harmony | "Coming soon" pill | `/progressions/twelve-bar-blues` | `ProgressionTeaser` |
-| Rhythm | "Coming soon" pill | `/rhythm/shuffle` | `GrooveTeaser` |
-| Meter *(new row)* | not listed yet | `/rhythm/twelve-eight` (derived from the grooves) | `BarFence` count |
-| Form | "Coming soon" pill | `/forms/twelve-bar-blues` | `FormTeaser` |
+| Panel | State when planned | State on the branch | Opens into | Teaser widget |
+|---|---|---|---|---|
+| Scale | **live** — door + short answer + `ScaleTeaser` | live (unchanged by eye — Checkpoint 1) | `/scales/blues-scale` | locked keyboard, play |
+| Harmony | "Coming soon" pill | **live** | `/progressions/twelve-bar-blues` | `ProgressionTeaser` (chart + key picker + play) |
+| Rhythm | "Coming soon" pill | **live** | `/rhythm/shuffle` | `GrooveTeaser` (grid + feel toggle + play) |
+| Meter *(new row)* | not listed yet | **live** (derived from the grooves) | `/rhythm/twelve-eight` | `GrooveTeaser` in "Count it" mode |
+| Form | "Coming soon" pill | **live** | `/forms/twelve-bar-blues` | `FormTeaser` (map + "Play one chorus") |
+| Texture | "Coming soon" pill | "Coming soon" pill (no module — out of scope §7) | — | — |
 
 Each remaining panel follows the Scale panel's contract exactly: **door
 first** ("View the full lesson"), a short quotable answer, a mono formula
@@ -582,3 +589,125 @@ scoring; leaving static export.
 | Drum machine slots that already exist | `src/instruments/README.md` (`basic-drums` template, planned), `src/instruments/index.ts` (commented `drums` family), `src/components/home/HomeApps.tsx` (`ComingSoonTile`), `src/lib/appIcons.ts` (`drum-machine` glyph) |
 | Kit synthesis precedent (oscillators, gentle envelopes, no samples) | `src/instruments/synth/templates/basic-synth/hooks/useAudioSynthesis.ts`, `src/components/home/useHeroAudio.ts` |
 | Child / sibling plans | `progressions-module.md`, `genre-lab-module.md`, `genres-and-scales-modules.md`, `lessons-module.md`, `dance-tutorial-module.md` (shares the clock) |
+
+## 9. Build log & review needed (branch `cursor/genre-layer-lessons-222e`, 2026-09-12)
+
+Everything below was built autonomously in one run, phase by phase, with
+the exit checks in §5.1 run after each slice (`npx tsc --noEmit`, lints,
+curl of the rendered HTML, `/tmp` Node checks for the music maths, one
+browser pass per phase). **Nothing has been promoted** — the branch only
+stages a Vercel build (`.cursor/rules/deployment.mdc`). PR:
+[#5](https://github.com/webdev-dave/build_synth_01/pull/5).
+
+### 9.1 What shipped, per phase
+
+| Phase | Commit(s) | What is on the branch | Exit check result |
+|---|---|---|---|
+| 0 shared architecture | `d463f32` | `lessons/types.ts`, `lessons/layers.ts`, `LayerPanel`, `LessonSpoke`, `BarTimeline`, `music/chords.ts`, `music/clock.ts` + `LessonClock.tsx`, `audio/bus.ts` | `/scales/blues-scale` and `/genres/blues` HTML **byte-identical** before/after |
+| 1 harmony | `8ddd04a` `f06cd5d` `3baa39e` `59ab5ed` `ad95cba` | `/progressions` hub + 7 spokes (12-bar live), organ voice, `ProgressionProvider` / chart / player / `ChordSounder` / `ChordScaleOverlay` / `ChordLock` (chord tones default) / variant toggles, blues Harmony panel, concept delegations with `MovedLesson` fallback, sitemap / search / nav | curl, sitemap, search "12 bar", `noteRole()` captions checked for A and E from Node |
+| 2a–2d rhythm & meter | `142d253` `592e22a` `693f54c` | `music/grooves.ts` (straight grid + `applySwing`), sourced registry (shuffle, backbeat, slow-blues live; one-drop soon; meters 4/4 + 12/8 live, 3/4 + 6/8 soon), kit voices + `useDrumKit` + `StepGrid`, `GrooveGrid` / `FeelControl` / `CountAlong` / `AccentStrip` / `BeatComparer` / `BarFence`, `/rhythm` hub + 5 spokes, blues Rhythm **and** Meter panels, shuffle transform + "comp" re-strike on the chord player | swing x-positions unit-checked at 50 / 67 / 75 %; same `GroovePattern` in `GrooveGrid` and bare `StepGrid` |
+| 2e `/drums` | `17ad0bc` | thin page around the primitives, pattern bank from the registry, `?pattern=<slug>` deep links (`grooves/param.ts`), homepage tile, `drums` family uncommented | curl of `/drums`; deep link from every groove page |
+| 3 form | `ffb650d` | `forms/registry.ts` (12-bar live with the *St. Louis Blues* PD lyric from the catalog; 8-bar / 16-bar soon), `FormMap` on `BarTimeline` with the **scripted response lick** on the lead voice (`content/forms/licks.ts`, laid out by `forms/lick.ts`), `ChorusStack`, `FormComparer`, `/forms` hub + spokes, blues Form panel | lick notes all in the key's blues scale (Node check); lit response cells = sounding bars (browser poll) |
+| 4 `/lessons` hub | `8eb96fb` | curriculum index over seven buckets (`lessons/curriculum.ts`), every legacy `/lessons/<slug>` → `MovedLesson`, nav section "Lessons" links to `/lessons`, `LessonsCrumb` on every hub, search "Lessons" group, `/concepts/{waveform,octave,frequency}` with Play-it demos, `music/pitch.ts`, `audio/voices/tone.ts` | every old slug returns a page; 110 pitch/registry checks pass |
+| 5 rock as data | `edcfe94` `67ba6d0` | `power-chord`, `i-iv-v`, `verse-chorus` lessons live; rock genre **live** with Scale / Harmony / Rhythm / Form panels | see 9.2 — two contract fixes, no per-genre code |
+
+Checkpoints 1–3 (human) were **not** run — they are the review list in 9.3.
+
+### 9.2 Deviations from the plan (all deliberate; revert any you dislike)
+
+- **Phase 5 touched `src/components` and `src/lib/lessons/layers.ts`** —
+  the plan's "fix the contract, not rock" clause, exercised twice:
+  `FormProvider` now tiles a short chart under a longer form
+  (`repeats`, `chartBar()` — I–V–vi–IV × 4 under a 16-bar verse–chorus)
+  and a `kind: "chord"` entry is treated as a one-bar chart, so a chord
+  (rock's power chord) can be a genre's signature harmony with a sounding
+  "Play the chord" teaser. Rock's own commit is registry rows + content.
+- **`verse-chorus` sounds a stand-in loop.** The form is progression-
+  agnostic; the registry sets `progression: "i-v-vi-iv"` (a `soon` spoke —
+  its bars exist, its lesson does not) purely so the map can sound. The
+  lesson prose says so.
+- **`LESSONS` stayed as a redirect table**, not a module index: `Lesson`
+  is `{slug, title, summary, movedTo}` only, and `LESSON_BUCKETS` (seven,
+  in reading order) is the index. `startHere` on a bucket is an **href
+  only**; the label is derived from the target page's own `question` via
+  `startHereLabel()` (hand-typed labels drifted from the pages).
+- **Nav section id renamed `theory` → `lessons`** and section titles are
+  links when `AppSection.href` is set (Home + `NavMenu`).
+- **Search**: the seven hubs moved from the "pages" group into a "lessons"
+  group that lists first (`/lessons` + one row per bucket); the old
+  per-`LESSONS` entries are gone since every slug is a redirect.
+- **`chords` legacy slug → `/progressions/twelve-bar-blues#a-chord`**, not
+  `/progressions/dominant-seventh` (still `soon`). Flip the row when that
+  spoke goes live.
+- **Concept demos** (`waveform`, `octave`, `frequency`) reuse the synth's
+  `useAudioSynthesis` keyboard voice through `KeyboardV2`, plus a tiny
+  new `tone.ts` voice with per-shape loudness trims (`TONE_LEVELS`).
+- **Meter panel teaser** is `GrooveTeaser` in "Count it" mode rather than
+  a bare `BarFence`; same primitive, one fewer widget.
+- **`slow-blues` groove and `four-four` meter went live** beyond the
+  planned shuffle / twelve-eight / backbeat, because the 12/8 lesson and
+  the meter panel needed a real foil on each side.
+- **Not built (deliberately):** TapPad (2f, v1.5 per decision 5),
+  `SongBuilder`, one-drop / reggae, 8-bar and 16-bar blues lessons,
+  ii–V–I, Andalusian, dominant-seventh, I–V–vi–IV lessons — all `soon`
+  spokes with real registry copy and `noindex`.
+- **Committed and pushed per slice** (the run was asked to execute end to
+  end), against the "do not commit unless asked" working rule.
+
+### 9.3 Review needed / feedback wanted — please go through these
+
+Pull the branch, `npm run dev`, and work down this list. Items are in
+the order the plan's checkpoints intended; the first three are the ones
+only a human can do.
+
+1. **Checkpoint 1 — eyes.** `/scales/blues-scale` and `/genres/blues`
+   should look unchanged apart from the four new panels opening. The HTML
+   was byte-identical after Phase 0; later phases added the panels, the
+   "All lessons" crumb on hubs, and cross-link cards. Say if anything
+   moved that shouldn't have.
+2. **Checkpoint 2 — ears, organ.** `/progressions/twelve-bar-blues`: play
+   the chart in A, then E and C. Judge: partial recipe
+   (`ORGAN_PARTIALS` 1 / .5 / .3 / .15 in `src/lib/audio/voices/organ.ts`),
+   vibrato depth/rate, chord `level` 0.22, release, and whether the
+   smooth voicings (`voiceLead`) sound like one player. Then toggle
+   **comp** with the shuffle on — the "&" strike is lighter than the beat
+   (`ProgressionProvider` "chop" constants); is the lilt right?
+3. **Checkpoint 3 — ears, kit.** `/rhythm/shuffle`, `/rhythm/backbeat`,
+   `/drums`. `DRUM_LEVELS` (kick .5, snare .34, rim .22, hats .11/.10,
+   click .18) and `DRUM_DECAY` in `src/lib/audio/voices/drums.ts`. Too
+   soft is intentional; too dull or too clicky is not. The plan suggested a
+   best-of-N with 2–3 recipes if this one misses — say so and it can run.
+4. **Lead voice + lick phrases** (`/forms/twelve-bar-blues`): the answering
+   lick (`src/content/forms/licks.ts`) — does it sound like blues, and is
+   `lead.ts` (detuned saw + triangle, opening lowpass) the right character?
+   Also the **solo chorus** (all-instrumental) — too busy?
+5. **Form tempos**: 88 BPM on the 12-bar form, 104 on verse–chorus, 90
+   default on the chord player. Change in `FormProvider` / the lesson.
+6. **FeelControl** (swing slider with 50 / 67 / 75 % detents): does the
+   continuous slider teach better than the two-position toggle, or should
+   lessons use only the toggle and `/drums` keep the slider?
+7. **ChorusStack / FormComparer click design**: clicking a chorus block
+   or a bar cell jumps the clock there (`jumpTo`) and keeps playing; the
+   comparer plays both forms on one playhead ("Play both"). Alternative
+   was "select then play". Preference?
+8. **Rock live?** `/genres/rock` is `live` so the Phase 5 proof is visible
+   in the nav and sitemap. If you'd rather hold rock until the I–V–vi–IV
+   and dominant-seventh lessons exist, flip `status` back to `"soon"` in
+   `src/lib/genres/registry.ts` — one line.
+9. **`i-v-vi-iv` under verse–chorus** while its own lesson is `soon`: OK as
+   a stand-in, or should verse–chorus stay silent until that lesson lands?
+10. **Concept demos** (`/concepts/waveform`, `/concepts/octave`,
+    `/concepts/frequency`): tone levels (`TONE_LEVELS`), the log slider
+    range 55–1760 Hz, and whether the octave walk should also show the
+    harmonic ladder.
+11. **`/lessons` index copy** — bucket names, "teaches" lines and blurbs
+    in `src/lib/lessons/registry.ts`; the order Concepts → Scales → Chords
+    → Rhythm → Forms → Genres → History.
+12. **Homepage / nav**: the Lessons section title is now a link and the
+    "Soon" tile became the Drum Machine tile. Any objection to either?
+13. **Legacy `chords` redirect target** (12-bar `#a-chord`) until
+    `/progressions/dominant-seventh` is live.
+
+When you have decided, the fastest way to hand back is a list of the item
+numbers with a verdict each; parameter changes are one-number edits in the
+files named above.

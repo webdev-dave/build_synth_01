@@ -4,6 +4,7 @@ import { BookOpen } from "lucide-react";
 import { HubDoors } from "@/components/content/HubDoors";
 import { HistoryExplorer } from "@/components/history/HistoryExplorer";
 import { NAV_ITEMS } from "@/lib/navigation";
+import { LessonsCrumb } from "@/components/lessons/LessonsCrumb";
 
 const MAP_NAV = NAV_ITEMS.find((item) => item.id === "map");
 
@@ -24,6 +25,7 @@ export default function HistoryPage() {
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <LessonsCrumb />
         <header className="mb-8">
           <div className="flex items-center gap-2.5">
             <BookOpen className="h-6 w-6" strokeWidth={1.75} />

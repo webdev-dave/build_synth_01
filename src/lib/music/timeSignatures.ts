@@ -138,6 +138,6 @@ export function timeSignatureLesson(sig: TimeSignature): LearnPanelConcept {
       copy.body[0],
       copy.body[1],
     ],
-    lessonHref: "/lessons/time-signatures",
+    lessonHref: "/rhythm/four-four",
   };
 }

@@ -4,13 +4,15 @@
 // Synth Instrument Family
 export * from "./synth";
 
-// Future instrument families will be exported here:
-// export * from './drums';
+// Drum machine family (kit voices live in src/lib/audio/voices/drums.ts)
+export { DrumMachine } from "./drums/templates/basic-drums/DrumMachine";
+export { useDrumKit } from "./drums/templates/basic-drums/hooks/useDrumKit";
+export { StepGrid } from "./drums/templates/basic-drums/components/StepGrid";
 
 // Instrument Family Registry (for dynamic loading in the future)
 export const INSTRUMENT_FAMILIES = {
   synth: "Synthesizers",
-  // drums: 'Drum Machines',
+  drums: "Drum Machines",
 } as const;
 
 export type InstrumentFamily = keyof typeof INSTRUMENT_FAMILIES;

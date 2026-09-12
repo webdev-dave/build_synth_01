@@ -59,6 +59,17 @@ know about.
 | History → genres / scales | `HistoryArticle.genres` / `.scales` | `getArticleByGenre` / `getArticlesByScale` |
 | Cousin → songs | `CousinArticle.members` | `CatalogSong.cousins` + `getCousinsBySong` |
 | Song → cousins | `CatalogSong.cousins` | `CousinArticle.members` |
+| Genre → progressions | `Genre.progressions` | `Progression.usedIn` + `getProgressionsByGenre` |
+| Progression → scales | `Progression.scales` | `getProgressionsByScale` (scale page "Play it over") |
+| Progression → form | `Progression.forms` | `Form.progressions` + `getFormsByProgression` |
+| Genre → forms | `Genre.forms` | `Form.usedIn` + `getFormsByGenre` |
+| Form → sounding chart | `Form.progression` (one slug; omit → the map is silent) | the progression page's "Forms" cards via `getFormsByProgression` |
+| Form → song lyric | `Form.lyric` `{ song, version }` (catalog slug — never retyped lines) | `formLyric()` / `formLyricSample()`; the song page stays the lyric's home |
+| Form → foil | `Form.compareWith` | comparer pairs are symmetric (12-bar ↔ 8-bar, verse–chorus ↔ 12-bar) |
+| Genre → grooves | `Genre.grooves` | `Groove.usedIn` + `getGroovesByGenre` |
+| Genre → meters | *(derived)* `metersOfGrooves(genre.grooves)` | `Groove.meter` — never a second list on the genre |
+| Groove → meter / foil | `Groove.meter`, `Groove.compareWith` | the meter spoke lists grooves with that `meter`; comparer pairs are symmetric |
+| Concept → lesson spoke | `Concept.href` (delegation) | the spoke's `<Term>` mentions; `/concepts/<slug>` renders a moved notice |
 
 **When you add one side, add the other in the same change.** A scale that
 shows up in blues (`usedIn: ["blues"]`) must also appear on the blues

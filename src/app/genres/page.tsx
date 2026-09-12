@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Disc3 } from "lucide-react";
 
 import { GenresExplorer } from "@/components/genres/GenresExplorer";
+import { LessonsCrumb } from "@/components/lessons/LessonsCrumb";
 
 export const metadata: Metadata = {
   title: "Music Genres — What Makes Each One Itself",
@@ -20,6 +21,7 @@ export default function GenresPage() {
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <LessonsCrumb />
         <header className="mb-8">
           <div className="flex items-center gap-2.5">
             <Disc3 className="h-6 w-6" strokeWidth={1.75} />

@@ -212,7 +212,21 @@ export default function NavMenu() {
             {APP_SECTION_GROUPS.map((group) => (
               <div key={group.section.id}>
                 <p className="mb-1 px-3 text-xs font-medium uppercase tracking-wide text-muted-foreground">
-                  {group.section.title}
+                  {group.section.href ? (
+                    <Link
+                      href={group.section.href}
+                      onClick={() => setIsOpen(false)}
+                      className={cn(
+                        "inline-flex items-center gap-1 rounded-sm transition-colors hover:text-foreground",
+                        pathname === group.section.href && "text-foreground",
+                      )}
+                    >
+                      {group.section.title}
+                      <ArrowRight className="h-3 w-3" />
+                    </Link>
+                  ) : (
+                    group.section.title
+                  )}
                 </p>
                 <div className="space-y-1">
                   {group.apps

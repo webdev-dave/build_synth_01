@@ -7,8 +7,7 @@ import { GENRES, getGenre } from "@/lib/genres/registry";
 import { getArticleByGenre } from "@/lib/history/registry";
 import { getCousinsByGenre } from "@/lib/cousins/registry";
 import { getScale } from "@/lib/scales/registry";
-import { parseRootName } from "@/lib/music/scaleParam";
-import { getScaleContent } from "@/content/scales";
+import { resolveLayerPanels } from "@/lib/lessons/layers";
 import { Badge } from "@/components/ui/badge";
 import { GenreLayers } from "@/components/genres/GenreLayers";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
@@ -124,20 +123,7 @@ export default async function GenrePage({ params }: GenrePageProps) {
           <GenreLayers
             layers={genre.signatureLayers}
             defaultOpen={genre.slug === "blues" ? "scale" : undefined}
-            scales={scales.map((scale) => ({
-              slug: scale.slug,
-              name: scale.name,
-              question: scale.question,
-              answer: scale.answer,
-              formula: scale.formula,
-              exampleKey: scale.exampleKey,
-              exampleNotes: scale.exampleNotes,
-              patternKey: scale.patternKey,
-              // The registry's worked example is also the classroom key the
-              // teaser opens on, so the notes printed above match the piano.
-              defaultRootPc: parseRootName(scale.exampleKey) ?? 0,
-              hasLesson: Boolean(getScaleContent(scale.slug)),
-            }))}
+            panels={resolveLayerPanels(genre)}
           />
         </section>
 

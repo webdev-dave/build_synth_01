@@ -31,6 +31,22 @@ interface KeyboardV2Props {
   onNoteStart: (noteNumber: number, note: string) => void;
   onNoteStop: (note: string) => void;
   /**
+   * Keys to ring with a thin neutral outline — a chord's tones over a scale,
+   * a target note — without claiming they are sounding (that is `activeKeys`,
+   * in orange) or in the scale (the green ball). Rings sit around whatever
+   * marker the key already shows, so a chord tone outside the scale reads
+   * as "ringed red dot" under a lock: in the chord, not in the scale.
+   */
+  markedKeys?: Set<string>;
+  /**
+   * What the lock lets through, when that differs from what is *in* the
+   * scale — a chord lock over a scale overlay keeps the scale's green
+   * degrees on the picture while only the chord's tones play. Defaults to
+   * `isNoteInScale`. A locked-out key that is still in the scale dims
+   * instead of greying to "out of key".
+   */
+  isNotePlayable?: (noteNumber: number) => boolean;
+  /**
    * Quarter-tone strip under the keys (collapsed, off by default). When
    * given, bent keys name themselves "E½♭" so what reads is what sounds.
    * Omit for keyboards whose engine has no detune (piano roll, demos).
@@ -55,6 +71,8 @@ export function KeyboardV2({
   keyLabels,
   onNoteStart,
   onNoteStop,
+  markedKeys,
+  isNotePlayable,
   detune,
 }: KeyboardV2Props) {
   // "E" reads "E½♭" while its switch is on — the label must not lie.
@@ -85,8 +103,9 @@ export function KeyboardV2({
   }, []);
 
   const isDisabled = useCallback(
-    (k: SynthKey) => hasScale && lockToScale && !isNoteInScale(k.noteNumber),
-    [hasScale, lockToScale, isNoteInScale],
+    (k: SynthKey) =>
+      hasScale && lockToScale && !(isNotePlayable ?? isNoteInScale)(k.noteNumber),
+    [hasScale, lockToScale, isNotePlayable, isNoteInScale],
   );
 
   const pressKey = (e: React.PointerEvent, k: SynthKey) => {
@@ -157,6 +176,7 @@ export function KeyboardV2({
           const outOfScale = hasScale && !inScale;
           const label = keyLabels?.[k.note];
           const degree = scaleDegrees?.[k.noteNumber % 12] ?? null;
+          const marked = Boolean(markedKeys?.has(k.note)) && !active;
           // Every key names itself; C keys keep the octave for orientation.
           const baseName = k.note.replace(/\d+$/, "");
           const noteName = (baseName === "C" ? k.note : baseName) + bend(k.noteNumber);
@@ -164,7 +184,7 @@ export function KeyboardV2({
             <button
               key={k.note}
               type="button"
-              aria-label={`Play ${k.note}`}
+              aria-label={marked ? `Play ${k.note}, chord tone` : `Play ${k.note}`}
               aria-disabled={disabled || undefined}
               tabIndex={disabled ? -1 : 0}
               onPointerDown={(e) => {
@@ -184,6 +204,7 @@ export function KeyboardV2({
                       "bg-neutral-400 hover:bg-neutral-300"
                     : "bg-neutral-100 hover:bg-white",
                 disabled && "cursor-not-allowed hover:bg-neutral-400",
+                disabled && inScale && "opacity-60 hover:bg-neutral-100",
               )}
             >
               {/* Fixed-height text band, so the dot above it never shifts. */}
@@ -231,6 +252,16 @@ export function KeyboardV2({
               {disabled && (
                 <span className="pointer-events-none absolute bottom-9 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-red-500" />
               )}
+              {marked && (
+                <span
+                  className={cn(
+                    "pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-full border border-neutral-800/80",
+                    inScale && degree !== null
+                      ? "bottom-[1.75rem] h-6 w-6"
+                      : "bottom-[2.0625rem] h-3.5 w-3.5",
+                  )}
+                />
+              )}
             </button>
           );
         })}
@@ -244,6 +275,7 @@ export function KeyboardV2({
           const outOfScale = hasScale && !inScale;
           const label = keyLabels?.[k.note];
           const degree = scaleDegrees?.[k.noteNumber % 12] ?? null;
+          const marked = Boolean(markedKeys?.has(k.note)) && !active;
           // "C#4" → "C♯" (the synth speaks sharps; octave stays off the
           // narrow black keys).
           const noteName = niceNote(k.note.replace(/\d+$/, "")) + bend(k.noteNumber);
@@ -251,7 +283,7 @@ export function KeyboardV2({
             <button
               key={k.note}
               type="button"
-              aria-label={`Play ${k.note}`}
+              aria-label={marked ? `Play ${k.note}, chord tone` : `Play ${k.note}`}
               aria-disabled={disabled || undefined}
               tabIndex={disabled ? -1 : 0}
               onPointerDown={(e) => {
@@ -272,6 +304,7 @@ export function KeyboardV2({
                       "border-neutral-500 bg-neutral-600 hover:bg-neutral-500"
                     : "border-neutral-700 bg-neutral-900 hover:bg-neutral-800",
                 disabled && "cursor-not-allowed hover:bg-neutral-600",
+                disabled && inScale && "opacity-60 hover:bg-neutral-900",
               )}
             >
               <span className="pointer-events-none absolute inset-x-0 bottom-1.5 flex h-6 flex-col items-center justify-end gap-0.5">
@@ -319,6 +352,16 @@ export function KeyboardV2({
                 ))}
               {disabled && (
                 <span className="pointer-events-none absolute bottom-8 left-1/2 h-1.5 w-1.5 -translate-x-1/2 rounded-full bg-red-500" />
+              )}
+              {marked && (
+                <span
+                  className={cn(
+                    "pointer-events-none absolute left-1/2 -translate-x-1/2 rounded-full border border-neutral-200/80",
+                    inScale && degree !== null
+                      ? "bottom-[1.75rem] h-6 w-6"
+                      : "bottom-[1.8125rem] h-3 w-3",
+                  )}
+                />
               )}
             </button>
           );
