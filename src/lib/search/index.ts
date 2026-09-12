@@ -21,6 +21,7 @@ import {
 import { ARTISTS } from "@/lib/catalog/artists";
 import { GENRES } from "@/lib/genres/registry";
 import { SCALES, aliasNames, aliasSearchTerms } from "@/lib/scales/registry";
+import { PROGRESSIONS } from "@/lib/progressions/registry";
 import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
@@ -36,6 +37,7 @@ export type SearchGroup =
   | "artists"
   | "genres"
   | "scales"
+  | "progressions"
   | "history"
   | "cousins"
   | "concepts"
@@ -49,6 +51,7 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
   artists: "Artists",
   genres: "Genres",
   scales: "Scales & modes",
+  progressions: "Chords & progressions",
   history: "Musical history",
   cousins: "Cousins",
   concepts: "Concepts",
@@ -64,6 +67,7 @@ const GROUP_CAPS: Record<SearchGroup, number> = {
   artists: 6,
   genres: 4,
   scales: 5,
+  progressions: 4,
   history: 4,
   cousins: 4,
   concepts: 6,
@@ -79,6 +83,7 @@ const GROUP_ORDER: SearchGroup[] = [
   "artists",
   "genres",
   "scales",
+  "progressions",
   "history",
   "cousins",
   "concepts",
@@ -246,6 +251,29 @@ function buildIndex(): SearchEntry[] {
         // a reader who knows the scale by another tradition's name lands
         // on it as directly as one who typed "Phrygian".
         aliasNames(scale),
+      ),
+    );
+  }
+
+  for (const p of PROGRESSIONS) {
+    out.push(
+      entry(
+        "progressions",
+        "progressions",
+        `/progressions/${p.slug}`,
+        p.name,
+        p.question,
+        [
+          p.summary,
+          p.formula,
+          p.exampleChords,
+          ...p.keywords,
+          ...(p.variants ?? []).map((v) => v.label),
+        ],
+        p.status !== "live",
+        // "Blues changes", "1-4-5" rank like the title, so a reader who
+        // knows the chart by another name lands on it directly.
+        p.aliases,
       ),
     );
   }

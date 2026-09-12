@@ -28,6 +28,7 @@ type SearchEntryGroup =
   | "artists"
   | "genres"
   | "scales"
+  | "progressions"
   | "history"
   | "cousins"
   | "concepts"

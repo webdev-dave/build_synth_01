@@ -8,6 +8,7 @@ import { LIVE_COUSINS } from "@/lib/cousins/registry";
 import { LIVE_HISTORY } from "@/lib/history/registry";
 import { LIVE_LANGUAGES } from "@/lib/languages/registry";
 import { LIVE_SCALES } from "@/lib/scales/registry";
+import { LIVE_PROGRESSIONS } from "@/lib/progressions/registry";
 
 /**
  * Static sitemap emitted at build (works under `output: "export"`).
@@ -34,6 +35,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/map",
     "/genres",
     "/scales",
+    "/progressions",
     "/history",
     "/concepts",
     "/artists",
@@ -47,6 +49,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const spokePaths = [
     ...LIVE_GENRES.map((g) => `/genres/${g.slug}`),
     ...LIVE_SCALES.map((s) => `/scales/${s.slug}`),
+    ...LIVE_PROGRESSIONS.map((p) => `/progressions/${p.slug}`),
     ...LIVE_HISTORY.map((a) => `/history/${a.slug}`),
     ...LIVE_CONCEPTS.map((c) => `/concepts/${c.slug}`),
     ...LIVE_ARTISTS.map((a) => `/artists/${a.slug}`),
