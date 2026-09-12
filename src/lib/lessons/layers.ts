@@ -147,17 +147,16 @@ const harmonyModule: LayerModule = {
       exampleKey: progression.exampleKey,
       exampleNotes: progression.exampleChords,
       hasLesson: Boolean(getProgressionContent(progression.slug)),
-      // A single chord has no chart to play; its teaser waits for the chord spokes.
-      teaser:
-        progression.kind === "progression"
-          ? {
-              kind: "progression",
-              slug: progression.slug,
-              patternKey,
-              defaultKeyRootPc: parseRootName(progression.exampleKey) ?? 0,
-              playLabel: "Play the chart",
-            }
-          : { kind: "none" },
+      // A chord entry is a one-bar chart: the same player loops that one
+      // chord, so a genre whose signature harmony is a chord (rock's power
+      // chord) still gets a sounding panel.
+      teaser: {
+        kind: "progression",
+        slug: progression.slug,
+        patternKey,
+        defaultKeyRootPc: parseRootName(progression.exampleKey) ?? 0,
+        playLabel: progression.kind === "chord" ? "Play the chord" : "Play the chart",
+      },
     };
   },
   ready: (data) => data.teaser.kind !== "none",

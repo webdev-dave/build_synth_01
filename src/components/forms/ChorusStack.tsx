@@ -18,8 +18,18 @@ interface ChorusStackProps {
 }
 
 export function ChorusStack({ className }: ChorusStackProps) {
-  const { form, bars, spans, choruses, lyric, currentBar, currentChorus, jumpTo, progression } =
-    useForm();
+  const {
+    form,
+    bars,
+    spans,
+    choruses,
+    lyric,
+    currentBar,
+    currentChorus,
+    jumpTo,
+    progression,
+    chartBar,
+  } = useForm();
   const chart = useOptionalProgression();
   const [hoverBar, setHoverBar] = useState<number | null>(null);
 
@@ -37,7 +47,7 @@ export function ChorusStack({ className }: ChorusStackProps) {
                 {Array.from({ length: bars }, (_, i) => {
                   const isCurrent = currentChorus === c && currentBar === i;
                   const isColumn = hoverBar === i;
-                  const numeral = chart ? chart.bars[i].chord.numeral : String(i + 1);
+                  const numeral = chartBar(i)?.chord.numeral ?? String(i + 1);
                   return (
                     <li key={i} className="min-w-0">
                       <button
@@ -92,7 +102,7 @@ export function ChorusStack({ className }: ChorusStackProps) {
       <p className="font-mono text-xs text-muted-foreground">
         {hoverBar != null && chart ? (
           <>
-            bar {hoverBar + 1} · {chart.bars[hoverBar].chord.numeral} in every chorus
+            bar {hoverBar + 1} · {chartBar(hoverBar)?.chord.numeral} in every chorus
           </>
         ) : (
           <>Form is what repeats: the chords in every row are the same; only the words change.</>

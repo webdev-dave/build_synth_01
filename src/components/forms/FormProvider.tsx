@@ -35,7 +35,11 @@ import {
 } from "@/lib/forms/registry";
 import type { ClockEvent } from "@/lib/music/clock";
 import { degreesOf, type ScaleDegree } from "@/lib/music/scaleCatalog";
-import { getProgression, type Progression } from "@/lib/progressions/registry";
+import {
+  getProgression,
+  type Progression,
+  type ProgressionBar,
+} from "@/lib/progressions/registry";
 import { noteNumberToFrequency } from "@/instruments/synth/templates/basic-synth/utils/synthUtils";
 
 /** The lead answers an octave above the organ's window so the two never blur. */
@@ -46,6 +50,8 @@ interface FormShape {
   form: Form;
   /** The progression sounding under the map, if the form has one. */
   progression: Progression | null;
+  /** Trips through the chart per cycle of the form (1 for the 12-bar; 0 when silent). */
+  repeats: number;
   bars: number;
   spans: FormSpan[];
   choruses: FormChorus[];
@@ -66,6 +72,8 @@ export interface FormState extends FormShape {
   soundingSpan: string | null;
   /** Jump the playhead to a bar of a chorus (starts playing if stopped). */
   jumpTo: (chorus: number, bar?: number) => void;
+  /** The chart entry under a bar of the form, or null when nothing sounds. */
+  chartBar: (bar: number) => ProgressionBar | null;
 }
 
 /** Identity of one span in one chorus — what `soundingSpan` names. */
@@ -105,20 +113,25 @@ export function FormProvider({
     () => (wholeSong ? formChoruses(form) : formChoruses(form).slice(0, 1)),
     [form, wholeSong],
   );
-  // The map and the chart must agree bar for bar; a mismatch falls back to silence.
-  const fits = progression ? progression.bars.length === formBars(form) : false;
+  // The chart must tile the map exactly: once (12-bar blues) or looped a
+  // whole number of times (a four-chord loop under a 16-bar verse–chorus
+  // cycle). Anything else falls back to silence rather than a misaligned map.
+  const bars = formBars(form);
+  const repeats = progression && bars % progression.bars.length === 0 ? bars / progression.bars.length : 0;
+  const fits = repeats > 0;
 
   const shape = useMemo<FormShape>(
     () => ({
       form,
       progression: progression && fits ? progression : null,
-      bars: formBars(form),
+      repeats,
+      bars,
       spans: spansOf(form),
       choruses,
       lyric: chorusLines(form).filter((c) => choruses.some((x) => x.id === c.chorus.id)),
       lick: lick ?? null,
     }),
-    [form, progression, fits, choruses, lick],
+    [form, progression, fits, repeats, bars, choruses, lick],
   );
 
   if (!shape.progression) {
@@ -131,7 +144,7 @@ export function FormProvider({
       degrees={degrees ?? degreesOf("blues")}
       defaultKeyRootPc={defaultKeyRootPc}
       bpm={bpm}
-      passes={choruses.length}
+      passes={choruses.length * repeats}
     >
       <SoundingFormProvider shape={shape}>{children}</SoundingFormProvider>
     </ProgressionProvider>
@@ -148,6 +161,7 @@ function SilentFormProvider({ shape, children }: { shape: FormShape; children: R
       currentBeat: null,
       soundingSpan: null,
       jumpTo: () => {},
+      chartBar: () => null,
     }),
     [shape],
   );
@@ -159,7 +173,20 @@ function SoundingFormProvider({ shape, children }: { shape: FormShape; children:
   const clock = useLessonClock();
   const progression = useOptionalProgression();
   if (!progression) throw new Error("SoundingFormProvider needs a ProgressionProvider.");
-  const { beatsPerBar, currentBar, currentPass, rootMidi, passLengthBeats } = progression;
+  const { beatsPerBar, currentPass, rootMidi, passLengthBeats } = progression;
+  const { repeats } = shape;
+  const chartLength = progression.bars.length;
+  // One form cycle is `repeats` trips through the chart; fold the chart's
+  // pass and bar back into chorus + bar of the form.
+  const currentChorus = currentPass == null ? null : Math.floor(currentPass / repeats);
+  const currentBar =
+    currentPass == null || progression.currentBar == null
+      ? null
+      : (currentPass % repeats) * chartLength + progression.currentBar;
+  const chartBar = useCallback(
+    (bar: number) => progression.bars[((bar % chartLength) + chartLength) % chartLength] ?? null,
+    [progression.bars, chartLength],
+  );
 
   const plan = useMemo<PlannedNote[]>(() => {
     if (!shape.lick) return [];
@@ -204,9 +231,9 @@ function SoundingFormProvider({ shape, children }: { shape: FormShape; children:
 
   const jumpTo = useCallback(
     (chorus: number, bar = 0) => {
-      void clock.play(chorus * passLengthBeats + bar * beatsPerBar);
+      void clock.play(chorus * repeats * passLengthBeats + bar * beatsPerBar);
     },
-    [clock, passLengthBeats, beatsPerBar],
+    [clock, repeats, passLengthBeats, beatsPerBar],
   );
 
   const value = useMemo<FormState>(
@@ -214,12 +241,13 @@ function SoundingFormProvider({ shape, children }: { shape: FormShape; children:
       ...shape,
       beatsPerBar,
       currentBar,
-      currentChorus: currentPass,
+      currentChorus,
       currentBeat,
       soundingSpan,
       jumpTo,
+      chartBar,
     }),
-    [shape, beatsPerBar, currentBar, currentPass, currentBeat, soundingSpan, jumpTo],
+    [shape, beatsPerBar, currentBar, currentChorus, currentBeat, soundingSpan, jumpTo, chartBar],
   );
 
   return <FormContext.Provider value={value}>{children}</FormContext.Provider>;

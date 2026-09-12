@@ -46,6 +46,7 @@ export function FormMap({ song = true, beats = true, readout = true, className }
     beatsPerBar,
     soundingSpan,
     jumpTo,
+    chartBar,
   } = useForm();
   const chart = useOptionalProgression();
   const playing = useOptionalLessonClock()?.playing ?? false;
@@ -63,8 +64,8 @@ export function FormMap({ song = true, beats = true, readout = true, className }
 
   const cells: BarCell[] = Array.from({ length: bars }, (_, i) => {
     const place = placeOfBar(form, i);
-    if (chart) {
-      const bar = chart.bars[i];
+    const bar = chart ? chartBar(i) : null;
+    if (chart && bar) {
       const name = chart.nameOf(bar.chord);
       return {
         top: bar.chord.numeral,
@@ -127,7 +128,10 @@ export function FormMap({ song = true, beats = true, readout = true, className }
     ? (i: number) => {
         setClicked(i);
         if (playing) jumpTo(viewChorus, i);
-        else chart.soundChord(chart.bars[i].chord);
+        else {
+          const bar = chartBar(i);
+          if (bar) chart.soundChord(bar.chord);
+        }
       }
     : undefined;
 
@@ -210,7 +214,9 @@ export function FormMap({ song = true, beats = true, readout = true, className }
               {choruses.length > 1 && <>{choruses[currentChorus ?? 0]?.label} · </>}
               line {place.section.label} · bar {currentBar + 1} of {bars}
               {place.role !== "plain" && <> · {place.role === "call" ? "call" : "answer"}</>}
-              {chart && <> · {chart.nameOf(chart.bars[currentBar].chord)}</>}
+              {chart && chartBar(currentBar) && (
+                <> · {chart.nameOf(chartBar(currentBar)!.chord)}</>
+              )}
             </>
           ) : chart ? (
             <>
