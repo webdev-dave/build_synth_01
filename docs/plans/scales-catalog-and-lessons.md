@@ -429,10 +429,13 @@ guessing; strike through with the date when answered.
 - [x] ~~**`dorian` timing**~~ — moot; shipped in Phase 4 (2026-09-12).
 - [x] ~~**Stale `/lessons` scale slugs**~~ — **redirected** (2026-09-12).
       `Lesson.movedTo`: `scales` → `/scales/major-scale`, `scale-degrees`
-      → `/scales/major-scale#degrees`. `/lessons/[slug]` calls
-      `permanentRedirect` (static export renders it as a meta-refresh
-      page); the `/lessons` hub card and global search link straight to the
-      target with an "In Scales" badge instead of "Soon". Synth v2 learning
+      → `/scales/major-scale#degrees`. `/lessons/[slug]` renders
+      `MovedLesson` — `permanentRedirect` in a static export only reaches
+      the client router (empty HTML, no fallback), so the page carries its
+      own `<meta http-equiv="refresh">`, a `router.replace` on hydrate, a
+      visible link, and `noindex`. The `/lessons` hub card and global
+      search link straight to the target with an "In Scales" badge
+      instead of "Soon". Synth v2 learning
       panel links (`lessonSlug`) keep working through the redirect.
 - [x] ~~**Promotion to production**~~ — owner asked for the Phase 4–6 work
       to go live (2026-09-12, "deploy to live app"). Still: a push only

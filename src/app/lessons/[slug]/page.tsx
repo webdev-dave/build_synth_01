@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArrowRight, Hammer } from "lucide-react";
 
 import { LESSONS, getLesson } from "@/lib/lessons/registry";
+import { MovedLesson } from "@/components/lessons/MovedLesson";
 import { Badge } from "@/components/ui/badge";
 import { HubLink } from "@/components/content/HubLink";
 
@@ -22,6 +23,13 @@ export async function generateMetadata({
 }: LessonPageProps): Promise<Metadata> {
   const { slug } = await params;
   const lesson = getLesson(slug);
+  if (lesson?.movedTo) {
+    return {
+      title: `${lesson.title} — moved`,
+      description: lesson.summary,
+      robots: { index: false, follow: true },
+    };
+  }
   return {
     title: lesson ? `${lesson.title} — Lesson (coming soon)` : "Lesson",
     description: lesson?.summary,
@@ -32,9 +40,12 @@ export default async function LessonPage({ params }: LessonPageProps) {
   const { slug } = await params;
   const lesson = getLesson(slug);
   if (!lesson) notFound();
-  // Static export has no server redirects; Next renders this as a
-  // meta-refresh page, which is enough for old links and crawlers.
-  if (lesson.movedTo) permanentRedirect(lesson.movedTo);
+  // Static export has no server redirects; `permanentRedirect` would only
+  // reach the client router (empty HTML, no fallback), so the moved page
+  // carries its own meta refresh + link.
+  if (lesson.movedTo) {
+    return <MovedLesson title={lesson.title} to={lesson.movedTo} />;
+  }
 
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
