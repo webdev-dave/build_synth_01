@@ -1,7 +1,8 @@
 "use client";
 
-import { useMemo, useState, type CSSProperties } from "react";
-import { ChevronDown } from "lucide-react";
+import { useEffect, useMemo, useState, type CSSProperties } from "react";
+import Link from "next/link";
+import { ArrowRight, ChevronDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
@@ -29,6 +30,17 @@ export function HarmonicaLabV2() {
   const [selectedNote, setSelectedNote] = useState("C");
   const [activePos, setActivePos] = useState(2);
   const [scaleMode, setScaleMode] = useState<ScaleMode>("blues");
+
+  /*
+   * `/harmonica-lab/v2?position=5` lands with that position selected — the
+   * scale pages link here that way. Read from window rather than
+   * useSearchParams so the static export needs no Suspense boundary.
+   */
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("position");
+    const pos = raw ? Number.parseInt(raw, 10) : NaN;
+    if (pos >= 1 && pos <= 5) setActivePos(pos);
+  }, []);
 
   const results = useMemo(
     () => calculateAllPositions(selectedNote, mode),
@@ -251,6 +263,15 @@ function TheoryDetails({
           <span className="text-foreground">Feel:</span> {result.feel} ·{" "}
           <span className="text-foreground">Used for:</span> {result.useCase}
         </p>
+        {result.scaleSlug && (
+          <Link
+            href={`/scales/${result.scaleSlug}`}
+            className="group inline-flex items-center gap-1.5 text-xs font-medium text-foreground underline-offset-4 hover:underline"
+          >
+            Hear {result.mode} on a piano
+            <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
+          </Link>
+        )}
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] text-muted-foreground">
             {mode === "songKey" ? "Finding the harp:" : "Finding the key:"}

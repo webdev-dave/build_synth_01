@@ -58,10 +58,11 @@ function degreeNumber(label: string): number {
  * always locked here so an *added* note is audible as a key that was silent
  * a moment ago and now plays.
  *
- * The caption names exactly what the toggle did, in one of three shapes:
+ * The caption names exactly what the toggle did, in one of four shapes:
  * one side has extra notes (blues vs pentatonic), one note is swapped for
- * another on the same degree (Phrygian vs freygish: ♭3 → 3), or the two
- * sides are the same keys with a different home (freygish vs harmonic minor).
+ * another on the same degree (Phrygian vs freygish: ♭3 → 3), the two
+ * sides are the same keys with a different home (freygish vs harmonic minor),
+ * or notes both come and go (Mixolydian vs blues) and both lists are read out.
  */
 export function ScaleComparer({
   a,
@@ -147,6 +148,29 @@ export function ScaleComparer({
         ))}
         . Flip the toggle and watch one key go dark while its neighbour lights
         up.
+      </>
+    );
+  } else if (added.length > 0 && removed.length > 0) {
+    // Neither a clean superset nor a one-for-one swap (Mixolydian vs blues):
+    // say both halves so no key changes without being named.
+    caption = (
+      <>
+        <span className="font-medium text-foreground">{current.name}</span>{" "}
+        adds{" "}
+        {added.map((d, i) => (
+          <span key={d.offset}>
+            {i > 0 && " and "}
+            <Note s={current} d={d} />
+          </span>
+        ))}{" "}
+        and drops{" "}
+        {removed.map((d, i) => (
+          <span key={d.offset}>
+            {i > 0 && (i === removed.length - 1 ? ", and " : ", ")}
+            <Note s={other} d={d} />
+          </span>
+        ))}
+        . Flip the toggle and count the keys that change hands.
       </>
     );
   } else if (added.length > 0) {

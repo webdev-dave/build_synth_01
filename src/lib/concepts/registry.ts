@@ -361,7 +361,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "A mode takes one parent scale and starts it from a different degree, so the same set of notes takes on a new home note and a new character. The major scale has seven modes — Ionian, Dorian, Phrygian, Lydian, Mixolydian, Aeolian, and Locrian — each running from the next degree up. They share the same seven pitches; what changes is which note feels like 'home,' and that shift is enough to swing a scale from bright to dark.",
     href: conceptHome("mode"),
-    scales: ["major-scale", "dorian", "freygish", "ukrainian-dorian"],
+    scales: ["major-scale", "mixolydian", "phrygian", "dorian", "freygish", "ukrainian-dorian"],
     status: "live",
     keywords: [
       "what is a musical mode",
@@ -383,6 +383,7 @@ export const CONCEPTS: Concept[] = [
     definition:
       "In any key, the dominant is the fifth scale degree and the chord rooted there — the 'V.' It's called dominant because of how powerfully it wants to resolve down to the tonic, the key's home chord. Adding a flattened seventh makes a dominant seventh chord, whose internal tritone tightens that pull even further. The blues turns this on its head by making every chord — I, IV and V — a dominant seventh, part of why it carries its restless, unresolved colour.",
     href: conceptHome("dominant"),
+    scales: ["mixolydian", "harmonic-minor"],
     genres: ["blues"],
     history: ["blues"],
     status: "live",

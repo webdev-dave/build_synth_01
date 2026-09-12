@@ -49,6 +49,12 @@ export interface ScaleLesson {
   /** Genre slugs where this scale is heard (cross-link targets). */
   usedIn: string[];
   /**
+   * Diatonic-harmonica positions (1–5) whose mode this is. The harmonica
+   * engine points back via `Position.scaleSlug` (src/lib/harmonica); the
+   * page renders a card into the v2 lab. Keep both sides in step.
+   */
+  positions?: number[];
+  /**
    * Catalog id in src/lib/music/scaleCatalog.ts. Lessons read their degrees
    * from it and the synth's `?scale=` deep-link will target it, so a page and
    * the instrument can never disagree about the notes.
@@ -105,6 +111,7 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "C",
     exampleNotes: "C – D – E – F – G – A – B",
     usedIn: [],
+    positions: [1],
     patternKey: "major",
     status: "live",
     keywords: [
@@ -233,6 +240,7 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "D",
     exampleNotes: "D – E – F – G – A – B – C",
     usedIn: [],
+    positions: [3],
     patternKey: "dorian",
     status: "soon",
     keywords: ["what is dorian mode", "dorian scale notes", "dorian vs minor"],
@@ -256,6 +264,7 @@ export const SCALES: ScaleLesson[] = [
     exampleKey: "A",
     exampleNotes: "A – B – C – D – E – F – G",
     usedIn: [],
+    positions: [4],
     patternKey: "minor",
     status: "soon",
     keywords: [
@@ -294,13 +303,16 @@ export const SCALES: ScaleLesson[] = [
     summary:
       "The major scale with a lowered seventh — the bright, unresolved sound of harmonica second position, rock riffs, and dominant chords.",
     answer:
-      "Mixolydian is the major scale with one change: the seventh is lowered a half step, giving 1, 2, 3, 4, 5, 6, ♭7. It is the fifth mode of the major scale — G Mixolydian uses the white keys of C major, started from G. The ♭7 keeps it from settling the way major does, which is why it fits blues-rock riffs and the harmonica's second position.",
+      "Mixolydian is the major scale with one change: the seventh is lowered a half step, giving 1, 2, 3, 4, 5, 6, ♭7. It is the fifth mode of the major scale — G Mixolydian uses the white keys of C major, started from G. The ♭7 keeps it from settling the way major does, which is why it fits blues-rock riffs and the harmonica's second position, where a C harp plays in G.",
+    history:
+      "Mixolydian is the mode blues harmonica lives in. 'Cross harp' — playing a harp a fourth below the song's key — puts the draw notes, the ones that bend, on the strong beats, and the scale those draw notes spell is Mixolydian. Bend the third and fifth down and you are in the blues scale; leave them alone and you have the bright, unresolved sound of a great many rock riffs, from country-rock to the dominant-chord vamps of funk and soul.",
     formula: "1 – 2 – 3 – 4 – 5 – 6 – ♭7",
     exampleKey: "G",
     exampleNotes: "G – A – B – C – D – E – F",
-    usedIn: [],
+    usedIn: ["blues", "rock"],
+    positions: [2],
     patternKey: "mixolydian",
-    status: "soon",
+    status: "live",
     keywords: [
       "what is mixolydian mode",
       "mixolydian scale notes",
@@ -317,12 +329,15 @@ export const SCALES: ScaleLesson[] = [
       "Natural minor with a lowered second — the note one key above home that leans back onto it. Dark, tense, and one raised third away from freygish.",
     answer:
       "Phrygian is a minor mode with a lowered second: 1, ♭2, ♭3, 4, 5, ♭6, ♭7. It is the third mode of the major scale — E Phrygian uses the white keys of C major, started from E. The ♭2 sits one half step above the root and pulls hard toward it, which gives the mode its dark, Spanish-tinged tension. Raise its third and it becomes freygish, the klezmer and flamenco scale.",
+    history:
+      "The name is borrowed, twice over: medieval theorists took Greek regional names for their church modes, and the mode they called Phrygian is the one that runs from E on the white keys. Its lowered second gives Spanish and flamenco music much of its colour — though the flamenco scale proper usually raises the third as well, which turns Phrygian into freygish. On a diatonic harmonica it is fifth position: a C harp played in E.",
     formula: "1 – ♭2 – ♭3 – 4 – 5 – ♭6 – ♭7",
     exampleKey: "E",
     exampleNotes: "E – F – G – A – B – C – D",
     usedIn: [],
+    positions: [5],
     patternKey: "phrygian",
-    status: "soon",
+    status: "live",
     keywords: [
       "what is phrygian mode",
       "phrygian scale notes",

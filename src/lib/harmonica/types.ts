@@ -42,6 +42,12 @@ export interface Position {
   pattern: string[];
   /** Emotional character */
   feel: string;
+  /**
+   * The /scales page that teaches this position's mode on a piano
+   * ("mixolydian" for 2nd position). The scale registry points back via
+   * `ScaleLesson.positions`; keep both sides in step.
+   */
+  scaleSlug?: string;
 }
 
 /** Bend note definition */

@@ -14,11 +14,15 @@ import { FreygishLesson } from "./FreygishLesson";
 import { HarmonicMinorLesson } from "./HarmonicMinorLesson";
 import { MajorScaleLesson } from "./MajorScaleLesson";
 import { MinorPentatonicLesson } from "./MinorPentatonicLesson";
+import { MixolydianLesson } from "./MixolydianLesson";
+import { PhrygianLesson } from "./PhrygianLesson";
 import { UkrainianDorianLesson } from "./UkrainianDorianLesson";
 
 const SCALE_CONTENT: Record<string, ComponentType> = {
   "major-scale": MajorScaleLesson,
   "minor-pentatonic": MinorPentatonicLesson,
+  mixolydian: MixolydianLesson,
+  phrygian: PhrygianLesson,
   "blues-scale": BluesScaleLesson,
   "harmonic-minor": HarmonicMinorLesson,
   freygish: FreygishLesson,

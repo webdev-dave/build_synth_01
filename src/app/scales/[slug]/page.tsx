@@ -7,6 +7,7 @@ import { SCALES, getScale } from "@/lib/scales/registry";
 import { getGenre } from "@/lib/genres/registry";
 import { getArticlesByScale } from "@/lib/history/registry";
 import { getCousinsByScale } from "@/lib/cousins/registry";
+import { getPosition, posLabel } from "@/lib/harmonica";
 import { getScaleContent } from "@/content/scales";
 import { Badge } from "@/components/ui/badge";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
@@ -52,6 +53,11 @@ export default async function ScalePage({ params }: ScalePageProps) {
     .filter((g): g is NonNullable<typeof g> => Boolean(g));
   const articles = getArticlesByScale(scale.slug);
   const cousins = getCousinsByScale(scale.slug);
+  // A mode the harmonica lab already teaches as a position gets a door into
+  // the v2 lab with that position pre-selected.
+  const positions = (scale.positions ?? [])
+    .map((pos) => getPosition(pos))
+    .filter((p): p is NonNullable<typeof p> => Boolean(p));
 
   // One linker for the page: a concept lights up at its first mention (lead,
   // then history) and isn't repeated. "scale" is skipped — on a scale page
@@ -154,6 +160,13 @@ export default async function ScalePage({ params }: ScalePageProps) {
             ...cousins.map((cousin) => ({
               href: `/cousins/${cousin.slug}`,
               label: cousin.question,
+            })),
+            ...positions.map((p) => ({
+              href: `/harmonica-lab/v2?position=${p.pos}`,
+              // "2nd position (Cross Harp)" — but not "5th position (5th Position)".
+              label: /position/i.test(p.name)
+                ? `Harmonica: ${posLabel(p.pos)} position`
+                : `Harmonica: ${posLabel(p.pos)} position (${p.name})`,
             })),
           ]}
         />

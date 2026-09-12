@@ -241,18 +241,23 @@ Mixolydian if harmonica 3rd position wants a landing page sooner.
 
 ### Phase 2 — harmonica-position modes
 
-- [ ] Registry rows for `mixolydian`, `phrygian` (`kind: "mode"`).
-- [ ] Add a `positions?: number[]` field on `ScaleLesson` and the reverse
-      link from `src/lib/harmonica/constants.ts` so the **v2** harmonica lab
-      (`HarmonicaLabV2` / `PositionMatrixV2`) can deep-link to
-      `/scales/<slug>` and the scale page can list the position. Both sides
-      in one change. Legacy `/harmonica-lab` is out of scope (owner
-      decision, 2026-09-11).
-- [ ] `MixolydianLesson.tsx`: major → ♭7; Mixolydian vs blues (the
-      2nd-position "full vs blues" toggle, on a piano).
-- [ ] `PhrygianLesson.tsx`: natural minor → ♭2; closing section raises the
-      3rd and links to `/scales/freygish` ("this is where the Middle Eastern
-      sound actually lives").
+- [x] Registry rows for `mixolydian`, `phrygian` (`kind: "mode"`), live.
+      Mixolydian ↔ `blues` / `rock` genres both ways.
+- [x] `ScaleLesson.positions?: number[]` (major-scale 1, mixolydian 2,
+      dorian 3, natural-minor 4, phrygian 5) and `Position.scaleSlug` in
+      `src/lib/harmonica` — data on both sides, asserted equal by the check
+      script. Scale page renders a "Harmonica: 2nd position (Cross Harp)"
+      card into `/harmonica-lab/v2?position=N`; `HarmonicaLabV2` reads
+      `?position=` on mount (window, not `useSearchParams`, so the static
+      export needs no Suspense) and its theory panel links "Hear Mixolydian
+      on a piano" → `/scales/<slug>`. Legacy `/harmonica-lab` untouched.
+- [x] `MixolydianLesson.tsx` (G): major → ♭7 swap, 7→1 vs ♭7→1, dominant
+      seventh on home, re-home as C major (+5), Mixolydian vs blues.
+- [x] `PhrygianLesson.tsx` (E): ♭2 falls to 1, natural minor → ♭2 swap,
+      re-home as C major (+8), 5th position, raise the 3rd → `/scales/freygish`.
+- [x] `ScaleComparer` grew a fourth caption shape — "adds X and drops Y" —
+      for pairs that are neither subset nor swap (Mixolydian vs blues).
+      Built 2026-09-11.
 
 ### Phase 3 — harmonic-minor family (the Middle Eastern block)
 

@@ -22,6 +22,7 @@ export const POSITIONS: Position[] = [
     useCase: "Folk, country, pop melodies",
     pattern: ["W", "W", "H", "W", "W", "W", "H"],
     feel: "Bright, happy, resolved",
+    scaleSlug: "major-scale",
   },
   {
     pos: 2,
@@ -42,6 +43,7 @@ export const POSITIONS: Position[] = [
     useCase: "Blues, rock, R&B — ~90% of blues harp",
     pattern: ["W", "W", "H", "W", "W", "H", "W"],
     feel: "Bluesy, dominant, tension",
+    scaleSlug: "mixolydian",
   },
   {
     pos: 3,
@@ -58,6 +60,7 @@ export const POSITIONS: Position[] = [
     useCase: "Minor blues, jazz, darker moods",
     pattern: ["W", "H", "W", "W", "W", "H", "W"],
     feel: "Minor but warm, jazzy",
+    scaleSlug: "dorian",
   },
   {
     pos: 4,
@@ -74,6 +77,7 @@ export const POSITIONS: Position[] = [
     useCase: "Natural minor, ballads",
     pattern: ["W", "H", "W", "W", "H", "W", "W"],
     feel: "Dark, sad, melancholy",
+    scaleSlug: "natural-minor",
   },
   {
     pos: 5,
@@ -90,6 +94,7 @@ export const POSITIONS: Position[] = [
     useCase: "Spanish/Middle Eastern feel",
     pattern: ["H", "W", "W", "W", "H", "W", "W"],
     feel: "Exotic, Spanish, dark",
+    scaleSlug: "phrygian",
   },
 ];
 
