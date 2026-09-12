@@ -47,7 +47,11 @@ export interface ScaleAlias {
 }
 
 const alias = (name: string, tradition?: string, approx = false): ScaleAlias =>
-  approx ? { name, tradition, approx } : tradition ? { name, tradition } : { name };
+  approx
+    ? { name, tradition, approx }
+    : tradition
+      ? { name, tradition }
+      : { name };
 
 export interface ScaleLesson {
   /** URL slug under /scales ("blues-scale", "dorian"). */
@@ -460,7 +464,11 @@ export const SCALES: ScaleLesson[] = [
     usedIn: [],
     patternKey: "lydian",
     status: "live",
-    keywords: ["what is lydian mode", "lydian scale notes", "major scale sharp 4"],
+    keywords: [
+      "what is lydian mode",
+      "lydian scale notes",
+      "major scale sharp 4",
+    ],
   },
   {
     slug: "locrian",
@@ -478,7 +486,11 @@ export const SCALES: ScaleLesson[] = [
     usedIn: [],
     patternKey: "locrian",
     status: "live",
-    keywords: ["what is locrian mode", "locrian scale notes", "diminished mode"],
+    keywords: [
+      "what is locrian mode",
+      "locrian scale notes",
+      "diminished mode",
+    ],
   },
   {
     slug: "melodic-minor",
@@ -595,6 +607,11 @@ export const SCALES: ScaleLesson[] = [
 
 export function getScale(slug: string): ScaleLesson | undefined {
   return SCALES.find((s) => s.slug === slug);
+}
+
+/** The page that teaches a catalog scale — the synth's "read more" target. */
+export function getScaleByPatternKey(id: ScaleTypeId): ScaleLesson | undefined {
+  return SCALES.find((s) => s.patternKey === id && s.status === "live");
 }
 
 /** Scales safe to index (real content), for the sitemap. */

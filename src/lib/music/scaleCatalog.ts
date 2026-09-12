@@ -48,11 +48,7 @@ export interface ScaleDegree {
 }
 
 export type ScaleGroup =
-  | "common"
-  | "modes"
-  | "pentatonic"
-  | "harmonicMinorFamily"
-  | "maqam";
+  "common" | "modes" | "pentatonic" | "harmonicMinorFamily" | "maqam";
 
 export const SCALE_GROUP_LABELS: Record<ScaleGroup, string> = {
   common: "Common",
@@ -84,6 +80,13 @@ export interface ScaleTypeInfo {
   /** Short character line for pickers and learn panels. */
   feel: string;
   parent?: ScaleParent;
+  /**
+   * The child a parent scale points *down* to — the relative minor of a
+   * major scale. Only set where one child is the conventional twin
+   * (major → natural minor, major pentatonic → minor pentatonic); the
+   * modes have no single "relative" a learner expects.
+   */
+  relative?: ScaleParent;
 }
 
 const d = (offset: number, label: string): ScaleDegree => ({ offset, label });
@@ -93,63 +96,152 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     id: "major",
     name: "Major",
     aliases: ["Ionian"],
-    degrees: [d(0, "1"), d(2, "2"), d(4, "3"), d(5, "4"), d(7, "5"), d(9, "6"), d(11, "7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(4, "3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(11, "7"),
+    ],
     group: "common",
     feel: "Bright, settled — the reference every other scale is measured against",
+    relative: { scaleId: "minor", offsetSemitones: 9, label: "relative minor" },
   },
   minor: {
     id: "minor",
     name: "Natural minor",
     aliases: ["Aeolian"],
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(8, "♭6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(8, "♭6"),
+      d(10, "♭7"),
+    ],
     group: "common",
     feel: "Dark, melancholy",
-    parent: { scaleId: "major", offsetSemitones: 3, label: "6th mode of the major scale (relative major)" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 3,
+      label: "6th mode of the major scale (relative major)",
+    },
   },
   dorian: {
     id: "dorian",
     name: "Dorian",
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(9, "6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(10, "♭7"),
+    ],
     group: "modes",
     feel: "Minor but warm — the raised 6th lifts it",
-    parent: { scaleId: "major", offsetSemitones: 10, label: "2nd mode of the major scale" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 10,
+      label: "2nd mode of the major scale",
+    },
   },
   phrygian: {
     id: "phrygian",
     name: "Phrygian",
-    degrees: [d(0, "1"), d(1, "♭2"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(8, "♭6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(1, "♭2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(8, "♭6"),
+      d(10, "♭7"),
+    ],
     group: "modes",
     feel: "Dark and tense — the ♭2 leans hard on the root",
-    parent: { scaleId: "major", offsetSemitones: 8, label: "3rd mode of the major scale" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 8,
+      label: "3rd mode of the major scale",
+    },
   },
   lydian: {
     id: "lydian",
     name: "Lydian",
-    degrees: [d(0, "1"), d(2, "2"), d(4, "3"), d(6, "♯4"), d(7, "5"), d(9, "6"), d(11, "7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(4, "3"),
+      d(6, "♯4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(11, "7"),
+    ],
     group: "modes",
     feel: "Dreamy, floating — major with a raised 4th",
-    parent: { scaleId: "major", offsetSemitones: 7, label: "4th mode of the major scale" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 7,
+      label: "4th mode of the major scale",
+    },
   },
   mixolydian: {
     id: "mixolydian",
     name: "Mixolydian",
-    degrees: [d(0, "1"), d(2, "2"), d(4, "3"), d(5, "4"), d(7, "5"), d(9, "6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(4, "3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(10, "♭7"),
+    ],
     group: "modes",
     feel: "Major with a bluesy ♭7 — dominant, unresolved",
-    parent: { scaleId: "major", offsetSemitones: 5, label: "5th mode of the major scale" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 5,
+      label: "5th mode of the major scale",
+    },
   },
   locrian: {
     id: "locrian",
     name: "Locrian",
-    degrees: [d(0, "1"), d(1, "♭2"), d(3, "♭3"), d(5, "4"), d(6, "♭5"), d(8, "♭6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(1, "♭2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(6, "♭5"),
+      d(8, "♭6"),
+      d(10, "♭7"),
+    ],
     group: "modes",
     feel: "Unstable — the ♭5 means the home chord is diminished",
-    parent: { scaleId: "major", offsetSemitones: 1, label: "7th mode of the major scale" },
+    parent: {
+      scaleId: "major",
+      offsetSemitones: 1,
+      label: "7th mode of the major scale",
+    },
   },
   harmonicMinor: {
     id: "harmonicMinor",
     name: "Harmonic minor",
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(8, "♭6"), d(11, "7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(8, "♭6"),
+      d(11, "7"),
+    ],
     group: "harmonicMinorFamily",
     feel: "Minor with a raised 7th — the augmented-second leap between ♭6 and 7",
   },
@@ -160,7 +252,15 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     // Ascending (jazz) form. Classical practice descends as natural minor;
     // a static membership map can't be direction-dependent, so the lesson
     // copy carries that note rather than the pattern pretending to.
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(9, "6"), d(11, "7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(11, "7"),
+    ],
     group: "harmonicMinorFamily",
     feel: "Minor below, major above — smooth and jazz-flavoured",
   },
@@ -170,6 +270,11 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     degrees: [d(0, "1"), d(2, "2"), d(4, "3"), d(7, "5"), d(9, "6")],
     group: "pentatonic",
     feel: "Open and sunny — no half steps anywhere",
+    relative: {
+      scaleId: "pentatonicMinor",
+      offsetSemitones: 9,
+      label: "relative minor pentatonic",
+    },
   },
   pentatonicMinor: {
     id: "pentatonicMinor",
@@ -177,13 +282,24 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     degrees: [d(0, "1"), d(3, "♭3"), d(5, "4"), d(7, "5"), d(10, "♭7")],
     group: "pentatonic",
     feel: "The first solo scale — nothing clashes",
-    parent: { scaleId: "pentatonicMajor", offsetSemitones: 3, label: "same notes as the major pentatonic a minor 3rd up" },
+    parent: {
+      scaleId: "pentatonicMajor",
+      offsetSemitones: 3,
+      label: "same notes as the major pentatonic a minor 3rd up",
+    },
   },
   blues: {
     id: "blues",
     name: "Blues",
     aliases: ["Minor blues"],
-    degrees: [d(0, "1"), d(3, "♭3"), d(5, "4"), d(6, "♭5"), d(7, "5"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(3, "♭3"),
+      d(5, "4"),
+      d(6, "♭5"),
+      d(7, "5"),
+      d(10, "♭7"),
+    ],
     group: "pentatonic",
     feel: "Minor pentatonic plus the ♭5 blue note",
   },
@@ -193,7 +309,14 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
   majorBlues: {
     id: "majorBlues",
     name: "Major blues",
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(4, "3"), d(7, "5"), d(9, "6")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(4, "3"),
+      d(7, "5"),
+      d(9, "6"),
+    ],
     group: "pentatonic",
     feel: "Major pentatonic plus the ♭3 blue note",
   },
@@ -201,19 +324,43 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     id: "phrygianDominant",
     name: "Phrygian dominant",
     aliases: ["Freygish", "Ahava Rabbah", "Hijaz", "Spanish Phrygian"],
-    degrees: [d(0, "1"), d(1, "♭2"), d(4, "3"), d(5, "4"), d(7, "5"), d(8, "♭6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(1, "♭2"),
+      d(4, "3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(8, "♭6"),
+      d(10, "♭7"),
+    ],
     group: "harmonicMinorFamily",
     feel: "♭2 against a major 3rd — the augmented-second leap of klezmer, flamenco, and maqam Hijaz",
-    parent: { scaleId: "harmonicMinor", offsetSemitones: 5, label: "5th mode of harmonic minor" },
+    parent: {
+      scaleId: "harmonicMinor",
+      offsetSemitones: 5,
+      label: "5th mode of harmonic minor",
+    },
   },
   ukrainianDorian: {
     id: "ukrainianDorian",
     name: "Ukrainian Dorian",
     aliases: ["Misheberakh", "Romanian minor", "Dorian ♯4"],
-    degrees: [d(0, "1"), d(2, "2"), d(3, "♭3"), d(6, "♯4"), d(7, "5"), d(9, "6"), d(10, "♭7")],
+    degrees: [
+      d(0, "1"),
+      d(2, "2"),
+      d(3, "♭3"),
+      d(6, "♯4"),
+      d(7, "5"),
+      d(9, "6"),
+      d(10, "♭7"),
+    ],
     group: "harmonicMinorFamily",
     feel: "Dorian with a raised 4th — the augmented second sits between ♭3 and ♯4",
-    parent: { scaleId: "harmonicMinor", offsetSemitones: 7, label: "4th mode of harmonic minor" },
+    parent: {
+      scaleId: "harmonicMinor",
+      offsetSemitones: 7,
+      label: "4th mode of harmonic minor",
+    },
   },
   // Beyond the audited table; hand-verified 2026-09-11: Phrygian dominant
   // with the 7th raised, giving two augmented seconds (♭2–3 and ♭6–7).
@@ -221,7 +368,15 @@ export const SCALE_CATALOG: Record<ScaleTypeId, ScaleTypeInfo> = {
     id: "doubleHarmonic",
     name: "Double harmonic",
     aliases: ["Hijaz Kar", "Byzantine", "Arabic scale"],
-    degrees: [d(0, "1"), d(1, "♭2"), d(4, "3"), d(5, "4"), d(7, "5"), d(8, "♭6"), d(11, "7")],
+    degrees: [
+      d(0, "1"),
+      d(1, "♭2"),
+      d(4, "3"),
+      d(5, "4"),
+      d(7, "5"),
+      d(8, "♭6"),
+      d(11, "7"),
+    ],
     group: "harmonicMinorFamily",
     feel: "Two augmented seconds — Phrygian dominant with a raised 7th",
   },
@@ -265,6 +420,61 @@ export function patternOf(id: ScaleTypeId): number[] {
   return SCALE_CATALOG[id].degrees.map((deg) => deg.offset);
 }
 
+/**
+ * The one other scale that shares this scale's exact note set and that a
+ * learner expects to be told about: the parent when there is one (a mode →
+ * its major; Phrygian dominant → harmonic minor), else the conventional
+ * relative (major → its relative minor). Null for scales that share their
+ * note set with nothing in the catalog (blues, harmonic minor, Rast…) —
+ * the synth hides its swap link rather than inventing a relationship.
+ */
+export function relatedScale(id: ScaleTypeId): ScaleParent | null {
+  const info = SCALE_CATALOG[id];
+  return info.parent ?? info.relative ?? null;
+}
+
+/** Catalog ids in display order, grouped the way a picker lists them. */
+export function scaleTypesByGroup(): {
+  group: ScaleGroup;
+  label: string;
+  types: ScaleTypeInfo[];
+}[] {
+  return (Object.keys(SCALE_GROUP_LABELS) as ScaleGroup[])
+    .map((group) => ({
+      group,
+      label: SCALE_GROUP_LABELS[group],
+      types: SCALE_TYPE_IDS.map((tid) => SCALE_CATALOG[tid]).filter(
+        (t) => t.group === group,
+      ),
+    }))
+    .filter((g) => g.types.length > 0);
+}
+
+/** True when the pitch class sits in the scale built on `rootPc`. */
+export function pitchClassInScale(
+  rootPc: number,
+  id: ScaleTypeId,
+  pitchClass: number,
+): boolean {
+  const offset = mod12(pitchClass - rootPc);
+  return SCALE_CATALOG[id].degrees.some((deg) => mod12(deg.offset) === offset);
+}
+
+/**
+ * Pitch class → degree label ("♭3") for a scale on `rootPc`, null when the
+ * class is outside the scale. This is what a keyboard's number overlay reads.
+ */
+export function degreeLabelMap(
+  rootPc: number,
+  id: ScaleTypeId,
+): (string | null)[] {
+  const map = Array<string | null>(12).fill(null);
+  for (const deg of SCALE_CATALOG[id].degrees) {
+    map[mod12(rootPc + deg.offset)] = deg.label;
+  }
+  return map;
+}
+
 /** True when any degree sits off its 12-TET key (Rast). */
 export function hasQuarterTones(degrees: readonly ScaleDegree[]): boolean {
   return degrees.some((deg) => (deg.cents ?? 0) !== 0);
@@ -275,7 +485,10 @@ export function hasQuarterTones(degrees: readonly ScaleDegree[]): boolean {
  * scale from `rootPc` — the switches a Middle Eastern keyboard player would
  * press. All zeros for an ordinary scale.
  */
-export function detuneMapFor(rootPc: number, degrees: readonly ScaleDegree[]): number[] {
+export function detuneMapFor(
+  rootPc: number,
+  degrees: readonly ScaleDegree[],
+): number[] {
   const map = Array<number>(12).fill(0);
   for (const deg of degrees) {
     if (deg.cents) map[mod12(rootPc + deg.offset)] = deg.cents;
@@ -289,7 +502,15 @@ export function detuneMapFor(rootPc: number, degrees: readonly ScaleDegree[]): n
 
 const LETTERS = ["C", "D", "E", "F", "G", "A", "B"] as const;
 type Letter = (typeof LETTERS)[number];
-const LETTER_PC: Record<Letter, number> = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+const LETTER_PC: Record<Letter, number> = {
+  C: 0,
+  D: 2,
+  E: 4,
+  F: 5,
+  G: 7,
+  A: 9,
+  B: 11,
+};
 
 const ACCIDENTAL_GLYPH: Record<number, string> = {
   [-2]: "𝄫",
@@ -332,10 +553,15 @@ function rootCandidates(rootPc: number): SpelledNote[] {
   const out: SpelledNote[] = [];
   for (const letter of LETTERS) {
     const acc = accidentalFor(letter, rootPc);
-    if (acc !== null && Math.abs(acc) <= 1) out.push({ letter, accidental: acc });
+    if (acc !== null && Math.abs(acc) <= 1)
+      out.push({ letter, accidental: acc });
   }
   // Naturals first, then flats before sharps (matches the app's flat default).
-  return out.sort((a, b) => Math.abs(a.accidental) - Math.abs(b.accidental) || a.accidental - b.accidental);
+  return out.sort(
+    (a, b) =>
+      Math.abs(a.accidental) - Math.abs(b.accidental) ||
+      a.accidental - b.accidental,
+  );
 }
 
 /**
@@ -353,8 +579,13 @@ function rootCandidates(rootPc: number): SpelledNote[] {
  * pentatonic material is conventionally written and matches the flat names
  * the lesson pages already use.
  */
-export function spellDegrees(rootPc: number, degrees: readonly ScaleDegree[]): string[] {
-  return spellOnKeys(rootPc, degrees).map((name, i) => name + centsSuffix(degrees[i].cents ?? 0));
+export function spellDegrees(
+  rootPc: number,
+  degrees: readonly ScaleDegree[],
+): string[] {
+  return spellOnKeys(rootPc, degrees).map(
+    (name, i) => name + centsSuffix(degrees[i].cents ?? 0),
+  );
 }
 
 /**
@@ -369,7 +600,10 @@ function centsSuffix(cents: number): string {
 }
 
 /** Spelling of the 12-TET keys under each degree, before any cents suffix. */
-function spellOnKeys(rootPc: number, degrees: readonly ScaleDegree[]): string[] {
+function spellOnKeys(
+  rootPc: number,
+  degrees: readonly ScaleDegree[],
+): string[] {
   const root = mod12(rootPc);
   if (degrees.length !== 7) {
     return degrees.map((deg) => simpleName(root + deg.offset));
@@ -418,7 +652,10 @@ export function spellScale(rootPc: number, id: ScaleTypeId): string[] {
  * The root's own name as this scale spells it — "G♯" for Phrygian dominant,
  * "A♭" for Ukrainian Dorian, on the same key.
  */
-export function rootNameFor(rootPc: number, degrees: readonly ScaleDegree[]): string {
+export function rootNameFor(
+  rootPc: number,
+  degrees: readonly ScaleDegree[],
+): string {
   return spellDegrees(rootPc, degrees)[0] ?? simpleName(rootPc);
 }
 
