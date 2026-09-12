@@ -52,7 +52,7 @@ export function ShuffleLesson() {
         <div className="mt-4 space-y-3">
           <GroovePlayer />
           <CountAlong />
-          <GrooveGrid />
+          <GrooveGrid drumMachineLink />
         </div>
         <P>
           Right now the halves are <em>even</em>: the &ldquo;&amp;&rdquo; sits

@@ -62,6 +62,9 @@ know about.
 | Genre → progressions | `Genre.progressions` | `Progression.usedIn` + `getProgressionsByGenre` |
 | Progression → scales | `Progression.scales` | `getProgressionsByScale` (scale page "Play it over") |
 | Progression → form | `Progression.forms` | `Form.progressions` (when `/forms` exists) |
+| Genre → grooves | `Genre.grooves` | `Groove.usedIn` + `getGroovesByGenre` |
+| Genre → meters | *(derived)* `metersOfGrooves(genre.grooves)` | `Groove.meter` — never a second list on the genre |
+| Groove → meter / foil | `Groove.meter`, `Groove.compareWith` | the meter spoke lists grooves with that `meter`; comparer pairs are symmetric |
 | Concept → lesson spoke | `Concept.href` (delegation) | the spoke's `<Term>` mentions; `/concepts/<slug>` renders a moved notice |
 
 **When you add one side, add the other in the same change.** A scale that

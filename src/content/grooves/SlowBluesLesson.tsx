@@ -47,7 +47,7 @@ export function SlowBluesLesson() {
         <div className="mt-4 space-y-3">
           <GroovePlayer />
           <CountAlong />
-          <GrooveGrid />
+          <GrooveGrid drumMachineLink />
         </div>
         <P>
           Notice the tempo: around sixty beats a minute. Slow is the point. At

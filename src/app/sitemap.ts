@@ -38,6 +38,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/scales",
     "/progressions",
     "/rhythm",
+    "/drums",
     "/history",
     "/concepts",
     "/artists",

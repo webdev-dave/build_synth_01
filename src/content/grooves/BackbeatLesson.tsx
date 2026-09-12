@@ -58,7 +58,7 @@ export function BackbeatLesson() {
           bar&rsquo;s weight, then the drums&rsquo;.
         </P>
         <div className="mt-4 space-y-4">
-          <GrooveGrid />
+          <GrooveGrid drumMachineLink />
           <AccentStrip />
         </div>
         <P>

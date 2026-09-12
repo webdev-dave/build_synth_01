@@ -12,6 +12,7 @@ import type { DrumVoice } from "@/lib/music/grooves";
 import { cn } from "@/lib/utils";
 import { ClockStepGrid } from "./ClockStepGrid";
 import { useGroove } from "./GrooveProvider";
+import { OpenInDrumMachineLink } from "./OpenInDrumMachineLink";
 
 interface GrooveGridProps {
   /** Let the reader toggle hits. */
@@ -24,6 +25,8 @@ interface GrooveGridProps {
   underlay?: 2 | 3 | 4;
   /** Force the rows (e.g. to show an empty kick row for the reader to fill). */
   voices?: readonly DrumVoice[];
+  /** The door to /drums?pattern=<slug> under the grid (lesson pages, not the machine itself). */
+  drumMachineLink?: boolean;
   className?: string;
 }
 
@@ -33,6 +36,7 @@ export function GrooveGrid({
   spotlight = true,
   underlay,
   voices,
+  drumMachineLink = false,
   className,
 }: GrooveGridProps) {
   const { groove, pattern, edited, toggle, reset, muted, toggleMute, tap } = useGroove();
@@ -53,6 +57,7 @@ export function GrooveGrid({
         underlay={underlay}
         ariaLabel={`${groove.name} drum grid`}
       />
+      {drumMachineLink && !edited && <OpenInDrumMachineLink slug={groove.slug} />}
       {edited && (
         <div className="flex items-center justify-end gap-3 text-xs text-muted-foreground">
           <span>Your edit.</span>

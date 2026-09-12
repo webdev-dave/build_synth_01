@@ -172,6 +172,16 @@ export const NAV_ITEMS: NavItem[] = [
     section: "play",
   },
   {
+    id: "drum-machine",
+    label: "Drum machine",
+    icon: "🥁",
+    href: "/drums",
+    description: "Step sequencer with a swing slider — the rhythm lessons' kit and grid",
+    inNav: false,
+    beta: true,
+    section: "play",
+  },
+  {
     id: "harmonica-lab",
     label: "Harmonica Lab",
     icon: "🚂",

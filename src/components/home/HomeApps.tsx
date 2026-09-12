@@ -71,36 +71,6 @@ function AppTile({ app }: { app: NavItem }) {
   );
 }
 
-function ComingSoonTile() {
-  const DrumMachineIcon = getAppIcon("drum-machine");
-  return (
-    <motion.div variants={item} className="h-full">
-      <Card className="flex h-full flex-col border-dashed bg-transparent shadow-none">
-        <CardHeader className="flex-1">
-          <div className="mb-2 flex h-11 w-11 items-center justify-center rounded-md border border-dashed text-muted-foreground">
-            <DrumMachineIcon className="h-5 w-5" strokeWidth={1.75} />
-          </div>
-          <div className="flex items-center gap-2">
-            <CardTitle className="text-base text-muted-foreground">
-              Drum machine
-            </CardTitle>
-            <Badge variant="secondary">Soon</Badge>
-          </div>
-          <CardDescription className="min-h-10">
-            Beats, rhythm, and groove tools are on the way.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="mt-auto" aria-hidden="true">
-          <span className="invisible inline-flex items-center gap-1 text-sm font-medium">
-            Open
-            <ArrowRight className="h-4 w-4" />
-          </span>
-        </CardContent>
-      </Card>
-    </motion.div>
-  );
-}
-
 export function HomeApps() {
   return (
     <MotionConfig reducedMotion="user">
@@ -132,7 +102,6 @@ export function HomeApps() {
               {group.apps.map((app) => (
                 <AppTile key={app.id} app={app} />
               ))}
-              {group.section.id === "play" && <ComingSoonTile />}
             </motion.div>
           </section>
         ))}
