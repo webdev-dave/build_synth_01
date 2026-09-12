@@ -10,10 +10,14 @@
  */
 import type { ComponentType } from "react";
 
+import { IIVVLesson } from "./IIVVLesson";
+import { PowerChordLesson } from "./PowerChordLesson";
 import { TwelveBarBluesLesson } from "./TwelveBarBluesLesson";
 
 const PROGRESSION_CONTENT: Record<string, ComponentType> = {
   "twelve-bar-blues": TwelveBarBluesLesson,
+  "i-iv-v": IIVVLesson,
+  "power-chord": PowerChordLesson,
 };
 
 export function getProgressionContent(slug: string): ComponentType | undefined {

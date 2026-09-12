@@ -10,9 +10,11 @@
 import type { ComponentType } from "react";
 
 import { TwelveBarFormLesson } from "./TwelveBarFormLesson";
+import { VerseChorusLesson } from "./VerseChorusLesson";
 
 const FORM_CONTENT: Record<string, ComponentType> = {
   "twelve-bar-blues": TwelveBarFormLesson,
+  "verse-chorus": VerseChorusLesson,
 };
 
 export function getFormContent(slug: string): ComponentType | undefined {

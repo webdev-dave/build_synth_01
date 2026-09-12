@@ -306,13 +306,21 @@ export const FORMS: Form[] = [
       { id: "verse", label: "Verse", bars: 8 },
       { id: "chorus", label: "Chorus", bars: 8 },
     ],
+    // A stand-in loop, not a rule: verse–chorus songs use any progression.
+    // The four-bar I–V–vi–IV tiles each 8-bar section twice.
+    progression: "i-v-vi-iv",
+    song: [
+      { id: "v1", label: "Verse 1 · Chorus" },
+      { id: "v2", label: "Verse 2 · Chorus" },
+      { id: "v3", label: "Verse 3 · Chorus" },
+    ],
     progressions: ["i-v-vi-iv"],
     formula: "Verse · Chorus · Verse · Chorus · Bridge · Chorus — the chorus returns unchanged",
     exampleKey: "a rock song",
     exampleNotes: "new words each verse, the same chorus every time",
     usedIn: ["rock"],
     compareWith: "twelve-bar-blues",
-    status: "soon",
+    status: "live",
     keywords: [
       "verse chorus form",
       "verse chorus structure",

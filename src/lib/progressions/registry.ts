@@ -207,7 +207,7 @@ export const PROGRESSIONS: Progression[] = [
     usedIn: ["blues", "rock"],
     scales: ["major-scale", "major-pentatonic", "blues-scale"],
     compareWith: "twelve-bar-blues",
-    status: "soon",
+    status: "live",
     keywords: [
       "I IV V progression",
       "1 4 5 chords",
@@ -336,7 +336,7 @@ export const PROGRESSIONS: Progression[] = [
     exampleChords: "E5 = E – B",
     usedIn: ["rock"],
     scales: ["minor-pentatonic", "blues-scale"],
-    status: "soon",
+    status: "live",
     keywords: ["power chord", "what is a power chord", "E5 chord", "root fifth chord"],
   },
 ];

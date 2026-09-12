@@ -159,13 +159,13 @@ export const GENRES: Genre[] = [
       "Rock leads with a backbeat: the snare cracks on beats 2 and 4 over a steady kick, usually in straight 4/4, with power chords and pentatonic riffs on top.",
     about:
       "Rock grew directly out of the blues, keeping its scale and often its I–IV–V harmony but trading the shuffle for a hard, straight backbeat. It's the natural foil to the blues — same notes, different pulse.",
-    signatureLayers: ["rhythm", "harmony", "scale"],
+    signatureLayers: ["rhythm", "harmony", "scale", "form"],
     scales: ["blues-scale", "minor-pentatonic", "mixolydian"],
     progressions: ["power-chord", "i-iv-v", "twelve-bar-blues", "i-v-vi-iv"],
     grooves: ["backbeat", "shuffle"],
     forms: ["verse-chorus", "twelve-bar-blues"],
     compareWith: "blues",
-    status: "soon",
+    status: "live",
     keywords: ["what makes rock rock", "backbeat", "power chords", "rock rhythm"],
   },
   {
