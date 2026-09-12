@@ -212,7 +212,8 @@ export function FormMap({ song = true, beats = true, readout = true, className }
           {currentBar != null && place ? (
             <>
               {choruses.length > 1 && <>{choruses[currentChorus ?? 0]?.label} · </>}
-              line {place.section.label} · bar {currentBar + 1} of {bars}
+              {place.section.line != null ? "line " : ""}
+              {place.section.label} · bar {currentBar + 1} of {bars}
               {place.role !== "plain" && <> · {place.role === "call" ? "call" : "answer"}</>}
               {chart && chartBar(currentBar) && (
                 <> · {chart.nameOf(chartBar(currentBar)!.chord)}</>
