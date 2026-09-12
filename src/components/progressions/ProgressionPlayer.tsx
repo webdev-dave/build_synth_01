@@ -5,6 +5,8 @@ import { Play, Square } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useLessonClock } from "@/components/lessons/LessonClock";
 import { Segmented } from "@/components/lessons/Segmented";
+import { TempoControl } from "@/components/lessons/TempoControl";
+import { FeelControl } from "@/components/grooves/FeelControl";
 import { cn } from "@/lib/utils";
 import { useProgression } from "./ProgressionProvider";
 
@@ -18,6 +20,8 @@ interface ProgressionPlayerProps {
   tempo?: boolean;
   /** Show the smooth / root-position voicing toggle. */
   voicing?: boolean;
+  /** Show the "Comp" re-strike checkbox and, with it on, the straight / shuffle feel. */
+  feel?: boolean;
   label?: string;
   className?: string;
 }
@@ -26,18 +30,20 @@ interface ProgressionPlayerProps {
  * Transport for the chart: play one chorus then rest (a bounded run), loop
  * as an explicit choice, a live tempo slider. Every chord is scheduled on
  * the page's one clock, so the cell that lights is the chord that sounds.
- * Straight quarters in v1 — the shuffle arrives with the rhythm module's
- * clock transform, not as an animation.
+ * "Comp" swaps the held chord for a chop on every eighth; with it on, the
+ * straight / shuffle toggle drives the clock's swing — the rhythm module's
+ * transform applied to the harmony, not an animation.
  */
 export function ProgressionPlayer({
   loop: showLoop = true,
   tempo = true,
   voicing = false,
+  feel = false,
   label = "Play the chart",
   className,
 }: ProgressionPlayerProps) {
-  const { playing, play, stop, bpm, setBpm, loop, setLoop } = useLessonClock();
-  const { smoothVoicing, setSmoothVoicing } = useProgression();
+  const { playing, play, stop, loop, setLoop } = useLessonClock();
+  const { smoothVoicing, setSmoothVoicing, comp, setComp } = useProgression();
 
   return (
     <div className={cn("flex flex-wrap items-center gap-x-4 gap-y-2", className)}>
@@ -63,22 +69,20 @@ export function ProgressionPlayer({
         </label>
       )}
 
-      {tempo && (
-        <label className="flex items-center gap-2 text-sm text-muted-foreground">
-          <span className="text-xs">Tempo</span>
+      {tempo && <TempoControl min={MIN_BPM} max={MAX_BPM} />}
+
+      {feel && (
+        <label className="flex cursor-pointer items-center gap-2 text-sm text-muted-foreground">
           <input
-            type="range"
-            min={MIN_BPM}
-            max={MAX_BPM}
-            step={1}
-            value={bpm}
-            onChange={(e) => setBpm(Number(e.target.value))}
-            aria-label="Tempo in beats per minute"
-            className="h-1.5 w-28 cursor-pointer accent-foreground"
+            type="checkbox"
+            checked={comp}
+            onChange={(e) => setComp(e.target.checked)}
+            className="h-3.5 w-3.5 accent-emerald-600"
           />
-          <span className="min-w-14 font-mono text-xs text-foreground">{bpm} BPM</span>
+          Comp
         </label>
       )}
+      {feel && comp && <FeelControl mode="toggle" />}
 
       {voicing && (
         <Segmented

@@ -139,6 +139,24 @@ export function columnPositions(
 }
 
 /**
+ * The step that is sounding at a linear beat position under `swing`: the
+ * last column whose real time has passed. A swung "&" therefore lights
+ * late, in step with when it is heard. `beat` may run past the bar (loops).
+ */
+export function stepAtBeat(
+  pattern: Pick<GroovePattern, "meter" | "stepsPerBeat">,
+  swing: number,
+  beat: number,
+): number {
+  const bpb = beatsPerBar(pattern.meter);
+  const inBar = ((beat % bpb) + bpb) % bpb;
+  const cols = columnPositions(pattern, swing).map((f) => f * bpb);
+  let step = 0;
+  for (let i = 0; i < cols.length; i++) if (cols[i] <= inBar + EPS) step = i;
+  return step;
+}
+
+/**
  * The spoken count for a grid: "1 & 2 &", "1 trip let", or "1 e & a".
  * Beat numbers are what the reader says on the pulse; the rest are the
  * syllables between them.

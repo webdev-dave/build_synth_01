@@ -6,6 +6,8 @@ import { ArrowRight, BookOpen } from "lucide-react";
 import type { LayerPanelData, LayerTeaser } from "@/lib/lessons/layers";
 import { degreesOf } from "@/lib/music/scaleCatalog";
 import { getProgression } from "@/lib/progressions/registry";
+import { getGroove } from "@/lib/grooves/registry";
+import { GrooveTeaser } from "@/components/grooves/GrooveTeaser";
 import { ProgressionTeaser } from "@/components/progressions/ProgressionTeaser";
 import { ScaleTeaser } from "@/components/scales/ScaleTeaser";
 
@@ -97,6 +99,11 @@ function Teaser({ teaser }: { teaser: LayerTeaser }) {
           playLabel={teaser.playLabel}
         />
       );
+    }
+    case "groove": {
+      const groove = getGroove(teaser.slug);
+      if (!groove) return null;
+      return <GrooveTeaser className="mt-4" groove={groove} playLabel={teaser.playLabel} />;
     }
     case "none":
       return null;

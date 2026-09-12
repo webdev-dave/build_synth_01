@@ -136,7 +136,7 @@ export function TwelveBarBluesLesson() {
           hear that chord on its own; while it plays, clicking jumps there.
         </P>
         <div className="mt-4 space-y-3">
-          <ProgressionPlayer voicing />
+          <ProgressionPlayer voicing feel />
           <ProgressionChart />
         </div>
         <P>
@@ -144,10 +144,13 @@ export function TwelveBarBluesLesson() {
           voicings by default: when the chord changes, notes that both chords
           share stay put and the rest move to the nearest key, so the organ
           slides rather than jumps. Flip to <Mono>Root position</Mono> to hear
-          the same chords stacked plainly from the root. And the beat is a
-          straight four for now — the loping blues{" "}
-          <Term id="shuffle">shuffle</Term> is a rhythm idea, taught on its own
-          page.
+          the same chords stacked plainly from the root. And tick{" "}
+          <Mono>Comp</Mono>: the organ stops holding and starts chopping the
+          chord on every half beat, the way a band plays it. Then switch{" "}
+          <Mono>Straight</Mono> to <Mono>Shuffle</Mono> and every second chop
+          lands late — that lope is the blues{" "}
+          <Term id="shuffle">shuffle</Term>, a rhythm idea with{" "}
+          <LessonLink href="/rhythm/shuffle">its own page</LessonLink>.
         </P>
 
         {/* ---------------------------------------------------------------- */}
@@ -213,9 +216,9 @@ export function TwelveBarBluesLesson() {
           of country; jazz players thicken the last line with extra chords (a{" "}
           <Mono>ii–V</Mono> in bars 9–10), which gets its own page when the{" "}
           <LessonLink href="/progressions/ii-v-i">ii–V–I</LessonLink> lesson
-          lands. And the beat you have been hearing is a straight four: the
-          shuffle that a real blues band plays is a rhythm lesson, not a chord
-          lesson, and it arrives at <LessonLink href="/rhythm">/rhythm</LessonLink>.
+          lands. And the shuffle you switched on above is a rhythm lesson, not
+          a chord lesson: the feel, the count, and the drums that carry it are
+          at <LessonLink href="/rhythm/shuffle">What is a shuffle rhythm?</LessonLink>
         </P>
 
         <Sources

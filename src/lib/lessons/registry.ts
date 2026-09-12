@@ -86,8 +86,14 @@ export const LESSONS: Lesson[] = [
     title: "Time signatures & timing",
     summary:
       "How bars are counted — 4/4, 3/4, 6/8 — and why moving the bar lines changes the feel without moving the notes.",
-    tryHref: "/piano-roll",
-    tryLabel: "Open the piano roll",
+    movedTo: "/rhythm/four-four",
+  },
+  {
+    slug: "shuffle",
+    title: "The shuffle",
+    summary:
+      "Every beat split long–short — the blues walk, on a slider from straight to swung, with the hits that never move.",
+    movedTo: "/rhythm/shuffle",
   },
 ];
 

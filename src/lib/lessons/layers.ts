@@ -19,10 +19,12 @@
 import type { Genre, GenreLayer } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
 import { getProgression } from "@/lib/progressions/registry";
+import { getGroove, metersOfGrooves } from "@/lib/grooves/registry";
 import { parseRootName } from "@/lib/music/scaleParam";
 import type { ScaleTypeId } from "@/lib/music/scaleCatalog";
 import { getScaleContent } from "@/content/scales";
 import { getProgressionContent } from "@/content/progressions";
+import { getGrooveContent } from "@/content/grooves";
 
 /**
  * What the panel's teaser widget needs, per layer. A discriminated union so
@@ -42,6 +44,11 @@ export type LayerTeaser =
       /** Scale that spells the chart's note names (the lesson's overlay scale). */
       patternKey: ScaleTypeId;
       defaultKeyRootPc: number;
+      playLabel: string;
+    }
+  | {
+      kind: "groove";
+      slug: string;
       playLabel: string;
     }
   | { kind: "none" };
@@ -147,11 +154,45 @@ const harmonyModule: LayerModule = {
   ready: (data) => data.teaser.kind !== "none",
 };
 
+/** Rhythm and Meter share one registry; the meter panel is derived from the grooves. */
+function grooveModule(noun: "groove" | "meter", slugsOf: LayerModule["slugsOf"]): LayerModule {
+  return {
+    hub: "/rhythm",
+    noun,
+    slugsOf,
+    resolve: (slug) => {
+      const groove = getGroove(slug);
+      if (!groove) return undefined;
+      return {
+        href: `/rhythm/${groove.slug}`,
+        noun: groove.kind === "meter" ? "meter" : "groove",
+        name: groove.name,
+        question: groove.question,
+        answer: groove.answer,
+        formula: groove.formula,
+        exampleKey: `${groove.pattern.bpm} BPM`,
+        exampleNotes: groove.pattern.cue,
+        hasLesson: Boolean(getGrooveContent(groove.slug)),
+        teaser: {
+          kind: "groove",
+          slug: groove.slug,
+          playLabel: groove.kind === "meter" ? "Count it" : `Play the ${groove.name.toLowerCase()}`,
+        },
+      };
+    },
+    ready: (data) => data.teaser.kind !== "none",
+  };
+}
+
+const rhythmModule = grooveModule("groove", (genre) => genre.grooves ?? []);
+// A genre's meters are exactly the meters its grooves declare — no second list.
+const meterModule = grooveModule("meter", (genre) => metersOfGrooves(genre.grooves ?? []));
+
 export const LAYER_MODULES: Record<GenreLayer, LayerModule | null> = {
   scale: scaleModule,
   harmony: harmonyModule,
-  rhythm: null,
-  meter: null,
+  rhythm: rhythmModule,
+  meter: meterModule,
   form: null,
   texture: null,
 };

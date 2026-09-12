@@ -243,10 +243,10 @@ export const CONCEPTS: Concept[] = [
     aliases: ["shuffle feel", "swing feel", "swung eighths"],
     micro:
       "A swung feel where each beat is split into a long-then-short pair (like a triplet with its middle note dropped), giving blues and swing their loping, rolling groove.",
-    definition:
-      "In a shuffle, the steady beats stay put but each one is divided unevenly: instead of two equal eighth notes, you get a long note followed by a short one — the same as playing the first and third notes of a triplet. That lopsided subdivision is what makes a blues 'walk' or a swing band 'roll,' as opposed to the flat, even eighths of a straight rock or pop groove. Drop the swing and play even eighths with a hard beat on 2 and 4 and you have the backbeat that rock traded the shuffle for.",
-    href: conceptHome("shuffle"),
-    genres: ["blues"],
+    // Delegated (2026-09): the rhythm lesson plays the feel on a swing
+    // slider; /concepts/shuffle renders a moved notice for old links.
+    href: "/rhythm/shuffle",
+    genres: ["blues", "rock"],
     history: ["blues"],
     status: "live",
     keywords: [
@@ -438,15 +438,33 @@ export const CONCEPTS: Concept[] = [
     ],
   },
   {
+    slug: "time-signature",
+    term: "time signature",
+    aliases: ["time signatures", "meter", "metre", "4/4", "12/8"],
+    micro:
+      "The two numbers at the start of a piece: how many beats a bar holds, and what kind of note gets one beat. 4/4 is four quarter-note beats; 12/8 is twelve eighths felt as four beats of three.",
+    // Taught on the rhythm module's meter spokes, with movable bar lines.
+    href: "/rhythm/four-four",
+    question: "What is a time signature?",
+    genres: ["blues", "rock"],
+    status: "live",
+    keywords: [
+      "what is a time signature",
+      "time signature explained",
+      "what does 4/4 mean",
+      "meter in music",
+    ],
+  },
+  {
     slug: "backbeat",
     term: "backbeat",
     aliases: ["backbeats", "back-beat"],
     micro:
       "A hard accent on beats 2 and 4 — usually a snare-drum crack — over a steady pulse. It's the engine of rock, R&B, and pop, and what rock traded the blues shuffle for.",
-    definition:
-      "In 4/4 time the ear expects weight on beats 1 and 3; the backbeat defies that by slamming the accent onto the weak beats, 2 and 4, almost always with a snare drum. That relentless off-square crack is the heartbeat of rock and roll, rhythm and blues, and most pop. Where the blues loped along on a swung shuffle, rock straightened the eighth notes and drove them with the backbeat.",
-    href: conceptHome("backbeat"),
-    genres: ["rock"],
+    // Delegated (2026-09): the rhythm lesson plays the bar against the
+    // drums; /concepts/backbeat renders a moved notice for old links.
+    href: "/rhythm/backbeat",
+    genres: ["rock", "blues"],
     history: ["blues"],
     status: "live",
     keywords: [

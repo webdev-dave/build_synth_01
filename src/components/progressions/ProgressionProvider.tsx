@@ -34,7 +34,7 @@ import {
 } from "@/components/lessons/LessonClock";
 import { maxOctaveFor, WINDOW_OCTAVES } from "@/components/scales/ScaleLessonProvider";
 import { getLessonBus } from "@/lib/audio/bus";
-import { organChordAt, type OrganVoice } from "@/lib/audio/voices/organ";
+import { ORGAN_DEFAULTS, organChordAt, type OrganVoice } from "@/lib/audio/voices/organ";
 import {
   chordName,
   chordPitchClasses,
@@ -80,6 +80,10 @@ const CLICK_CHORD_SEC = 1.4;
 const KEY_LEVEL = 0.1;
 /** The quiet root pulse on every beat, so time is felt under the held chord. */
 const PULSE_LEVEL = 0.05;
+/** A comped "&" strike is lighter than the one on the beat — the chop's lilt. */
+const COMP_OFFBEAT = 0.65;
+/** Chops release faster than a held chord so a swung "&" stays a separate hit. */
+const COMP_RELEASE = 0.08;
 const PULSE_SEC = 0.09;
 
 const mod12 = (n: number) => ((n % 12) + 12) % 12;
@@ -121,6 +125,9 @@ export interface ProgressionState {
   beatsPerBar: number;
   smoothVoicing: boolean;
   setSmoothVoicing: (smooth: boolean) => void;
+  /** Re-strike the chord on every eighth (swung by the clock) instead of holding it. */
+  comp: boolean;
+  setComp: (comp: boolean) => void;
   /** The chord under discussion: the sounding bar while playing, else the last one sounded. */
   currentChord: ChordSpec;
   /** 0-based bar while playing, else null. */
@@ -212,6 +219,7 @@ function ProgressionStateProvider({
   const [rawOctave, setRawOctave] = useState(DEFAULT_OCTAVE);
   const [variantIds, setVariantIds] = useState<string[]>([]);
   const [smoothVoicing, setSmoothVoicing] = useState(true);
+  const [comp, setComp] = useState(false);
   const [lockMode, setLockMode] = useState<LockMode>("chord");
   const [lastChord, setLastChord] = useState<ChordSpec | null>(null);
   const [clickedMidis, setClickedMidis] = useState<number[]>([]);
@@ -313,14 +321,18 @@ function ProgressionStateProvider({
   );
 
   // The chord track: one held organ chord per bar plus a quiet root pulse
-  // on each beat. Read fresh at every cycle, so a variant toggle or key
-  // change lands on the next pass without stopping the clock.
+  // on each beat — or, with "comp" on, the chord re-struck on every eighth
+  // so the clock's swing can be heard on the harmony (the shuffle chop).
+  // Read fresh at every cycle, so a variant toggle or key change lands on
+  // the next pass without stopping the clock.
   const barsRef = useRef(bars);
   barsRef.current = bars;
+  const compRef = useRef(comp);
+  compRef.current = comp;
   useClockTrack(
     {
       id: "progression-chords",
-      stepsPerBeat: 1,
+      stepsPerBeat: 2,
       events: () => {
         const ctx = audioContext;
         const bus = busOf();
@@ -331,11 +343,27 @@ function ProgressionStateProvider({
           const rootHz = noteNumberToFrequency(
             rootMidi + mod12(keyRootPc + bar.chord.root - rootMidi),
           );
-          events.push({
-            at: i * bpb,
-            duration: bpb,
-            fire: (when, dur) => organChordAt(ctx, bus, hz, when, dur),
-          });
+          if (compRef.current) {
+            // Chop: a strike on each beat and each "&"; the "&" is lighter
+            // and, on a swung clock, lands late — that is the shuffle.
+            for (let s = 0; s < bpb * 2; s++) {
+              events.push({
+                at: i * bpb + s / 2,
+                duration: 0.5,
+                fire: (when, dur) =>
+                  organChordAt(ctx, bus, hz, when, dur * 0.7, {
+                    release: COMP_RELEASE,
+                    ...(s % 2 === 0 ? {} : { level: ORGAN_DEFAULTS.level * COMP_OFFBEAT }),
+                  }),
+              });
+            }
+          } else {
+            events.push({
+              at: i * bpb,
+              duration: bpb,
+              fire: (when, dur) => organChordAt(ctx, bus, hz, when, dur),
+            });
+          }
           for (let b = 0; b < bpb; b++) {
             events.push({
               at: i * bpb + b,
@@ -484,6 +512,8 @@ function ProgressionStateProvider({
       beatsPerBar: bpb,
       smoothVoicing,
       setSmoothVoicing,
+      comp,
+      setComp,
       currentChord,
       currentBar,
       upcomingBar,
@@ -518,6 +548,7 @@ function ProgressionStateProvider({
       bars,
       bpb,
       smoothVoicing,
+      comp,
       currentChord,
       currentBar,
       upcomingBar,

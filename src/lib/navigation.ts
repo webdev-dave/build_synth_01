@@ -85,6 +85,15 @@ export const NAV_ITEMS: NavItem[] = [
     section: "theory",
   },
   {
+    id: "rhythm",
+    label: "Rhythm & Meter",
+    icon: "🥁",
+    href: "/rhythm",
+    description: "Grooves on a step grid that sounds every hit — count, swing, and move the bar lines",
+    inNav: false,
+    section: "theory",
+  },
+  {
     id: "history",
     label: "History",
     icon: "📖",

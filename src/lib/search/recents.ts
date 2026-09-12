@@ -29,6 +29,7 @@ type SearchEntryGroup =
   | "genres"
   | "scales"
   | "progressions"
+  | "rhythm"
   | "history"
   | "cousins"
   | "concepts"
