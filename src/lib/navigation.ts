@@ -3,31 +3,31 @@
  * Centralized definition of all navigation items
  */
 
-export type AppSectionId = "learn" | "instruments" | "tools";
+export type AppSectionId = "theory" | "music" | "play";
 
 export interface AppSection {
   id: AppSectionId;
   title: string;
-  description: string;
+  /** Omitted when the title already says it (the instruments/tools group). */
+  description?: string;
 }
 
 /** Homepage + hamburger groupings. Order here is the order they render. */
 export const APP_SECTIONS: AppSection[] = [
   {
-    id: "learn",
-    title: "Learn",
+    id: "theory",
+    title: "Theory",
+    description: "Genres, scales, concepts, and where the sounds came from.",
+  },
+  {
+    id: "music",
+    title: "Music",
     description:
-      "Genres, scales, history, cousins, and the people and songs behind them.",
+      "Songs, the artists behind them, and the melodies they have in common.",
   },
   {
-    id: "instruments",
-    title: "Instruments",
-    description: "Playable instruments — press a note and hear the theory.",
-  },
-  {
-    id: "tools",
-    title: "Tools",
-    description: "Studios for writing, editing, and arranging.",
+    id: "play",
+    title: "Instruments, Editors & Tools",
   },
 ];
 
@@ -44,6 +44,8 @@ export interface NavItem {
   beta?: boolean;
   /** Homepage / drawer group. Home itself is ungrouped. */
   section?: AppSectionId;
+  /** Drawer nest: render under this nav id. Omitted from the homepage grid. */
+  parent?: string;
 }
 
 export const NAV_ITEMS: NavItem[] = [
@@ -62,7 +64,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/genres",
     description: "What makes a genre sound like itself — layer by layer",
     inNav: false,
-    section: "learn",
+    section: "theory",
   },
   {
     id: "scales",
@@ -71,44 +73,48 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/scales",
     description: "How scales and modes are built — see it, hear it, play it",
     inNav: false,
-    section: "learn",
-  },
-  {
-    id: "concepts",
-    label: "Concepts",
-    icon: "📑",
-    href: "/concepts",
-    description: "A playable glossary of the music-theory terms behind the app",
-    inNav: false,
-    section: "learn",
+    section: "theory",
   },
   {
     id: "history",
-    label: "Musical History",
+    label: "History",
     icon: "📖",
     href: "/history",
     description: "Where the sounds came from — sourced, quoted, and linked",
     inNav: false,
-    section: "learn",
+    section: "theory",
   },
   {
     id: "map",
-    label: "History Map",
+    label: "Map",
     icon: "🗺️",
     href: "/map",
     description: "A world map of music history — click a place, hear its story",
     inNav: false,
     beta: true,
-    section: "learn",
+    section: "theory",
+    parent: "history",
   },
   {
-    id: "artists",
-    label: "Artists",
-    icon: "🎤",
-    href: "/artists",
-    description: "The musicians behind the music — bios, songs, and histories",
+    id: "languages",
+    label: "Languages",
+    icon: "🗣️",
+    href: "/languages",
+    description: "Browse genres, songs, and words by the language they speak",
     inNav: false,
-    section: "learn",
+    section: "theory",
+  },
+  /* Reference, so it sits last in Theory: the other pages teach a sound,
+     this one defines the words they use. */
+  {
+    id: "concepts",
+    label: "Concepts & Terms",
+    icon: "📑",
+    href: "/concepts",
+    description:
+      "An interactive glossary of the music-theory terms behind the app",
+    inNav: false,
+    section: "theory",
   },
   {
     id: "songs",
@@ -117,7 +123,16 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/songs",
     description: "Landmark recordings — hear them, open them, trace them back",
     inNav: false,
-    section: "learn",
+    section: "music",
+  },
+  {
+    id: "artists",
+    label: "Artists",
+    icon: "🎤",
+    href: "/artists",
+    description: "The musicians behind the music — bios, songs, and histories",
+    inNav: false,
+    section: "music",
   },
   {
     id: "cousins",
@@ -127,16 +142,7 @@ export const NAV_ITEMS: NavItem[] = [
     description:
       "One melody, many lives — rearrangements, translations, folk variants",
     inNav: false,
-    section: "learn",
-  },
-  {
-    id: "languages",
-    label: "Languages",
-    icon: "🗣️",
-    href: "/languages",
-    description: "Browse genres, songs, and words by the language they speak",
-    inNav: false,
-    section: "learn",
+    section: "music",
   },
   {
     id: "synth",
@@ -145,7 +151,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/synth/v2",
     description: "Web-based synthesizer keyboard",
     inNav: false,
-    section: "instruments",
+    section: "play",
   },
   {
     id: "harmonica-lab",
@@ -154,7 +160,7 @@ export const NAV_ITEMS: NavItem[] = [
     href: "/harmonica-lab/v2",
     description: "Position guide & theory for diatonic harmonica",
     inNav: false,
-    section: "instruments",
+    section: "play",
   },
   {
     id: "piano-roll",
@@ -164,7 +170,7 @@ export const NAV_ITEMS: NavItem[] = [
     description: "Draw, play, and edit melodies on a piano roll",
     inNav: false,
     beta: true,
-    section: "tools",
+    section: "play",
   },
 ];
 
@@ -183,7 +189,11 @@ export interface AppSectionGroup {
   apps: NavItem[];
 }
 
-/** Homepage / drawer groups, in APP_SECTIONS order. Empty groups are omitted. */
+/**
+ * Section groups for the homepage grid and the drawer. Both show every
+ * visible app in the section; the drawer additionally nests children under
+ * their `parent`.
+ */
 export const APP_SECTION_GROUPS: AppSectionGroup[] = APP_SECTIONS.map(
   (section) => ({
     section,

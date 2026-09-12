@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { BookOpen } from "lucide-react";
 
+import { HubDoors } from "@/components/content/HubDoors";
 import { HistoryExplorer } from "@/components/history/HistoryExplorer";
+import { NAV_ITEMS } from "@/lib/navigation";
+
+const MAP_NAV = NAV_ITEMS.find((item) => item.id === "map");
 
 export const metadata: Metadata = {
   title: "Musical History — Where the Sounds Came From",
@@ -35,6 +39,20 @@ export default function HistoryPage() {
             back to the sources so you can hear and read them yourself.
           </p>
         </header>
+
+        {MAP_NAV && (
+          <HubDoors
+            heading="On the map"
+            headingId="history-map-door"
+            items={[
+              {
+                href: MAP_NAV.href,
+                label: "History map",
+                description: MAP_NAV.description,
+              },
+            ]}
+          />
+        )}
 
         <HistoryExplorer />
       </div>

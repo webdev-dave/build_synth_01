@@ -1,7 +1,13 @@
 import type { Metadata } from "next";
 import { Music2 } from "lucide-react";
 
+import { HubDoors } from "@/components/content/HubDoors";
 import { SongsExplorer } from "@/components/catalog/SongsExplorer";
+import { NAV_ITEMS } from "@/lib/navigation";
+
+const MUSIC_DOORS = NAV_ITEMS.filter(
+  (item) => item.id === "artists" || item.id === "cousins"
+);
 
 export const metadata: Metadata = {
   title: "Songs — The Recordings the App Writes About",
@@ -32,6 +38,16 @@ export default function SongsPage() {
             back to its artists and the histories it belongs to.
           </p>
         </header>
+
+        <HubDoors
+          heading="Music"
+          headingId="songs-family-doors"
+          items={MUSIC_DOORS.map((item) => ({
+            href: item.href,
+            label: item.label,
+            description: item.description,
+          }))}
+        />
 
         <SongsExplorer />
       </div>

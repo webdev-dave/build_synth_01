@@ -117,14 +117,9 @@ export function ScalesExplorer() {
               className="group block rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
             >
               <Card className="h-full transition-colors group-hover:border-foreground/25 group-hover:bg-accent/40">
-                {/* Four short rows of uniform height: title, a one-line hook,
-                    formula, other names. The card is the link — the hover
-                    border and the arrow that surfaces in the title row say
-                    so — so there is no separate Explore row to align. */}
-                {/* Explicit rhythm instead of the header's uniform space-y:
-                    a breath after the title, the hook, then the two metadata
-                    rows spaced as a pair. */}
-                <CardHeader className="space-y-0 p-6 sm:p-7">
+                {/* space-y on CardHeader beats child mt-* (higher
+                    specificity), so rhythm is flex gap — not margins. */}
+                <CardHeader className="space-y-0 gap-6 p-6 sm:p-7">
                   <div className="flex items-center gap-2">
                     <CardTitle className="text-base">
                       {scale.name}
@@ -142,21 +137,24 @@ export function ScalesExplorer() {
                       className="ms-auto h-4 w-4 shrink-0 text-muted-foreground opacity-0 transition-all group-hover:opacity-100 group-focus-visible:opacity-100 motion-safe:-translate-x-1 motion-safe:group-hover:translate-x-0"
                     />
                   </div>
-                  {/* The full sentence lives on the page; here one line is
-                      enough to say what the scale is for. */}
-                  <CardDescription
-                    className="mt-2.5 line-clamp-1"
-                    title={scale.summary}
-                  >
-                    {scale.summary}
-                  </CardDescription>
-                  <span className="mt-5 block font-mono text-xs text-muted-foreground">
-                    {scale.formula}
-                  </span>
+                  {/* Hook (up to two lines) + formula are one thought;
+                      aliases sit in the next flex slot so they get the
+                      full gap-6 above. */}
+                  <div className="flex flex-col gap-3">
+                    <CardDescription
+                      className="line-clamp-2 leading-relaxed"
+                      title={scale.summary}
+                    >
+                      {scale.summary}
+                    </CardDescription>
+                    <span className="font-mono text-xs leading-relaxed text-muted-foreground">
+                      {scale.formula}
+                    </span>
+                  </div>
                   <ScaleAliases
                     aliases={scale.aliases}
                     variant="line"
-                    className="mt-2.5"
+                    className="leading-relaxed"
                   />
                 </CardHeader>
               </Card>

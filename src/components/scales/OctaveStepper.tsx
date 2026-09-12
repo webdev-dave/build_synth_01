@@ -8,9 +8,9 @@ import { cn } from "@/lib/utils";
 /**
  * Moves the whole lesson up or down an octave — keyboard window, degree
  * chips, and every scheduled run follow, because they all derive from the
- * provider's `rootMidi`. Exists because small speakers can't reproduce the
- * bottom of the default register; a user who can't hear the low keys must
- * be able to lift them, not just be told they're there.
+ * provider's `rootMidi`. The default is octave 4; this lets the reader
+ * drop back to a lower window or climb higher without only the keyboard
+ * moving.
  */
 export function OctaveStepper({ className }: { className?: string }) {
   const { rootName, octave, minOctave, maxOctave, shiftOctave } =

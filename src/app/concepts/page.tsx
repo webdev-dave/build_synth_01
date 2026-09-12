@@ -4,7 +4,7 @@ import { BookMarked } from "lucide-react";
 import { ConceptsExplorer } from "@/components/concepts/ConceptsExplorer";
 
 export const metadata: Metadata = {
-  title: "Music Theory Concepts — A Playable Glossary",
+  title: "Music Theory Concepts — An Interactive Glossary",
   description:
     "Short, honest definitions of the terms behind the app — pentatonic, blue notes, syncopation, the 12-bar blues, race records, and more — each linked to a page where you can learn it, and hear it when the idea is audible.",
   alternates: { canonical: "/concepts" },

@@ -40,11 +40,11 @@ import type { DetuneMap } from "@/lib/music/detune";
 export const WINDOW_OCTAVES = 2;
 
 /*
- * Octave 3 (A3–A5 for A blues) is a comfortable synth register on laptop
- * speakers. Phones often can't reproduce the bottom of it — hence the
- * stepper: the user moves the whole lesson up, not just the keyboard.
+ * Octave 4 (A4–A6 for A blues) is the default piano register: same
+ * neighborhood as middle C, and phones can actually reproduce it. The
+ * stepper is still there if someone wants the old lower window.
  */
-const DEFAULT_OCTAVE = 3;
+const DEFAULT_OCTAVE = 4;
 const MIN_OCTAVE = 1;
 /** Highest note on a grand piano; the window's top key never passes it. */
 const PIANO_TOP_MIDI = 108;
@@ -83,7 +83,7 @@ export interface ScaleLessonState {
   rootNames: string[];
   /** Name of the note `offset` semitones above the root, in this scale's spelling. */
   noteName: (offset: number) => string;
-  /** Scientific octave of the root ("A3" → 3). */
+  /** Scientific octave of the root ("A4" → 4). */
   octave: number;
   minOctave: number;
   maxOctave: number;

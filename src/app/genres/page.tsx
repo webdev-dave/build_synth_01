@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { Disc3 } from "lucide-react";
 
-import { LAYER_INFO, type GenreLayer } from "@/lib/genres/registry";
 import { GenresExplorer } from "@/components/genres/GenresExplorer";
 
 export const metadata: Metadata = {
@@ -16,16 +15,6 @@ export const metadata: Metadata = {
     "what is the blues",
   ],
 };
-
-/** Order the legend the way genres actually stack, most-structural first. */
-const LEGEND_ORDER: GenreLayer[] = [
-  "rhythm",
-  "meter",
-  "harmony",
-  "scale",
-  "form",
-  "texture",
-];
 
 export default function GenresPage() {
   return (
@@ -44,27 +33,6 @@ export default function GenresPage() {
             a chord chart; the blues is a form, a feel, and a scale at once.
           </p>
         </header>
-
-        <section className="mb-10" aria-labelledby="layers-heading">
-          <h2
-            id="layers-heading"
-            className="mb-3 text-sm font-medium text-muted-foreground"
-          >
-            The layers
-          </h2>
-          <dl className="grid grid-cols-1 gap-x-6 gap-y-3 sm:grid-cols-2 lg:grid-cols-3">
-            {LEGEND_ORDER.map((layer) => (
-              <div key={layer} className="rounded-md border bg-muted/20 p-3">
-                <dt className="font-mono text-xs uppercase tracking-wide text-foreground">
-                  {LAYER_INFO[layer].label}
-                </dt>
-                <dd className="mt-1 text-sm text-muted-foreground">
-                  {LAYER_INFO[layer].blurb}
-                </dd>
-              </div>
-            ))}
-          </dl>
-        </section>
 
         <GenresExplorer />
       </div>

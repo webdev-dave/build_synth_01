@@ -117,9 +117,11 @@ export function HomeApps() {
               >
                 {group.section.title}
               </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {group.section.description}
-              </p>
+              {group.section.description && (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  {group.section.description}
+                </p>
+              )}
             </div>
             <motion.div
               variants={container}
@@ -130,7 +132,7 @@ export function HomeApps() {
               {group.apps.map((app) => (
                 <AppTile key={app.id} app={app} />
               ))}
-              {group.section.id === "tools" && <ComingSoonTile />}
+              {group.section.id === "play" && <ComingSoonTile />}
             </motion.div>
           </section>
         ))}

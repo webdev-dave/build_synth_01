@@ -215,14 +215,28 @@ export default function NavMenu() {
                   {group.section.title}
                 </p>
                 <div className="space-y-1">
-                  {group.apps.map((item) => (
-                    <DrawerLink
-                      key={item.id}
-                      item={item}
-                      pathname={pathname}
-                      onNavigate={() => setIsOpen(false)}
-                    />
-                  ))}
+                  {group.apps
+                    .filter((item) => !item.parent)
+                    .map((item) => (
+                      <div key={item.id}>
+                        <DrawerLink
+                          item={item}
+                          pathname={pathname}
+                          onNavigate={() => setIsOpen(false)}
+                        />
+                        {group.apps
+                          .filter((child) => child.parent === item.id)
+                          .map((child) => (
+                            <DrawerLink
+                              key={child.id}
+                              item={child}
+                              pathname={pathname}
+                              onNavigate={() => setIsOpen(false)}
+                              nested
+                            />
+                          ))}
+                      </div>
+                    ))}
                 </div>
               </div>
             ))}
@@ -248,37 +262,38 @@ function DrawerLink({
   item,
   pathname,
   onNavigate,
+  nested = false,
 }: {
   item: NavItem;
   pathname: string;
   onNavigate: () => void;
+  nested?: boolean;
 }) {
   const Icon = getAppIcon(item.id);
+  /* One line per destination: the homepage grid carries the descriptions, so
+     repeating them here just made the drawer scroll. */
   return (
     <Link
       href={item.href}
       onClick={onNavigate}
+      title={item.description}
       className={cn(
-        "block rounded-lg p-3 transition-colors",
+        "flex items-center gap-3 rounded-lg px-3 py-2 transition-colors",
+        nested && "ml-5",
         isNavItemActive(pathname, item)
           ? "bg-accent text-accent-foreground"
           : "text-muted-foreground hover:bg-accent hover:text-foreground"
       )}
     >
-      <div className="flex items-center gap-3">
-        <Icon className="h-5 w-5 shrink-0" strokeWidth={1.75} />
-        <div>
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-foreground">{item.label}</span>
-            {item.beta && <Badge variant="secondary">Beta</Badge>}
-          </div>
-          {item.description && (
-            <div className="mt-0.5 text-xs text-muted-foreground">
-              {item.description}
-            </div>
-          )}
-        </div>
-      </div>
+      <Icon className="h-4 w-4 shrink-0" strokeWidth={1.75} />
+      <span className="truncate text-sm font-medium text-foreground">
+        {item.label}
+      </span>
+      {item.beta && (
+        <Badge variant="secondary" className="ml-auto shrink-0">
+          Beta
+        </Badge>
+      )}
     </Link>
   );
 }

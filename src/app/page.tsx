@@ -5,7 +5,6 @@ import { ArrowRight } from "lucide-react";
 import { APP_NAME } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
 import { HomeApps } from "@/components/home/HomeApps";
-import { HomeMapTeaser } from "@/components/home/HomeMapTeaser";
 import { HeroMap } from "@/components/home/HeroMap";
 import { StarfieldBackground } from "@/components/home/StarfieldBackground";
 
@@ -69,17 +68,6 @@ export default function Home() {
         </section>
 
         <HomeApps />
-
-        {/* Music History Map teaser — a quiet preview; the real map is /map */}
-        <section className="mt-20" aria-labelledby="map-teaser-heading">
-          <h2
-            id="map-teaser-heading"
-            className="mb-5 text-sm font-medium text-muted-foreground"
-          >
-            Music history map
-          </h2>
-          <HomeMapTeaser />
-        </section>
       </div>
     </main>
   );
