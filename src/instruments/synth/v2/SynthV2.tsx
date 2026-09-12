@@ -312,10 +312,10 @@ export function SynthV2({ readScaleFromUrl = false }: SynthV2Props = {}) {
   // On the keys themselves the numbers are opt-in; the readout always has them.
   const scaleDegrees = showNumbers ? degreeMap : null;
 
-  // Computer keyboard (desktop only). Letters stay off by default — they
-  // compete with the note names for the same space and most players don't
-  // need them once they've found the home row.
-  const [kbEnabled, setKbEnabled] = useState(true);
+  // Computer keyboard (desktop only). Playing starts off so typing and
+  // page shortcuts don't accidentally trigger notes. Letters stay off
+  // too — they compete with the note names for the same space.
+  const [kbEnabled, setKbEnabled] = useState(false);
   const [showKeyLabels, setShowKeyLabels] = useState(false);
   const kbActive = kbEnabled && !isMobile;
   const adjustOctave = useCallback(
