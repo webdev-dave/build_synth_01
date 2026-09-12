@@ -259,6 +259,7 @@ export function useClockTrack(track: ClockTrack, deps: readonly unknown[]): void
     const remove = addTrack({
       id: trackRef.current.id,
       stepsPerBeat: trackRef.current.stepsPerBeat,
+      swing: trackRef.current.swing,
       events: () => trackRef.current.events(),
     });
     return remove;

@@ -69,6 +69,12 @@ export interface ClockTrack {
   /** Grid the events sit on — decides which positions swing. Default 2 (8ths). */
   stepsPerBeat?: number;
   /**
+   * This track's own feel, overriding the clock's `swing` — how a comparer
+   * plays a straight backbeat and a shuffle on one playhead. Omit to follow
+   * the clock.
+   */
+  swing?: number;
+  /**
    * Events for one cycle. Read at every cycle start (and when the track is
    * added), so a toggle that changes the pattern takes effect next time
    * round without restarting the clock.
@@ -212,8 +218,8 @@ export class ClockEngine {
   }
 
   /** Absolute time an event on the straight grid will sound, swing applied. */
-  timeOf(at: number, stepsPerBeat = 2): number {
-    return this.cycleStart + beatsToSeconds(applySwing(at, this.swing, stepsPerBeat), this.bpm);
+  timeOf(at: number, stepsPerBeat = 2, swing = this.swing): number {
+    return this.cycleStart + beatsToSeconds(applySwing(at, swing, stepsPerBeat), this.bpm);
   }
 
   /** Schedule everything due before `now + lookAhead`; wrap or stop at the cycle end. */
@@ -225,12 +231,13 @@ export class ClockEngine {
 
     for (const run of this.runs) {
       const steps = run.track.stepsPerBeat ?? 2;
+      const swing = run.track.swing ?? this.swing;
       while (run.next < run.events.length) {
         const ev = run.events[run.next];
-        const when = this.timeOf(ev.at, steps);
+        const when = this.timeOf(ev.at, steps, swing);
         if (when >= horizon) break;
         const durBeats = ev.duration ?? 1 / steps;
-        const end = this.timeOf(ev.at + durBeats, steps);
+        const end = this.timeOf(ev.at + durBeats, steps, swing);
         // Never fire into the past: a tick that arrived late still sounds now.
         ev.fire(Math.max(when, now), Math.max(0.02, end - Math.max(when, now)));
         run.next++;
