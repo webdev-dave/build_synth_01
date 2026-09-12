@@ -85,7 +85,19 @@ export function HomeApps() {
                 id={`home-section-${group.section.id}`}
                 className="text-sm font-medium text-foreground"
               >
-                {group.section.title}
+                {group.section.href ? (
+                  // The section is a page too (Lessons → the curriculum
+                  // index); its title is the door.
+                  <Link
+                    href={group.section.href}
+                    className="group/section inline-flex items-center gap-1.5 underline-offset-4 hover:underline"
+                  >
+                    {group.section.title}
+                    <ArrowRight className="h-3.5 w-3.5 text-muted-foreground transition-transform group-hover/section:translate-x-0.5" />
+                  </Link>
+                ) : (
+                  group.section.title
+                )}
               </h2>
               {group.section.description && (
                 <p className="mt-1 text-sm text-muted-foreground">

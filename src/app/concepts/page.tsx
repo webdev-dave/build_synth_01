@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { BookMarked } from "lucide-react";
 
 import { ConceptsExplorer } from "@/components/concepts/ConceptsExplorer";
+import { LessonsCrumb } from "@/components/lessons/LessonsCrumb";
 
 export const metadata: Metadata = {
   title: "Music Theory Concepts — An Interactive Glossary",
@@ -21,6 +22,7 @@ export default function ConceptsPage() {
   return (
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6">
+        <LessonsCrumb />
         <header className="mb-8">
           <div className="flex items-center gap-2.5">
             <BookMarked className="h-6 w-6" strokeWidth={1.75} />

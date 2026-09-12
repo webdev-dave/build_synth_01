@@ -559,6 +559,74 @@ export const CONCEPTS: Concept[] = [
       "klezmer clarinet crying sound",
     ],
   },
+  // The three synth-panel concepts (waveform, octave, frequency) used to be
+  // placeholder rows under /lessons; they are glossary-owned now, each with
+  // a Play-it demo in src/content/concepts/.
+  {
+    slug: "waveform",
+    term: "waveform",
+    aliases: [
+      "waveforms",
+      "wave shape",
+      "oscillator shape",
+      "sine wave",
+      "square wave",
+      "sawtooth wave",
+      "triangle wave",
+    ],
+    question: "What is a waveform?",
+    micro:
+      "The shape a sound's vibration traces over one cycle. Same pitch, different shape, different tone colour: a sine is a pure whistle, a triangle is soft, a square is hollow, a sawtooth is bright and buzzy.",
+    definition:
+      "A waveform is the repeating shape of the air pressure — or the speaker cone's position — as a note sounds; plotted against time, it is the wiggle on an oscilloscope. How many wiggles pass per second is the pitch; the shape of each wiggle is the tone colour, or timbre. A sine wave is the simplest: one frequency with nothing stacked on it, which is why it sounds pure and a little plain. Every other shape is that same fundamental plus a stack of quieter overtones at whole-number multiples of it. A triangle wave adds only the odd multiples and they fall away fast, so it stays soft. A square wave adds the same odd multiples but louder, which reads as hollow — a clarinet, or an old video game. A sawtooth wave adds every multiple, odd and even, and comes out the brightest and buzziest — the classic starting point for synth brass and strings. The four shape buttons on the synth are these four waveforms: change one and the key you press stays the same note while its colour changes.",
+    href: conceptHome("waveform"),
+    status: "live",
+    keywords: [
+      "what is a waveform",
+      "sine vs square vs sawtooth",
+      "waveform types synth",
+      "why do waveforms sound different",
+      "timbre",
+    ],
+  },
+  {
+    slug: "octave",
+    term: "octave",
+    aliases: ["octaves", "octave up", "octave down"],
+    question: "What is an octave?",
+    micro:
+      "The distance from a note to the next note with the same name — twelve half steps, and exactly double the frequency. Notes an octave apart blend so completely the ear hears them as the same note, higher or lower.",
+    definition:
+      "An octave is the interval between one pitch and another with twice (or half) its frequency: A4 vibrates 440 times a second, A5 880, A3 220. That doubling is why note names repeat — the piano's pattern of seven white and five black keys repeats every octave, and the number after a letter (C4, C5) only says which repeat you are in. Play a note together with its octave and they lock almost into one sound, because every overtone of the higher note is already present in the lower one. Western tuning splits the octave into twelve equal half steps, so each half step multiplies the frequency by the twelfth root of two (about 1.0595), and twelve of them land exactly on the doubling. The word comes from the Latin for 'eighth': climb a major scale and the eighth note is the octave of the first. On the synth, the octave buttons shift the whole keyboard up or down one repeat without changing the pattern.",
+    href: conceptHome("octave"),
+    scales: ["major-scale"],
+    status: "live",
+    keywords: [
+      "what is an octave",
+      "octave frequency doubling",
+      "why do note names repeat",
+      "octave in music explained",
+    ],
+  },
+  {
+    slug: "frequency",
+    term: "frequency",
+    aliases: ["frequencies", "hertz", "Hz", "pitch"],
+    question: "What is frequency in music?",
+    micro:
+      "How fast a sound vibrates, counted in cycles per second (hertz, Hz). Faster is higher: the pitch you hear is the frequency you can measure. Concert A is 440 Hz, and every other note is fixed by ratio from it.",
+    definition:
+      "Every musical note is a vibration — a string, a reed, a column of air, or a speaker cone moving back and forth — and frequency is how many of those back-and-forths happen in one second. The unit is the hertz (Hz): A4, the A above middle C, is tuned to 440 Hz, meaning 440 cycles a second. Pitch is what that number feels like. Double the frequency and the pitch rises an octave (A5 = 880 Hz); halve it and it drops one (A3 = 220 Hz). In between, the twelve half steps of the octave are equal ratios, not equal hertz — each step multiplies the frequency by about 1.0595, so the gap in Hz between neighbouring notes grows as you go up the keyboard: about 16 Hz between C4 and C♯4, about 31 Hz between C5 and C♯5. Humans hear from roughly 20 Hz to 20,000 Hz; a piano runs from about 27.5 Hz to 4,186 Hz. The synth's Hz readout is exactly this number for the key you are holding. Pinning A to 440 Hz is a convention, adopted as an international standard in the twentieth century; earlier tunings often sat lower, and some orchestras still tune a little higher.",
+    href: conceptHome("frequency"),
+    status: "live",
+    keywords: [
+      "what is frequency in music",
+      "hertz pitch",
+      "why is A 440 Hz",
+      "frequency to note",
+      "pitch vs frequency",
+    ],
+  },
   {
     slug: "steps",
     term: "steps",

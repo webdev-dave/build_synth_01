@@ -12,6 +12,7 @@ import {
   Music2,
   Languages,
   GitFork,
+  GraduationCap,
   createLucideIcon,
   type LucideIcon,
 } from "lucide-react";
@@ -98,6 +99,7 @@ const SongForm: LucideIcon = createLucideIcon("SongForm", [
  */
 export const APP_ICONS: Record<string, LucideIcon> = {
   home: Home,
+  lessons: GraduationCap,
   synth: Piano,
   "harmonica-lab": Harmonica,
   "piano-roll": PianoRoll,

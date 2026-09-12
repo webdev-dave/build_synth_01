@@ -25,6 +25,7 @@ const MODULE_BY_SEGMENT: Record<string, string> = {
   rhythm: "Rhythm",
   forms: "Forms",
   genres: "Genres",
+  history: "History",
   concepts: "Glossary",
 };
 

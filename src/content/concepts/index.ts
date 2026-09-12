@@ -9,9 +9,15 @@
 import type { ComponentType } from "react";
 
 import { StepsDemo } from "./StepsDemo";
+import { WaveformDemo } from "./WaveformDemo";
+import { OctaveDemo } from "./OctaveDemo";
+import { FrequencyDemo } from "./FrequencyDemo";
 
 const CONCEPT_CONTENT: Record<string, ComponentType> = {
   steps: StepsDemo,
+  waveform: WaveformDemo,
+  octave: OctaveDemo,
+  frequency: FrequencyDemo,
 };
 
 export function getConceptContent(slug: string): ComponentType | undefined {

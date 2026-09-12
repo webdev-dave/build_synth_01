@@ -28,7 +28,7 @@ import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
 import { LANGUAGES } from "@/lib/languages/registry";
-import { LESSONS } from "@/lib/lessons/registry";
+import { LESSON_BUCKETS } from "@/lib/lessons/registry";
 import { nativeSpellingsOf } from "@/lib/words/registry";
 import { normalizeSearch } from "@/lib/search/normalize";
 
@@ -67,6 +67,7 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
 
 /** How many rows a group may contribute to one result set. */
 const GROUP_CAPS: Record<SearchGroup, number> = {
+  lessons: 8,
   pages: 6,
   midi: 8,
   songs: 6,
@@ -80,11 +81,14 @@ const GROUP_CAPS: Record<SearchGroup, number> = {
   cousins: 4,
   concepts: 6,
   languages: 4,
-  lessons: 4,
 };
 
-/** Canonical group order (ties in relevance keep this order). */
+/**
+ * Canonical group order (ties in relevance keep this order). Lessons first:
+ * it holds the module hubs, so "rhythm" opens the hub before its spokes.
+ */
 const GROUP_ORDER: SearchGroup[] = [
+  "lessons",
   "pages",
   "midi",
   "songs",
@@ -98,7 +102,6 @@ const GROUP_ORDER: SearchGroup[] = [
   "cousins",
   "concepts",
   "languages",
-  "lessons",
 ];
 
 export interface SearchEntry {
@@ -170,8 +173,39 @@ function entry(
 function buildIndex(): SearchEntry[] {
   const out: SearchEntry[] = [];
 
+  // The curriculum: the index itself, then the seven module hubs in reading
+  // order. Hubs that are lesson buckets live here, not under "Tools & pages".
+  const bucketHrefs = new Set(LESSON_BUCKETS.map((b) => b.href));
+  out.push(
+    entry(
+      "lessons",
+      "lessons",
+      "/lessons",
+      "Lessons",
+      "The curriculum — every module in reading order",
+      ["music theory lessons", "learn", "curriculum", "start here"],
+    ),
+  );
+  for (const bucket of LESSON_BUCKETS) {
+    const nav = NAV_ITEMS.find((i) => i.href === bucket.href);
+    out.push(
+      entry(
+        "lessons",
+        bucket.id,
+        bucket.href,
+        bucket.name,
+        `${bucket.teaches} — ${nav?.description ?? bucket.blurb}`,
+        [bucket.blurb, nav?.label],
+        false,
+        nav && nav.label !== bucket.name ? [nav.label] : [],
+      ),
+    );
+  }
+
   // Tools & top-level pages — nav registry plus the two footer-ish pages.
-  for (const item of NAV_ITEMS.filter((i) => !i.hidden)) {
+  for (const item of NAV_ITEMS.filter(
+    (i) => !i.hidden && !bucketHrefs.has(i.href),
+  )) {
     out.push(
       entry("pages", item.id, item.href, item.label, item.description, []),
     );
@@ -384,20 +418,6 @@ function buildIndex(): SearchEntry[] {
         language.summary,
         [language.question, language.nativeName, ...language.keywords],
         language.status !== "live",
-      ),
-    );
-  }
-
-  for (const lesson of LESSONS) {
-    out.push(
-      entry(
-        "lessons",
-        "lessons",
-        lesson.movedTo ?? `/lessons/${lesson.slug}`,
-        lesson.title,
-        lesson.summary,
-        [],
-        !lesson.movedTo, // unwritten lessons are placeholders; moved ones are live elsewhere
       ),
     );
   }
