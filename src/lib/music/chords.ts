@@ -90,6 +90,20 @@ export function chord(root: number, quality: ChordQuality, numeral?: string): Ch
   return { root: mod12(root), quality, numeral: printed };
 }
 
+/** The same chord with a seventh added (major → dom7, minor → min7); others unchanged. */
+export function withSeventh(spec: ChordSpec): ChordSpec {
+  if (spec.quality === "major") return chord(spec.root, "dom7");
+  if (spec.quality === "minor") return chord(spec.root, "min7");
+  return spec;
+}
+
+/** The chord without its seventh (dom7/maj7 → major, min7 → minor); others unchanged. */
+export function withoutSeventh(spec: ChordSpec): ChordSpec {
+  if (spec.quality === "dom7" || spec.quality === "maj7") return chord(spec.root, "major");
+  if (spec.quality === "min7") return chord(spec.root, "minor");
+  return spec;
+}
+
 /** Pitch classes (0–11) of the chord in a key, chord root first. */
 export function chordPitchClasses(keyRootPc: number, spec: ChordSpec): number[] {
   const root = mod12(keyRootPc + spec.root);
@@ -123,6 +137,71 @@ export function chordName(
   spell: (pc: number) => string = simpleName,
 ): string {
   return `${spell(chordRootPc(keyRootPc, spec))}${CHORD_QUALITIES[spec.quality].symbol}`;
+}
+
+const ACCIDENTAL_GLYPH: Record<number, string> = {
+  [-2]: "𝄫",
+  [-1]: "♭",
+  0: "",
+  1: "♯",
+  2: "𝄪",
+};
+
+/** Letter steps above the chord root for each chord interval — chords stack in thirds. */
+function letterStepFor(semitones: number): number {
+  switch (mod12(semitones)) {
+    case 0:
+      return 0;
+    case 3:
+    case 4:
+      return 2;
+    case 6:
+    case 7:
+    case 8:
+      return 4;
+    case 10:
+    case 11:
+      return 6;
+    default:
+      return 0;
+  }
+}
+
+/**
+ * Spell every chord tone from the root's printed name, stacking letters in
+ * thirds: A7 is A – C♯ – E – G, never A – D♭ – E – G. `rootName` is the
+ * root as the key spells it ("A", "E♭", "G♯") so the chord agrees with the
+ * scale around it. Falls back to simple names if the root can't be parsed.
+ */
+export function spellChordTones(rootName: string, spec: ChordSpec): string[] {
+  const match = /^([A-G])([♭♯b#]*)$/.exec(rootName.trim());
+  const intervals = CHORD_QUALITIES[spec.quality].intervals;
+  if (!match) {
+    const rootPc = LETTER_PC[rootName[0]] ?? 0;
+    return intervals.map((i) => simpleName(rootPc + i));
+  }
+  const letter = match[1] as (typeof LETTERS)[number];
+  const acc = [...match[2]].reduce(
+    (sum, ch) => sum + (ch === "♭" || ch === "b" ? -1 : 1),
+    0,
+  );
+  const rootPc = mod12(LETTER_PC[letter] + acc);
+  const rootIdx = LETTERS.indexOf(letter);
+  return intervals.map((i) => {
+    const toneLetter = LETTERS[(rootIdx + letterStepFor(i)) % 7];
+    let diff = mod12(rootPc + i - LETTER_PC[toneLetter]);
+    if (diff > 6) diff -= 12;
+    const glyph = ACCIDENTAL_GLYPH[diff];
+    // A tone that would need three accidentals is misspelled; say the key.
+    return glyph === undefined ? simpleName(rootPc + i) : `${toneLetter}${glyph}`;
+  });
+}
+
+/** Key-relative degree label for an offset above the key root ("♭7"). */
+const DEGREE_LABEL_BY_OFFSET = ["1", "♭2", "2", "♭3", "3", "4", "♭5", "5", "♭6", "6", "♭7", "7"] as const;
+
+export function keyDegreeLabel(offset: number): string {
+  return DEGREE_LABEL_BY_OFFSET[mod12(offset)];
 }
 
 /**

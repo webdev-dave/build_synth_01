@@ -17,6 +17,8 @@ interface LessonKeyboardProps {
   scaleDegrees: (number | string | null)[] | null;
   onNoteStart: (noteNumber: number, note: string) => void;
   onNoteStop: (note: string) => void;
+  /** Keys to ring as chord tones (see KeyboardV2 `markedKeys`). */
+  markedKeys?: Set<string>;
   /** Show the quarter-tone strip under this keyboard (the page's main one). */
   detune?: KeyboardDetune;
   className?: string;
@@ -35,6 +37,7 @@ export function LessonKeyboard({
   scaleDegrees,
   onNoteStart,
   onNoteStop,
+  markedKeys,
   detune,
   className,
 }: LessonKeyboardProps) {
@@ -50,6 +53,7 @@ export function LessonKeyboard({
         keyLabels={null}
         onNoteStart={onNoteStart}
         onNoteStop={onNoteStop}
+        markedKeys={markedKeys}
         detune={detune}
       />
     </div>
