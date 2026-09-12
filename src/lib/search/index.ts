@@ -23,6 +23,7 @@ import { GENRES } from "@/lib/genres/registry";
 import { SCALES, aliasNames, aliasSearchTerms } from "@/lib/scales/registry";
 import { PROGRESSIONS } from "@/lib/progressions/registry";
 import { GROOVES } from "@/lib/grooves/registry";
+import { FORMS, formBars } from "@/lib/forms/registry";
 import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
@@ -40,6 +41,7 @@ export type SearchGroup =
   | "scales"
   | "progressions"
   | "rhythm"
+  | "forms"
   | "history"
   | "cousins"
   | "concepts"
@@ -55,6 +57,7 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
   scales: "Scales & modes",
   progressions: "Chords & progressions",
   rhythm: "Rhythm & meter",
+  forms: "Song forms",
   history: "Musical history",
   cousins: "Cousins",
   concepts: "Concepts",
@@ -72,6 +75,7 @@ const GROUP_CAPS: Record<SearchGroup, number> = {
   scales: 5,
   progressions: 4,
   rhythm: 4,
+  forms: 4,
   history: 4,
   cousins: 4,
   concepts: 6,
@@ -89,6 +93,7 @@ const GROUP_ORDER: SearchGroup[] = [
   "scales",
   "progressions",
   "rhythm",
+  "forms",
   "history",
   "cousins",
   "concepts",
@@ -295,6 +300,22 @@ function buildIndex(): SearchEntry[] {
         g.status !== "live",
         // "Swing feel", "common time" rank like the title.
         g.aliases,
+      ),
+    );
+  }
+
+  for (const f of FORMS) {
+    out.push(
+      entry(
+        "forms",
+        "forms",
+        `/forms/${f.slug}`,
+        f.name,
+        f.question,
+        [f.summary, f.formula, `${formBars(f)} bars`, ...f.keywords],
+        f.status !== "live",
+        // "AAB", "blues form" rank like the title.
+        f.aliases,
       ),
     );
   }

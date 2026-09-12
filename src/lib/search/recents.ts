@@ -30,6 +30,7 @@ type SearchEntryGroup =
   | "scales"
   | "progressions"
   | "rhythm"
+  | "forms"
   | "history"
   | "cousins"
   | "concepts"

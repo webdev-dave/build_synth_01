@@ -22,6 +22,14 @@ export interface BarSpan {
   label: ReactNode;
   /** Call / response halves of a phrase read differently. */
   tone?: "call" | "response" | "neutral";
+  /**
+   * Something is sounding in this span right now (the answering lick) —
+   * the span joins the burnt-orange accent. Never set for a span whose
+   * content is only drawn, not heard.
+   */
+  active?: boolean;
+  /** Let a long label (a sung line) run to two lines instead of truncating. */
+  wrap?: boolean;
 }
 
 interface BarTimelineProps {
@@ -84,10 +92,12 @@ export function BarTimeline({
                       )}`,
                     }}
                     className={cn(
-                      "truncate rounded-sm border-b px-1 pb-0.5 text-[11px] leading-tight",
+                      "rounded-sm border-b px-1 pb-0.5 text-[11px] leading-tight transition-colors",
+                      s.wrap ? "line-clamp-2" : "truncate",
                       s.tone === "call" && "border-foreground/40 text-foreground",
                       s.tone === "response" && "border-dashed border-muted-foreground/50 text-muted-foreground",
                       (!s.tone || s.tone === "neutral") && "border-border text-muted-foreground",
+                      s.active && "border-orange-600 text-orange-600",
                     )}
                   >
                     {s.label}

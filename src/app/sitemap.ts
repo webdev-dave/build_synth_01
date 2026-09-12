@@ -9,6 +9,7 @@ import { LIVE_HISTORY } from "@/lib/history/registry";
 import { LIVE_LANGUAGES } from "@/lib/languages/registry";
 import { LIVE_SCALES } from "@/lib/scales/registry";
 import { LIVE_PROGRESSIONS } from "@/lib/progressions/registry";
+import { LIVE_FORMS } from "@/lib/forms/registry";
 import { LIVE_GROOVES } from "@/lib/grooves/registry";
 
 /**
@@ -38,6 +39,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/scales",
     "/progressions",
     "/rhythm",
+    "/forms",
     "/drums",
     "/history",
     "/concepts",
@@ -54,6 +56,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...LIVE_SCALES.map((s) => `/scales/${s.slug}`),
     ...LIVE_PROGRESSIONS.map((p) => `/progressions/${p.slug}`),
     ...LIVE_GROOVES.map((g) => `/rhythm/${g.slug}`),
+    ...LIVE_FORMS.map((f) => `/forms/${f.slug}`),
     ...LIVE_HISTORY.map((a) => `/history/${a.slug}`),
     ...LIVE_CONCEPTS.map((c) => `/concepts/${c.slug}`),
     ...LIVE_ARTISTS.map((a) => `/artists/${a.slug}`),

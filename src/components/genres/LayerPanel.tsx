@@ -7,6 +7,8 @@ import type { LayerPanelData, LayerTeaser } from "@/lib/lessons/layers";
 import { degreesOf } from "@/lib/music/scaleCatalog";
 import { getProgression } from "@/lib/progressions/registry";
 import { getGroove } from "@/lib/grooves/registry";
+import { getForm } from "@/lib/forms/registry";
+import { FormTeaser } from "@/components/forms/FormTeaser";
 import { GrooveTeaser } from "@/components/grooves/GrooveTeaser";
 import { ProgressionTeaser } from "@/components/progressions/ProgressionTeaser";
 import { ScaleTeaser } from "@/components/scales/ScaleTeaser";
@@ -104,6 +106,18 @@ function Teaser({ teaser }: { teaser: LayerTeaser }) {
       const groove = getGroove(teaser.slug);
       if (!groove) return null;
       return <GrooveTeaser className="mt-4" groove={groove} playLabel={teaser.playLabel} />;
+    }
+    case "form": {
+      const form = getForm(teaser.slug);
+      if (!form) return null;
+      return (
+        <FormTeaser
+          className="mt-4"
+          form={form}
+          defaultKeyRootPc={teaser.defaultKeyRootPc}
+          playLabel={teaser.playLabel}
+        />
+      );
     }
     case "none":
       return null;

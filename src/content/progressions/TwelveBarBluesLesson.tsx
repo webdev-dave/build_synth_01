@@ -210,7 +210,10 @@ export function TwelveBarBluesLesson() {
         <P>
           You can now read a blues chart in any key: twelve bars, three chords,
           every one a seventh. A blues <em>song</em> stacks choruses of this
-          chart and lays a three-line lyric across each one — the form is on{" "}
+          chart and lays a three-line lyric across each one — that shape, and
+          where the answer to each line lives, is its own lesson:{" "}
+          <LessonLink href="/forms/twelve-bar-blues">What is the 12-bar blues form?</LessonLink>.
+          The whole picture is on{" "}
           <LessonLink href="/genres/blues">What is the blues?</LessonLink>. The
           same twelve bars carry rock and roll, early R&amp;B, and a good share
           of country; jazz players thicken the last line with extra chords (a{" "}

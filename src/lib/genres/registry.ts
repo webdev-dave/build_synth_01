@@ -109,6 +109,11 @@ export interface Genre {
    * these (`metersOfGrooves`), so there is no `meters` array to keep in step.
    */
   grooves?: string[];
+  /**
+   * Form registry slugs — the form layer (first is the signature form).
+   * Reverse of `Form.usedIn`; keep both in step.
+   */
+  forms?: string[];
   /** Foil genre slug for the "same clock, different feel" comparison, if any. */
   compareWith?: string;
   /** "live" pages are indexed + in the sitemap; "soon" pages are placeholders. */
@@ -132,6 +137,7 @@ export const GENRES: Genre[] = [
     scales: ["blues-scale", "major-blues", "minor-pentatonic", "mixolydian"],
     progressions: ["twelve-bar-blues", "i-iv-v", "dominant-seventh"],
     grooves: ["shuffle", "slow-blues"],
+    forms: ["twelve-bar-blues", "eight-bar-blues", "sixteen-bar-blues"],
     compareWith: "rock",
     status: "live",
     keywords: [
@@ -157,6 +163,7 @@ export const GENRES: Genre[] = [
     scales: ["blues-scale", "minor-pentatonic", "mixolydian"],
     progressions: ["power-chord", "i-iv-v", "twelve-bar-blues", "i-v-vi-iv"],
     grooves: ["backbeat", "shuffle"],
+    forms: ["verse-chorus", "twelve-bar-blues"],
     compareWith: "blues",
     status: "soon",
     keywords: ["what makes rock rock", "backbeat", "power chords", "rock rhythm"],
@@ -292,6 +299,7 @@ function genreHaystack(genre: Genre): string {
     ...genre.scales,
     ...(genre.progressions ?? []),
     ...(genre.grooves ?? []),
+    ...(genre.forms ?? []),
     ...genre.signatureLayers,
     ...genre.signatureLayers.map((layer) => LAYER_INFO[layer].label),
     ...nativeSpellingsOf(genre.slug),

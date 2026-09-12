@@ -32,6 +32,8 @@ export function ProgressionChart({ readout = true, className }: ProgressionChart
     clickSounding,
     keyName,
     variantIds,
+    currentPass,
+    passLengthBeats,
   } = useProgression();
   const { playing, play, cycle, loop } = useLessonClock();
   const [clicked, setClicked] = useState<number | null>(null);
@@ -51,7 +53,8 @@ export function ProgressionChart({ readout = true, className }: ProgressionChart
 
   const onSelect = (i: number) => {
     setClicked(i);
-    if (playing) void play(i * beatsPerBar);
+    // Jump within the chorus that is sounding, so a song of several stays put.
+    if (playing) void play((currentPass ?? 0) * passLengthBeats + i * beatsPerBar);
     else soundChord(bars[i].chord);
   };
 

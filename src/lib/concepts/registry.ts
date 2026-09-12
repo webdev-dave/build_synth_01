@@ -456,6 +456,24 @@ export const CONCEPTS: Concept[] = [
     ],
   },
   {
+    slug: "chorus",
+    term: "chorus",
+    aliases: ["choruses", "blues chorus", "one time through"],
+    micro:
+      "One complete trip through a song's repeating cycle — in a blues, the twelve bars from bar 1 back round to bar 1. A song stacks choruses with new words each time; a soloist 'takes a chorus' by playing over one cycle.",
+    // Taught on the form module's 12-bar page, where the map lights it.
+    href: "/forms/twelve-bar-blues",
+    question: "What is a chorus in a blues?",
+    genres: ["blues"],
+    status: "live",
+    keywords: [
+      "what is a chorus in blues",
+      "chorus meaning music",
+      "take a chorus",
+      "12 bar chorus",
+    ],
+  },
+  {
     slug: "backbeat",
     term: "backbeat",
     aliases: ["backbeats", "back-beat"],

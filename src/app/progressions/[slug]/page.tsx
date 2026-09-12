@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 
 import { PROGRESSIONS, getProgression } from "@/lib/progressions/registry";
 import { getGenre } from "@/lib/genres/registry";
+import { getFormsByProgression } from "@/lib/forms/registry";
 import { getScale } from "@/lib/scales/registry";
 import { getProgressionContent } from "@/content/progressions";
 import { Badge } from "@/components/ui/badge";
@@ -54,6 +55,8 @@ export default async function ProgressionPage({ params }: ProgressionPageProps) 
   const foil = progression.compareWith
     ? getProgression(progression.compareWith)
     : undefined;
+  // The shape these chords fill — the other owner of the same slug (/forms).
+  const forms = getFormsByProgression(progression.slug);
 
   // The page's own name is skipped so "the [12-bar blues]" isn't wrapped on
   // the 12-bar page; the lesson body defines terms where a beginner needs them.
@@ -92,6 +95,10 @@ export default async function ProgressionPage({ params }: ProgressionPageProps) 
         ...scales.map((scale) => ({
           href: `/scales/${scale.slug}`,
           label: `Play it over: ${scale.question}`,
+        })),
+        ...forms.map((form) => ({
+          href: `/forms/${form.slug}`,
+          label: `The shape: ${form.question}`,
         })),
         ...(foil
           ? [{ href: `/progressions/${foil.slug}`, label: `Compare: ${foil.question}` }]

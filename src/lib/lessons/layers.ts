@@ -20,11 +20,14 @@ import type { Genre, GenreLayer } from "@/lib/genres/registry";
 import { getScale } from "@/lib/scales/registry";
 import { getProgression } from "@/lib/progressions/registry";
 import { getGroove, metersOfGrooves } from "@/lib/grooves/registry";
+import { formBars, getForm } from "@/lib/forms/registry";
+import { formLyricSample } from "@/lib/forms/lyric";
 import { parseRootName } from "@/lib/music/scaleParam";
 import type { ScaleTypeId } from "@/lib/music/scaleCatalog";
 import { getScaleContent } from "@/content/scales";
 import { getProgressionContent } from "@/content/progressions";
 import { getGrooveContent } from "@/content/grooves";
+import { getFormContent } from "@/content/forms";
 
 /**
  * What the panel's teaser widget needs, per layer. A discriminated union so
@@ -49,6 +52,12 @@ export type LayerTeaser =
   | {
       kind: "groove";
       slug: string;
+      playLabel: string;
+    }
+  | {
+      kind: "form";
+      slug: string;
+      defaultKeyRootPc: number;
       playLabel: string;
     }
   | { kind: "none" };
@@ -188,12 +197,47 @@ const rhythmModule = grooveModule("groove", (genre) => genre.grooves ?? []);
 // A genre's meters are exactly the meters its grooves declare — no second list.
 const meterModule = grooveModule("meter", (genre) => metersOfGrooves(genre.grooves ?? []));
 
+const formModule: LayerModule = {
+  hub: "/forms",
+  noun: "form",
+  slugsOf: (genre) => genre.forms ?? [],
+  resolve: (slug) => {
+    const form = getForm(slug);
+    if (!form) return undefined;
+    // The worked example is the public-domain lyric the map sings from,
+    // resolved from the catalog so the panel never retypes a line.
+    const sample = formLyricSample(form) ?? form.exampleNotes ?? `${formBars(form)} bars`;
+    const progression = form.progression ? getProgression(form.progression) : undefined;
+    return {
+      href: `/forms/${form.slug}`,
+      noun: "form",
+      name: form.name,
+      question: form.question,
+      answer: form.answer,
+      formula: form.formula,
+      exampleKey: form.exampleKey,
+      exampleNotes: sample,
+      hasLesson: Boolean(getFormContent(form.slug)),
+      // Only a form with a chart under it can put a sounding map on the page.
+      teaser: progression
+        ? {
+            kind: "form",
+            slug: form.slug,
+            defaultKeyRootPc: parseRootName(progression.exampleKey) ?? 0,
+            playLabel: "Play one chorus",
+          }
+        : { kind: "none" },
+    };
+  },
+  ready: (data) => data.teaser.kind !== "none",
+};
+
 export const LAYER_MODULES: Record<GenreLayer, LayerModule | null> = {
   scale: scaleModule,
   harmony: harmonyModule,
   rhythm: rhythmModule,
   meter: meterModule,
-  form: null,
+  form: formModule,
   texture: null,
 };
 

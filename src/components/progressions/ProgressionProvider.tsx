@@ -123,6 +123,12 @@ export interface ProgressionState {
   /** The chart with variants applied. */
   bars: ProgressionBar[];
   beatsPerBar: number;
+  /** Trips through the chart in one clock cycle (a song's choruses). */
+  passes: number;
+  /** Beats in one trip through the chart. */
+  passLengthBeats: number;
+  /** 0-based trip through the chart while playing, else null. */
+  currentPass: number | null;
   smoothVoicing: boolean;
   setSmoothVoicing: (smooth: boolean) => void;
   /** Re-strike the chord on every eighth (swung by the clock) instead of holding it. */
@@ -171,6 +177,11 @@ export function useProgression(): ProgressionState {
   return ctx;
 }
 
+/** For widgets that also render (silently) without a progression under them. */
+export function useOptionalProgression(): ProgressionState | null {
+  return useContext(ProgressionContext);
+}
+
 interface ProgressionProviderProps {
   progression: Progression;
   /** Scale to spell with and overlay (the blues scale on the 12-bar page). */
@@ -178,6 +189,11 @@ interface ProgressionProviderProps {
   /** Key to open in; defaults to the registry's worked example. */
   defaultKeyRootPc?: number;
   bpm?: number;
+  /**
+   * Trips through the chart in one clock cycle — a form page plays a whole
+   * song of choruses on one playhead. Default 1: the chart once.
+   */
+  passes?: number;
   children: ReactNode;
 }
 
@@ -186,14 +202,16 @@ export function ProgressionProvider({
   degrees,
   defaultKeyRootPc,
   bpm = 90,
+  passes = 1,
   children,
 }: ProgressionProviderProps) {
   return (
-    <LessonClockProvider bpm={bpm} lengthBeats={progressionLengthBeats(progression)}>
+    <LessonClockProvider bpm={bpm} lengthBeats={progressionLengthBeats(progression) * passes}>
       <ProgressionStateProvider
         progression={progression}
         degrees={degrees}
         defaultKeyRootPc={defaultKeyRootPc ?? parseRootName(progression.exampleKey) ?? 0}
+        passes={passes}
       >
         {children}
       </ProgressionStateProvider>
@@ -205,11 +223,13 @@ function ProgressionStateProvider({
   progression,
   degrees,
   defaultKeyRootPc,
+  passes,
   children,
 }: {
   progression: Progression;
   degrees: readonly ScaleDegree[];
   defaultKeyRootPc: number;
+  passes: number;
   children: ReactNode;
 }) {
   const clock = useLessonClock();
@@ -301,15 +321,27 @@ function ProgressionStateProvider({
   );
 
   // --- clock position -----------------------------------------------------
+  // The cycle may hold several trips through the chart; bar indices wrap so
+  // every widget sees "bar 5 of 12" whichever chorus is sounding.
+  const passLengthBeats = bars.length * bpb;
+  const totalBars = bars.length * passes;
   const currentBar = useClockDerived((beat) =>
-    beat == null || beat < 0 ? null : Math.min(bars.length - 1, Math.floor(beat / bpb)),
+    beat == null || beat < 0
+      ? null
+      : Math.min(totalBars - 1, Math.floor(beat / bpb)) % bars.length,
+  );
+  const currentPass = useClockDerived((beat) =>
+    beat == null || beat < 0
+      ? null
+      : Math.min(passes - 1, Math.floor(beat / passLengthBeats)),
   );
   const upcomingBar = useClockDerived((beat) => {
     if (beat == null || beat < 0) return null;
     const inBar = beat - Math.floor(beat / bpb) * bpb;
     if (inBar < bpb - 1) return null;
     const next = Math.floor(beat / bpb) + 1;
-    return next < bars.length ? next : clock.loop ? 0 : null;
+    if (next < totalBars) return next % bars.length;
+    return clock.loop ? 0 : null;
   });
   const currentChord =
     currentBar != null ? bars[currentBar].chord : lastChord ?? bars[0].chord;
@@ -338,48 +370,53 @@ function ProgressionStateProvider({
         const bus = busOf();
         if (!ctx || !bus) return [];
         const events: ClockEvent[] = [];
-        barsRef.current.forEach((bar, i) => {
-          const hz = voicingOf(bar.chord).map(noteNumberToFrequency);
-          const rootHz = noteNumberToFrequency(
-            rootMidi + mod12(keyRootPc + bar.chord.root - rootMidi),
-          );
-          if (compRef.current) {
-            // Chop: a strike on each beat and each "&"; the "&" is lighter
-            // and, on a swung clock, lands late — that is the shuffle.
-            for (let s = 0; s < bpb * 2; s++) {
+        const chart = barsRef.current;
+        for (let pass = 0; pass < passes; pass++) {
+          const offset = pass * chart.length * bpb;
+          chart.forEach((bar, i) => {
+            const hz = voicingOf(bar.chord).map(noteNumberToFrequency);
+            const rootHz = noteNumberToFrequency(
+              rootMidi + mod12(keyRootPc + bar.chord.root - rootMidi),
+            );
+            const barAt = offset + i * bpb;
+            if (compRef.current) {
+              // Chop: a strike on each beat and each "&"; the "&" is lighter
+              // and, on a swung clock, lands late — that is the shuffle.
+              for (let s = 0; s < bpb * 2; s++) {
+                events.push({
+                  at: barAt + s / 2,
+                  duration: 0.5,
+                  fire: (when, dur) =>
+                    organChordAt(ctx, bus, hz, when, dur * 0.7, {
+                      release: COMP_RELEASE,
+                      ...(s % 2 === 0 ? {} : { level: ORGAN_DEFAULTS.level * COMP_OFFBEAT }),
+                    }),
+                });
+              }
+            } else {
               events.push({
-                at: i * bpb + s / 2,
-                duration: 0.5,
-                fire: (when, dur) =>
-                  organChordAt(ctx, bus, hz, when, dur * 0.7, {
-                    release: COMP_RELEASE,
-                    ...(s % 2 === 0 ? {} : { level: ORGAN_DEFAULTS.level * COMP_OFFBEAT }),
+                at: barAt,
+                duration: bpb,
+                fire: (when, dur) => organChordAt(ctx, bus, hz, when, dur),
+              });
+            }
+            for (let b = 0; b < bpb; b++) {
+              events.push({
+                at: barAt + b,
+                duration: 0.25,
+                fire: (when) =>
+                  organChordAt(ctx, bus, [rootHz], when, PULSE_SEC, {
+                    level: PULSE_LEVEL,
+                    vibratoCents: 0,
                   }),
               });
             }
-          } else {
-            events.push({
-              at: i * bpb,
-              duration: bpb,
-              fire: (when, dur) => organChordAt(ctx, bus, hz, when, dur),
-            });
-          }
-          for (let b = 0; b < bpb; b++) {
-            events.push({
-              at: i * bpb + b,
-              duration: 0.25,
-              fire: (when) =>
-                organChordAt(ctx, bus, [rootHz], when, PULSE_SEC, {
-                  level: PULSE_LEVEL,
-                  vibratoCents: 0,
-                }),
-            });
-          }
-        });
+          });
+        }
         return events;
       },
     },
-    [audioContext, busOf, voicingOf, rootMidi, keyRootPc, bpb],
+    [audioContext, busOf, voicingOf, rootMidi, keyRootPc, bpb, passes],
   );
 
   const clickTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -510,6 +547,9 @@ function ProgressionStateProvider({
       toggleVariant,
       bars,
       beatsPerBar: bpb,
+      passes,
+      passLengthBeats,
+      currentPass,
       smoothVoicing,
       setSmoothVoicing,
       comp,
@@ -547,6 +587,9 @@ function ProgressionStateProvider({
       toggleVariant,
       bars,
       bpb,
+      passes,
+      passLengthBeats,
+      currentPass,
       smoothVoicing,
       comp,
       currentChord,

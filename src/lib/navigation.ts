@@ -94,6 +94,15 @@ export const NAV_ITEMS: NavItem[] = [
     section: "theory",
   },
   {
+    id: "forms",
+    label: "Song Forms",
+    icon: "🧩",
+    href: "/forms",
+    description: "How songs are shaped — bars into lines, lines into a chorus, choruses into a song",
+    inNav: false,
+    section: "theory",
+  },
+  {
     id: "history",
     label: "History",
     icon: "📖",
