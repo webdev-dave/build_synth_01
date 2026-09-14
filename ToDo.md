@@ -60,6 +60,8 @@ Live-site / product defects that are not a plan or sketch.
 | Item | File | What it is | Build status | Ranking |
 |------|------|------------|--------------|---------|
 | Hero demo: "Yesterday" musical errors | [src/components/home/heroTune.ts](src/components/home/heroTune.ts) | Homepage attract-mode plays the opening of the Beatles' *Yesterday* (transposed F→C). The line still has serious musical errors — embarrassing on a music-theory site. | **Open.** Tune data and playback exist; the notes/harmony are wrong. | **3** |
+| Lesson piano stays reachable while scrolling | [src/components/scales/ScaleLessonProvider.tsx](src/components/scales/ScaleLessonProvider.tsx) | On lesson pages the in-flow piano scrolls away; the reader should still be able to play the current scale-locked keyboard from anywhere on the page (sticky header/footer, summon button, or similar — undecided). Keep presenting it inline where the lesson needs it. | **Parked (2026-09-14).** Capture only; plan later. | not specified |
+| Lesson / synth controls below the piano | [src/components/scales/LessonToolbar.tsx](src/components/scales/LessonToolbar.tsx) | Buttons that adjust the keyboard / synth (root, octave, lock, play, etc.) should sit below the piano, left corner — not above it. | **Parked (2026-09-14).** Capture only; plan later. | not specified |
 
 ---
 
@@ -99,3 +101,5 @@ Ranked items first (**most urgent → next**). Everything below that is
 | Self-hosted MIDI library | plan | Phase 0: `SongDocument` + `@tonejs/midi` → Piano Roll (open `.mid`, track picker) + 3–5 PD/CC seed files. Agent finder and shared DB wait until the roll can load a song and static export is dropped. | Phases 0 → 1 first; 4 (agent) after 3 (DB) | not specified |
 | Genre Lab | plan | Reggae as the next data-only genre: `one-drop` lesson content (registry row already sourced) + flip `reggae` live; the `i-v-vi-iv` lesson it shares with rock | umbrella §9 | not specified |
 | Hosting / auth | sketch | Hosting Phase 0 is done. Remaining (in-doc "rough order"): rename leftover "Synth-v01" copy / README demo link → Auth.js + Google spike on a feature branch → decide Drizzle vs Prisma, Neon vs Supabase → months out, delete the Netlify redirect site. | in-doc: remaining actions in rough order | not specified |
+| Lesson piano stays reachable while scrolling | fix | On lesson pages, keep a way to play the current scale-locked piano after it has scrolled off-screen. Sticky header/footer vs summon button vs other — undecided. | plan later | not specified |
+| Lesson / synth controls below the piano | fix | Move the keyboard/synth adjuster buttons below the piano, left corner, instead of above it. | plan later | not specified |
