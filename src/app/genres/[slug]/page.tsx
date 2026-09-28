@@ -15,8 +15,10 @@ import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { RelatedPages } from "@/components/content/RelatedPages";
 import { PageMapSection } from "@/components/map/PageMapSection";
 import { HubLink } from "@/components/content/HubLink";
+import { EntrySources } from "@/components/content/EntrySources";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
+import { PROSE_BODY, PROSE_GAP, PROSE_LEAD } from "@/components/content/prose";
 
 interface GenrePageProps {
   params: Promise<{ slug: string }>;
@@ -60,6 +62,7 @@ export default async function GenrePage({ params }: GenrePageProps) {
 
   // Light up theory terms in the prose. One linker for the whole page, so each
   // concept is linked at its first mention (lead, then body) and not repeated.
+  // A concept with linkEveryMention (Chasidic) is linked every time.
   const linkTerms = makeTermLinker();
   const word = getWord(genre.slug);
 
@@ -88,24 +91,30 @@ export default async function GenrePage({ params }: GenrePageProps) {
 
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-3xl font-semibold tracking-tight">
-              {genre.question}
+            <h1 className="text-balance text-3xl font-semibold tracking-tight">
+              {genre.slug === "chasidic"
+                ? linkTerms(genre.question)
+                : genre.question}
             </h1>
-            {soon && <Badge variant="secondary">Coming soon</Badge>}
+            {soon && (
+              <Badge variant="secondary" className="text-base">
+                Coming soon
+              </Badge>
+            )}
           </div>
           {word && <WordBanner word={word} />}
           {/* Lead answer: the quotable definition, in real HTML so crawlers
               and answer engines see it without running the app. */}
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          <p className={`mt-4 ${PROSE_LEAD}`}>
             {linkTerms(genre.answer)}
           </p>
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+          <p className={`${PROSE_GAP} ${PROSE_BODY}`}>
             {linkTerms(genre.about)}
           </p>
           {history && (
             <Link
               href={`/history/${history.slug}`}
-              className="group mt-3 inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
+              className="group mt-3 inline-flex items-center gap-1.5 text-base text-muted-foreground transition-colors hover:text-foreground"
             >
               <BookOpen className="h-3.5 w-3.5" />
               More on the history of {genre.name.toLowerCase()}
@@ -114,10 +123,11 @@ export default async function GenrePage({ params }: GenrePageProps) {
           )}
         </header>
 
+        {genre.signatureLayers.length > 0 && (
         <section className="mt-10" aria-labelledby="layers-heading">
           <h2
             id="layers-heading"
-            className="text-sm font-medium text-muted-foreground"
+            className="text-base font-medium text-muted-foreground"
           >
             What makes it {genre.name.toLowerCase()}
           </h2>
@@ -140,6 +150,7 @@ export default async function GenrePage({ params }: GenrePageProps) {
             }))}
           />
         </section>
+        )}
 
         <RelatedPages
           heading="Related"
@@ -179,6 +190,8 @@ export default async function GenrePage({ params }: GenrePageProps) {
           heading={`Where ${genre.name.toLowerCase()} lives`}
           fullMapHref={`/map?genre=${genre.slug}`}
         />
+
+        <EntrySources items={genre.links ?? []} />
       </div>
     </main>
   );

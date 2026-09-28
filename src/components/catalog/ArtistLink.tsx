@@ -87,12 +87,12 @@ export function ArtistLink({ id, children }: ArtistLinkProps) {
               {artist.name}
             </span>
             {artist.era && (
-              <span className="shrink-0 font-mono text-xs text-muted-foreground">
+              <span className="shrink-0 font-mono text-base text-muted-foreground">
                 {artist.era}
               </span>
             )}
           </span>
-          <span className="mt-1.5 block text-sm leading-relaxed text-foreground">
+          <span className="mt-1.5 block text-base leading-relaxed text-foreground">
             {artist.micro}
           </span>
           {/* `inline`: the popover is span-only so it can open inside a
@@ -100,7 +100,7 @@ export function ArtistLink({ id, children }: ArtistLinkProps) {
           <GenrePills slugs={artist.genres} compact inline className="mt-2" />
           <Link
             href={`/artists/${artist.slug}`}
-            className="group/more mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="group/more mt-2.5 inline-flex items-center gap-1 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             More about {artist.name}
             <ArrowRight

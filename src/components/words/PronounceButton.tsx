@@ -46,6 +46,7 @@ export function PronounceButton({ word, className }: PronounceButtonProps) {
     void el.play().catch(() => setPlaying(false));
   }
 
+  const said = word.audioSays ?? word.latin;
   const credit = word.audio.source
     ? ` — recording: ${word.audio.source}`
     : "";
@@ -54,8 +55,8 @@ export function PronounceButton({ word, className }: PronounceButtonProps) {
     <button
       type="button"
       onClick={play}
-      aria-label={`Hear ${word.latin} pronounced${credit}`}
-      title={`Hear ${word.latin}${credit}`}
+      aria-label={`Hear ${said} pronounced${credit}`}
+      title={`Hear ${said}${credit}`}
       className={cn(
         "inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-sm align-text-bottom text-muted-foreground transition-colors hover:bg-accent hover:text-foreground",
         "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1",

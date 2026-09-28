@@ -21,8 +21,8 @@ interface PlaceChipsProps {
 export function PlaceChips({ places, selectedId, onToggle }: PlaceChipsProps) {
   if (places.length === 0) return null;
   return (
-    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm">
-      <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground/70">
+    <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-base">
+      <span className="font-mono text-base uppercase tracking-wide text-muted-foreground/70">
         places
       </span>
       {places.map((p) => {

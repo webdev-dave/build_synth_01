@@ -11,6 +11,13 @@ import Link from "next/link";
 import { cousinQuestion, getCousin } from "@/lib/cousins/registry";
 import { Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
+import {
+  H2,
+  OnThisPage,
+  P,
+  PROSE_LINK,
+  defineSections,
+} from "@/components/content/prose";
 import { SongLink } from "@/components/history/SongLink";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
 import { Word } from "@/components/words/Word";
@@ -24,31 +31,22 @@ function Ref({ id }: { id: string }) {
   return <Cite id={id} sources={SOURCES} />;
 }
 
-function H2({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+const SECTIONS = defineSections({
+  "kansas": "A rainbow over Kansas",
+  "yiddish-authors": "Yiddish in the writers, English in the song",
+  "grand": "A sheynem regnboygn",
+  "family": "The family, as a list",
+});
 
 export function OverTheRainbowCousins() {
   return (
     <article className="mt-8">
-      <SongJumpNav ids={SONG_IDS} />
+      <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+        <OnThisPage sections={SECTIONS} />
+        <SongJumpNav ids={SONG_IDS} />
+      </div>
 
-      <H2 id="kansas">A rainbow over Kansas</H2>
+      <H2 {...SECTIONS["kansas"]} />
       <P>
         <ArtistLink id="harold-arlen">Harold Arlen</ArtistLink> wrote the
         melody and{" "}
@@ -72,7 +70,7 @@ export function OverTheRainbowCousins() {
         1939 film clip this site plays.
       </P>
 
-      <H2 id="yiddish-authors">Yiddish in the writers, English in the song</H2>
+      <H2 {...SECTIONS["yiddish-authors"]} />
       <P>
         Harburg was born Isidore Hochberg on the Lower East Side. His parents
         were Yiddish-speaking Orthodox Jews who had emigrated from Russia; he
@@ -86,7 +84,7 @@ export function OverTheRainbowCousins() {
         later translation, not a recovered original.
       </P>
 
-      <H2 id="grand">A sheynem regnboygn</H2>
+      <H2 {...SECTIONS["grand"]} />
       <P>
         <ArtistLink id="al-grand">Al Grand</ArtistLink>, a retired New York
         City schoolteacher, is known for putting Gilbert and Sullivan into
@@ -115,7 +113,7 @@ export function OverTheRainbowCousins() {
         Regenboygen”).
       </P>
 
-      <H2 id="family">The family, as a list</H2>
+      <H2 {...SECTIONS["family"]} />
       <P>
         Two catalog songs: the 1939 English original and one documented
         Yiddish life. Lyrics stay off this page — the English is still under
@@ -127,7 +125,7 @@ export function OverTheRainbowCousins() {
         For other tunes that crossed into Yiddish from somewhere else, see{" "}
         <Link
           href="/cousins/miserlou"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           {cousinQuestion("Misirlou")}
         </Link>
@@ -136,7 +134,7 @@ export function OverTheRainbowCousins() {
 
       <SourceList sources={SOURCES} />
 
-      <p className="mt-8 text-xs leading-relaxed text-muted-foreground/70">
+      <p className="mt-8 text-base leading-relaxed text-muted-foreground/70">
         Quotations are reproduced briefly for commentary and criticism, with
         attribution and links to the originals. Where a source is public domain
         it is marked as such; other works are quoted under fair use. Click a

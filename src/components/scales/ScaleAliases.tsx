@@ -54,7 +54,7 @@ export function ScaleAliases({
 
   return (
     <div className={cn("mt-3", className)}>
-      <span className="mb-2 block text-[11px] font-medium uppercase tracking-wider text-muted-foreground">
+      <span className="mb-2 block text-base font-medium uppercase tracking-wider text-muted-foreground">
         Also called
       </span>
       <ul className="flex flex-wrap items-center gap-1.5" aria-label="Other names for this scale">
@@ -73,7 +73,7 @@ function Pill({ alias }: { alias: ScaleAlias }) {
   const listen = hasAudio(word) ? word : undefined;
   return (
     <span
-      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 text-xs leading-none"
+      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/30 px-2.5 py-1 text-base leading-none"
       title={alias.approx ? "Same shape; tuned or ornamented differently" : undefined}
     >
       {alias.approx && (
@@ -82,10 +82,10 @@ function Pill({ alias }: { alias: ScaleAlias }) {
         </span>
       )}
       <span className="text-foreground">{alias.name}</span>
-      <NativeSpelling id={alias.name} className="text-xs" />
+      <NativeSpelling id={alias.name} className="text-base" />
       {listen && <PronounceButton word={listen} />}
       {alias.tradition && (
-        <span className="text-[10px] text-muted-foreground">{alias.tradition}</span>
+        <span className="text-base text-muted-foreground">{alias.tradition}</span>
       )}
     </span>
   );

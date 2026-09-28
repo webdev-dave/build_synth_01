@@ -94,6 +94,10 @@ export interface Genre {
    * Layers that define this genre. Order here is "how much this is
    * the identity" (search, metadata); the page sorts them with
    * `orderLayersForPage` before rendering.
+   *
+   * Leave this empty on a repertoire shelf until there is a real account
+   * of what makes the music. An empty list hides "What makes it" on the
+   * page. Do not fill it with form or texture just to show Coming soon.
    */
   signatureLayers: GenreLayer[];
   /** Scale registry slugs this genre draws on (first is the signature scale). */
@@ -102,6 +106,12 @@ export interface Genre {
   compareWith?: string;
   /** "live" pages are indexed + in the sitemap; "soon" pages are placeholders. */
   status: "live" | "soon";
+  /**
+   * Bibliography for the page footer (`EntrySources`). Printings, essays,
+   * archives — verified URLs only. The page still shows the heading when
+   * this is empty.
+   */
+  links?: { label: string; url: string }[];
   /** Secondary search phrases woven into metadata. */
   keywords: string[];
 }
@@ -177,7 +187,9 @@ export const GENRES: Genre[] = [
       "Yiddish theater music is the composed song of the Yiddish-speaking stage: show tunes written for named plays by named writers, not dance tunes for a wedding. You can recognise it by a singable verse-and-refrain, a pit-orchestra or piano accompaniment, and a lyric that belongs to a character or a scene — from Second Avenue operettas like “Bei Mir Bistu Shein” to Art Theatre songs like “Dona Dona.”",
     about:
       "The Yiddish stage grew up in Eastern Europe and exploded in New York after the great migration, along Second Avenue — “the Jewish Broadway.” Composers such as Sholom Secunda wrote for musicals that closed in a season and, sometimes, became American hits in English translation. Maurice Schwartz’s Yiddish Art Theatre aimed higher, at literary drama; Aaron Zeitlin’s Esterke (1940–41) is that wing, and Dona Dona is its most-travelled song. Klezmer bands often sat in the pit, which is why the two worlds get collapsed — but a theater song is a written lyric for a play, not a freylekhs.",
-    signatureLayers: ["form", "harmony", "texture"],
+    // Repertoire shelf. Layers wait until we can say what actually makes
+    // the music — not a Coming soon form/texture stack.
+    signatureLayers: [],
     scales: [],
     compareWith: "yiddish-folk",
     status: "live",
@@ -199,7 +211,7 @@ export const GENRES: Genre[] = [
       "A Yiddish folk song is a song that lived in people’s mouths: usually strophic, often anonymous or treated as traditional, sung in Yiddish for love, work, lullaby, or protest rather than for a play or a wedding set. Collectors later wrote them down; the folk revival sometimes filed theater songs here too, which is how Dona Dona got a second, folk-shaped life.",
     about:
       "Ashkenazi communities sang far more than they danced. Beside the klezmer’s instrumental set sat a huge sung repertoire — lullabies, ballads, workers’ songs — that Yiddishists and songbooks collected in the twentieth century. Some pieces began on the stage and were then sung as if they had always been folk (Theodore Bikel’s “Jewish folk songs” album is that shelf). This page keeps the distinction: folk is how a song lives, theater is how it was written. Dona Dona belongs on both sides of that line.",
-    signatureLayers: ["form", "texture", "scale"],
+    signatureLayers: [],
     scales: [],
     compareWith: "yiddish-theater",
     status: "live",
@@ -212,6 +224,50 @@ export const GENRES: Genre[] = [
     ],
   },
   {
+    slug: "chasidic",
+    name: "Chasidic",
+    question: "What is Chasidic music?",
+    summary:
+      "Devotional singing of Chasidic communities — nigunim and holiday songs learned by ear, at the table and in school, rather than written for a stage.",
+    answer:
+      "Chasidic music is the singing of Chasidic communities: often a nigun with few words or none, and holiday songs passed from voice to voice at the table, in cheder, and in yeshiva. You recognise it by a melody people know by heart and sing together, more than by a band arrangement or a named show tune.",
+    about:
+      "Chasidic courts have carried tunes since the eighteenth century, many of them wordless. The repertoire also took in older Jewish songs, and later poems, once communities sang them as their own. Avraham Reisen’s 1902 poem “In suke” is that second life: singers made it “A sukkele a kleyne,” and children still learn it before Sukkot. Klezmer is the professional wedding music beside this shelf, not the same practice.",
+    signatureLayers: [],
+    scales: [],
+    compareWith: "klezmer",
+    status: "live",
+    keywords: [
+      "what is chasidic music",
+      "hasidic music",
+      "chassidic nigun",
+      "chasidic songs",
+      "sukkot nigun",
+    ],
+  },
+  {
+    slug: "traditional-jewish",
+    name: "Traditional Jewish",
+    question: "What is traditional Jewish music?",
+    summary:
+      "Songs and tunes kept as inheritance in Jewish home and religious life — holiday songs, table songs, and nigunim — whether or not a poet once signed them.",
+    answer:
+      "Traditional Jewish music is the repertoire communities keep by singing it: holiday songs, table songs, and nigunim, in Yiddish, Hebrew, or with no words. A song belongs here when people treat it as inherited, including pieces that began as a signed poem and were then folded into the holiday.",
+    about:
+      "This shelf is wider than any one community. Klezmer is the wedding trade, Yiddish theater is a composed song for a play, and Yiddish folk is the Yiddish-language song as it lived in people’s mouths. Traditional Jewish is the religious and home inheritance those can also join. “A sukkele a kleyne” sits here because Sukkot singers and schools pass it on, beside its life as a Yiddish folk song and as a Chasidic holiday song.",
+    signatureLayers: [],
+    scales: [],
+    compareWith: "yiddish-theater",
+    status: "live",
+    keywords: [
+      "traditional jewish music",
+      "old jewish traditional",
+      "jewish holiday songs",
+      "jewish home songs",
+      "sukkot song",
+    ],
+  },
+  {
     slug: "folk-revival",
     name: "Folk revival",
     question: "What was the folk revival?",
@@ -221,7 +277,7 @@ export const GENRES: Genre[] = [
       "The folk revival was a mid-century Anglo-American movement that treated songs as things you could learn, share, and stand behind: voice and guitar, coffeehouses and festivals, traditional ballads next to new protest songs. Joan Baez’s 1960 “Donna, Donna” is the revival’s most famous meeting with a Yiddish theater lyric — an English cover that made a 1940 stage song a freedom anthem.",
     about:
       "After the war, singers in the United States and Britain reached for older songs — British ballads, spirituals, union tunes, and pieces borrowed from other languages — and put them on records that sold. Newport (1959) and the Vanguard and Elektra catalogs were the circuit. The revival was not a folk culture; it was a way of performing one. That is why Baez and Donovan sit here, not under klezmer: they sang an English Dona Dona, not a wedding dance.",
-    signatureLayers: ["texture", "form", "harmony"],
+    signatureLayers: [],
     scales: ["natural-minor", "dorian", "major-pentatonic"],
     compareWith: "yiddish-folk",
     status: "live",

@@ -144,7 +144,7 @@ export function StepsDemo() {
         />
       </div>
 
-      <p className="text-xs leading-relaxed text-muted-foreground">
+      <p className="text-base leading-relaxed text-muted-foreground">
         A <span className="font-mono">half step</span> is the jump to the very
         next key — <span className="font-mono">C → C♯</span>. A{" "}
         <span className="font-mono">whole step</span> skips one key —{" "}

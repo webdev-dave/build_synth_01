@@ -70,7 +70,13 @@ sometimes has a human saying a loanword that has entered English (e.g.
 Already shipped — see `public/audio/words/ATTRIBUTION.md`:
 `krechtz` (JEL *krekhts*), `nigun`, `klezmer`, `freylekhs` (JEL *freilach*),
 `badkhn` (JEL *badchen*), `kapelye`, `khosidl`, `hora` (JEL circle-dance —
-not Spanish *hour*) — all JEL, CC BY-SA 4.0. Plus `oj-dana` (Polish refrain
+not Spanish *hour*), `chasidish` (JEL *Chassidish* `/words/1385`, the
+Yiddish adjective חסידיש — not the English “Chasidic,” not Hebrew חסידי),
+`cheder` (JEL *cheder* `/words/1814`, the CHEH-dehr take; CHEY-der is the
+same entry and is not a second file), `yeshiva` (JEL *yeshiva*
+`/words/615`, the yeh-SHEE-vuh take; yeh-SHIH-vuh and yeh-shee-VAH stay
+on that page) —
+all JEL, CC BY-SA 4.0. Plus `oj-dana` (Polish refrain
 vocable) from Wikimedia Commons `Pl-dana.ogg`, CC BY-SA 3.0 (`.ogg`).
 `misheberakh` (JEL *Mi Shebeirach* `/words/372`, 2026-09-11): sense 1 is the
 prayer itself, which is the name the klezmer mode carries — same spoken word,
@@ -90,6 +96,7 @@ result here if you look:
 
 | Word | Lang | Last look | Result |
 |---|---|---|---|
+| `chasidic` Hebrew חסידי | he | JEL *chasidi* / *Hasidic* `/words/2284` (no clip); Commons `LL-Q9288` (2026-09-28) | Lingua Libre has **חסיד** (`Yuvalyan`, the noun “a Hasid”) — **do not** attach; it is not the adjective חסידי. No clip of חסידי. |
 | `doina` | ro | Commons / ro.wiktionary / `LL-Q7913` | no matching human clip |
 | `sirba` / sârbă | ro | Commons / `LL-Q7913` | none |
 | `lautari` | ro | Commons / `LL-Q7913` | none |

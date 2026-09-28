@@ -30,7 +30,7 @@ export function RelatedPages({
 
   return (
     <section className="mt-10" aria-labelledby={headingId}>
-      <h2 id={headingId} className="text-sm font-medium text-muted-foreground">
+      <h2 id={headingId} className="text-base font-medium text-muted-foreground">
         {heading}
       </h2>
       <div className="mt-3 space-y-2">
@@ -40,7 +40,7 @@ export function RelatedPages({
             href={item.href}
             className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
           >
-            <span className="text-sm font-medium text-foreground">
+            <span className="text-base font-medium text-foreground">
               {item.label}
             </span>
             <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />

@@ -24,6 +24,7 @@ import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { NativeScript } from "@/components/words/NativeScript";
 import { HubLink } from "@/components/content/HubLink";
 import manifestJson from "@/lib/songs/manifest.json";
+import { PROSE_BODY, PROSE_GAP, PROSE_LEAD } from "@/components/content/prose";
 
 const MANIFEST = manifestJson as unknown as SongManifestEntry[];
 
@@ -88,7 +89,7 @@ export default async function LanguageDetailPage({
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
             <Languages className="h-6 w-6 shrink-0" strokeWidth={1.75} />
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight">
               {language.question}
             </h1>
           </div>
@@ -102,11 +103,11 @@ export default async function LanguageDetailPage({
               />
             </p>
           )}
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          <p className={`mt-4 ${PROSE_LEAD}`}>
             {linkTerms(language.answer)}
           </p>
           {language.about && (
-            <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
+            <p className={`${PROSE_GAP} ${PROSE_BODY}`}>
               {linkTerms(language.about)}
             </p>
           )}
@@ -194,7 +195,7 @@ export default async function LanguageDetailPage({
           <section className="mt-10" aria-labelledby="languages-words">
             <h2
               id="languages-words"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-base font-medium text-muted-foreground"
             >
               Words in {language.name}
             </h2>
@@ -217,14 +218,14 @@ export default async function LanguageDetailPage({
                   <Link
                     key={word.id}
                     href={href}
-                    className="group inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors hover:border-foreground/25 hover:bg-accent/40"
+                    className="group inline-flex items-center gap-2 rounded-full border px-3 py-1 text-base transition-colors hover:border-foreground/25 hover:bg-accent/40"
                   >
                     {inner}
                   </Link>
                 ) : (
                   <span
                     key={word.id}
-                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm"
+                    className="inline-flex items-center gap-2 rounded-full border px-3 py-1 text-base"
                   >
                     {inner}
                   </span>

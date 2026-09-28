@@ -701,6 +701,69 @@ export const PLACES: Place[] = [
     status: "rich",
   },
 
+  // Pinned from catalog entries. No genre tags: a tag would drop these
+  // cities onto every klezmer or blues page that derives its map.
+  {
+    id: "warsaw",
+    kind: "city",
+    name: "Warsaw",
+    geo: { point: [21.0122, 52.2297] },
+    music: {
+      blurb:
+        "Avraham Reisen was living here in 1902, twenty-six, when he published the Sukkot poem “In suke” — the song later sung as “A sukkele a kleyne.”",
+    },
+    status: "stub",
+  },
+  {
+    id: "krakow",
+    kind: "city",
+    name: "Kraków",
+    aliases: [{ name: "Krakow", era: "common spelling without the accent" }],
+    geo: { point: [19.945, 50.0647] },
+    music: {
+      blurb:
+        "The weekly Yudishe froyen-velt printed Reisen’s “In suke” on its Sukkot cover here on 15 October 1902, under the pen name Alexander Solomon.",
+    },
+    status: "stub",
+  },
+  {
+    id: "chernivtsi",
+    kind: "city",
+    name: "Chernivtsi",
+    aliases: [
+      { name: "Czernowitz", era: "German and Yiddish name" },
+      { name: "Cernăuți", era: "Romanian-era name" },
+    ],
+    geo: { point: [25.9358, 48.2921] },
+    music: {
+      blurb:
+        "Beyle Schaechter-Gottesman learned “A sukkele a kleyne” here. In 1908 the Czernowitz conference, which Reisen attended, called Yiddish a national language of the Jews.",
+    },
+    status: "stub",
+  },
+  {
+    id: "berlin",
+    kind: "city",
+    name: "Berlin",
+    geo: { point: [13.405, 52.52] },
+    music: {
+      blurb:
+        "Arno Nadel wrote down the tune everyone knows as “A sukkele a kleyne” in Ost und West, October–November 1916. Joel Engel published a different melody the same year; that setting did not become the common song.",
+    },
+    status: "stub",
+  },
+  {
+    id: "worms",
+    kind: "city",
+    name: "Worms",
+    geo: { point: [8.3597, 49.6328] },
+    music: {
+      blurb:
+        "The Sukkot line of the grace after meals — the “Ha-rachaman” chorus singers added to “A sukkele a kleyne” — is already in the seventeenth-century customs of Worms. It is not in Reisen’s poem.",
+    },
+    status: "stub",
+  },
+
   // ─────────────────────────── Shared / crossover ──────────────────────────
   // The state keeps the full name and the city goes by "NYC" — they sit on
   // top of each other on the map, so one label has to give.
@@ -769,6 +832,10 @@ export function placesByHistory(history: string): Place[] {
  *
  * Returns `[]` when nothing resolves; callers render no map in that case
  * rather than an empty globe.
+ *
+ * Song pages must not stop here. `yiddish-folk` and `chasidic` are not
+ * tagged on any place, so genre derivation is an empty map. Use
+ * `songPageMapEntity`, which falls back to the credited artists' pins.
  */
 export function placesForEntity(entity: {
   genres?: string[];
@@ -793,6 +860,47 @@ export function placesForEntity(entity: {
       (m.songLabels ?? []).some((l) => songLabels.has(l))
     );
   });
+}
+
+/**
+ * What a song page hands to `PageMapSection`.
+ *
+ * Curated `places` win. Otherwise genre/history derivation — which only
+ * fills in for genres the registry actually tags (klezmer, blues, rock,
+ * yiddish-theater). If that is empty, use the credited artists' pins.
+ * Mentioned artists are not included: a later singer must not move the map.
+ */
+export function songPageMapEntity(input: {
+  genres?: string[];
+  history?: string[];
+  places?: string[];
+  artistPlaces?: string[];
+}): {
+  genres?: string[];
+  history?: string[];
+  places?: string[];
+} {
+  if (input.places && input.places.length > 0) {
+    return { places: input.places };
+  }
+  if (
+    placesForEntity({ genres: input.genres, history: input.history }).length > 0
+  ) {
+    return { genres: input.genres, history: input.history };
+  }
+  const pins: string[] = [];
+  for (const id of input.artistPlaces ?? []) {
+    if (!pins.includes(id)) pins.push(id);
+  }
+  if (pins.length > 0) return { places: pins };
+  return { genres: input.genres, history: input.history };
+}
+
+/** Full-map link. A genre with no mapped places would open an empty lens. */
+export function mapHrefForGenres(genres?: string[]): string {
+  const mapped = new Set(mappedGenreSlugs());
+  const genre = genres?.find((g) => mapped.has(g));
+  return genre ? `/map?genre=${genre}` : "/map";
 }
 
 /** True when a place belongs to the given genre (null genre = no filter). */

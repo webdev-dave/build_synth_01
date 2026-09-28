@@ -23,8 +23,14 @@ export interface ArtistLinkOut {
 export interface Artist {
   /** URL slug + `<ArtistLink id>` key. Kebab-case ("bessie-smith"). */
   slug: string;
-  /** Display name ("Bessie Smith"). */
+  /** Display name ("Bessie Smith"). The auto-linker wraps every mention. */
   name: string;
+  /**
+   * Other forms the prose uses for this person ("Reisen"). The auto-linker
+   * wraps these too, every time. Keep them specific — a bare surname only
+   * when it won't hit someone else.
+   */
+  alsoNamed?: string[];
   /** One-line "who is this" — shown in the popover and on cards. */
   micro: string;
   /** Longer plain-text bio for the spoke page. */
@@ -36,13 +42,15 @@ export interface Artist {
   /** History article slugs that discuss them. */
   history?: string[];
   /**
-   * Place-registry ids for this artist's embedded map, when genre-derivation
-   * would be too broad. A pin is a *curated* set (the cities/regions they
-   * actually worked in), so an artist page frames just their geography — not
-   * the whole genre's. Omit to fall back to genre/history derivation.
+   * Place-registry ids for this artist's embedded map. A live artist whose
+   * bio names places must list them. Genre derivation only fills the map
+   * for genres the place registry tags (klezmer, blues, rock,
+   * yiddish-theater). A curated pin is the cities they actually worked in,
+   * not the whole genre. Omit only when the bio names no place and a
+   * mapped genre already covers the page.
    */
   places?: string[];
-  /** External "learn more" links (encyclopedias, archives). */
+  /** External "learn more" links (encyclopedias, archives). Rendered last, in the sources list. */
   links?: ArtistLinkOut[];
   /** "live" pages are indexed + in the sitemap; "soon" are placeholders. */
   status: "live" | "soon";
@@ -275,6 +283,86 @@ export const ARTISTS: Artist[] = [
       "Dos kelbl",
       "Esterke Yiddish play",
     ],
+  },
+  {
+    slug: "avraham-reisen",
+    places: ["poland", "warsaw", "krakow", "vilnius", "chernivtsi", "new-york"],
+    name: "Avraham Reisen",
+    alsoNamed: ["Reisen"],
+    era: "1876–1953",
+    micro:
+      "Yiddish poet and story writer. His 1902 Sukkot poem “In suke,” signed Alexander Solomon, is the song later sung as “A sukkele a kleyne.”",
+    bio: "Avraham Reisen — Avrom Reyzen in Yiddish, אַבֿרהם רייזען — was born on 8 April 1876 in Koidanov, in the Minsk Governorate (now Dzyarzhynsk, Belarus). The house already wrote. His father, Kalman, was a Hebrew and Yiddish poet; his sister [Sarah](https://en.wikipedia.org/wiki/Sarah_Reisen) wrote poems and translations; his younger brother [Zalman](https://en.wikipedia.org/wiki/Zalman_Reisen) became the philologist of the Yiddish language.\n\nHe was fifteen when [I. L. Peretz](https://en.wikipedia.org/wiki/I._L._Peretz) and [Jacob Dinezon](https://en.wikipedia.org/wiki/Jacob_Dinezon) printed his poem “Ven dos lebn is farbitert” (“When life is embittered”). The next year, in Vilna, came his first story, titled “Damn the nose, so long as there is a dowry of a gold watch and 300 rubles.” [Sholem Aleichem](https://en.wikipedia.org/wiki/Sholem_Aleichem) recommended the poetry booklet Troyerike motivn (Sad Motifs Dedicated to the Poor). The poems stay short and plain, about people with little, closer to a folksong than to a speech. He translated [Heinrich Heine](https://en.wikipedia.org/wiki/Heinrich_Heine) into Yiddish. Some of the sharper poems were sung at secret workers’ meetings in the woods.\n\nFrom 1895 to 1899 he served in a musicians’ unit of the Russian army. After that, a short stay in Minsk, then Warsaw. He wrote for the Zionist paper Der yud and did not share its politics, so in 1900 he started his own anthology, Dos tsvantsikste yorhundert (The Twentieth Century), with [Peretz](https://en.wikipedia.org/wiki/I._L._Peretz) and others in it. For the Bund he sometimes signed M. Vilner. On 15 October 1902, twenty-six and living in Warsaw, he published the Sukkot poem “In suke” on the cover of the Kraków weekly Yudishe froyen-velt under the pen name Alexander Solomon. Singers soon treated it as a folk song, “A sukkele a kleyne.” He was not a Chasid. Chasidic communities later reworded the poem and kept singing it.\n\nIn 1908 he stood for Yiddish at the Czernowitz conference, which called Yiddish a national language of the Jews. He settled in New York in early 1911 and wrote for the Forverts. From 1929 a story there every week, without a break. His three-volume autobiography Epizodn fun mayn lebn appeared in 1935. He died in New York on 2 April 1953.",
+    genres: ["yiddish-folk"],
+    links: [
+      {
+        label: "Wikipedia — Avrom Reyzen",
+        url: "https://en.wikipedia.org/wiki/Avrom_Reyzen",
+      },
+      {
+        label: "Hebrew Wikipedia — Avraham Reisen",
+        url: "https://he.wikipedia.org/wiki/%D7%90%D7%91%D7%A8%D7%94%D7%9D_%D7%A8%D7%99%D7%99%D7%96%D7%9F",
+      },
+      {
+        label: "YIVO Encyclopedia",
+        url: "https://encyclopedia.yivo.org/article.aspx/Reyzen_Avrom",
+      },
+      {
+        label: "Hebrew Wikipedia — A sukkele a kleyne",
+        url: "https://he.wikipedia.org/wiki/%D7%90_%D7%A1%D7%95%D7%9B%D7%94_%D7%90_%D7%A7%D7%9C%D7%99%D7%99%D7%A0%D7%A2",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "Avraham Reisen",
+      "Abraham Reisen",
+      "Avrom Reyzen",
+      "אַבֿרהם רייזען",
+      "In suke",
+      "A sukkele a kleyne",
+    ],
+  },
+  {
+    slug: "fishl-beigel",
+    name: "Fishl Beigel",
+    micro:
+      "Chasidic singer. He is the voice on “A sukkele a kleyne” on Suki & Ding’s 1991 Yiddish Classics, Vol. 1.",
+    bio: "The Robert and Molly Freedman Jewish Sound Archive credits Fishl Beigel as the vocalist on “A sukeh a kleyne” from Suki & Ding’s Yiddish Classics, Vol. 1 (Heymishe yidishe gezangen), with Suki Berry’s arrangement and the chorus. That track adds the song “Habeyt” and leaves out the closing verse some traditional singers keep. David Assaf describes the 1991 performance as the Chasidic-world text.",
+    genres: ["yiddish-folk"],
+    links: [
+      {
+        label: "Freedman Jewish Sound Archive — the track",
+        url: "https://digital.library.upenn.edu/webbin/freedman/lookupartist?hr=&what=2386",
+      },
+    ],
+    status: "live",
+    keywords: ["Fishl Beigel", "Fishel Beigel", "A Sukkahle"],
+  },
+  {
+    slug: "suki-and-ding",
+    name: "Suki & Ding",
+    micro:
+      "Sameach Music production of arranger Suki Berry and Ding. Their 1991 Yiddish Classics, Vol. 1 includes “A Sukkahle.”",
+    bio: "Suki & Ding is the production name of Suki Berry (Yissachar Berri), who arranges, and Ding. For Sameach Music they issued Yiddish Classics, Vol. 1 in 1991 — also called Heymishe yidishe gezangen — with Fishl Beigel singing “A Sukale, Habet.” A digital edition dated 31 August 2010 is the upload on YouTube.",
+    genres: ["yiddish-folk"],
+    status: "live",
+    keywords: ["Suki & Ding", "Suki Berry", "Yiddish Classics", "Sameach"],
+  },
+  {
+    slug: "yoel-klein",
+    name: "Yoel Klein",
+    micro:
+      "Chasidic singer. His “Nign — A sukkele a kleyne” is a recent recording of the song as it is still sung before Sukkot.",
+    bio: "Rabbi Yoel Klein’s recording “Nign — A sukkele a kleyne” is the performance the Hebrew Wikipedia article lists under that title. It is a current example of the song in Chasidic singing, close to the short form children most often learn before the holiday.",
+    genres: ["yiddish-folk"],
+    links: [
+      {
+        label: "YouTube — Nign, A sukkele a kleyne",
+        url: "https://www.youtube.com/watch?v=S4qaFVCC84k",
+      },
+    ],
+    status: "live",
+    keywords: ["Yoel Klein", "Joel Klein", "יואל קליין", "A sukkele a kleyne"],
   },
   {
     slug: "maurice-schwartz",

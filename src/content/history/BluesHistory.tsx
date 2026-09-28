@@ -14,6 +14,13 @@ import Link from "next/link";
 import { getArticle } from "@/lib/history/registry";
 import { Blockquote, Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
+import {
+  H2,
+  OnThisPage,
+  P,
+  PROSE_LINK,
+  defineSections,
+} from "@/components/content/prose";
 import { SongLink } from "@/components/history/SongLink";
 import { Term } from "@/components/concepts/Term";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
@@ -37,31 +44,25 @@ function Ref({ id }: { id: string }) {
   return <Cite id={id} sources={SOURCES} />;
 }
 
-function H2({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+const SECTIONS = defineSections({
+  "predecessors": "Predecessors: West Africa, and what else it borrowed",
+  "roots": "Work songs, field hollers, spirituals",
+  "birthplace": "A form with a contested birthplace",
+  "published": "From vernacular to published and recorded",
+  "migration": "The Great Migration and the electric blues",
+  "abroad": "Blues around the world",
+  "legacy": "What the blues carried",
+});
 
 export function BluesHistory() {
   return (
     <article className="mt-8">
-      <SongJumpNav ids={SONG_IDS} />
+      <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+        <OnThisPage sections={SECTIONS} />
+        <SongJumpNav ids={SONG_IDS} />
+      </div>
 
-      <H2 id="predecessors">Predecessors: West Africa, and what else it borrowed</H2>
+      <H2 {...SECTIONS["predecessors"]} />
       <P>
         The blues did not appear from nowhere, and it did not already exist as
         “the blues” in West Africa. What crossed the Atlantic with enslaved
@@ -87,7 +88,7 @@ export function BluesHistory() {
         That pentatonic column is the ancestor of the{" "}
         <Link
           href="/scales/minor-pentatonic"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           minor pentatonic
         </Link>{" "}
@@ -96,7 +97,7 @@ export function BluesHistory() {
         you have the{" "}
         <Link
           href="/scales/blues-scale"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           blues scale
         </Link>
@@ -122,21 +123,21 @@ export function BluesHistory() {
         harmony — open{" "}
         <Link
           href="/genres/blues"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           What is the blues?
         </Link>
         . The{" "}
         <Link
           href="/scales"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           Scales
         </Link>{" "}
         pages are where those pitch collections can be played.
       </P>
 
-      <H2 id="roots">Work songs, field hollers, spirituals</H2>
+      <H2 {...SECTIONS["roots"]} />
       <P>
         The blues is a secular African-American music that took shape in the
         rural South in the decades after Emancipation. There are no recordings
@@ -166,7 +167,7 @@ export function BluesHistory() {
         the{" "}
         <Link
           href="/scales/blues-scale"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           blues scale
         </Link>{" "}
@@ -175,7 +176,7 @@ export function BluesHistory() {
         piano.
       </P>
 
-      <H2 id="birthplace">A form with a contested birthplace</H2>
+      <H2 {...SECTIONS["birthplace"]} />
       <P>
         The popular story — the blues &ldquo;born&rdquo; from suffering in the
         Mississippi Delta — is more legend than settled history. Recent
@@ -207,7 +208,7 @@ export function BluesHistory() {
         not the moment of a genre&rsquo;s birth.
       </P>
 
-      <H2 id="published">From vernacular to published and recorded</H2>
+      <H2 {...SECTIONS["published"]} />
       <P>
         Handy began publishing adaptations of blues themes in 1912 and reached a
         national audience with <SongLink id="st-louis-blues" /> in 1914
@@ -239,7 +240,7 @@ export function BluesHistory() {
         <Ref id="hearing-americas" />
       </P>
 
-      <H2 id="migration">The Great Migration and the electric blues</H2>
+      <H2 {...SECTIONS["migration"]} />
       <P>
         As millions of Black Americans left the rural South for northern cities,
         Delta players carried the music with them.{" "}
@@ -261,7 +262,7 @@ export function BluesHistory() {
         blues — and from there fed directly into rhythm and blues and{" "}
         <Link
           href="/genres/rock"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           rock
         </Link>
@@ -269,7 +270,7 @@ export function BluesHistory() {
         <Term id="shuffle">shuffle</Term> for a straight backbeat.
       </P>
 
-      <H2 id="abroad">Blues around the world</H2>
+      <H2 {...SECTIONS["abroad"]} />
       <P>
         By the 1950s the blues was no longer only American music, and the
         places that adopted it did more than listen — they promoted it,
@@ -384,7 +385,7 @@ export function BluesHistory() {
         ancestry — the savanna practices described{" "}
         <a
           href="#predecessors"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           at the top of this article
         </a>{" "}
@@ -418,7 +419,7 @@ export function BluesHistory() {
         taught it, and sent it back changed.
       </P>
 
-      <H2 id="legacy">What the blues carried</H2>
+      <H2 {...SECTIONS["legacy"]} />
       <P>
         The blues became the root system of American popular music, but it was
         never only about private sorrow. From work songs protesting prison
@@ -430,7 +431,7 @@ export function BluesHistory() {
         scale — take it apart on the{" "}
         <Link
           href="/genres/blues"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           What is the blues?
         </Link>{" "}
@@ -439,7 +440,7 @@ export function BluesHistory() {
 
       <SourceList sources={SOURCES} />
 
-      <p className="mt-8 text-xs leading-relaxed text-muted-foreground/70">
+      <p className="mt-8 text-base leading-relaxed text-muted-foreground/70">
         Quotations are reproduced briefly for commentary and criticism, with
         attribution and links to the originals. Where a source is public domain
         it is marked as such; other works are quoted under fair use. Click a

@@ -13,7 +13,9 @@ A periodic scan exists because mentions still slip through.
 
 Sourcing catalog (where to look, what’s shipped, what’s ruled out):
 `.cursor/rules/pronunciation-audio.mdc`. House style:
-`.cursor/rules/history-articles.mdc`.
+`.cursor/rules/history-articles.mdc`. The movement’s English word is
+**Chasidic**; **Hasidic** is an alternate and a search phrase
+(`.cursor/rules/chasidic-spelling.mdc`).
 
 ## Hard rule — human audio or no speaker
 

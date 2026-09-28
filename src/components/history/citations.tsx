@@ -12,6 +12,7 @@
 import type { ReactNode } from "react";
 
 import type { Source } from "@/lib/history/registry";
+import { PROSE_LINK } from "@/components/content/prose";
 
 /**
  * Inline superscript footnote. When the source has a URL, it links straight out
@@ -50,7 +51,7 @@ export function Cite({
       }
     >
       {label}
-      <sup className="ml-0.5 font-mono text-[0.65rem] font-medium leading-none">
+      <sup className="ml-0.5 font-mono text-base font-medium leading-none">
         [{n}]
       </sup>
     </a>
@@ -71,11 +72,11 @@ export function Blockquote({
 }) {
   return (
     <figure className="my-6 border-l-2 border-border pl-4">
-      <blockquote className="text-sm italic leading-relaxed text-foreground/90">
+      <blockquote className="text-lg italic leading-[1.85] text-foreground/90">
         {children}
       </blockquote>
       {attribution && (
-        <figcaption className="mt-2 text-xs text-muted-foreground">
+        <figcaption className="mt-2 text-base text-muted-foreground">
           —{" "}
           {cite && sources ? (
             <Cite id={cite} sources={sources} label={attribution} />
@@ -95,7 +96,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
     <section className="mt-12" aria-labelledby="sources-heading">
       <h2
         id="sources-heading"
-        className="text-sm font-medium text-muted-foreground"
+        className="text-base font-medium text-muted-foreground"
       >
         Sources &amp; further reading
       </h2>
@@ -104,9 +105,9 @@ export function SourceList({ sources }: { sources: Source[] }) {
           <li
             key={s.id}
             id={`source-${s.id}`}
-            className="scroll-mt-24 text-sm leading-relaxed text-muted-foreground"
+            className="scroll-mt-24 text-base leading-relaxed text-muted-foreground"
           >
-            <span className="mr-2 font-mono text-xs text-muted-foreground/70">
+            <span className="mr-2 font-mono text-base text-muted-foreground/70">
               [{i + 1}]
             </span>
             {s.author && <span>{s.author}. </span>}
@@ -115,7 +116,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
                 href={s.url}
                 target="_blank"
                 rel="noreferrer"
-                className="text-foreground underline-offset-2 hover:underline"
+                className={PROSE_LINK}
               >
                 {s.title}
               </a>
@@ -129,7 +130,7 @@ export function SourceList({ sources }: { sources: Source[] }) {
             )}
             {s.year && <span> ({s.year})</span>}
             {s.publicDomain && (
-              <span className="ml-1.5 rounded bg-muted px-1 py-0.5 font-mono text-[0.6rem] uppercase tracking-wide text-muted-foreground">
+              <span className="ml-1.5 rounded bg-muted px-1 py-0.5 font-mono text-base uppercase tracking-wide text-muted-foreground">
                 Public domain
               </span>
             )}

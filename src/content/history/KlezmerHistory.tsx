@@ -16,6 +16,13 @@ import { getArticle } from "@/lib/history/registry";
 import { cousinQuestion } from "@/lib/cousins/registry";
 import { Blockquote, Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
+import {
+  H2,
+  OnThisPage,
+  P,
+  PROSE_LINK,
+  defineSections,
+} from "@/components/content/prose";
 import { SongLink } from "@/components/history/SongLink";
 import { Term } from "@/components/concepts/Term";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
@@ -40,31 +47,26 @@ function Ref({ id }: { id: string }) {
   return <Cite id={id} sources={SOURCES} />;
 }
 
-function H2({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+const SECTIONS = defineSections({
+  "the-word": "A musician before it was a music",
+  "predecessors": "Predecessors: the synagogue, the nigun, and the neighbors’ dances",
+  "world": "The world it lived in: the Pale, the wedding, the badkhn",
+  "sound": "The sound: freygish, the krechtz, and tunes that dance",
+  "america": "Steerage to Second Avenue: klezmer in America",
+  "crossover": "The crossover: Yiddish swing",
+  "revival": "Silence, and the revival",
+  "israel": "The other homecoming: klezmer in Israel",
+});
 
 export function KlezmerHistory() {
   return (
     <article className="mt-8">
-      <SongJumpNav ids={SONG_IDS} />
+      <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+        <OnThisPage sections={SECTIONS} />
+        <SongJumpNav ids={SONG_IDS} />
+      </div>
 
-      <H2 id="the-word">A musician before it was a music</H2>
+      <H2 {...SECTIONS["the-word"]} />
       <P>
         For most of its history,{" "}
         <Word id="klezmer">
@@ -112,9 +114,7 @@ export function KlezmerHistory() {
         What they meant by that is the story of this page.
       </P>
 
-      <H2 id="predecessors">
-        Predecessors: the synagogue, the nigun, and the neighbors&rsquo; dances
-      </H2>
+      <H2 {...SECTIONS["predecessors"]} />
       <P>
         Klezmer did not spring from nowhere, and it was never sealed off from
         the music around it. Its oldest layer is sacred and vocal: the chant of
@@ -123,7 +123,8 @@ export function KlezmerHistory() {
         called <Term id="freygish">Ahava Rabbah</Term> after the prayer sung
         in it — the same scale klezmorim knew in Yiddish as{" "}
         <Term id="freygish">freygish</Term>.<Ref id="stroum-jewish" /> Next to
-        the liturgy sat the Hasidic <Word id="nigun"><em>nigun</em></Word> —
+        the liturgy sat the <Term id="chasidic">Chasidic</Term>{" "}
+        <Word id="nigun"><em>nigun</em></Word> —
         wordless, repeating melodies sung to reach ecstasy — a living
         reservoir of tunes that instrumentalists drew on freely.
         <Ref id="yivo-traditional" />
@@ -150,13 +151,13 @@ export function KlezmerHistory() {
       </Blockquote>
       <P>
         So the honest genealogy names several streams — cantorial voice,
-        Hasidic song, and the dance music of Romanian, Ukrainian, Polish, and
+        <Term id="chasidic">Chasidic</Term> song, and the dance music of Romanian, Ukrainian, Polish, and
         Greek-Ottoman neighbors — carried by professional musicians and remade,
         not imported whole. (The blues tells a structurally similar story of
         practices remade under new conditions; the two histories read well{" "}
         <Link
           href="/history/blues"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           side by side
         </Link>
@@ -166,7 +167,7 @@ export function KlezmerHistory() {
         derivatives in America and Israel.<Ref id="yivo-traditional" />
       </P>
 
-      <H2 id="world">The world it lived in: the Pale, the wedding, the badkhn</H2>
+      <H2 {...SECTIONS["world"]} />
       <P>
         The heartland of this music was the Pale of Settlement — the western
         provinces of the Russian Empire where most Jews were required to live —
@@ -199,7 +200,7 @@ export function KlezmerHistory() {
         <Ref id="wikipedia-brandwein" />
       </P>
 
-      <H2 id="sound">The sound: freygish, the krechtz, and tunes that dance</H2>
+      <H2 {...SECTIONS["sound"]} />
       <P>
         Two things make a klezmer tune recognizable in a bar or two. The first
         is pitch: melodies built on modes like{" "}
@@ -208,7 +209,7 @@ export function KlezmerHistory() {
         <Term id="augmented-second">augmented second</Term> between them. The{" "}
         <Link
           href="/scales/freygish"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           freygish scale
         </Link>{" "}
@@ -235,14 +236,14 @@ export function KlezmerHistory() {
         in our{" "}
         <Link
           href="/piano-roll"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           Piano Roll
         </Link>{" "}
         library.
       </P>
 
-      <H2 id="america">Steerage to Second Avenue: klezmer in America</H2>
+      <H2 {...SECTIONS["america"]} />
       <P>
         Between 1881 and 1924, some two million Jews left Eastern Europe for
         America, klezmorim among them. In New York the music found new rooms —
@@ -283,7 +284,7 @@ export function KlezmerHistory() {
         the free, improvisational style of Near Eastern folk music.&rdquo;
       </Blockquote>
 
-      <H2 id="crossover">The crossover: Yiddish swing</H2>
+      <H2 {...SECTIONS["crossover"]} />
       <P>
         In late 1937, the music jumped the fence. A Yiddish theater song that
         had flopped with its show in 1932 —{" "}
@@ -324,14 +325,14 @@ export function KlezmerHistory() {
         both languages in the air — are on{" "}
         <Link
           href="/cousins/dona-dona"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           {cousinQuestion("Dona Dona")}
         </Link>
         .
       </P>
 
-      <H2 id="revival">Silence, and the revival</H2>
+      <H2 {...SECTIONS["revival"]} />
       <P>
         Then, for a generation, the music nearly vanished. In America the
         children of the immigrants wanted American music at their weddings; in
@@ -356,7 +357,7 @@ export function KlezmerHistory() {
         <Ref id="britannica-klezmer" />
       </P>
 
-      <H2 id="israel">The other homecoming: klezmer in Israel</H2>
+      <H2 {...SECTIONS["israel"]} />
       <P>
         Not every klezmer sailed for New York. Others went to Mandatory
         Palestine and, after 1948, to the new State of Israel, and the wedding
@@ -394,7 +395,7 @@ export function KlezmerHistory() {
         see{" "}
         <Link
           href="/genres/klezmer"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           What is klezmer?
         </Link>
@@ -403,7 +404,7 @@ export function KlezmerHistory() {
 
       <SourceList sources={SOURCES} />
 
-      <p className="mt-8 text-xs leading-relaxed text-muted-foreground/70">
+      <p className="mt-8 text-base leading-relaxed text-muted-foreground/70">
         Quotations are reproduced briefly for commentary and criticism, with
         attribution and links to the originals. Where a source is public domain
         it is marked as such; other works are quoted under fair use. Click a

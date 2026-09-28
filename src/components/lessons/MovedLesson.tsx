@@ -28,13 +28,13 @@ export function MovedLesson({ title, to }: MovedLessonProps) {
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <meta httpEquiv="refresh" content={`0;url=${to}`} />
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <p className="text-sm text-muted-foreground">
+        <p className="text-base text-muted-foreground">
           <span className="font-medium text-foreground">{title}</span> now lives
           in the Scales module.
         </p>
         <Link
           href={to}
-          className="mt-2 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          className="mt-2 inline-flex items-center gap-1.5 text-base font-medium text-foreground underline-offset-4 hover:underline"
         >
           Continue
           <ArrowRight className="h-3.5 w-3.5" />

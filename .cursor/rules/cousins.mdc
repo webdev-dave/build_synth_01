@@ -6,8 +6,13 @@ alwaysApply: false
 
 # Cousins articles
 
-A cousin page is one **melody** with many lives. Chrome matches History.
-Details and the honesty rules live in `docs/plans/cousins-module.md`.
+A cousin page is one **melody** with many lives. Chrome matches History,
+including the **16px type floor** (`text-base` minimum on the article —
+body, captions, family list, pills) and the shared reading column
+(`H2` / `P` / `PROSE_LINK` / `defineSections` + `<OnThisPage>` from
+`src/components/content/prose.tsx`). See “Type size” and “Reading column”
+in `.cursor/rules/history-articles.mdc`. Details and the honesty rules live
+in `docs/plans/cousins-module.md`.
 
 ## Copy standard — do not invent titles or link labels
 
@@ -74,10 +79,17 @@ members: [{ song: "misirlou-dale", kind: "rearrangement" }]
 
 The spoke's `<PageMapSection>` reads `article.places` verbatim. A one-city
 list is almost always **wrong**: a tune that traveled touches several places.
+Songs and artists use the same bar — `places` on the entry, new cities
+added in the same change, no broad genre tag on a stub. See “Map” in
+`.cursor/rules/catalog-songs.mdc`. Genre slugs such as `yiddish-folk` do
+not draw a map.
 
 - List **every place the body cites** — origin, each rearrangement/translation
   home, each performer's base — as place-registry ids.
 - Only pin what the prose actually supports; kinship-by-vibe is not a place.
+- Jewish repertoire (traditional Jewish, Chasidic, Yiddish, klezmer) always
+  pins `"israel"` and says so in the body — it is sung there now. See
+  “Israel is always on the map” in `.cursor/rules/catalog-songs.mdc`.
 - If a cited place is missing from `src/lib/places/registry.ts`, **add it**
   (sourced blurb) in the same change, then reference it. Don't shrink the map
   because the registry is thin.

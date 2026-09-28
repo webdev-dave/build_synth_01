@@ -43,9 +43,15 @@ are places with relationships, and the app shows you the connections.
   `public/audio/words/`, credited); if none exists, show **no speaker**.
   When English spelling varies, list 1–2 common alternatives
   (`alsoSpelled`: *krechtz* / *krekhts*). Don't invent spellings.
+  The movement is **Chasidic** in any sentence that uses one word;
+  **Hasidic** stays an alternate spelling and a search phrase
+  (`.cursor/rules/chasidic-spelling.mdc`).
   Writing: `.cursor/rules/history-articles.mdc`. Cousins:
   `.cursor/rules/cousins.mdc`. Catalog songs:
-  `.cursor/rules/catalog-songs.mdc`. **Sourcing catalog**
+  `.cursor/rules/catalog-songs.mdc`. A person’s name links to their
+  artist page; if they have no entry and we are not adding one, it
+  links to Wikipedia when an article exists
+  (`.cursor/rules/person-names.mdc`). **Sourcing catalog**
   (best sources per language we know, what's already shipped, what's
   ruled out): `.cursor/rules/pronunciation-audio.mdc` — **update that
   file in the same change** when you add a language, find a clip, or
@@ -79,6 +85,21 @@ are places with relationships, and the app shows you the connections.
 - **Monospace for data.** Note names, Hz readouts, and anything
   machine-precise renders in the mono font — that's the
   "computer-sciency undertone."
+- **Long-form entries read at 16px minimum.** Song, artist, concept,
+  history, cousin, genre, scale, lesson, language, and about pages: body,
+  captions, lyrics, sources, labels, pills, and in-entry popovers use
+  `text-base` or larger. Never `text-sm`, `text-xs`, or a custom size under
+  `1rem`. Hub cards and instrument chrome are separate. House rule:
+  `.cursor/rules/history-articles.mdc` (“Type size”).
+- **Reading column comes from `src/components/content/prose.tsx`.** Body
+  prose is 18px at line-height 1.85, 24px between paragraphs (captions and
+  labels stay at the 16px floor),
+  `text-foreground/85`, about 65 characters a line, with `text-pretty`. The muted gray is only for captions, credits, and labels.
+  Headings use `text-balance`. Navigating links are always underlined;
+  dotted underlines mean a popover. Articles with four or more sections get
+  `<OnThisPage>`. The writing rules (short paragraphs, lists for three or
+  more items, restrained emphasis) are in `history-articles.mdc` under
+  “Reading column.”
 - **Icons are Lucide**, mapped centrally in `src/lib/appIcons.ts`. If no
   Lucide icon fits, draw a custom one with `createLucideIcon` in the same
   style (2px stroke, 24px grid) rather than importing another icon set.

@@ -1,6 +1,6 @@
 ---
 description: Standards for writing and maintaining teaching content — history articles, genre/scale spokes, concepts, catalog entries, and loanwords (native spelling + pronounce). Use when adding or editing any of those, especially cross-links.
-globs: src/content/history/**,src/lib/history/**,src/components/history/**,src/content/cousins/**,src/lib/cousins/**,src/components/cousins/**,src/app/cousins/**,src/lib/concepts/**,src/components/concepts/**,src/lib/catalog/**,src/components/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/words/**,src/components/words/**,src/lib/places/**,src/app/genres/**,src/app/scales/**,src/app/history/**,src/app/concepts/**,src/app/songs/**,src/content/scales/**,src/content/concepts/**,src/components/genres/**,src/components/content/**
+globs: src/content/history/**,src/lib/history/**,src/components/history/**,src/content/cousins/**,src/lib/cousins/**,src/components/cousins/**,src/app/cousins/**,src/lib/concepts/**,src/components/concepts/**,src/lib/catalog/**,src/components/catalog/**,src/lib/genres/**,src/lib/scales/**,src/lib/words/**,src/components/words/**,src/lib/places/**,src/app/genres/**,src/app/scales/**,src/app/history/**,src/app/concepts/**,src/app/songs/**,src/app/artists/**,src/app/languages/**,src/app/lessons/**,src/app/about/**,src/content/scales/**,src/content/concepts/**,src/components/genres/**,src/components/content/**,src/components/scales/**,src/components/lessons/**,src/components/media/CollapsibleVideo.tsx,src/components/media/HostedAudioPlayer.tsx
 alwaysApply: false
 ---
 
@@ -17,6 +17,143 @@ menu (`SongLink`), the inline player (`src/components/media/YouTubeEmbed.tsx`),
 the theory-term glossary (`<Term>` + `src/lib/concepts/registry.ts`), loanwords
 (`<Word>` / `<Term>` + `src/lib/words/registry.ts`), and the artists/songs
 catalog (`<ArtistLink>` + `src/lib/catalog/`).
+
+## Type size — 16px floor
+
+On a long-form entry, **nothing the reader reads is smaller than 16px**.
+That is Tailwind `text-base` (`1rem`). Main reading text (body paragraphs,
+lead answer, lists, quotes) is **18px** (`text-lg`) via `prose.tsx`.
+Captions, labels, and notes sit at the 16px floor. Section headings are
+`text-xl`, and page titles are larger still.
+
+Entries: history, cousins, genres, scales and their lessons, concepts,
+songs, artists, languages, and the about page. The floor covers the whole
+reading column and anything that opens from it:
+
+- body, captions, lyrics, credits, footnotes, source lists
+- section labels, related-page links, “coming soon” notes
+- genre pills, loanword banner, term / artist / song popovers
+- the embedded map’s heading and place names
+
+```tsx
+// ❌ BAD — 14px body, 12px caption, 10px pill
+<p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+<p className="text-xs text-muted-foreground">
+<span className="text-[10px]">Blues</span>
+
+// ✅ GOOD — shared primitives; captions at 16px in the muted gray
+<P>…</P>
+<p className="mt-2 text-base text-muted-foreground">Source: …</p>
+```
+
+Do not use `text-sm`, `text-xs`, or a custom size under `1rem` for that
+copy. Shared chrome that renders on these pages (`RelatedPages`, `HubLink`,
+`GenrePills`, `SongLyrics`, citations, `WordBanner`) already uses
+`text-base` — don’t pass a smaller size back in.
+
+**Outside this floor:** hub index cards and their search/filters, the synth,
+piano roll, MIDI Lab, and harmonica. Piano key names and the lesson octave
+stepper are instrument controls, shared with those tools — leave their size
+alone.
+
+## Reading column — use `src/components/content/prose.tsx`
+
+The readability rules are a class list, not a habit. Article bodies, scale
+lessons, and entry-page prose import from `prose.tsx`. Don't hand-roll a
+local `H2` / `P` or copy the class strings.
+
+| Piece | Use | What it enforces |
+|---|---|---|
+| Section heading | `<H2 {...SECTIONS["id"]} />` | 20px (`text-xl`), `text-balance`, more space above (`mt-12`) than below |
+| Paragraph | `<P>` / `PROSE_BODY` + `PROSE_GAP` | 18px (`text-lg`) at line-height 1.85 (`leading-[1.85]`, ~33px), 24px between paragraphs (`mt-6`), `text-foreground/85`, `max-w-[65ch]`, `text-pretty` |
+| Lead answer under `<h1>` | `PROSE_LEAD` | same measure, full foreground |
+| Parallel items | `<ProseList>` (`ordered` for steps) | same type as body, muted markers |
+| Link that navigates | `PROSE_LINK` | always underlined, thin; darkens on hover |
+| Contents | `<OnThisPage sections={SECTIONS} />` | shown at 4+ sections |
+
+Entry `<h1>`s also carry `text-balance`.
+
+**Line spacing is the main readability lever.** Reading prose and quotes
+use `leading-[1.85]`, not `leading-relaxed` (1.625), which is for UI text,
+captions, and lyrics lines. To retune, change the one value in `prose.tsx`
+(and `Blockquote` in `citations.tsx`), not per page. Keep the paragraph gap
+a little under one body line, so paragraphs stay separate without breaking
+the flow.
+
+### Contrast — three levels, fixed meanings
+
+- **Headings:** `text-foreground`, semibold.
+- **Body you read:** `text-foreground/85`.
+- **Notes about the text:** `text-muted-foreground`. That means captions,
+  credits, source lists, labels, fair-use footers, and metadata lines.
+
+Never set a paragraph of reading in the muted gray. In light mode it is
+about 4.6:1, which is legal but tiring across a whole article.
+
+### Line length
+
+Hold prose to about 65 characters (`max-w-[65ch]`, already in
+`PROSE_BODY`). Players, maps, lists of cards, and tables may use the full
+column width.
+
+### Paragraph and heading rhythm (writing)
+
+- One idea per paragraph, **2–4 sentences, never more than ~90 words**. If
+  a paragraph needs a second “also,” split it.
+- A new `H2` every **3–5 paragraphs**. A heading names what the section
+  says (“The first record we can point at”), not a category (“Background”).
+- Registry prose (`about`, `bio`, `definition`) follows the same rule. Split
+  paragraphs with a blank line (`\n\n`), which the pages already render.
+
+### Lists and quotes (writing)
+
+- **Three or more parallel items** (traits, instruments, places, steps) go in
+  `<ProseList>`, not a long comma sentence. Two items stay in the sentence.
+- A list item is a phrase or one sentence. If it needs two, it is a paragraph.
+- **Quotes: about three lines or fewer** in `<Blockquote>`. For longer
+  passages, quote the key line and paraphrase the rest, with a footnote.
+
+### Emphasis (writing)
+
+- *Italics* are for titles of works and for foreign words (the `<em>` inside
+  `<Word>` / `<Term>`). Don't use italics for stress.
+- **Bold** only for the term a lesson is defining, and at most once per
+  section (“into **harmonic minor**”). Never bold a whole sentence.
+- ALL CAPS with wide letter-spacing only on short labels (“Refrain,”
+  “Public domain,” a language tag). Never on a sentence or a heading.
+- No exclamation marks, and no emphasis added to other people's quotes.
+
+### Links — two looks, two meanings
+
+- **Solid thin underline (`PROSE_LINK`)** means the link goes somewhere:
+  another page, or out to a source.
+- **Dotted underline** means it opens a popover in place: `<Term>`,
+  `<ArtistLink>`. The song pill (`<SongLink>`) keeps its own look.
+- Link the first meaningful mention. There is no cap on links per paragraph.
+  Link text says where it goes (“the blues scale”), never “here” or “this page.”
+- External sources go through `<Cite>` or the source list, so they can be
+  checked, rather than as bare inline URLs.
+
+### Contents
+
+A history or cousin article with **four or more sections** defines them once
+and gets a contents line next to “Songs in this article”:
+
+```tsx
+const SECTIONS = defineSections({
+  "predecessors": "Predecessors: West Africa, and what else it borrowed",
+  "roots": "Work songs, field hollers, spirituals",
+  // …in page order
+});
+
+<div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+  <OnThisPage sections={SECTIONS} />
+  <SongJumpNav ids={SONG_IDS} />
+</div>
+<H2 {...SECTIONS["predecessors"]} />
+```
+
+Scale lessons keep their numbered `H2`s (the numbers are the contents).
 
 ## The moving parts (do all of these to ship an article)
 
@@ -133,8 +270,11 @@ body down; never an overlay) with:
 - **Open in Piano Roll** — `/piano-roll/<pianoRollId>`, opens a **new tab** and
   shows a trailing **arrow**; **greyed out, no arrow** when the catalog song has
   no `pianoRollId` (i.e. it isn't in the MIDI library `src/lib/songs`).
-- **Play on YouTube** — expands the reusable `YouTubeEmbed`
-  (`src/components/media/YouTubeEmbed.tsx`), so the user stays on the page.
+- **Play on YouTube** — a chip (YouTube mark + label) that expands the
+  reusable `YouTubeEmbed` (`src/components/media/YouTubeEmbed.tsx`), so
+  the user stays on the page. Song pages and cousins articles use
+  `CollapsibleVideo` for that chip. Do not mount an open iframe as the
+  recording itself. See “Players” in `.cursor/rules/catalog-songs.mdc`.
 - **About “<song>” / More about <artist>** — cross-links to `/songs/<slug>` and
   each `/artists/<slug>`, so the mention is a doorway into the catalog.
 
@@ -148,7 +288,29 @@ second song pauses the first (the `YouTubeEmbed`s cooperate via
 `youtubeConductor.ts` — don't reintroduce a bare autoplay iframe). List the
 article's song slugs in a `SONG_IDS` array and pass them to
 **`<SongJumpNav ids={SONG_IDS} />`**. Don't wrap a title **inside a direct
-quotation**. Reuse `YouTubeEmbed` anywhere a video should play in place.
+quotation**. Offer a clip as a `CollapsibleVideo` chip. `YouTubeEmbed` is
+the player inside that chip, not a bare iframe dropped onto the page.
+
+## People are not bylines
+
+A song, artist, genre, or history entry that names a person has to know
+them. Dates and a credit line are not enough. Hunt the life, then keep
+the few facts that make the work make sense: a job, a family, a journey,
+a joke in a title, a contradiction. Reisen is the example — four years in
+a Russian army band, a house full of writers, a secular poet whose Sukkot
+poem Hasidim still sing, a first story titled “Damn the nose, so long as
+there is a dowry of a gold watch and 300 rubles.”
+
+- The **artist** `bio` holds the life. A song or genre page gets a short
+  passage when that person is who the entry is about — not a pasted
+  biography, and not “he was a famous writer.”
+- Every fact is sourced (an encyclopedia, a book, their own memoir). If
+  the army years or the anecdote cannot be verified, leave them out. Do
+  not invent color to make a page lively.
+- Prefer the concrete: a title, a year, a place, what they actually did.
+  One odd true detail is worth more than a paragraph of praise.
+- A genre gets this when a person is how that shelf is explained. A genre
+  with no such person does not get a made-up hero.
 
 ## Artists & songs get catalog entries (cross-referencing)
 
@@ -167,17 +329,31 @@ MIDI arrangements the Piano Roll plays; a catalog song points into it via
   `.cursor/rules/catalog-songs.mdc`). The song page shows those cousin
   links at the top.
 - **`artists.ts`** — an `Artist` per person: `slug`, `name`, `era`, `micro`
-  (one-line bio, true standalone), longer `bio`, `genres`/`history` slugs, and
+  (one-line bio, true standalone), longer `bio`, `genres`/`history` slugs,
+  **`places`** (every city the bio names — see “Map” in
+  `.cursor/rules/catalog-songs.mdc`), and
   external `links` (encyclopedias/archives — verify URLs, don't fabricate).
+  Those links are the page’s **Sources** list, rendered last by
+  `<EntrySources>`, not a mid-page “Elsewhere” block. When a Wikipedia
+  article exists for the song or the person, it is one of those links.
+  See `.cursor/rules/catalog-songs.mdc` (“Sources — the bottom of the page”).
   Don't list an artist's songs; `songsByArtist()` derives them.
-- **Name a person in prose → wrap the first mention in
-  `<ArtistLink id="<slug>">Name</ArtistLink>`** (`src/components/catalog/`), the
-  artist counterpart to `<Term>`: dotted underline, click for a micro-bio + link
-  to `/artists/<slug>`. First meaningful mention only, not every one.
-  Registry strings (map place blurbs, genre `about`, scale `history`) go
-  through **`makeTermLinker()`**, which wraps catalog `name`s automatically
-  — adding the artist is enough for those surfaces. Hand-authored TSX still
-  needs `<ArtistLink>`.
+- **Name a person in prose → our artist page, or Wikipedia.** If they
+  are in `artists.ts` (or this change is adding them), wrap every mention
+  in `<ArtistLink id="<slug>">Name</ArtistLink>` (`src/components/catalog/`),
+  the artist counterpart to `<Term>`: dotted underline, click for a micro-bio
+  + link to `/artists/<slug>`. Every mention, not only the first. If they
+  have no entry and we are not adding one, the name links to their Wikipedia
+  article when one exists. Full rule:
+  `.cursor/rules/person-names.mdc`. Concepts and loanwords stay
+  first-mention only.
+  Registry strings (map place blurbs, genre `about`, scale `history`, song
+  `about`, artist `bio`) go through **`makeTermLinker()`**, which wraps every
+  catalog `name` and `alsoNamed` form automatically, and turns
+  `[Sarah](https://en.wikipedia.org/wiki/Sarah_Reisen)` into the Wikipedia
+  link. Hand-authored TSX still needs `<ArtistLink>` or a `PROSE_LINK`
+  anchor on each mention. If the prose uses a surname alone (“Reisen”),
+  put it on `alsoNamed` — only when that form won’t match someone else.
 - Adding a song or artist is just a registry append — the `/songs` and
   `/artists` hubs, spoke pages, and sitemap pick it up automatically. Set
   `status: "live"` only once the entry is real.
@@ -189,16 +365,32 @@ MIDI arrangements the Piano Roll plays; a catalog song points into it via
 When you add or expand a catalog song, **source the lyrics and show them**
 on `/songs/<slug>`. Hearing the recording without the words is half a
 lesson. Store them on `CatalogSong.lyrics` (`SongLyrics[]`) and render
-with **`<SongLyrics versions={song.lyrics} />`** — don't hand-roll a second
-layout. **Copyright is not a reason to skip** — see
+with **`<SongLyrics title={song.title} versions={song.lyrics ?? []} recordings={songPageRecordings(song)} />`** — don't hand-roll a second
+layout, and don't play the recordings again above that section.
+Each version is **one card**: the recording, then the words it sings.
+A recording names its version with `lyrics: "<id>"`. More than one
+card starts **collapsed**; the words stay in the HTML. The heading
+names lyrics, translation, and recordings as the page actually has
+them. Before the history, an **On this page** list starts with **Song
+history** (`#history`), then the jump to `#lyrics` with that same
+wording and a speaker icon at the end of the link. A rule and space
+separate that list from the history.
+See `.cursor/rules/catalog-songs.mdc` (“Lyrics and recordings —
+one section, one card per version”).
+**Copyright is not a reason to skip** — see
 `.cursor/rules/catalog-songs.mdc` (“Lyrics — always hunt”). Over the
 Rainbow shipped empty because an agent treated 1938 copyright as a stop;
 that is forbidden.
 
 - **Hunt before you give up.** Scholarly song collections (Mlotek / Workers
-  Circle for Yiddish), Library of Congress / National Jukebox, Wikisource /
-  IMSLP, PD songbooks, published sheet music, a cited encyclopedia table
-  that actually prints the words. Web-search; don't quote from memory.
+  Circle for Yiddish), **Yiddish Song of the Week**
+  ([yiddishsong.wordpress.com](https://yiddishsong.wordpress.com/))
+  for any Yiddish song — field recordings, history notes, variants, and
+  often words plus a translation; search the blog and read the comments
+  (see `.cursor/rules/catalog-songs.mdc`) — Library of Congress /
+  National Jukebox, Wikisource / IMSLP, PD songbooks, published sheet
+  music, a cited encyclopedia table that actually prints the words.
+  Web-search; don't quote from memory.
   Still-protected lyrics: reprint from a publication we can point at,
   attribute, link out; the component already prints the teaching/fair-use
   note. Omit only for an instrumental, an author’s explicit no-reprint
@@ -258,6 +450,14 @@ layout, unlike `SongLink`.
 - **Link the first meaningful mention**, not every occurrence — over-linking
   reads as noise. Pass children matching the prose
   (`<Term id="syncopation">off-beat accent</Term>`); the `id` does the lookup.
+- **Chasidic is the exception, and the spelling.** Write **Chasidic**
+  (a follower is a **Chasid**, the people **Chasidim**). **Hasidic** is an
+  alternate and a search phrase, not the word the sentence uses. Rule:
+  `.cursor/rules/chasidic-spelling.mdc`. Every mention — in prose and in
+  lyric notes — links to the glossary entry for the movement
+  (`<Term id="chasidic">`), not to Wikipedia and not only the first time.
+  The glossary page is the brief history and meaning; its sources list
+  links to Wikipedia. Do not send the word straight out.
 - **Terms *may* go inside a direct quotation** — unlike `<SongLink>`. When a
   quotation itself names a concept (Kubik's *"characteristic pentatonic
   system"*), that's a prime teaching moment: link it. The popover is a
@@ -368,11 +568,11 @@ const linkTerms = makeTermLinker();   // one per page
 ```
 
 - It wraps the **first occurrence** of each registry concept (matched on `term`
-  + `aliases`, longest phrase wins) in a `<Term>`, each other loanword in
-  a `<Word>`, and each catalog artist `name` in an `<ArtistLink>`. **One
-  linker per page** — share it across the lead and body so a concept, word,
-  or artist links once, not once per paragraph (same "first meaningful
-  mention" rule as hand-authoring).
+  + `aliases`, longest phrase wins) in a `<Term>`, and each other loanword in
+  a `<Word>`. A catalog artist is different: **every** mention of `name` or
+  `alsoNamed` becomes an `<ArtistLink>`. **One linker per page** — share it
+  across the lead and body so a concept or word links once, not once per
+  paragraph. Artists are not part of that once-per-page budget.
 - It's a plain function returning nodes (no hooks), so pages **stay server
   components** and the prose text still ships in static HTML. `<Term>` /
   `<Word>` / `<ArtistLink>` are the only client leaves.
@@ -431,9 +631,10 @@ an external source. When that page lands, come back and add the link.
 - **Distinguish ancestry from category.** A thing can be *secular* (what the
   music is about) yet descend from *sacred* sources (spirituals). Name the
   distinction rather than letting the words look contradictory.
-- Prose is plain TSX + Tailwind (no `prose` plugin): `H2` = `text-lg font-semibold`,
-  body = `text-sm leading-relaxed text-muted-foreground`. Link inline to the
-  matching `/genres/<slug>` and `/scales/<slug>` pages.
+- Prose is plain TSX + Tailwind (no `prose` plugin). Use the primitives in
+  `src/components/content/prose.tsx`. See “Type size” and “Reading column”
+  above. Link inline to the matching `/genres/<slug>` and `/scales/<slug>`
+  pages with `PROSE_LINK`.
 
 ## Keep the short blurbs in sync
 
@@ -450,6 +651,17 @@ After a new claim, also sweep the concept `micro`/`definition` and catalog
   English when it isn't English; each sung version is its own entry). Copyright
   is not a skip. Omit only for instrumental / author forbade reprint / hunt
   failed, and say so in `about`.
+- A live song or artist whose prose names places has `places` on that
+  entry, and any new city is in `src/lib/places/registry.ts` **without** a
+  broad genre tag. `yiddish-folk` does not draw a map by itself. See
+  “Map” in `.cursor/rules/catalog-songs.mdc`.
+- Jewish repertoire (traditional Jewish, Chasidic, Yiddish, klezmer,
+  Yiddish theater) pins `"israel"` and names it once in the prose — the
+  song is sung there now. Songs, artists, genres, cousins alike.
+- A song, artist, or genre spoke ends with `<EntrySources>` — the last
+  block, numbered, same list as `<SourceList>`. `links` holds the
+  printings and essays; a live page does not ship with “not listed yet.”
+  History and cousins articles keep `<SourceList>` at the end of the body.
 - Both sides of every new cross-link exist (genre `scales` ↔ scale `usedIn`;
   history `genres`/`scales` ↔ `getArticleByGenre` / `getArticlesByScale`;
   cousin `members` ↔ song `cousins`). A live cousin article has `genres`

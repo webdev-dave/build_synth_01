@@ -51,10 +51,22 @@ export interface SpokenWord {
   aliases?: string[];
   native: NativeForm;
   /**
+   * A second home spelling when the word is written in more than one
+   * language (Yiddish חסידיש and Hebrew חסידי). The banner shows each
+   * with its language name. Search treats them like `native`.
+   */
+  alsoNative?: NativeForm[];
+  /**
    * A verified human recording of this word. Present ⇒ show the speaker.
    * Absent ⇒ spelling only, no button. See `public/audio/words/`.
    */
   audio?: WordAudio;
+  /**
+   * What the clip actually says, when that is not `latin`
+   * ("Chassidish" on an entry whose English headword is "Chasidic").
+   * The speaker's label uses this so the button names the word you hear.
+   */
+  audioSays?: string;
 }
 
 /** Shared attribution for the Jewish English Lexicon recordings. */
@@ -412,6 +424,80 @@ export const WORDS: SpokenWord[] = [
     },
   },
   {
+    // Two English spellings of one word: Chasidic (house, the "ch" standing
+    // in for the kh sound) and Hasidic (the academic spelling). Yiddish
+    // adjective חסידיש — Jewish English Lexicon “chassidish” etymology
+    // “Y חסידיש khsidish”, and Wiktionary חסידיש (khosidish). Hebrew
+    // adjective חסידי, unpointed, as in Hebrew Wikipedia ניגונים חסידיים
+    // and Chabadpedia ניגון חסידי. Genre slug so the spoke gets the banner.
+    id: "chasidic",
+    latin: "Chasidic",
+    alsoSpelled: ["Hasidic", "Chassidish"],
+    aliases: [
+      "hasidic",
+      "chassidic",
+      "chasidish",
+      "hasidish",
+      "khsidish",
+      "khosidish",
+      "chasidi",
+    ],
+    native: {
+      spelling: "חסידיש",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    alsoNative: [
+      {
+        spelling: "חסידי",
+        language: "Hebrew",
+        lang: "he-IL",
+      },
+    ],
+    // JEL headword “Chassidish” (chah-SID-dish) — the Yiddish adjective
+    // חסידיש, not the English “Chasidic” and not Hebrew חסידי.
+    audio: JEL("chasidish.mp3", "1385"),
+    audioSays: "Chassidish",
+  },
+  {
+    // JEL *cheder* /words/1814. Etymology: Yiddish חדר kheyder, from
+    // Hebrew חדר “room.” Clip is the CHEH-dehr reading, which matches
+    // the English headword. The CHEY-der take is the same entry; not
+    // a second file.
+    id: "cheder",
+    latin: "cheder",
+    alsoSpelled: ["heder", "kheyder"],
+    aliases: ["cheyder", "cheders"],
+    native: {
+      spelling: "חדר",
+      language: "Yiddish",
+      lang: "yi",
+    },
+    audio: JEL("cheder.mp3", "1814"),
+  },
+  {
+    // JEL *yeshiva* /words/615. Etymology: Hebrew ישיבה, Yiddish
+    // ישיבֿה yeshive. Clip is yeh-SHEE-vuh, the English headword.
+    // yeh-SHIH-vuh and yeh-shee-VAH are other takes on the same entry.
+    id: "yeshiva",
+    latin: "yeshiva",
+    alsoSpelled: ["yeshivah", "yeshive"],
+    aliases: ["yeshivas", "yeshivot"],
+    native: {
+      spelling: "ישיבה",
+      language: "Hebrew",
+      lang: "he-IL",
+    },
+    alsoNative: [
+      {
+        spelling: "ישיבֿה",
+        language: "Yiddish",
+        lang: "yi",
+      },
+    ],
+    audio: JEL("yeshiva.mp3", "615"),
+  },
+  {
     // YIVO פֿאָלקסליד “folk song.” Genre slug for the spoke banner.
     id: "yiddish-folk",
     latin: "folkslid",
@@ -460,7 +546,7 @@ export const WORDS: SpokenWord[] = [
     },
   },
   {
-    // JEL “khosidl” — Hasidic dance; Y חסידל.
+    // JEL “khosidl” — Chasidic dance; Y חסידל.
     id: "khosidl",
     latin: "khosidl",
     alsoSpelled: ["khosidel"],
@@ -668,9 +754,27 @@ export function spellingDiffers(latin: string, spelling: string): boolean {
   return latin.normalize("NFC") !== spelling.normalize("NFC");
 }
 
-/** Native script + English alts for search haystacks. */
-export function nativeSpellingsOf(id: string): string[] {
+/** Home spellings: the primary native form, then any second language. */
+export function nativesOf(word: SpokenWord): NativeForm[] {
+  return [word.native, ...(word.alsoNative ?? [])];
+}
+
+/**
+ * Everything a reader might type for this word: native scripts, the
+ * English variants on the banner, and linker-only aliases.
+ */
+export function searchPhrasesOf(id: string): string[] {
   const word = getWord(id);
   if (!word) return [];
-  return [word.native.spelling, ...(word.alsoSpelled ?? [])];
+  return [
+    ...nativesOf(word).map((form) => form.spelling),
+    word.latin,
+    ...(word.alsoSpelled ?? []),
+    ...(word.aliases ?? []),
+  ];
+}
+
+/** Native script + English alts for search haystacks. */
+export function nativeSpellingsOf(id: string): string[] {
+  return searchPhrasesOf(id);
 }

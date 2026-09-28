@@ -16,6 +16,7 @@ import { RelatedPages } from "@/components/content/RelatedPages";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
 import { HubLink } from "@/components/content/HubLink";
+import { PROSE_BODY, PROSE_GAP, PROSE_LEAD } from "@/components/content/prose";
 
 interface ScalePageProps {
   params: Promise<{ slug: string }>;
@@ -115,21 +116,29 @@ export default async function ScalePage({ params }: ScalePageProps) {
 
         <header className="mt-6">
           <div className="flex items-center gap-2.5">
-            <h1 className="text-3xl font-semibold tracking-tight">
+            <h1 className="text-balance text-3xl font-semibold tracking-tight">
               {scale.question}
             </h1>
-            {scale.kind === "mode" && <Badge variant="outline">Mode</Badge>}
-            {soon && <Badge variant="secondary">Coming soon</Badge>}
+            {scale.kind === "mode" && (
+              <Badge variant="outline" className="text-base">
+                Mode
+              </Badge>
+            )}
+            {soon && (
+              <Badge variant="secondary" className="text-base">
+                Coming soon
+              </Badge>
+            )}
           </div>
           {word && <WordBanner word={word} />}
           {/* Other names sit under the title: a reader who arrived by one of
               them should see it before reading a word of the answer. */}
           <ScaleAliases aliases={scale.aliases} variant="header" className="mt-3" />
-          <p className="mt-5 text-base leading-relaxed text-foreground">
+          <p className={`mt-5 ${PROSE_LEAD}`}>
             {linkTerms(scale.answer)}
           </p>
           {scale.history && (
-            <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
+            <p className={`${PROSE_GAP} ${PROSE_BODY}`}>
               {linkTerms(scale.history)}
             </p>
           )}
@@ -143,22 +152,22 @@ export default async function ScalePage({ params }: ScalePageProps) {
         <section className="mt-10" aria-labelledby="build-heading">
           <h2
             id="build-heading"
-            className="text-sm font-medium text-muted-foreground"
+            className="text-base font-medium text-muted-foreground"
           >
             Quick reference
           </h2>
           <dl className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div className="rounded-md border bg-muted/20 p-3">
-              <dt className="text-xs text-muted-foreground">Formula</dt>
-              <dd className="mt-1 font-mono text-sm text-foreground">
+              <dt className="text-base text-muted-foreground">Formula</dt>
+              <dd className="mt-1 font-mono text-base text-foreground">
                 {scale.formula}
               </dd>
             </div>
             <div className="rounded-md border bg-muted/20 p-3">
-              <dt className="text-xs text-muted-foreground">
+              <dt className="text-base text-muted-foreground">
                 In {scale.exampleKey}
               </dt>
-              <dd className="mt-1 font-mono text-sm text-foreground">
+              <dd className="mt-1 font-mono text-base text-foreground">
                 {scale.exampleNotes}
               </dd>
             </div>
@@ -168,7 +177,7 @@ export default async function ScalePage({ params }: ScalePageProps) {
         {/* Deeper scale-by-scale exploration lives on the module hub. */}
         <Link
           href="/scales"
-          className="group mt-6 inline-flex items-center gap-1.5 text-sm font-medium text-foreground underline-offset-4 hover:underline"
+          className="group mt-6 inline-flex items-center gap-1.5 text-base font-medium text-foreground underline-offset-4 hover:underline"
         >
           Explore all scales
           <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
@@ -206,7 +215,7 @@ export default async function ScalePage({ params }: ScalePageProps) {
               className="mx-auto h-5 w-5 text-muted-foreground"
               strokeWidth={1.75}
             />
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-base text-muted-foreground">
               A playable keyboard that lights up these notes — and an A/B
               comparison with related scales — is being built, so you can hear
               the scale, not just read its formula.

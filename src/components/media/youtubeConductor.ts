@@ -10,8 +10,11 @@
  *     autoplay or the user hitting play), it calls `pauseOthers()`, so the
  *     user's deliberate choice to hear song B silences song A.
  *
- * Module-level singleton: shared by every embed on the page. No React state —
- * playback truth comes from each player's IFrame API events.
+ * `HostedAudioPlayer` registers here too, so a file we host and a YouTube
+ * chip obey the same rule.
+ *
+ * Module-level singleton: shared by every player on the page. No React state —
+ * playback truth comes from each player's own events.
  */
 
 export interface ManagedPlayer {

@@ -15,6 +15,7 @@ import { SONGS } from "@/lib/songs/library";
 import {
   SONGS_CATALOG,
   songAttribution,
+  songQueryPhrases,
   songTitleAliases,
   songTitleParts,
 } from "@/lib/catalog/songs";
@@ -28,6 +29,7 @@ import { LANGUAGES } from "@/lib/languages/registry";
 import { LESSONS } from "@/lib/lessons/registry";
 import { nativeSpellingsOf } from "@/lib/words/registry";
 import { normalizeSearch } from "@/lib/search/normalize";
+import { stripWikiLinks } from "@/lib/prose/wikiLinks";
 
 export type SearchGroup =
   | "pages"
@@ -134,7 +136,8 @@ function entry(
   // appears in the visible title (a Yiddish song found by its English name).
   const haystack = normalize(
     [title, subtitle, ...extraHaystack, ...titleAliases]
-      .filter(Boolean)
+      .filter((part): part is string => Boolean(part))
+      .map(stripWikiLinks)
       .join(" "),
   );
   return {
@@ -190,9 +193,9 @@ function buildIndex(): SearchEntry[] {
           song.original?.lang,
         ],
         song.status !== "live",
-        // Latin display + English + romanization + native script all rank
-        // like the title, so either language finds the song.
-        [parts.display, ...songTitleAliases(song)],
+        // Latin display, the other-language names, and the queries people
+        // type (“song lyrics for …”, “history of …”) all rank like the title.
+        [parts.display, ...songTitleAliases(song), ...songQueryPhrases(song)],
       ),
     );
   }

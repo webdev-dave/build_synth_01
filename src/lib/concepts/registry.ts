@@ -72,6 +72,13 @@ export interface Concept {
   status: "live" | "soon";
   /** Secondary search phrases for the spoke page metadata. */
   keywords?: string[];
+  /**
+   * Link every mention in auto-linked prose, not only the first on the page.
+   * For a movement name the reader meets again and again (Chasidic).
+   */
+  linkEveryMention?: boolean;
+  /** External reading, rendered last on the glossary page. */
+  links?: { label: string; url: string }[];
 }
 
 /** The glossary URL a concept owns, if it isn't delegated elsewhere. */
@@ -556,6 +563,107 @@ export const CONCEPTS: Concept[] = [
       "what is a whole step",
       "half step vs whole step",
       "semitone whole tone",
+    ],
+  },
+  {
+    // Same id as the loanword, so <Term> shows חסידיש and the speaker.
+    // The genre page answers “what is Chasidic music?”; this page answers
+    // who the movement is. Wikipedia is the longer account.
+    slug: "chasidic",
+    term: "Chasidic",
+    aliases: [
+      "Hasidic",
+      "Chassidic",
+      "Chassidish",
+      "Hasid",
+      "Chasid",
+      "Hasidim",
+      "Chasidim",
+      "Hasidism",
+      "Chasidism",
+    ],
+    question: "What is the Chasidic movement?",
+    micro:
+      "A Jewish religious movement that began in eighteenth-century Eastern Europe. Its followers, Chasidim, stress joyful worship and devotion to a rebbe, and their singing is what this site calls Chasidic music.",
+    definition:
+      "Chasidism is a Jewish religious movement. Its followers, called Chasidim, stress joy in worship, prayer said with intention, and a living bond with a rebbe, the leader of a court, rather than study alone.\n\nIt began in the eighteenth century in Podolia, now Ukraine, around Rabbi Israel ben Eliezer, the Baal Shem Tov. It spread through Eastern Europe in many courts. Rabbinic opponents, the Mitnagdim, resisted it. The Holocaust destroyed most of those courts. Communities such as Chabad and Satmar rebuilt afterward, mainly in the United States and Israel. The nigunim and holiday songs they still sing are what this site files as Chasidic music.",
+    href: conceptHome("chasidic"),
+    genres: ["chasidic"],
+    songs: ["a-sukkele-a-kleyne"],
+    linkEveryMention: true,
+    links: [
+      {
+        label: "Hasidic Judaism — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Hasidic_Judaism",
+      },
+    ],
+    status: "live",
+    // Academic spellings stay here so search and page rankings still match
+    // “Hasidic”. Visible prose uses Chasidic. See chasidic-spelling.mdc.
+    keywords: [
+      "what is hasidic judaism",
+      "what is the chasidic movement",
+      "who are the hasidim",
+      "who are the chasidim",
+      "hasidism",
+      "baal shem tov",
+      "chasidism",
+    ],
+  },
+  {
+    // Same id as the loanword, so <Term> shows חדר and the speaker.
+    slug: "cheder",
+    term: "cheder",
+    aliases: ["heder", "kheyder", "cheyder", "cheders"],
+    question: "What is a cheder?",
+    micro:
+      "The traditional Jewish elementary school. Boys learned to read Hebrew and the prayers there, often in one room, and many communities still use the name for the school young children attend.",
+    definition:
+      "A cheder is the traditional elementary school of Ashkenazi communities. The word is Yiddish חדר, from Hebrew חדר, “room.” In Eastern Europe a teacher taught boys, starting at about age three, to read Hebrew and the prayer book, and then the Torah, usually in a single room.\n\nAfter immigration the same word often meant the afternoon or Sunday classes children took beside public school. Chasidic and other traditional communities still call the school for young children a cheder. Nigunim and holiday songs are part of what they learn by singing them there.",
+    href: conceptHome("cheder"),
+    genres: ["chasidic"],
+    songs: ["a-sukkele-a-kleyne"],
+    links: [
+      {
+        label: "Cheder — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Cheder",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "what is a cheder",
+      "what is cheder",
+      "jewish elementary school",
+      "kheyder",
+      "heder school",
+    ],
+  },
+  {
+    // Same id as the loanword, so <Term> shows ישיבה and the speaker.
+    slug: "yeshiva",
+    term: "yeshiva",
+    aliases: ["yeshivah", "yeshive", "yeshivas", "yeshivot"],
+    question: "What is a yeshiva?",
+    micro:
+      "The academy that comes after cheder, where older students study Talmud. The name still covers Jewish schools from the high-school years through advanced study.",
+    definition:
+      "A yeshiva is a Jewish academy for Talmud and the rabbinic tradition. The word is Hebrew ישיבה, “sitting,” the name of a study session. In Eastern Europe it was the school that followed cheder. The Lithuanian academies, Volozhin among them, put Talmud at the center of the day. Chasidic communities run yeshivas as well.\n\nToday the name covers both the high-school years and advanced study, mainly in the United States and Israel. Students still learn nigunim and holiday songs there by singing them.",
+    href: conceptHome("yeshiva"),
+    genres: ["chasidic"],
+    songs: ["a-sukkele-a-kleyne"],
+    links: [
+      {
+        label: "Yeshiva — Wikipedia",
+        url: "https://en.wikipedia.org/wiki/Yeshiva",
+      },
+    ],
+    status: "live",
+    keywords: [
+      "what is a yeshiva",
+      "what is yeshiva",
+      "yeshivah",
+      "talmud academy",
+      "jewish yeshiva",
     ],
   },
 ];

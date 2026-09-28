@@ -125,7 +125,7 @@ export function SongLink({
   }
   const canPlay = focusRecording
     ? Boolean(focusRecording.youtubeId)
-    : recordings.length > 0;
+    : recordings.some((item) => item.youtubeId);
   const labeledRecordings = recordings.length > 1;
   const artists = songLinkArtists(song)
     .map((slug) => getArtist(slug))
@@ -144,7 +144,7 @@ export function SongLink({
             return;
           }
           setOpen(true);
-          if (focusRecording) setPlayingIds([focusRecording.youtubeId]);
+          if (focusRecording?.youtubeId) setPlayingIds([focusRecording.youtubeId]);
         }}
         aria-haspopup="true"
         aria-expanded={open}
@@ -194,12 +194,12 @@ export function SongLink({
         >
           {/* Non-English songs: name the tune in both languages up top. */}
           {(titleParts.native || titleParts.english) && (
-            <span className="mb-1 flex flex-wrap items-baseline gap-x-2 px-2.5 pt-1 text-xs text-muted-foreground">
+            <span className="mb-1 flex flex-wrap items-baseline gap-x-2 px-2.5 pt-1 text-base text-muted-foreground">
               {titleParts.native && (
                 <NativeScript
                   spelling={titleParts.native}
                   lang={titleParts.lang ?? "und"}
-                  className="text-sm text-foreground"
+                  className="text-base text-foreground"
                 />
               )}
               {titleParts.english && <span>“{titleParts.english}”</span>}
@@ -210,7 +210,7 @@ export function SongLink({
               href={`/piano-roll/${song.pianoRollId}`}
               target="_blank"
               rel="noreferrer"
-              className="group/roll flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+              className="group/roll flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-base text-foreground transition-colors hover:bg-accent"
             >
               <span className="inline-flex items-center gap-2.5">
                 <Piano
@@ -229,7 +229,7 @@ export function SongLink({
             <span
               aria-disabled="true"
               title="Not in the song library yet"
-              className="flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-muted-foreground/50"
+              className="flex cursor-not-allowed items-center gap-2.5 rounded-md px-2.5 py-2 text-base text-muted-foreground/50"
             >
               <Piano className="h-4 w-4 shrink-0" strokeWidth={1.75} aria-hidden />
               Open in Piano Roll
@@ -238,14 +238,16 @@ export function SongLink({
 
           {canPlay ? (
             recordings.map((recording) => {
-              const playing = playingIds.includes(recording.youtubeId);
+              if (!recording.youtubeId) return null;
+              const youtubeId = recording.youtubeId;
+              const playing = playingIds.includes(youtubeId);
               return (
-                <span key={recording.youtubeId} className="block">
+                <span key={youtubeId} className="block">
                   <button
                     type="button"
-                    onClick={() => togglePlaying(recording.youtubeId)}
+                    onClick={() => togglePlaying(youtubeId)}
                     aria-expanded={playing}
-                    className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+                    className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-base text-foreground transition-colors hover:bg-accent"
                   >
                     <Youtube
                       className="h-4 w-4 shrink-0 text-red-600"
@@ -260,7 +262,7 @@ export function SongLink({
                   {playing && (
                     <span className="mt-1.5 block px-1 pb-1">
                       <YouTubeEmbed
-                        videoId={recording.youtubeId}
+                        videoId={youtubeId}
                         title={
                           labeledRecordings
                             ? `${song.title} — ${recording.label}`
@@ -269,10 +271,10 @@ export function SongLink({
                         autoplay
                       />
                       <a
-                        href={`https://www.youtube.com/watch?v=${recording.youtubeId}`}
+                        href={`https://www.youtube.com/watch?v=${youtubeId}`}
                         target="_blank"
                         rel="noreferrer"
-                        className="mt-1.5 inline-flex items-center gap-1 text-xs text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
+                        className="mt-1.5 inline-flex items-center gap-1 text-base text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
                       >
                         Watch on YouTube
                         <ExternalLink className="h-3 w-3" aria-hidden />
@@ -287,7 +289,7 @@ export function SongLink({
               href={song.listen.url}
               target="_blank"
               rel="noreferrer"
-              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+              className="flex w-full items-center gap-2.5 rounded-md px-2.5 py-2 text-base text-foreground transition-colors hover:bg-accent"
             >
               <ExternalLink
                 className="h-4 w-4 shrink-0 text-muted-foreground"
@@ -311,7 +313,7 @@ export function SongLink({
           <span className="mt-1 block border-t border-border/60 pt-1">
             <Link
               href={`/songs/${song.slug}`}
-              className="group/song-page flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+              className="group/song-page flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-base text-foreground transition-colors hover:bg-accent"
             >
               <span className="inline-flex items-center gap-2.5">
                 <Info
@@ -330,7 +332,7 @@ export function SongLink({
               <Link
                 key={artist.slug}
                 href={`/artists/${artist.slug}`}
-                className="group/artist flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-sm text-foreground transition-colors hover:bg-accent"
+                className="group/artist flex items-center justify-between gap-2.5 rounded-md px-2.5 py-2 text-base text-foreground transition-colors hover:bg-accent"
               >
                 <span className="inline-flex items-center gap-2.5">
                   <User

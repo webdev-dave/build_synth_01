@@ -19,6 +19,8 @@ import { PageMapSection } from "@/components/map/PageMapSection";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
+import { EntrySources } from "@/components/content/EntrySources";
+import { PROSE_BODY, PROSE_GAP, PROSE_LEAD } from "@/components/content/prose";
 
 interface ConceptPageProps {
   params: Promise<{ slug: string }>;
@@ -110,24 +112,24 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
         <HubLink href="/concepts">All concepts</HubLink>
 
         <header className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">{question}</h1>
+          <h1 className="text-balance text-3xl font-semibold tracking-tight">{question}</h1>
           {word && <WordBanner word={word} />}
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          <p className={`mt-4 ${PROSE_LEAD}`}>
             {linkTerms(concept.micro)}
           </p>
         </header>
 
-        {concept.definition && (
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            {linkTerms(concept.definition)}
+        {concept.definition?.split(/\n\n+/).map((para, i) => (
+          <p key={i} className={`${i === 0 ? PROSE_GAP : "mt-4"} ${PROSE_BODY}`}>
+            {linkTerms(para)}
           </p>
-        )}
+        ))}
 
         {Demo && (
           <section className="mt-8" aria-labelledby="play-it-heading">
             <h2
               id="play-it-heading"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-base font-medium text-muted-foreground"
             >
               Play it
             </h2>
@@ -169,6 +171,10 @@ export default async function ConceptPage({ params }: ConceptPageProps) {
             concept.genres?.[0] ? `/map?genre=${concept.genres[0]}` : "/map"
           }
         />
+
+        {concept.links && concept.links.length > 0 && (
+          <EntrySources items={concept.links} />
+        )}
       </div>
     </main>
   );

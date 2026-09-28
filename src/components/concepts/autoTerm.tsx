@@ -10,15 +10,21 @@
  *
  * This turns such a string into React nodes, wrapping the *first* occurrence of
  * each registry concept in a `<Term>`, each loanword that isn't already a
- * concept in a `<Word>` (native spelling + pronounce), and each catalog artist
- * name in an `<ArtistLink>`. It matches on the concept's canonical term plus
+ * concept in a `<Word>` (native spelling + pronounce), and *every* occurrence
+ * of a catalog artist name in an `<ArtistLink>`. It matches on the concept's canonical term plus
  * its aliases, so "off-beat" links to *syncopation* and "12-bar" links to the
  * *12-bar blues*; artist names match the catalog `name` ("Abe Schwartz").
  *
- * Two house rules bake in:
- *   • First meaningful mention, not every occurrence — a concept, word, or
- *     artist is linked once per page, so share ONE linker across a page's
- *     prose blocks (lead + body).
+ * House rules:
+ *   • A concept or loanword is linked once per page — share ONE linker
+ *     across a page's prose blocks (lead + body).
+ *   • A concept with `linkEveryMention` (the Chasidic movement) is linked
+ *     at every mention. `skip` still suppresses it on its own glossary page.
+ *   • A catalog artist is linked at every mention. `name` always matches;
+ *     `alsoNamed` adds the surname or other forms the prose uses alone.
+ *   • A person with no artist entry is an inline Wikipedia link,
+ *     `[Sarah](https://en.wikipedia.org/wiki/Sarah_Reisen)`. If that label
+ *     is a catalog artist, the artist page wins and the URL is ignored.
  *   • The linker is a plain function returning nodes (no hooks), so callers
  *     stay server components; only the `<Term>` / `<Word>` / `<ArtistLink>`
  *     leaf is client. The prose text still ships in the static HTML.
@@ -34,6 +40,8 @@ import { ARTISTS } from "@/lib/catalog/artists";
 import { Term } from "@/components/concepts/Term";
 import { Word } from "@/components/words/Word";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
+import { PROSE_LINK } from "@/components/content/prose";
+import { wikiLinksIn } from "@/lib/prose/wikiLinks";
 
 type Kind = "concept" | "word" | "artist";
 
@@ -42,6 +50,9 @@ type Kind = "concept" | "word" | "artist";
 // the word itself). Sorted longest-first so a longer phrase wins over a
 // shorter overlap at the same spot (e.g. "12-bar blues" before "12-bar").
 const CONCEPT_SLUGS = new Set(CONCEPTS.map((c) => c.slug));
+const REPEAT_IDS = new Set(
+  CONCEPTS.filter((c) => c.linkEveryMention).map((c) => c.slug),
+);
 const CONCEPT_PHRASES = new Set(
   CONCEPTS.flatMap((c) =>
     [c.term, ...(c.aliases ?? [])].map((p) => p.toLowerCase()),
@@ -57,7 +68,7 @@ const MATCHERS: { phrase: string; kind: Kind; id: string }[] = [
     })),
   ),
   ...WORDS.filter((w) => !CONCEPT_SLUGS.has(w.id)).flatMap((w) =>
-    [w.latin, ...(w.aliases ?? [])]
+    [w.latin, ...(w.alsoSpelled ?? []), ...(w.aliases ?? [])]
       // A concept alias like "Ahava Rabbah" stays a <Term> (definition);
       // Term then picks the matching native form from the words registry.
       .filter((phrase) => !CONCEPT_PHRASES.has(phrase.toLowerCase()))
@@ -67,15 +78,25 @@ const MATCHERS: { phrase: string; kind: Kind; id: string }[] = [
         id: w.id,
       })),
   ),
-  ...ARTISTS.map((a) => ({
-    phrase: a.name,
-    kind: "artist" as const,
-    id: a.slug,
-  })),
+  ...ARTISTS.flatMap((a) =>
+    [a.name, ...(a.alsoNamed ?? [])].map((phrase) => ({
+      phrase,
+      kind: "artist" as const,
+      id: a.slug,
+    })),
+  ),
 ].sort((a, b) => b.phrase.length - a.phrase.length);
 
 const PHRASE_TO_MATCH = new Map(
   MATCHERS.map((m) => [m.phrase.toLowerCase(), m] as const),
+);
+
+const ARTIST_BY_PHRASE = new Map(
+  ARTISTS.flatMap((a) =>
+    [a.name, ...(a.alsoNamed ?? [])].map(
+      (phrase) => [phrase.toLowerCase(), a.slug] as const,
+    ),
+  ),
 );
 
 function escapeRegExp(s: string): string {
@@ -96,63 +117,100 @@ export interface TermLinkerOptions {
 
 /**
  * Returns a `link(text)` that wraps each concept's first occurrence in a
- * `<Term>`, each other loanword in a `<Word>`, and each catalog artist name
- * in an `<ArtistLink>`. Reuse the same returned function across every prose
- * block on one page so the "once per page" budget is shared, not reset per
- * paragraph.
+ * `<Term>`, each other loanword in a `<Word>`, and every catalog artist
+ * mention in an `<ArtistLink>`. Reuse the same returned function across
+ * every prose block on one page so concepts and words stay once per page.
  */
 export function makeTermLinker(
   options: TermLinkerOptions = {},
 ): (text: string) => ReactNode {
-  const used = new Set<string>(options.skip ?? []);
+  const skip = new Set(options.skip ?? []);
+  const used = new Set<string>();
   // Fresh regex per linker — a `g` regex carries `lastIndex` state, so sharing
   // one module-level instance across concurrent renders would be a race.
   const re = new RegExp(TERM_SOURCE, "gi");
 
   return function link(text: string): ReactNode {
-    re.lastIndex = 0;
     const nodes: ReactNode[] = [];
-    let last = 0;
     let key = 0;
-    let m: RegExpExecArray | null;
 
-    while ((m = re.exec(text)) !== null) {
-      const match = PHRASE_TO_MATCH.get(m[0].toLowerCase());
-      if (!match) continue;
+    const pushPlain = (slice: string) => {
+      re.lastIndex = 0;
+      let last = 0;
+      let m: RegExpExecArray | null;
 
-      // A concept alias can be a different loanword ("Ahava Rabbah" is
-      // Hebrew, not the Yiddish for *freygish*). If the concept was already
-      // linked, still mark that other name.
-      let kind = match.kind;
-      let id = match.id;
-      if (used.has(id)) {
-        const other = getWordByPhrase(m[0]);
-        if (!other || other.id === id || used.has(other.id)) continue;
-        kind = "word";
-        id = other.id;
+      while ((m = re.exec(slice)) !== null) {
+        const match = PHRASE_TO_MATCH.get(m[0].toLowerCase());
+        if (!match) continue;
+
+        // A concept alias can be a different loanword ("Ahava Rabbah" is
+        // Hebrew, not the Yiddish for *freygish*). If the concept was already
+        // linked, still mark that other name.
+        let kind = match.kind;
+        let id = match.id;
+        const repeat =
+          kind === "concept" && REPEAT_IDS.has(id) && !skip.has(id);
+        if ((used.has(id) || skip.has(id)) && match.kind !== "artist" && !repeat) {
+          const other = getWordByPhrase(m[0]);
+          if (!other || other.id === id || used.has(other.id)) continue;
+          kind = "word";
+          id = other.id;
+        }
+        if (match.kind === "artist" && (skip.has(id) || used.has(id))) continue;
+        if (kind !== "artist" && !repeat) used.add(id);
+        if (m.index > last) nodes.push(slice.slice(last, m.index));
+        nodes.push(
+          kind === "concept" ? (
+            <Term key={key++} id={id}>
+              {m[0]}
+            </Term>
+          ) : kind === "word" ? (
+            <Word key={key++} id={id}>
+              {m[0]}
+            </Word>
+          ) : (
+            <ArtistLink key={key++} id={id}>
+              {m[0]}
+            </ArtistLink>
+          ),
+        );
+        last = m.index + m[0].length;
       }
-      used.add(id);
-      if (m.index > last) nodes.push(text.slice(last, m.index));
-      nodes.push(
-        kind === "concept" ? (
-          <Term key={key++} id={id}>
-            {m[0]}
-          </Term>
-        ) : kind === "word" ? (
-          <Word key={key++} id={id}>
-            {m[0]}
-          </Word>
-        ) : (
-          <ArtistLink key={key++} id={id}>
-            {m[0]}
-          </ArtistLink>
-        ),
-      );
-      last = m.index + m[0].length;
+
+      if (last < slice.length) nodes.push(slice.slice(last));
+    };
+
+    const links = wikiLinksIn(text);
+    if (links.length === 0) {
+      pushPlain(text);
+    } else {
+      let last = 0;
+      for (const hit of links) {
+        if (hit.index > last) pushPlain(text.slice(last, hit.index));
+        const artistId = ARTIST_BY_PHRASE.get(hit.label.toLowerCase());
+        nodes.push(
+          artistId && !skip.has(artistId) ? (
+            <ArtistLink key={key++} id={artistId}>
+              {hit.label}
+            </ArtistLink>
+          ) : (
+            <a
+              key={key++}
+              href={hit.url}
+              target="_blank"
+              rel="noreferrer"
+              className={PROSE_LINK}
+            >
+              {hit.label}
+            </a>
+          ),
+        );
+        last = hit.index + hit.length;
+      }
+      if (last < text.length) pushPlain(text.slice(last));
     }
 
     if (nodes.length === 0) return text;
-    if (last < text.length) nodes.push(text.slice(last));
     return nodes;
   };
 }

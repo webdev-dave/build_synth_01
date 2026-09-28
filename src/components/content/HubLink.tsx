@@ -1,9 +1,11 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+
+import { PROSE_LINK } from "@/components/content/prose";
 
 /**
- * Spoke → collection hub. A destination, not history back — trailing arrow
- * so it doesn't impersonate the header's Back control.
+ * Spoke → collection hub. Words only: the header already owns the back and
+ * forward arrows, and a second arrow here gets clicked as if it were one of
+ * them. The underline is the "this goes somewhere" signal.
  */
 export function HubLink({
   href,
@@ -13,12 +15,8 @@ export function HubLink({
   children: React.ReactNode;
 }) {
   return (
-    <Link
-      href={href}
-      className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground"
-    >
+    <Link href={href} className={`text-base ${PROSE_LINK}`}>
       {children}
-      <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
     </Link>
   );
 }

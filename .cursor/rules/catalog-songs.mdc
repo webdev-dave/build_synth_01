@@ -10,15 +10,78 @@ Editorial recordings live in `src/lib/catalog/songs.ts` (not the MIDI
 library). House style for lyrics and sourcing:
 `.cursor/rules/history-articles.mdc`.
 
+**Type:** the song page is a long-form entry. Lyrics, captions, credits,
+links, and pills are **16px minimum** (`text-base`). Never `text-sm`,
+`text-xs`, or a custom size under `1rem`. `about` paragraphs follow the
+reading-column writing rules: 2–4 sentences, split with `\n\n`. See “Type
+size” and “Reading column” in `history-articles.mdc`.
+
 ## Required on every new / expanded song
 
 - Verified `youtubeId`, or `listen` to an archive when there is no legal
-  player. Never invent an id.
+  player. Never invent an id. Several versions go in `recordings`, lead
+  version first, and the page plays them as YouTube chips. See “Players”
+  below.
 - `genres` when an **existing** genre slug fits. Omit rather than invent.
 - **Sourced `lyrics` on the song page.** Hunt first; copyright is not a
   skip. See “Lyrics — always hunt” below.
 - **Non-English songs carry `original`** — the English name *and* the
   home-language name, both searchable. See “Bilingual titles” below.
+- **The person is not a byline.** When the entry is about someone, include
+  a few sourced facts from the life that make the work make sense. See
+  “People are not bylines” in `.cursor/rules/history-articles.mdc`.
+- **A name with no artist page links to Wikipedia** when an article
+  exists and we are not adding an entry. See
+  `.cursor/rules/person-names.mdc`. Avraham Reisen stays an `<ArtistLink>`;
+  his sister Sarah, his brother Zalman, and Peretz on the sukkah page
+  are the Wikipedia case. Kalman Reisen has no article, so his name
+  stays plain.
+- **`places` — the map.** A live song whose prose names a city must pin
+  those ids. See “Map” below. Genre slugs alone do not draw a map.
+
+## Map — pin the places, or the page stays blank
+
+The song page resolves a map in this order (`songPageMapEntity`):
+
+1. `song.places`, in the order given.
+2. Else places derived from `genres` / `history`.
+3. Else the **credited** artists’ `places` (not `mentioned`).
+
+Step 2 only works for genres the place registry actually tags:
+**klezmer, blues, rock, yiddish-theater**. `yiddish-folk`, `chasidic`,
+and `traditional-jewish` match nothing. That is why “A sukkele a kleyne”
+shipped with no map: the about names Kraków, Warsaw, Berlin, Chernivtsi,
+Worms, and New York, and the page never received a `places` list.
+
+- List **every place the prose cites** — where it was written, printed,
+  arranged, learned, recorded. Only what the text supports.
+- If the id is missing from `src/lib/places/registry.ts`, **add a stub**
+  in the same change (a point and a blurb from a fact already on the page).
+  Do **not** put a broad `genres` tag on that stub. A tag drops the city
+  onto every page that derives its map from that genre.
+- Do not skip `places` and rely on the artist fallback. The fallback is
+  there so an old row is not blank. A new or expanded song sets its own.
+- A live **artist** whose bio names places needs `artist.places` the same
+  way. Their page does not inherit the song’s pins.
+- **Israel is always on the map for Jewish repertoire.** A traditional
+  Jewish, Chasidic, Yiddish, klezmer, or Yiddish-theater song is sung in
+  Israel today — that is where much of the living audience is. Pin
+  `"israel"` on every such song, and say so once in the prose (who
+  sings it there, or a Hebrew version, when a source names one). The
+  2026-09 sukkah entry shipped with Kraków, Berlin, and New York and
+  no Israel; do not repeat that. Same for a genre or cousins article
+  in that repertoire.
+
+```ts
+// ❌ BAD — about names Kraków and New York; yiddish-folk derives nothing
+genres: ["yiddish-folk"]
+
+// ❌ BAD — a Yiddish song mapped only to where it was written and printed
+places: ["krakow", "warsaw", "berlin", "new-york"]
+
+// ✅ GOOD — the journey, and where it is still sung
+places: ["krakow", "warsaw", "berlin", "new-york", "israel"]
+```
 
 ## Lyrics — always hunt
 
@@ -46,10 +109,34 @@ lyrics: [{
 ```
 
 **Hunt order:** scholarly collections (Mlotek / Workers Circle for
-Yiddish), Wikisource / IMSLP / LOC / university sheet-music scans for
-public-domain songs, a cited encyclopedia or Wikipedia table that
-actually prints the words, published sheet music we can point at.
+Yiddish), **Yiddish Song of the Week**
+([yiddishsong.wordpress.com](https://yiddishsong.wordpress.com/))
+for any Yiddish song, Wikisource / IMSLP / LOC / university sheet-music
+scans for public-domain songs, a cited encyclopedia or Wikipedia table
+that actually prints the words, published sheet music we can point at.
 Web-search; **never invent a line or “fix” one you did not see.**
+
+When the singing and the printing differ, and the site’s developer supplies
+the sung lines, say “the developer” in `credit` and link that phrase to
+`/about`. Do not use a personal name. Leave `source` as the publication
+that was checked. Do not credit the developer as the author of the song.
+
+```ts
+// ✅ GOOD — role, linked to the about page; the source stays the printing
+credit: "The developer supplied these lines. They are the wording large crowds sing, where the printed sources differ.",
+creditLink: { phrase: "The developer", href: "/about" },
+source: { label: "Anash.org, 17 October 2019", url: "https://…" },
+```
+
+**Yiddish songs — check this site before you stop.** Itzik Gottesman’s
+[Yiddish Song of the Week](https://yiddishsong.wordpress.com/) posts
+field recordings with notes, who sang it, where they learned it, and
+often a transcription plus an English translation. Search the blog for
+the title and for the singer. Read the comments: a reader sometimes
+supplies the verse the post left out (the Ha-rachaman line on
+[“A sikele, a kleyne”](https://yiddishsong.wordpress.com/2010/10/05/a-sikele-a-kleyne-performed-by-beyle-schaechter-gottesman/)
+is that kind of find). A Yiddish lyric or history hunt that never
+opened this site is not finished.
 
 **The only honest omissions** (say so in `about`):
 
@@ -65,7 +152,68 @@ Non-English versions: original + line-by-line English gloss (`en`),
 romanization (`latin`) when the script isn’t Latin. Several sung
 versions → several `SongLyrics` entries. Don’t paste a lyric site with
 no provenance (Genius, AZLyrics). Wikipedia / Wikisource / Milken /
-Mlotek / LOC are fine when they print the words.
+Mlotek / LOC / Yiddish Song of the Week are fine when they print the words.
+
+## Lyrics and recordings — one section, one card per version
+
+Every song page renders its recordings and its words through
+**`<SongLyrics>`** (`src/components/catalog/SongLyrics.tsx`), and
+nowhere else on the page:
+
+```tsx
+<SongLyrics
+  title={song.title}
+  versions={song.lyrics ?? []}
+  recordings={songPageRecordings(song)}
+/>
+```
+
+Do not hand-roll a second layout, an always-open stack, or a client
+toggle that leaves the words out of the HTML. Do not render the
+recordings again above the section. **A version is one card**: the
+player, then the lyrics it sings. That is how the reader and the
+crawler find both together.
+
+- Near the top of the page, before the history, an **On this page**
+  label. First entry is **Song history**, linking to `#history` on the
+  article. Next is the jump to `#lyrics`. Those link words match the
+  section: **Lyrics, translation, and recordings** when all three are
+  there; drop a word the page does not have; **Recordings** when there
+  are no words. A speaker icon (`Volume2`) sits at the end of the
+  lyrics link, every time. A rule and space separate that list from the
+  history, so the article has a start. Both targets carry `scroll-mt-24`.
+  Do not leave the jumps as bare links, and do not bury the only way
+  to the words under the essay.
+
+- Pair them in data. A recording names the version it sings with
+  `lyrics: "<version id>"`. The section builds cards in `lyrics` order:
+  a version pulls in every recording that names it, and the words
+  print under each (two singers of the same text → two cards, same
+  lines — duplicating the words on the page is fine). A version no
+  recording sings is a words-only card. A recording that names no
+  version comes last, as an audio-only card. Set `lyrics` only when
+  that performance sings those lines; never guess. A song with **one**
+  recording and **one** version pairs them on its own
+  (`songPageRecordings`); with more of either, name the pairs.
+- YouTube is a `CollapsibleVideo` chip; a file we host is
+  `HostedAudioPlayer`. Both live inside the card. The **closed** card
+  already shows what it holds: a YouTube mark (red) or a speaker
+  (`Volume2`) beside the chevron. Words-only cards show neither.
+- The heading names what the page actually has: **Lyrics, translation,
+  and recordings of “{title}”** when all three are there; drop
+  “translation” or “recordings” when they are not; **Recordings of
+  “{title}”** when there are no words at all. One sentence under it
+  says **Song lyrics for “{title}”** (and “with an English translation
+  under each line” when a gloss exists), then that each version is one
+  entry — the recording and the words it sings. Do not pile extra
+  synonyms into the prose. Further queries (`lyrics of`, `recording`,
+  `audio`, `history of`) live in `songQueryPhrases` and the page
+  title, description, and FAQ.
+- Each card is a `<details>`. **More than one card: all closed**, so
+  the reader chooses. A single card starts open. The lines stay in the
+  static HTML either way. An in-page link (`#lyrics-<id>`, the
+  `seeAlso` field) names the first card of that version; the browser
+  opens it.
 
 ## Bilingual titles (non-English songs)
 
@@ -137,6 +285,51 @@ unset — they’re already in one language.
 }
 ```
 
+## Players — the YouTube chip
+
+A song page does not mount an open YouTube iframe. Every playable
+recording is a **chip**: `CollapsibleVideo`
+(`src/components/media/CollapsibleVideo.tsx`). The row shows the YouTube
+mark and the recording label; a click expands `YouTubeEmbed` in place
+(one song at a time, via `youtubeConductor`). The same chip is what
+cousins articles use. `<SongLink>` uses the same row inside its panel.
+Do not add a second player, a raw iframe, or a heading-plus-embed stack
+on `src/app/songs/[slug]/page.tsx`.
+
+A recording **we host** (an mp3 under `public/audio/`) uses
+`HostedAudioPlayer` (`src/components/media/HostedAudioPlayer.tsx`) — the
+same one-song rule, our own play control, nothing loaded until the
+click. Do not drop a raw `<audio controls>` on a song page. A one-shot
+word clip stays `PronounceButton`. Credit the page the file came from
+in the version’s `source` and `note`. Put the file in `recordings`
+with `src` (no `youtubeId`) so it gets a card like the YouTube chips.
+
+`recordings` is the order `<SongLink>`, cousins lists, and the sources
+footer use, and the order of audio-only cards. Cards with words follow
+`lyrics` order. **The version this entry leads with is first.**
+`youtubeId` on the song matches the first YouTube entry in that list.
+Later versions follow,
+each with a `label` that names who is singing and the year when we know
+it. A single upload needs no `recordings` array — the page builds one
+chip from `youtubeId`.
+
+```ts
+// ❌ BAD — open players, or the lead version buried last
+youtubeId: "O2fYLhrejvQ",
+recordings: [
+  { youtubeId: "O2fYLhrejvQ", label: "Fishl Beigel, 1991" },
+  { youtubeId: "BGt3ASrzFNg", label: "The Rabbis’ Sons, 1968" },
+]
+
+// ✅ GOOD — lead recording first; youtubeId matches it; each names the
+// lyric version it sings, so its card carries those words
+youtubeId: "BGt3ASrzFNg",
+recordings: [
+  { youtubeId: "BGt3ASrzFNg", label: "The Rabbis’ Sons, 1968 — the Chasidic rewording" },
+  { youtubeId: "O2fYLhrejvQ", label: "Fishl Beigel with Suki & Ding, 1991", lyrics: "chasidic-chorus" },
+]
+```
+
 ## If a Cousins article names this song
 
 Both directions, same change:
@@ -160,7 +353,52 @@ cousins: ["miserlou"],
 genres: ["rock"],
 ```
 
-Name a person → catalog artist + `<ArtistLink>` on first mention.
+Name a person → catalog artist + `<ArtistLink>` on **every** mention,
+not only the first. A surname used alone goes on `alsoNamed`.
 Name a foreign word → `WORDS` + first-mention wrap (human clip or no
 speaker). `.cursor/rules/loanword-speakers.mdc`.
 Keep one slug per recording/composition; don’t fork a second copy.
+
+## Sources — the bottom of the page
+
+Every song, artist, and genre spoke ends with **Sources & further reading**.
+It is the last block on the page, after the map. The component is
+`EntrySources` (`src/components/content/EntrySources.tsx`). It uses the
+same numbered list as a history article (`SourceList`). Do not add a
+second design, and do not park the credits in the header.
+
+- **Wikipedia, when a page exists.** A song or artist with a Wikipedia
+  article links it here. Check English and the language of the work
+  (Yiddish, Hebrew, and so on). Label English as “Wikipedia — {name}”
+  and any other edition by its language (“Hebrew Wikipedia — the
+  song”). Verify the URL. No article means no link — do not point at
+  a search page, a different topic, or every language edition that
+  merely mentions the name.
+- **Song.** `links` is the bibliography: printings, essays, archives, in
+  the order a reader should open them. The page also appends each lyric
+  version’s `source`, an archive `listen` link, and each recording
+  (`songSources()`). Same URL once. The sukkah page is the pattern —
+  Gottesman’s article, then the 1902 printing and the later scores, not
+  a mid-page “Early printings” list.
+- **Artist.** `links` (encyclopedias, archives, their own book). Verify
+  the URL. Do not fabricate one to fill the slot.
+- **Genre.** `links` on the genre, same footer. A history article’s own
+  `SourceList` does not replace this; the genre page’s claims need their
+  own credits.
+- An empty list still shows the heading and “Sources for this page are
+  not listed yet.” That line means the entry is unfinished. A `live`
+  page that states facts does not ship with it.
+- Credit the page a file or lyric came from. A recording we host still
+  names that article here, not only beside the player.
+
+```ts
+// ❌ BAD — credits tucked under the intro, or a live page with no sources
+<section>Early printings</section>
+
+// ✅ GOOD — last on the page, numbered, the title is the link
+links: [
+  { label: "Itzik Gottesman, Yiddish Song of the Week, 5 October 2010", url: "https://…" },
+  { label: "Hebrew Wikipedia — the song", url: "https://he.wikipedia.org/…" },
+  { label: "Reisen, Ale verk, vol. 5 (New York, 1917) — HathiTrust", url: "https://…" },
+]
+```

@@ -23,7 +23,7 @@ import { ArrowRight } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { getConcept } from "@/lib/concepts/registry";
-import { wordForMention } from "@/lib/words/registry";
+import { wordForMention, nativesOf } from "@/lib/words/registry";
 import { WordMark } from "@/components/words/WordMark";
 import { NativeScript } from "@/components/words/NativeScript";
 import { EnglishAlts } from "@/components/words/EnglishAlts";
@@ -104,20 +104,21 @@ export function Term({ id, children }: TermProps) {
           aria-label={`${concept.term} — definition`}
           className="absolute left-0 top-full z-30 mt-1.5 block w-72 max-w-[min(18rem,calc(100vw-2rem))] rounded-lg border bg-popover p-3 text-left shadow-md"
         >
-          <span className="block font-mono text-xs font-medium uppercase tracking-wide text-muted-foreground">
+          <span className="block font-mono text-base font-medium uppercase tracking-wide text-muted-foreground">
             {concept.term}
           </span>
-          {word && (
-            <span className="mt-0.5 flex items-center gap-2 text-sm text-foreground">
-              <NativeScript
-                spelling={word.native.spelling}
-                lang={word.native.lang}
-              />
-              <span className="font-mono text-xs uppercase tracking-wide text-muted-foreground">
-                {word.native.language}
+          {word &&
+            nativesOf(word).map((form) => (
+              <span
+                key={`${form.lang}:${form.spelling}`}
+                className="mt-0.5 flex items-center gap-2 text-base text-foreground"
+              >
+                <NativeScript spelling={form.spelling} lang={form.lang} />
+                <span className="font-mono text-base uppercase tracking-wide text-muted-foreground">
+                  {form.language}
+                </span>
               </span>
-            </span>
-          )}
+            ))}
           {word && (
             <EnglishAlts
               word={word}
@@ -125,12 +126,12 @@ export function Term({ id, children }: TermProps) {
               className="mt-1"
             />
           )}
-          <span className="mt-1.5 block text-sm leading-relaxed text-foreground">
+          <span className="mt-1.5 block text-base leading-relaxed text-foreground">
             {concept.micro}
           </span>
           <Link
             href={concept.href}
-            className="group/more mt-2.5 inline-flex items-center gap-1 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+            className="group/more mt-2.5 inline-flex items-center gap-1 text-base font-medium text-muted-foreground transition-colors hover:text-foreground"
           >
             Full explanation
             <ArrowRight

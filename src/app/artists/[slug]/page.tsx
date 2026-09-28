@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowRight, ExternalLink } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 import { ARTISTS, getArtist } from "@/lib/catalog/artists";
 import { songsByArtist } from "@/lib/catalog/songs";
@@ -12,7 +12,10 @@ import { SongLink } from "@/components/history/SongLink";
 import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { GenrePills } from "@/components/content/GenrePills";
 import { PageMapSection } from "@/components/map/PageMapSection";
+import { mapHrefForGenres } from "@/lib/places/registry";
 import { HubLink } from "@/components/content/HubLink";
+import { EntrySources } from "@/components/content/EntrySources";
+import { PROSE_BODY, PROSE_GAP, PROSE_LEAD } from "@/components/content/prose";
 
 interface ArtistPageProps {
   params: Promise<{ slug: string }>;
@@ -83,31 +86,35 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
         <HubLink href="/artists">All artists</HubLink>
 
         <header className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-balance text-3xl font-semibold tracking-tight">
             {artist.name}
           </h1>
           {artist.era && (
-            <p className="mt-1 font-mono text-sm text-muted-foreground">
+            <p className="mt-1 font-mono text-base text-muted-foreground">
               {artist.era}
             </p>
           )}
           <GenrePills slugs={artist.genres} className="mt-3" />
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          <p className={`mt-4 ${PROSE_LEAD}`}>
             {linkTerms(artist.micro)}
           </p>
         </header>
 
-        {artist.bio && (
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-            {linkTerms(artist.bio)}
-          </p>
-        )}
+        {artist.bio &&
+          artist.bio.split(/\n\n+/).map((para, i) => (
+            <p
+              key={i}
+              className={`${PROSE_GAP} ${PROSE_BODY}`}
+            >
+              {linkTerms(para)}
+            </p>
+          ))}
 
         {songs.length > 0 && (
           <section className="mt-10" aria-labelledby="songs-heading">
             <h2
               id="songs-heading"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-base font-medium text-muted-foreground"
             >
               Songs on the site
             </h2>
@@ -117,7 +124,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
                   key={song.slug}
                   className="flex flex-wrap items-center gap-x-2 gap-y-1"
                 >
-                  <p className="text-sm leading-relaxed">
+                  <p className="text-base leading-relaxed">
                     <SongLink id={song.slug} />
                   </p>
                   <GenrePills slugs={song.genres} compact />
@@ -131,7 +138,7 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           <section className="mt-10" aria-labelledby="context-heading">
             <h2
               id="context-heading"
-              className="text-sm font-medium text-muted-foreground"
+              className="text-base font-medium text-muted-foreground"
             >
               In context
             </h2>
@@ -154,32 +161,6 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
           </section>
         )}
 
-        {artist.links && artist.links.length > 0 && (
-          <section className="mt-10" aria-labelledby="elsewhere-heading">
-            <h2
-              id="elsewhere-heading"
-              className="text-sm font-medium text-muted-foreground"
-            >
-              Elsewhere
-            </h2>
-            <ul className="mt-3 space-y-1">
-              {artist.links.map((link) => (
-                <li key={link.url}>
-                  <a
-                    href={link.url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
-                  >
-                    {link.label}
-                    <ExternalLink className="h-3.5 w-3.5" aria-hidden />
-                  </a>
-                </li>
-              ))}
-            </ul>
-          </section>
-        )}
-
         {/* Where they worked — pinned places when set, else derived from the
             genres/history they touch. Renders nothing if none map. */}
         <PageMapSection
@@ -189,10 +170,10 @@ export default async function ArtistPage({ params }: ArtistPageProps) {
             places: artist.places,
           }}
           heading={`Where ${artist.name} worked`}
-          fullMapHref={
-            artist.genres?.[0] ? `/map?genre=${artist.genres[0]}` : "/map"
-          }
+          fullMapHref={mapHrefForGenres(artist.genres)}
         />
+
+        <EntrySources items={artist.links ?? []} />
       </div>
     </main>
   );
@@ -204,7 +185,7 @@ function CatalogLink({ href, label }: { href: string; label: string }) {
       href={href}
       className="group flex items-center justify-between gap-3 rounded-md border p-3 transition-colors hover:border-foreground/25 hover:bg-accent/40"
     >
-      <span className="text-sm font-medium text-foreground">{label}</span>
+      <span className="text-base font-medium text-foreground">{label}</span>
       <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
     </Link>
   );

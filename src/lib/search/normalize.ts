@@ -2,6 +2,7 @@
  * Shared string folding for in-page hub filters (and global search).
  * Lowercase + strip diacritics so "doină" matches "doina".
  */
+import { stripWikiLinks } from "@/lib/prose/wikiLinks";
 
 export function normalizeSearch(s: string): string {
   return s
@@ -33,9 +34,14 @@ export function sortByLabel<T>(
     .sort((a, b) => compareByLabel(labelOf(a), labelOf(b)));
 }
 
-/** Join parts into one folded haystack string. */
+/** Join parts into one folded haystack string. Wiki markup stays out of the index. */
 export function joinHaystack(parts: Array<string | undefined | null>): string {
-  return normalizeSearch(parts.filter(Boolean).join(" "));
+  return normalizeSearch(
+    parts
+      .filter((part): part is string => Boolean(part))
+      .map(stripWikiLinks)
+      .join(" "),
+  );
 }
 
 /**

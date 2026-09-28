@@ -12,6 +12,8 @@ import {
 import { AUTHOR } from "@/lib/author";
 import { APP_NAME } from "@/lib/navigation";
 import { Button } from "@/components/ui/button";
+import { Term } from "@/components/concepts/Term";
+import { PROSE_BODY, PROSE_LINK } from "@/components/content/prose";
 
 /**
  * Boxed LinkedIn "in" mark in Lucide's stroke style — reads more like the
@@ -38,21 +40,21 @@ export default function AboutPage() {
     <main className="min-h-[calc(100vh-3rem)] bg-background text-foreground">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
         <header>
-          <p className="text-sm font-medium text-muted-foreground">
+          <p className="text-base font-medium text-muted-foreground">
             About the developer
           </p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-tight">
+          <h1 className="mt-2 text-balance text-2xl font-semibold tracking-tight">
             {AUTHOR.name}
           </h1>
-          <p className="mt-2 text-sm">
+          <p className="mt-2 text-base">
             <a
               href="#reach-out"
-              className="text-foreground underline decoration-muted-foreground/50 underline-offset-4 transition-colors hover:decoration-foreground"
+              className={PROSE_LINK}
             >
               Work with me
             </a>
           </p>
-          <div className="mt-4 max-w-xl space-y-4 text-sm leading-relaxed text-muted-foreground">
+          <div className={`mt-4 space-y-6 ${PROSE_BODY}`}>
             <p>
               This project started the way most of my projects do: I learn by
               building. It has always been how things actually click for me.
@@ -65,21 +67,13 @@ export default function AboutPage() {
             </p>
             <p>
               Music has been a long road for me. Before all this, I spent years
-              as a DJ in the{" "}
-              <a
-                href="https://en.wikipedia.org/wiki/Hasidic_Judaism"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-foreground underline-offset-4 hover:underline"
-              >
-                Hasidic
-              </a>{" "}
-              community — a chapter that still lives on my{" "}
+              as a DJ in the <Term id="chasidic">Chasidic</Term> community — a
+              chapter that still lives on my{" "}
               <a
                 href="https://www.youtube.com/@virtual_kretshmeh"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-foreground underline-offset-4 hover:underline"
+                className={PROSE_LINK}
               >
                 YouTube channel
               </a>{" "}
@@ -94,7 +88,7 @@ export default function AboutPage() {
               know a guy who knows a guy — please{" "}
               <a
                 href="#reach-out"
-                className="text-foreground underline-offset-4 hover:underline"
+                className={PROSE_LINK}
               >
                 reach out
               </a>
@@ -113,13 +107,13 @@ export default function AboutPage() {
             className="w-full rounded-lg border border-border/60"
             priority
           />
-          <figcaption className="mt-2 font-mono text-xs text-muted-foreground">
+          <figcaption className="mt-2 font-mono text-base text-muted-foreground">
             Setting up for a DJ set in the woods. Photo by{" "}
             <a
               href="https://www.instagram.com/marrker"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-foreground underline-offset-4 hover:underline"
+              className={PROSE_LINK}
             >
               Mark
             </a>
@@ -135,7 +129,7 @@ export default function AboutPage() {
           <h2 className="text-lg font-semibold tracking-tight text-foreground">
             Work with me
           </h2>
-          <p className="mt-2 max-w-xl text-sm leading-relaxed text-muted-foreground">
+          <p className={`mt-2 ${PROSE_BODY}`}>
             Whether you want to connect, talk through a possible collaboration,
             hire me for a project, or browse a portfolio of my other work — pick
             whichever channel below works best for you.

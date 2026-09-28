@@ -9,6 +9,13 @@ import Link from "next/link";
 import { getCousin } from "@/lib/cousins/registry";
 import { Blockquote, Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
+import {
+  H2,
+  OnThisPage,
+  P,
+  PROSE_LINK,
+  defineSections,
+} from "@/components/content/prose";
 import { SongLink } from "@/components/history/SongLink";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
 import { Term } from "@/components/concepts/Term";
@@ -28,31 +35,23 @@ function Ref({ id }: { id: string }) {
   return <Cite id={id} sources={SOURCES} />;
 }
 
-function H2({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+const SECTIONS = defineSections({
+  "the-name": "An Egyptian girl with a Turkish name",
+  "demetriades": "The first record we can point at",
+  "yiddish": "Yiddish words, a Jewish ambit",
+  "dale": "One string, much faster",
+  "family": "The family, as a list",
+});
 
 export function MiserlouCousins() {
   return (
     <article className="mt-8">
-      <SongJumpNav ids={SONG_IDS} />
+      <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+        <OnThisPage sections={SECTIONS} />
+        <SongJumpNav ids={SONG_IDS} />
+      </div>
 
-      <H2 id="the-name">An Egyptian girl with a Turkish name</H2>
+      <H2 {...SECTIONS["the-name"]} />
       <P>
         <Word id="misirlou">Misirlou</Word> is Greek{" "}
         <em>Μισιρλού</em> — the feminine form of a borrowing from Turkish{" "}
@@ -80,7 +79,7 @@ export function MiserlouCousins() {
         a family tree.
       </P>
 
-      <H2 id="demetriades">The first record we can point at</H2>
+      <H2 {...SECTIONS["demetriades"]} />
       <P>
         The earliest known recording is{" "}
         <ArtistLink id="tetos-demetriades">
@@ -117,7 +116,7 @@ export function MiserlouCousins() {
         author for the folk contour.
       </P>
 
-      <H2 id="yiddish">Yiddish words, a Jewish ambit</H2>
+      <H2 {...SECTIONS["yiddish"]} />
       <P>
         The tune entered the ambit of klezmer only in the late 1940s, Seth
         Rogovoy writes — a wedding-band and dance-repertoire life, not a
@@ -157,7 +156,7 @@ export function MiserlouCousins() {
         in the 1950s. Lord only knows where the good rabbi heard it.
       </Blockquote>
 
-      <H2 id="dale">One string, much faster</H2>
+      <H2 {...SECTIONS["dale"]} />
       <P>
         <ArtistLink id="dick-dale">Dick Dale</ArtistLink> recast the melody as{" "}
         <SongLink id="misirlou-dale" /> in 1962 — a surf-guitar instrumental
@@ -177,7 +176,7 @@ export function MiserlouCousins() {
         file: they point back at Dale, not at Demetriades.
       </P>
 
-      <H2 id="family">The family, as a list</H2>
+      <H2 {...SECTIONS["family"]} />
       <P>
         Four catalog lives we can name and, where a legal player exists, hear.
         The Jewish wedding-band life Rogovoy describes is real and cited; it
@@ -189,14 +188,14 @@ export function MiserlouCousins() {
         To sit with the mode this contour lives in, see{" "}
         <Link
           href="/scales/freygish"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           What is freygish?
         </Link>
         . To follow klezmer’s own American crossings, see{" "}
         <Link
           href="/history/klezmer"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           Where did klezmer come from?
         </Link>
@@ -205,7 +204,7 @@ export function MiserlouCousins() {
 
       <SourceList sources={SOURCES} />
 
-      <p className="mt-8 text-xs leading-relaxed text-muted-foreground/70">
+      <p className="mt-8 text-base leading-relaxed text-muted-foreground/70">
         Quotations are reproduced briefly for commentary and criticism, with
         attribution and links to the originals. Where a source is public domain
         it is marked as such; other works are quoted under fair use. Click a

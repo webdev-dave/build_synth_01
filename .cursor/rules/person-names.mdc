@@ -1,0 +1,34 @@
+---
+description: A person's name links to their artist page, or to Wikipedia when we have no artist entry and no plan to add one.
+alwaysApply: true
+---
+
+# People — artist page, or Wikipedia
+
+When prose names a person, the name itself is the link.
+
+1. **They have an artist entry** (`src/lib/catalog/artists.ts`, `live` or `soon`), or this change is adding one → `<ArtistLink>` / the auto-linker. Do not also send that name to Wikipedia.
+2. **No entry, and we are not adding one** (a relative, a printer, a figure we only mention) → if a Wikipedia article exists, the name links to it. Every mention.
+3. **No article** → plain text. Do not link a search URL, a disambiguation page, or a different person.
+
+Check the catalog before linking out. If this change is adding the person, they get an artist entry. Do not invent an entry only so the name has somewhere to go, and do not send a catalog artist to Wikipedia.
+
+## How to write it
+
+Registry strings (`about`, `bio`, `micro`, lyric notes) cannot hold JSX. Use a markdown link. `makeTermLinker()` turns it into an underlined link that opens Wikipedia. Prefer the English article. Use another language edition only when English has none. Verify the URL (the API title, not a guess). A disambiguation page is not the article — use the specific one (`Joel_Engel_(composer)`).
+
+```ts
+// ❌ BAD — a real person, no artist page, name left bare
+his sister Sarah a poet
+
+// ❌ BAD — Wikipedia for someone who already has /artists/avraham-reisen
+[Avraham Reisen](https://en.wikipedia.org/wiki/Avrom_Reyzen)
+
+// ✅ GOOD — no artist entry; the article was checked
+his sister [Sarah](https://en.wikipedia.org/wiki/Sarah_Reisen)
+
+// ✅ GOOD — no Wikipedia article (Kalman Reisen) → leave the name plain
+his father Kalman was a poet
+```
+
+Hand-authored TSX uses the same destination with `PROSE_LINK`, `target="_blank"`, and `rel="noreferrer"`. If the label is a catalog `name` or `alsoNamed`, the linker keeps `<ArtistLink>` and ignores the URL.

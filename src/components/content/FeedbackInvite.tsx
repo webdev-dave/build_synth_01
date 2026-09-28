@@ -34,7 +34,7 @@ export function FeedbackInvite({
           strokeWidth={1.75}
         />
         <div>
-          <p className="text-sm leading-relaxed text-muted-foreground">
+          <p className="text-base leading-relaxed text-muted-foreground">
             We wrote {subject} to the best of our knowledge, quoting and
             linking the sources — but music history is bigger than any one
             telling. Corrections, additions, and better sources are genuinely
@@ -44,7 +44,7 @@ export function FeedbackInvite({
             targetType={targetType}
             targetId={targetId}
             subject={subject}
-            className="mt-2 inline-block text-foreground no-underline hover:underline"
+            className="mt-2 inline-block text-base text-foreground no-underline hover:underline"
           >
             Suggest an improvement →
           </FeedbackButton>

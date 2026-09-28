@@ -72,8 +72,8 @@ export function SongJumpNav({ ids }: { ids: SongJumpId[] }) {
   if (entries.length === 0) return null;
 
   return (
-    <details className="group mt-6">
-      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
+    <details className="group">
+      <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-base text-muted-foreground transition-colors hover:text-foreground [&::-webkit-details-marker]:hidden">
         Songs in this article
         <ChevronDown
           className="h-3.5 w-3.5 transition-transform group-open:rotate-180"
@@ -89,7 +89,7 @@ export function SongJumpNav({ ids }: { ids: SongJumpId[] }) {
                 e.preventDefault();
                 scrollSongIntoCenter(entry);
               }}
-              className="text-sm text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
+              className="text-base text-muted-foreground underline-offset-2 transition-colors hover:text-foreground hover:underline"
             >
               &ldquo;{title}&rdquo;
               <span> — {credit}</span>

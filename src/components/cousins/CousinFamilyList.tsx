@@ -50,7 +50,7 @@ export function CousinFamilyList({ article }: { article: CousinArticle }) {
           >
             <div className="px-3 py-3">
               <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
-                <span className="text-sm font-medium text-foreground">
+                <span className="text-base font-medium text-foreground">
                   <Link
                     href={`/songs/${song.slug}`}
                     className="card-hit after:absolute after:inset-0 focus-visible:outline-none"
@@ -61,11 +61,11 @@ export function CousinFamilyList({ article }: { article: CousinArticle }) {
                     {songAttribution(song)}
                   </span>
                 </span>
-                <span className="relative z-10 font-mono text-xs text-muted-foreground">
+                <span className="relative z-10 font-mono text-base text-muted-foreground">
                   {COUSIN_KIND_LABEL[member.kind]}
                 </span>
               </div>
-              <p className="relative z-10 mt-1 text-xs text-muted-foreground">
+              <p className="relative z-10 mt-1 text-base text-muted-foreground">
                 {[
                   member.year ?? song.year,
                   place?.name,
@@ -82,18 +82,18 @@ export function CousinFamilyList({ article }: { article: CousinArticle }) {
                     if (!artist) {
                       return (
                         <li
-                          key={recording.youtubeId}
-                          className="text-xs text-muted-foreground"
+                          key={recording.youtubeId ?? recording.src}
+                          className="text-base text-muted-foreground"
                         >
                           {recording.label}
                         </li>
                       );
                     }
                     return (
-                      <li key={recording.youtubeId}>
+                      <li key={recording.youtubeId ?? recording.src}>
                         <Link
                           href={`/artists/${artist.slug}`}
-                          className="text-xs text-foreground underline-offset-2 hover:underline"
+                          className="text-base text-foreground underline-offset-2 hover:underline"
                         >
                           {recording.label}
                         </Link>

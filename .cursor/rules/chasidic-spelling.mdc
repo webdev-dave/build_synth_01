@@ -1,0 +1,42 @@
+---
+description: House spelling is Chasidic. Hasidic is an alternate and a search term, never the word a sentence leads with.
+alwaysApply: true
+---
+
+# Chasidic, not Hasidic
+
+When one English word describes this movement, its music, or its communities, write **Chasidic**.
+
+Related forms use the same *Ch*:
+
+| Meaning | Write | Do not lead with |
+|---|---|---|
+| the movement, the music, a community | Chasidic | Hasidic, Chassidic |
+| one follower | Chasid | Hasid |
+| followers | Chasidim | Hasidim |
+| the -ism, only when a sentence needs it | Chasidism | Hasidism |
+
+The Yiddish adjective is חסידיש. The spoken English alternate people already know is **Chassidish**. That stays on the word entry (`audioSays`), not as the sentence’s headword.
+
+## Where Hasidic stays
+
+**Hasidic**, **Hasid**, **Hasidim**, **Hasidism**, **Chassidic**, and **Chassidish** are required, not leftovers:
+
+- **Alternate spelling the reader can see.** `alsoSpelled` on the `chasidic` word, and concept `aliases`, so the glossary banner and the popover list them. Do not delete these when you switch a sentence to Chasidic.
+- **Search and rankings.** `keywords` on the genre and the concept (`hasidic music`, `what is hasidic judaism`, and the same for Hasid / Hasidim / Hasidism). Search already indexes concept `aliases` and `keywords`. Add a Hasidic phrase when you add a page people will look up under that spelling. Do not put Hasidic in the visible title, heading, pill, or body in order to rank.
+
+## What not to “correct”
+
+- A source’s own title. Wikipedia’s article is “Hasidic Judaism”; the source line may say that.
+- A direct quotation. Quote their spelling. Our sentence around the quote still says Chasidic.
+- Native script and the JEL headword *Chassidish*.
+
+```tsx
+// ❌ BAD — our sentence leads with the academic spelling
+<a>Hasidic communities still teach it</a>
+
+// ✅ GOOD — one word, house spelling; Hasidic remains an alias and a keyword
+<Term id="chasidic">Chasidic</Term> communities still teach it
+```
+
+Every mention still links to `/concepts/chasidic`. Wikipedia stays on that page’s source list. See the Chasidic bullet in `.cursor/rules/history-articles.mdc`.

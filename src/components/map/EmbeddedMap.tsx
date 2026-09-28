@@ -23,6 +23,7 @@ import { ArrowRight } from "lucide-react";
 import { getPlace, type Place } from "@/lib/places/registry";
 import { MusicMap, type MapSelection } from "./MusicMap";
 import { PlaceChips } from "./PlaceChips";
+import { PROSE_LINK } from "@/components/content/prose";
 
 interface EmbeddedMapProps {
   /** Place ids to frame and tint (already resolved by the page). */
@@ -86,13 +87,13 @@ export function EmbeddedMap({
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <h2
           id="embedded-map-heading"
-          className="text-sm font-medium text-muted-foreground"
+          className="text-base font-medium text-muted-foreground"
         >
           {heading}
         </h2>
         <Link
           href={fullMapHref}
-          className="group inline-flex items-center gap-1 text-sm text-muted-foreground transition-colors hover:text-foreground"
+          className="group inline-flex items-center gap-1 text-base text-muted-foreground transition-colors hover:text-foreground"
         >
           Open in full map
           <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-0.5" />
@@ -131,10 +132,10 @@ export function EmbeddedMap({
       {/* Read-through for the selected place — sits below the roster so the
           roster stays put. */}
       {selectedPlace && (
-        <p className="mt-2 text-sm text-muted-foreground">
+        <p className="mt-2 text-base text-muted-foreground">
           <Link
             href={`/map?place=${selectedPlace.id}`}
-            className="text-foreground underline-offset-2 hover:underline"
+            className={PROSE_LINK}
           >
             Read {selectedPlace.name} on the full map →
           </Link>

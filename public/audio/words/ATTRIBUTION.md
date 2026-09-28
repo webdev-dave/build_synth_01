@@ -4,7 +4,9 @@ Human-recorded pronunciations, redistributed here under their original license.
 
 | File | Word | Source | License |
 |------|------|--------|---------|
-| `krechtz.mp3` | krechtz (JEL *krekhts*) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/2481) | CC BY-SA 4.0 |
+| `chasidish.mp3` | Chassidish (JEL *Chassidish*, Yiddish חסידיש) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/1385) | CC BY-SA 4.0 |
+| `cheder.mp3` | cheder (JEL *cheder*, the CHEH-dehr reading; Yiddish חדר) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/1814) | CC BY-SA 4.0 |
+| `yeshiva.mp3` | yeshiva (JEL *yeshiva*, the yeh-SHEE-vuh reading; Hebrew ישיבה) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/615) | CC BY-SA 4.0 |
 | `nigun.mp3` | nigun | [Jewish English Lexicon](https://jel.jewish-languages.org/words/410) | CC BY-SA 4.0 |
 | `klezmer.mp3` | klezmer | [Jewish English Lexicon](https://jel.jewish-languages.org/words/272) | CC BY-SA 4.0 |
 | `freylekhs.mp3` | freylekhs (freilach) | [Jewish English Lexicon](https://jel.jewish-languages.org/words/169) | CC BY-SA 4.0 |

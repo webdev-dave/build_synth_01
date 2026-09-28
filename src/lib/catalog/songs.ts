@@ -17,6 +17,7 @@
  */
 import { getArtist } from "./artists";
 import { sortByLabel } from "@/lib/search/normalize";
+import { stripWikiLinks } from "@/lib/prose/wikiLinks";
 
 /** One sung line. Non-English songs fill `en` (and usually `latin`). */
 export interface LyricLine {
@@ -28,8 +29,8 @@ export interface LyricLine {
   en?: string;
   /** Stanza grouping (1, 2, …). Same number = same block on the page. */
   stanza?: number;
-  /** Marks a refrain/chorus block. */
-  role?: "verse" | "refrain";
+  /** Marks a refrain, or a pair of lines sung again before the chorus. */
+  role?: "verse" | "refrain" | "repeat";
 }
 
 export interface LyricSource {
@@ -37,14 +38,27 @@ export interface LyricSource {
   url?: string;
 }
 
-/** A labeled YouTube performance on the song page (Yiddish vs English, etc.). */
-export interface SongRecording {
-  youtubeId: string;
+/**
+ * One performance of the song. A YouTube upload sets `youtubeId`. A file
+ * we host sets `src`. On the song page each performance is one card in
+ * the lyrics-and-recordings section, with the words it sings under it.
+ */
+export type SongRecording = {
   /** Heading over the player ("Yiddish — The Shvesters, live"). */
   label: string;
   /** Catalog artist slug for this performance, when it isn't only the song credit. */
   artist?: string;
-}
+  /**
+   * `id` of the lyric version this performance sings. The card shows
+   * those lines under the player. Two performances may name the same
+   * version; the words print under each. Leave it off when no version
+   * on the page matches what is sung — the card is then audio only.
+   */
+  lyrics?: string;
+} & (
+  | { youtubeId: string; src?: never }
+  | { src: string; youtubeId?: never }
+);
 
 /** One published version of a song's words (original, translation, …). */
 export interface SongLyrics {
@@ -55,11 +69,21 @@ export interface SongLyrics {
   lang: string;
   /** Language name shown to the reader ("Yiddish"). */
   language: string;
-  /** Who wrote or translated this version. */
+  /** Who wrote, translated, or supplied this version. */
   credit?: string;
+  /**
+   * A phrase inside `credit` that links somewhere (the about page, when
+   * the site's developer supplied the lines). The phrase must occur once.
+   */
+  creditLink?: { phrase: string; href: string };
   /** Where we took the text from — required, verified. */
   source: LyricSource;
   note?: string;
+  /**
+   * In-page jump, rendered at the end of `note`. `versionId` is another
+   * lyric block on this page (`#lyrics-<id>`).
+   */
+  seeAlso?: { versionId: string; label: string };
   lines: LyricLine[];
 }
 
@@ -98,8 +122,10 @@ export interface CatalogSong {
   /** Year of the referenced recording/publication ("1925"). */
   year?: string;
   /**
-   * YouTube video id — verified upload, never from memory. Omit when we
-   * only have an archive/source link (`listen`) and no legal player.
+   * Lead YouTube id — verified upload, never from memory. When `recordings`
+   * is set, this is the same id as the first YouTube entry. A hosted file
+   * may sit ahead of it in the list. Omit when we only have an archive
+   * link (`listen`).
    */
   youtubeId?: string;
   /**
@@ -108,9 +134,16 @@ export interface CatalogSong {
    */
   listen?: { label: string; url: string };
   /**
-   * Extra (or labeled) recordings — e.g. a Yiddish performance next to
-   * the English one. When set, the song page and `<SongLink>` play these
-   * in order; `youtubeId` is still the single-player fallback.
+   * Bibliography for the page footer: printings, essays, archives.
+   * The song page renders these last, in `<EntrySources>`, together
+   * with lyric sources and the recordings. Do not invent a URL.
+   */
+  links?: { label: string; url: string }[];
+  /**
+   * Labeled recordings, in the order the page should offer them. The
+   * first entry is the lead version and its id matches `youtubeId`.
+   * The song page renders each as a YouTube chip (`CollapsibleVideo`),
+   * not an open iframe. `<SongLink>` uses the same order.
    */
   recordings?: SongRecording[];
   /** Playable arrangement id in `src/lib/songs`, when we have one. */
@@ -130,6 +163,13 @@ export interface CatalogSong {
    * line-by-line English gloss. Omit only when no citable text can be found.
    */
   lyrics?: SongLyrics[];
+  /**
+   * Place-registry ids for this song's map, in journey order. Required
+   * when the prose names places and the song's genres are not themselves
+   * mapped (only klezmer, blues, rock, and yiddish-theater derive a map).
+   * The page falls back to credited artists' pins only when this is empty.
+   */
+  places?: string[];
   /** Genre registry slugs. */
   genres?: string[];
   /** History article slugs the song appears in. */
@@ -1189,6 +1229,267 @@ export const SONGS_CATALOG: CatalogSong[] = [
       "Al Grand",
     ],
   },
+  {
+    slug: "a-sukkele-a-kleyne",
+    title: "A sukkele a kleyne",
+    original: {
+      english: "A little sukkah",
+      lang: "yi",
+      latin: "A sukkele a kleyne",
+      // Assaf’s essay and the Forward’s Hasidic article.
+      native: "אַ סוכּהלע אַ קליינע",
+    },
+    artists: ["avraham-reisen"],
+    artistLabel: "Avraham Reisen, 1902",
+    year: "1902",
+    youtubeId: "S4qaFVCC84k",
+    recordings: [
+      {
+        src: "/audio/songs/a-sikele-a-kleyne-beyle-schaechter-gottesman.mp3",
+        label: "Beyle Schaechter-Gottesman, Bronx home recording, 1980s",
+        lyrics: "schaechter-gottesman",
+      },
+      {
+        youtubeId: "S4qaFVCC84k",
+        label: "Rabbi Yoel Klein — the familiar singing, with the Ha-rachaman chorus",
+        artist: "yoel-klein",
+        lyrics: "chasidic-short",
+      },
+      {
+        youtubeId: "BGt3ASrzFNg",
+        label: "The Rabbis’ Sons, 1968 — the Chasidic rewording",
+      },
+      {
+        youtubeId: "O2fYLhrejvQ",
+        label: "Fishl Beigel with Suki & Ding, 1991 — adds Habeyt, not the simple Ha-rachaman close",
+        artist: "fishl-beigel",
+        lyrics: "chasidic-chorus",
+      },
+    ],
+    mentioned: ["fishl-beigel", "suki-and-ding", "yoel-klein"],
+    micro:
+      "Avraham Reisen’s 1902 Sukkot poem “In suke.” Singers made it a folk song, and Chasidic communities still teach it to children before the holiday.",
+    about:
+      "The version to hear first is [Beyle Schaechter-Gottesman](https://en.wikipedia.org/wiki/Beyle_Schaechter-Gottesman)’s. She sang the song as she had learned it in Chernivtsi, with the wife still in it, and her son Itzik Gottesman recorded her at home in the Bronx in the 1980s. His article on Yiddish Song of the Week tells how she learned it and what the words are doing. It is linked with her recording below, and it is worth reading before the later versions.\n\nAvraham Reisen wrote the poem, and he was not a Chasid. He came from a family of writers — his father Kalman was a poet, his sister [Sarah](https://en.wikipedia.org/wiki/Sarah_Reisen) a poet and translator, his brother [Zalman](https://en.wikipedia.org/wiki/Zalman_Reisen) the philologist of Yiddish — and [Peretz](https://en.wikipedia.org/wiki/I._L._Peretz) printed him when he was fifteen. From 1895 to 1899 he served in a musicians’ unit of the Russian army, then settled in Warsaw. His poems are short and plain, about people with little. Some of the sharper ones were sung at secret workers’ meetings in the woods, and many, this one included, left the page and became folk songs.\n\nHe published it on 15 October 1902, at twenty-six, on the Sukkot cover of the Kraków weekly Yudishe froyen-velt, as “In suke,” under the pen name Alexander Solomon. A man builds a small sukkah from plain boards and a little skhakh. A cold wind nearly puts out the candle, and when he makes kiddush the flame steadies. His wife brings in the first dish, afraid the wind will knock the sukkah down, and he tells her it has already stood a long time. No earlier manuscript is known. School books soon printed a shorter text, and in his own collected works (New York, 1917) Reisen kept only the first four stanzas, without the wife. By 1913 people were already singing reworded versions. The tune most people know was arranged by [Arno Nadel](https://en.wikipedia.org/wiki/Arno_Nadel) in Ost und West (Berlin, October–November 1916). [Joel Engel](https://en.wikipedia.org/wiki/Joel_Engel_(composer)) published a different melody the same year, but his setting did not catch on.\n\nChasidic singers reshaped the song further. A daughter takes the wife’s place: she comes in pale and says, Tate, the little sukkah is about to fall, and he answers that it has stood nearly two thousand years. They also gave it a chorus on its own melody — a Yiddish “oy,” then the Hebrew “Ha-rachaman hu yakim lanu et sukkat David ha-nofelet,” “May the Merciful One raise up for us the fallen sukkah of David.” No one person is known to have added it, and it is not in Reisen’s poem. The line is the Sukkot addition to birkat hamazon, the grace after meals, and it quotes Amos 9:11, “On that day I will raise up the fallen sukkah of David.” Readers of that verse took it to mean David’s kingdom, not a holiday booth; it was tied to Sukkot because both say sukkah. As a line of the grace it already appears in early printed benchers and in the seventeenth-century customs of Worms. Singers usually put the chorus at the close, and often between the stanzas as well.\n\nThe singing heard most often today is a short form. It is the one children usually learn, and the one large crowds tend to sing at religious and ceremonial gatherings, since it is the version most people know. It keeps only the opening, where he builds the little sukkah. In place of “I sit there in the sukkah at night,” singers often repeat “I made myself a little sukkah,” then sing again from “I covered the roof,” then “Oy, ha-rachaman” twice, and may start once more from the top. The daughter and the two thousand years belong to the longer text. Rabbi Yoel Klein’s recording ends in that simple way, on “Oy, ha-rachaman hu yakim lanu.” The Rabbis’ Sons, in 1968, sing the longer Chasidic rewording. Fishl Beigel’s 1991 track with Suki & Ding is another cut: it leaves out the daughter and continues into “Habeyt,” an ending heard less often.\n\nChildren still learn the song in cheder, yeshiva, and school in the days before Sukkot, in Israel as in New York. English and Hebrew versions exist and are sometimes taught too, in circles where speaking Yiddish is less common. However, no good online recordings of them could be located when this article was written.",
+    links: [
+      {
+        label: "Start here — Itzik Gottesman, Yiddish Song of the Week: Beyle Schaechter-Gottesman sings the song as she learned it",
+        url: "https://yiddishsong.wordpress.com/2010/10/05/a-sikele-a-kleyne-performed-by-beyle-schaechter-gottesman/",
+      },
+      {
+        label: "Ost und West, Oct–Nov 1916 — Arno Nadel’s “Sukkele,” p. 399 (Goethe University Frankfurt)",
+        url: "https://sammlungen.ub.uni-frankfurt.de/cm/periodical/titleinfo/2584067",
+      },
+      {
+        label: "David Assaf, 2019 — the 1902 text, and pictures of the first printing and Nadel’s score",
+        url: "https://onegshabbat.blogspot.com/2019/10/blog-post_11.html",
+      },
+      {
+        label: "Hebrew Wikipedia — the song",
+        url: "https://he.wikipedia.org/wiki/%D7%90_%D7%A1%D7%95%D7%9B%D7%94_%D7%90_%D7%A7%D7%9C%D7%99%D7%99%D7%A0%D7%A2",
+      },
+      {
+        label: "Reisen, Ale verk, vol. 5 (New York, 1917) — HathiTrust, full view of the Lider volume",
+        url: "https://catalog.hathitrust.org/Record/103341029",
+      },
+    ],
+    lyrics: [
+      {
+        id: "schaechter-gottesman",
+        label: "Beyle Schaechter-Gottesman — the song as she sang it, with his wife",
+        lang: "yi",
+        language: "Yiddish",
+        credit: "Beyle Schaechter-Gottesman, as she learned it in Chernivtsi. Recorded and written up by her son Itzik Gottesman.",
+        source: {
+          label: "Itzik Gottesman’s article, Yiddish Song of the Week, 5 October 2010",
+          url: "https://yiddishsong.wordpress.com/2010/10/05/a-sikele-a-kleyne-performed-by-beyle-schaechter-gottesman/",
+        },
+        note: "Start here. This is the song as Beyle sang it: his wife still comes in, and the little sukkah will always stand. Read Gottesman’s article with the recording — it is the best short account of how she learned the song and how these words traveled. The Yiddish follows his romanization of that home tape. The next block is Reisen’s 1902 poem, a different set of lines.",
+        seeAlso: {
+          versionId: "chasidic-chorus",
+          label: "Later Chasidic versions put a daughter in her place.",
+        },
+        lines: [
+          { text: "אַ סיכעלע אַ קליינע,", latin: "A sikele a kleyne,", en: "A little sukkah,", stanza: 1 },
+          { text: "מיט ברייטעלעך געמיינע", latin: "mit breytelekh gemeyne", en: "of plain boards,", stanza: 1 },
+          { text: "האָב איך מיר מיט צרות צונויפגעקלאַפּט.", latin: "hob ikh mir mit tsures tsunoyfgeklopt.", en: "I knocked together with trouble.", stanza: 1 },
+          { text: "צוגעדעקט דעם דאַך,", latin: "Tsigedekt deym dakh,", en: "I covered the roof,", stanza: 2 },
+          { text: "מיט אַ ביסעלע סכך.", latin: "mit a bisele skhakh.", en: "with a little skhakh.", stanza: 2 },
+          { text: "און איך זיץ מיר אין סיכעלע און טראַכט.", latin: "un ikh zits mir in sikele un trakht.", en: "and I sit in the little sukkah and think.", stanza: 2 },
+          { text: "דער ווינט דער קאַלטער,", latin: "Der vint der kalter,", en: "The cold wind", stanza: 3 },
+          { text: "בלאָזט דורך די שפּאַלטער", latin: "bluzt derekh di shpalter", en: "blows through the cracks", stanza: 3 },
+          { text: "און לעשט מיר די ליכטעלעך שיִר אויס.", latin: "in lesht mir di lekhtelekh shir oys.", en: "and nearly blows my candles out.", stanza: 3 },
+          { text: "הערט נאָר אַ חידוש,", latin: "Herts nor a khidesh,", en: "Listen to this wonder —", stanza: 4 },
+          { text: "קום מאַך איך נאָר קידוש.", latin: "kom makh ikh nor kidish.", en: "just as I finish kiddush,", stanza: 4 },
+          { text: "דער ווינט לעשט די ליכטעלעך אויס.", latin: "Der vint lesht di lekhtelekh oys.", en: "the wind blows the candles out.", stanza: 4 },
+          { text: "מיט אַ גרויס געוויין,", latin: "Mit a groys geveyn,", en: "With a great cry,", stanza: 5 },
+          { text: "מיט אַ ביטער געשריי,", latin: "mit a biter geshrey,", en: "with a bitter yell,", stanza: 5 },
+          { text: "קומט דאָך מײַן ווײַבעלע אַרײַן.", latin: "kimt dekh mayn vabele aran.", en: "my wife comes in.", stanza: 5 },
+          { text: "הער נאָר, מײַן מאַן,", latin: "Her nor mayn man,", en: "“Listen, my husband,", stanza: 6 },
+          { text: "דער ווינט וואַרפֿט דאָס סיכעלע באַלד אײַן,", latin: "Der vint varft dus sikele bold an,", en: "the wind will soon throw the little sukkah down,", stanza: 6 },
+          { text: "אוי, וואָס וועט דערנאָך דעם זײַן?", latin: "Oy, vus vet dernukh dem zan?", en: "oh, what will happen then?”", stanza: 6 },
+          { text: "גיי זײַ נישט קיין נאַר,", latin: "Gey zay nisht keyn nar,", en: "“Don't be a fool,", stanza: 7 },
+          { text: "און האָב נישט קיין צער,", latin: "un hob nisht keyn tsar,", en: "and don't grieve,", stanza: 7 },
+          { text: "און לאָז דיר דער ווינט נישט אָנגיין.", latin: "un loz dir der vint nisht ongeyn.", en: "and don't let the wind worry you.", stanza: 7 },
+          { text: "וויפֿל ווינטן ס'וועלן ברימען,", latin: "vifl vintn s'veln brimen,", en: "However many winds will roar,", stanza: 8 },
+          { text: "וויפֿל דורות ס'וועלן קימען,", latin: "vifl doyres s'veln kimen,", en: "however many generations will come,", stanza: 8 },
+          { text: "דאָס סיכעלע וועט אייביק שטיין.", latin: "dos sikele vet eybik shteyn.", en: "the little sukkah will always stand.”", stanza: 8 },
+        ],
+      },
+      {
+        id: "reisen-1902",
+        label: "Reisen’s poem, 1902 — the printed lines, a different talk with his wife",
+        lang: "yi",
+        language: "Yiddish",
+        credit: "Avraham Reisen, “In suke,” 1902",
+        source: {
+          label: "David Assaf’s transcription of the Kraków printing, in modern spelling",
+          url: "https://onegshabbat.blogspot.com/2019/10/blog-post_11.html",
+        },
+        note: "The full poem, eight stanzas. Stanzas 5–8 are the conversation: she brings in the first dish afraid the wind will knock the sukkah down, and he answers that it has already stood a long time. In 1917 Reisen dropped those four stanzas. English is a line-by-line gloss.",
+        lines: [
+          { text: "אַ סוכּה אַ קליינע", latin: "A suke a kleyne", en: "A tiny sukkah", stanza: 1 },
+          { text: "פֿון ברעטער געמיינע", latin: "fun breter gemeyne", en: "of plain boards", stanza: 1 },
+          { text: "האָב איך קוים מיט צרות געמאַכט!", latin: "hob ikh koym mit tsores gemakht!", en: "I barely built, and with trouble!", stanza: 1 },
+          { text: "געדעקט דעם דאַך", latin: "gedekt dem dakh", en: "I covered the roof", stanza: 2 },
+          { text: "מיט אַ ביסעלע סכך,", latin: "mit a bisele skhakh,", en: "with a little skhakh,", stanza: 2 },
+          { text: "און כ'זיץ אין איר סוכּות בײַ נאַכט.", latin: "un kh'zits in ir sukes bay nakht.", en: "and I sit in it on Sukkot night.", stanza: 2 },
+          { text: "פֿון ווינט דעם קאַלטן,", latin: "fun vint dem kaltn,", en: "From the cold wind,", stanza: 3 },
+          { text: "וואָס בלאָזט דורך די שפּאַלטן,", latin: "vos blozt durkh di shpaltn,", en: "that blows through the cracks,", stanza: 3 },
+          { text: "מײַן ליכטעלע לעשן זיך וויל;", latin: "mayn likhtele leshn zikh vil;", en: "my little candle wants to go out;", stanza: 3 },
+          { text: "דאָ מאַך איך מיר קידוש,", latin: "do makh ikh mir kidesh,", en: "here I make kiddush,", stanza: 4 },
+          { text: "און זעט נאָר אַ חידוש:", latin: "un zet nor a khidesh:", en: "and just see the wonder:", stanza: 4 },
+          { text: "מײַן ליכטל ברענט רויִק און שטיל!", latin: "mayn likhtl brent ruik un shtil!", en: "my candle burns quiet and still!", stanza: 4 },
+          { text: "מיט פֿאַרזאָרגטן געזיכט,", latin: "mit farzorgtn gezikht,", en: "With a worried face,", stanza: 5 },
+          { text: "דאָס ערשטע געריכט", latin: "dos ershte gerikht", en: "the first dish", stanza: 5 },
+          { text: "טראָגט מיר מײַן ווײַב באַלד אַרײַן;", latin: "trogt mir mayn vayb bald arayn;", en: "my wife soon carries in to me;", stanza: 5 },
+          { text: "זי שטעלט זיך אַוועק", latin: "zi shtelt zikh avek", en: "she stands there", stanza: 6 },
+          { text: "און זאָגט, ווי מיט שרעק:", latin: "un zogt, vi mit shrek:", en: "and says, as if afraid:", stanza: 6 },
+          { text: "דער ווינט וואַרפֿט די סוכּה באַלד אײַן!", latin: "der vint varft di suke bald ayn!", en: "the wind will soon knock the sukkah down!", stanza: 6 },
+          { text: "עט, זײַ ניט קיין נאַר", latin: "et, zay nit keyn nar", en: "Oh, don't be a fool", stanza: 7 },
+          { text: "און האָב ניט קיין צער", latin: "un hob nit keyn tsar", en: "and don't grieve", stanza: 7 },
+          { text: "עס זאָל דיר דער ווינט ניט טאָן באַנג:", latin: "es zol dir der vint nit ton bang:", en: "don't let the wind trouble you:", stanza: 7 },
+          { text: "ניט זעלטן זיי קומען", latin: "nit zeltn zey kumen", en: "Not seldom they come,", stanza: 8 },
+          { text: "די ווינטן און ברומען", latin: "di vintn un brumen", en: "the winds, and they roar,", stanza: 8 },
+          { text: "דאָך שטייט אונדזערע סוכּה שוין לאַנג…", latin: "dokh shteyt undzere suke shoyn lang…", en: "yet our sukkah has already stood a long time…", stanza: 8 },
+        ],
+      },
+      {
+        id: "chasidic-chorus",
+        label: "Later Chasidic singing — his daughter, and the Ha-rachaman chorus",
+        lang: "yi",
+        language: "Yiddish",
+        credit: "The later Chasidic form of Reisen’s poem, as still sung",
+        source: {
+          label: "Verses as COL prints them; the “Oy, ha-rachaman” line as David Assaf quotes it from Dos flam fun amol (New York, 2007)",
+          url: "https://onegshabbat.blogspot.com/2019/10/blog-post_11.html",
+        },
+        note: "The daughter replaces Reisen’s wife, and the close is “nearly two thousand years.” The refrain is its own short melody: Yiddish “oy,” then the Sukkot line of the grace after meals, and nothing after it. That line quotes Amos 9:11. No named author added it to the song. The recording in this block is Fishl Beigel with Suki & Ding, 1991. English is a line-by-line gloss.",
+        seeAlso: {
+          versionId: "chasidic-short",
+          label: "The short form most people know is the next block.",
+        },
+        lines: [
+          { text: "א סוכה'לע א קליינע", latin: "A sukele a kleyne", en: "A little sukkah", stanza: 1 },
+          { text: "מיט ברעטעלעך געמיינע", latin: "mit bretlekh gemeyne", en: "of plain little boards", stanza: 1 },
+          { text: "האב איך מיר א סוכה'לע געמאכט", latin: "hob ikh mir a sukele gemakht", en: "I made myself a little sukkah", stanza: 1 },
+          { text: "באדעקט דעם דאך", latin: "badekt dem dakh", en: "I covered the roof", stanza: 2 },
+          { text: "מיט א ביסעלע סכך", latin: "mit a bisele skhakh", en: "with a little skhakh", stanza: 2 },
+          { text: "זיץ איך מיר אין סוכה'לע ביינאכט", latin: "zits ikh mir in sukele bay nakht", en: "I sit in the little sukkah at night", stanza: 2 },
+          { text: "א ווינט א קאלטן", latin: "a vint a kaltn", en: "A cold wind", stanza: 3 },
+          { text: "בלאזט דורך די שפאלטן", latin: "blozt durkh di shpaltn", en: "blows through the cracks", stanza: 3 },
+          { text: "און די לעכטעלעך זיי לעשן זיך פיל", latin: "un di lekhtlekh zey leshn zikh fil", en: "and the little candles keep going out", stanza: 3 },
+          { text: "עס איז מיר א חידוש", latin: "es iz mir a khidesh", en: "It is a wonder to me,", stanza: 4 },
+          { text: "ווי איך מאך מיר קידוש", latin: "vi ikh makh mir kidesh", en: "as I make kiddush,", stanza: 4 },
+          { text: "און די לעכטעלעך זיי ברענען גאנץ שטיל", latin: "un di lekhtlekh zey brenen gants shtil", en: "and the little candles burn quite still", stanza: 4 },
+          { text: "צום ערשטן געריכט", latin: "tsum ershtn gerikht", en: "At the first dish,", stanza: 5 },
+          { text: "מיט א בלאסן געזיכט", latin: "mit a blasn gezikht", en: "with a pale face,", stanza: 5 },
+          { text: "ברענגט מיר מיין טאכטערעל אריין", latin: "brengt mir mayn tokhterl arayn", en: "my little daughter brings it in to me", stanza: 5 },
+          { text: "זי שטעלט אוועק", latin: "zi shtelt avek", en: "She stands there", stanza: 6 },
+          { text: "און זאגט מיט שרעק", latin: "un zogt mit shrek", en: "and says, afraid:", stanza: 6 },
+          { text: "טאטעלע די סוכה פאלט באלד איין", latin: "Tattele, di suke falt bald ayn", en: "“Tate, the sukkah will soon fall in.”", stanza: 6 },
+          { text: "זיי נישט קיין נער", latin: "zay nisht keyn nar", en: "Don't be a fool", stanza: 7 },
+          { text: "האב נישט קיין צער", latin: "hob nisht keyn tsar", en: "and don't grieve", stanza: 7 },
+          { text: "זאל דיר די סוכה נישט זיין באנג", latin: "zol dir di suke nisht zayn bang", en: "don't let the sukkah worry you", stanza: 7 },
+          { text: "עס איז שוין גאר", latin: "es iz shoyn gor", en: "It is already nearly", stanza: 8 },
+          { text: "באלד צוויי טויזנט יאר", latin: "bald tsvey toyznt yor", en: "two thousand years,", stanza: 8 },
+          { text: "און די סוכה'לע זי שטייט נאך גאנץ לאנג", latin: "un di sukele zi shteyt nokh gants lang", en: "and the little sukkah is still standing.", stanza: 8 },
+          {
+            text: "אוי, הרחמן הוא יקים לנו את סוכת דוד הנופלת",
+            latin: "Oy, ha-rachaman hu yakim lanu es sukas Dovid ha-nofales",
+            en: "Oh — may the Merciful One raise up for us the fallen sukkah of David.",
+            stanza: 9,
+            role: "refrain",
+          },
+        ],
+      },
+      {
+        id: "chasidic-short",
+        label: "The short form — the version most often taught to children and sung at large gatherings",
+        lang: "yi",
+        language: "Yiddish",
+        credit: "The developer supplied these lines. They are the wording large crowds sing, where Anash and Hebrew Wikipedia print something else.",
+        creditLink: { phrase: "The developer", href: "/about" },
+        source: {
+          label: "“fun bretlekh” as Anash.org prints it, 17 October 2019, with Simche Friedman’s recording; the other swapped words are the ones Hebrew Wikipedia lists",
+          url: "https://anash.org/fresh-rendition-of-sukkos-classic/",
+        },
+        note: "This is the form children most often learn, and the one large crowds tend to sing at religious and ceremonial gatherings, since most people know it. The recording here is Rabbi Yoel Klein. It keeps only the opening. Where the second stanza would say “I sit there in the sukkah at night,” singers often repeat “I made myself a little sukkah,” then sing again from “I covered the roof,” then “Oy, ha-rachaman” twice, and may start once more from the top. Anash prints “fun bretlekh” and the sit-there line. Hebrew Wikipedia lists the words singers swap: mit or fun, gemeyne or a sheyne, badekt or gedekt, dort sukes or in sukele. No daughter, no wind, and no two thousand years. The longer text is the block above. English is a line-by-line gloss.",
+        lines: [
+          { text: "א סוכה’לע א קליינע", latin: "A sukele a kleyne", en: "A little sukkah", stanza: 1 },
+          { text: "פון ברעטעלעך געמיינע", latin: "fun bretlekh gemeyne", en: "of plain little boards", stanza: 1 },
+          { text: "האב איך מיר א סוכה’לע געמאכט", latin: "hob ikh mir a sukele gemakht", en: "I made myself a little sukkah", stanza: 1 },
+          { text: "באדעקט דעם דאך", latin: "badekt dem dakh", en: "I covered the roof", stanza: 2 },
+          { text: "מיט א ביסעלע סכך", latin: "mit a bisele skhakh", en: "with a little skhakh", stanza: 2 },
+          { text: "האב איך מיר א סוכה’לע געמאכט", latin: "hob ikh mir a sukele gemakht", en: "I made myself a little sukkah", stanza: 2 },
+          { text: "באדעקט דעם דאך", latin: "badekt dem dakh", en: "I covered the roof", stanza: 3, role: "repeat" },
+          { text: "מיט א ביסעלע סכך", latin: "mit a bisele skhakh", en: "with a little skhakh", stanza: 3, role: "repeat" },
+          { text: "האב איך מיר א סוכה’לע געמאכט", latin: "hob ikh mir a sukele gemakht", en: "I made myself a little sukkah", stanza: 3, role: "repeat" },
+          {
+            text: "אוי, הרחמן הוא יקים לנו את סוכת דוד הנופלת",
+            latin: "Oy, ha-rachaman hu yakim lanu es sukas Dovid ha-nofales",
+            en: "Oh — may the Merciful One raise up for us the fallen sukkah of David.",
+            stanza: 4,
+            role: "refrain",
+          },
+          {
+            text: "אוי, הרחמן הוא יקים לנו את סוכת דוד הנופלת",
+            latin: "Oy, ha-rachaman hu yakim lanu es sukas Dovid ha-nofales",
+            en: "Oh — may the Merciful One raise up for us the fallen sukkah of David.",
+            stanza: 4,
+            role: "refrain",
+          },
+        ],
+      },
+    ],
+    places: [
+      "worms",
+      "krakow",
+      "warsaw",
+      "berlin",
+      "chernivtsi",
+      "new-york",
+      "poland",
+      "israel",
+    ],
+    genres: ["yiddish-folk", "chasidic", "traditional-jewish"],
+    status: "live",
+    keywords: [
+      "A sukkele a kleyne",
+      "a sukkale a kleine",
+      "A Sukkahle",
+      "A sikele a kleyne",
+      "In suke",
+      "אַ סוכּהלע אַ קליינע",
+      "Avraham Reisen",
+      "Yoel Klein",
+      "Suki & Ding",
+      "Sukkot",
+      "Ha-rachaman",
+      "sukkat David",
+      "הרחמן הוא יקים לנו את סוכת דוד הנופלת",
+    ],
+  },
 ];
 
 export function getCatalogSong(slug: string): CatalogSong | undefined {
@@ -1255,14 +1556,228 @@ export function songTitleAliases(song: CatalogSong): string[] {
   return [o.english, o.latin, o.native].filter((s): s is string => Boolean(s));
 }
 
+export function songHasLyrics(song: CatalogSong): boolean {
+  return Boolean(song.lyrics?.some((version) => version.lines.length > 0));
+}
+
+/** A non-English lyric that carries a line-by-line English gloss. */
+export function songHasTranslation(song: CatalogSong): boolean {
+  return Boolean(
+    song.lyrics?.some(
+      (version) =>
+        version.lang.split("-")[0] !== "en" &&
+        version.lines.some((line) => line.en),
+    ),
+  );
+}
+
+export function songHasHistory(song: CatalogSong): boolean {
+  return Boolean(song.about?.trim());
+}
+
+/** A playable performance, or an archive page when that is all we can offer. */
+export function songHasRecordings(song: CatalogSong): boolean {
+  return songPageRecordings(song).length > 0 || Boolean(song.listen);
+}
+
+function songNames(song: CatalogSong): string[] {
+  const names = [song.title, ...songTitleAliases(song)];
+  return names.filter(
+    (name, i) =>
+      Boolean(name) &&
+      names.findIndex((n) => n.toLowerCase() === name.toLowerCase()) === i,
+  );
+}
+
+/**
+ * Queries a reader types when they want this page: “song lyrics for …”,
+ * “English translation”, “recording”, “audio”, “history of …”. Only
+ * phrases the page can actually answer.
+ */
+export function songQueryPhrases(song: CatalogSong): string[] {
+  const phrases: string[] = [];
+  for (const name of songNames(song)) {
+    if (songHasLyrics(song)) {
+      phrases.push(
+        `${name} lyrics`,
+        `${name} song lyrics`,
+        `lyrics of ${name}`,
+        `song lyrics for ${name}`,
+      );
+      if (songHasTranslation(song)) {
+        phrases.push(
+          `${name} lyrics in English`,
+          `${name} English translation`,
+          `${name} lyrics and translation`,
+        );
+      }
+    }
+    if (songHasRecordings(song)) {
+      phrases.push(
+        `${name} recording`,
+        `${name} audio`,
+        `${name} song recording`,
+      );
+    }
+    if (songHasHistory(song)) {
+      phrases.push(
+        `history of ${name}`,
+        `${name} history`,
+        `${name} song history`,
+      );
+    }
+  }
+  if (song.artists.length > 0) {
+    phrases.push(`who wrote ${song.title}`);
+  }
+  return phrases;
+}
+
+/** Browser title. Names lyrics, recordings, and history only when the page has them. */
+export function songPageTitle(song: CatalogSong): string {
+  const parts = [
+    songHasLyrics(song) ? "lyrics" : "",
+    songHasRecordings(song) ? "recordings" : "",
+    songHasHistory(song) ? "history" : "",
+  ].filter(Boolean);
+  if (parts.length === 0) return `${song.title} — ${songAttribution(song)}`;
+  if (parts.length === 1) return `${song.title} — ${parts[0]}`;
+  if (parts.length === 2) return `${song.title} — ${parts[0]} and ${parts[1]}`;
+  return `${song.title} — ${parts.slice(0, -1).join(", ")}, and ${parts[parts.length - 1]}`;
+}
+
+export function songPageDescription(song: CatalogSong): string {
+  const parts: string[] = [];
+  if (song.micro?.trim()) parts.push(song.micro.trim());
+  else parts.push(`${song.title} — ${songAttribution(song)}.`);
+  if (songHasLyrics(song) && songHasTranslation(song)) {
+    parts.push("Full lyrics, with an English translation.");
+  } else if (songHasLyrics(song)) {
+    parts.push("Full lyrics.");
+  }
+  if (songHasRecordings(song)) {
+    parts.push("Recordings and audio are on this page, with the words.");
+  }
+  if (songHasHistory(song)) parts.push(`History of “${song.title}.”`);
+  return parts.join(" ");
+}
+
+export function songPageKeywords(song: CatalogSong): string[] {
+  return [...new Set([...(song.keywords ?? []), ...songQueryPhrases(song)])];
+}
+
+export interface SongFaq {
+  question: string;
+  answer: string;
+}
+
+/** Questions the page answers in visible text — for FAQ schema and crawlers. */
+export function songFaqs(song: CatalogSong): SongFaq[] {
+  const faqs: SongFaq[] = [
+    {
+      question: `What is “${song.title}”?`,
+      answer: song.micro ?? `${song.title} — ${songAttribution(song)}.`,
+    },
+  ];
+  if (songHasHistory(song)) {
+    faqs.push({
+      question: `What is the history of “${song.title}”?`,
+      answer: stripWikiLinks(song.about!.split(/\n\n+/)[0].trim()),
+    });
+  }
+  if (songHasLyrics(song)) {
+    const version = song.lyrics!.find((v) => v.lines.length > 0)!;
+    const preview = version.lines
+      .slice(0, 4)
+      .map((line) => line.en ?? line.text)
+      .join(" ");
+    const translated = songHasTranslation(song);
+    faqs.push({
+      question: translated
+        ? `What are the lyrics of “${song.title},” with an English translation?`
+        : `What are the lyrics of “${song.title}”?`,
+      answer: translated
+        ? `The full ${version.language} lyric is printed on this page, with an English translation under each line. ${preview}`
+        : `The full lyrics are printed on this page. ${preview}`,
+    });
+  }
+  if (songHasRecordings(song)) {
+    faqs.push({
+      question: `Where can I hear a recording of “${song.title}”?`,
+      answer: songHasLyrics(song)
+        ? `The recordings and audio are on this page, in the same section as the lyrics.`
+        : `The recordings and audio are on this page.`,
+    });
+  }
+  return faqs;
+}
+
 /** Songs safe to index (real content), for the sitemap + static params. */
 export const LIVE_SONGS = SONGS_CATALOG.filter((s) => s.status === "live");
 
-/** Players to show on the song page: labeled `recordings`, or the single default. */
+/**
+ * Players to show on the song page: labeled `recordings`, or the single
+ * default built from `youtubeId`. A song with one recording and one lyric
+ * version pairs them, so the page shows one card with both.
+ */
 export function songPageRecordings(song: CatalogSong): SongRecording[] {
-  if (song.recordings?.length) return song.recordings;
-  if (!song.youtubeId) return [];
-  return [{ youtubeId: song.youtubeId, label: songAttribution(song) }];
+  const list: SongRecording[] = song.recordings?.length
+    ? song.recordings
+    : song.youtubeId
+      ? [{ youtubeId: song.youtubeId, label: songAttribution(song) }]
+      : [];
+  const only = song.lyrics?.length === 1 ? song.lyrics[0] : undefined;
+  if (list.length === 1 && only && !list[0].lyrics) {
+    return [{ ...list[0], lyrics: only.id }];
+  }
+  return list;
+}
+
+function creditKey(url: string): string {
+  try {
+    const parsed = new URL(url);
+    parsed.hash = "";
+    const path = parsed.pathname.replace(/\/$/, "");
+    return `${parsed.hostname.replace(/^www\./, "")}${path}${parsed.search}`;
+  } catch {
+    return url.replace(/\/$/, "");
+  }
+}
+
+/**
+ * Everything the song page owes a credit to, in reading order: the
+ * bibliography (`links` — printings and essays first), then each lyric
+ * version's source, then an archive `listen` link, then the recordings.
+ * Same URL twice is listed once.
+ */
+export function songSources(
+  song: CatalogSong,
+): { label: string; url?: string }[] {
+  const items: { label: string; url?: string }[] = [...(song.links ?? [])];
+  for (const version of song.lyrics ?? []) {
+    items.push({
+      label: version.source.label,
+      url: version.source.url,
+    });
+  }
+  if (song.listen) items.push(song.listen);
+  for (const recording of songPageRecordings(song)) {
+    if (!recording.youtubeId) continue;
+    items.push({
+      label: recording.label,
+      url: `https://www.youtube.com/watch?v=${recording.youtubeId}`,
+    });
+  }
+
+  const seen = new Set<string>();
+  const out: { label: string; url?: string }[] = [];
+  for (const item of items) {
+    const key = item.url ? creditKey(item.url) : item.label;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(item);
+  }
+  return out;
 }
 
 /** Credit artists plus anyone named on a labeled recording, first-seen order. */

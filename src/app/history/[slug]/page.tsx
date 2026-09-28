@@ -15,6 +15,7 @@ import { makeTermLinker } from "@/components/concepts/autoTerm";
 import { WordBanner } from "@/components/words/WordBanner";
 import { getWord } from "@/lib/words/registry";
 import { HubLink } from "@/components/content/HubLink";
+import { PROSE_LEAD } from "@/components/content/prose";
 
 interface HistoryPageProps {
   params: Promise<{ slug: string }>;
@@ -87,13 +88,13 @@ export default async function HistoryArticlePage({
         <HubLink href="/history">All history</HubLink>
 
         <header className="mt-6">
-          <h1 className="text-3xl font-semibold tracking-tight">
+          <h1 className="text-balance text-3xl font-semibold tracking-tight">
             {article.question}
           </h1>
           {word && <WordBanner word={word} />}
           {/* Lead answer: the quotable summary, in real HTML so crawlers and
               answer engines see it without running the app. */}
-          <p className="mt-4 text-base leading-relaxed text-foreground">
+          <p className={`mt-4 ${PROSE_LEAD}`}>
             {linkTerms(article.answer)}
           </p>
         </header>
@@ -145,7 +146,7 @@ export default async function HistoryArticlePage({
               className="mx-auto h-5 w-5 text-muted-foreground"
               strokeWidth={1.75}
             />
-            <p className="mt-3 text-sm text-muted-foreground">
+            <p className="mt-3 text-base text-muted-foreground">
               The full article is being written — sourced from original writing
               and recordings, quoted briefly, and linked back so you can read
               and hear them yourself. For now, take the sound apart on the pages

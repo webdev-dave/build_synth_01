@@ -48,8 +48,10 @@ export function GenrePills({
             onClick={(event) => event.stopPropagation()}
             className={cn(
               badgeVariants({ variant: "outline" }),
-              "text-muted-foreground hover:border-foreground/25 hover:bg-accent/40 hover:text-foreground",
-              compact && "px-2 py-0 text-[10px] leading-4",
+              // 16px floor — these pills sit on long-form entries. Overrides
+              // the badge's text-xs. Compact only tightens padding.
+              "text-base text-muted-foreground hover:border-foreground/25 hover:bg-accent/40 hover:text-foreground",
+              compact && "px-2 py-0",
             )}
           >
             {genre.name}

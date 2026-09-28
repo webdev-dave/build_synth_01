@@ -64,14 +64,14 @@ export function GenreLayers({
         const panelId = `genre-layer-${layer}`;
         const header = (
           <>
-            <span className="font-mono text-xs text-muted-foreground">
+            <span className="font-mono text-base text-muted-foreground">
               {i + 1}
             </span>
             <span className="min-w-0 flex-1">
-              <span className="font-mono text-xs uppercase tracking-wide text-foreground">
+              <span className="font-mono text-base uppercase tracking-wide text-foreground">
                 {LAYER_INFO[layer].label}
               </span>
-              <span className="mt-0.5 block text-sm text-muted-foreground">
+              <span className="mt-0.5 block text-base text-muted-foreground">
                 {LAYER_INFO[layer].blurb}
               </span>
             </span>
@@ -84,7 +84,7 @@ export function GenreLayers({
                 aria-hidden
               />
             ) : (
-              <Badge variant="secondary" className="mt-0.5 shrink-0">
+              <Badge variant="secondary" className="mt-0.5 shrink-0 text-base">
                 Coming soon
               </Badge>
             )}
@@ -156,10 +156,10 @@ function ScaleLayerPanel({
             aria-hidden
           />
           <span className="min-w-0">
-            <span className="block text-sm font-medium text-foreground">
+            <span className="block text-base font-medium text-foreground">
               {scale.hasLesson ? "View the full lesson" : "About this scale"}
             </span>
-            <span className="mt-0.5 block text-xs text-muted-foreground">
+            <span className="mt-0.5 block text-base text-muted-foreground">
               {scale.hasLesson
                 ? `${scale.question} Taught from zero, every idea playable.`
                 : scale.question}
@@ -169,8 +169,8 @@ function ScaleLayerPanel({
         <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5" />
       </Link>
 
-      <p className="mt-4 text-sm leading-relaxed text-foreground">{scale.answer}</p>
-      <p className="mt-2 font-mono text-xs text-muted-foreground">
+      <p className="mt-4 text-base leading-relaxed text-foreground">{scale.answer}</p>
+      <p className="mt-2 font-mono text-base text-muted-foreground">
         {scale.formula}
         <span className="text-muted-foreground/80">
           {" "}
@@ -185,12 +185,12 @@ function ScaleLayerPanel({
       />
       {related.length > 0 && (
         <div className="mt-4 flex flex-col items-start gap-2">
-          <p className="text-xs text-muted-foreground">Also heard here</p>
+          <p className="text-base text-muted-foreground">Also heard here</p>
           {related.map((other) => (
           <Link
             key={other.slug}
             href={`/scales/${other.slug}`}
-            className="group inline-flex items-center gap-1.5 text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+            className="group inline-flex items-center gap-1.5 text-base text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
           >
             {other.question}
             <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />

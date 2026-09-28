@@ -14,26 +14,10 @@ import type { ReactNode } from "react";
 
 import type { ScaleDegree } from "@/lib/music/scaleCatalog";
 import { cn } from "@/lib/utils";
+import { H2, P, PROSE_LINK, ProseList } from "@/components/content/prose";
 import { NoteAt, RootName } from "./LessonInline";
 
-export function H2({ id, children }: { id: string; children: ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-export function P({ children }: { children: ReactNode }) {
-  return (
-    <p className="mt-3 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+export { H2, P, ProseList };
 
 export function Mono({ children }: { children: ReactNode }) {
   return <span className="font-mono text-foreground">{children}</span>;
@@ -42,10 +26,7 @@ export function Mono({ children }: { children: ReactNode }) {
 /** Inline link to another page in the app, styled for lesson prose. */
 export function LessonLink({ href, children }: { href: string; children: ReactNode }) {
   return (
-    <Link
-      href={href}
-      className="font-medium text-foreground underline-offset-4 hover:underline"
-    >
+    <Link href={href} className={PROSE_LINK}>
       {children}
     </Link>
   );
@@ -77,8 +58,8 @@ export interface LessonSource {
 export function Sources({ items }: { items: LessonSource[] }) {
   return (
     <div className="mt-10 border-t pt-4">
-      <h2 className="text-xs font-medium text-muted-foreground">Sources</h2>
-      <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+      <h2 className="text-base font-medium text-muted-foreground">Sources</h2>
+      <ul className="mt-2 space-y-1 text-base text-muted-foreground">
         {items.map((s) => (
           <li key={s.url}>
             <a
@@ -115,8 +96,8 @@ interface DegreeTableProps {
 export function DegreeTable({ rows, spotlightOffset, className }: DegreeTableProps) {
   return (
     <div className={cn("mt-4 overflow-hidden rounded-md border", className)}>
-      <table className="w-full text-sm">
-        <thead className="bg-muted/30 text-xs text-muted-foreground">
+      <table className="w-full text-base">
+        <thead className="bg-muted/30 text-base text-muted-foreground">
           <tr>
             <th scope="col" className="px-3 py-2 text-left font-medium">
               Degree

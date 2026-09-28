@@ -11,6 +11,13 @@ import Link from "next/link";
 import { getCousin } from "@/lib/cousins/registry";
 import { Cite, SourceList } from "@/components/history/citations";
 import { SongJumpNav } from "@/components/history/SongJumpNav";
+import {
+  H2,
+  OnThisPage,
+  P,
+  PROSE_LINK,
+  defineSections,
+} from "@/components/content/prose";
 import { SongLink } from "@/components/history/SongLink";
 import { ArtistLink } from "@/components/catalog/ArtistLink";
 import { Word } from "@/components/words/Word";
@@ -25,31 +32,22 @@ function Ref({ id }: { id: string }) {
   return <Cite id={id} sources={SOURCES} />;
 }
 
-function H2({ id, children }: { id: string; children: React.ReactNode }) {
-  return (
-    <h2
-      id={id}
-      className="mt-10 scroll-mt-24 text-lg font-semibold tracking-tight text-foreground"
-    >
-      {children}
-    </h2>
-  );
-}
-
-function P({ children }: { children: React.ReactNode }) {
-  return (
-    <p className="mt-4 text-sm leading-relaxed text-muted-foreground">
-      {children}
-    </p>
-  );
-}
+const SECTIONS = defineSections({
+  "esterke": "A calf for a Polish legend",
+  "dana": "Not a woman’s name",
+  "folk": "Folk-circuit Yiddish, then the whole revival",
+  "family": "The family, as a list",
+});
 
 export function DonaDonaCousins() {
   return (
     <article className="mt-8">
-      <SongJumpNav ids={SONG_IDS} />
+      <div className="mt-6 flex flex-wrap items-start gap-x-8 gap-y-2">
+        <OnThisPage sections={SECTIONS} />
+        <SongJumpNav ids={SONG_IDS} />
+      </div>
 
-      <H2 id="esterke">A calf for a Polish legend</H2>
+      <H2 {...SECTIONS["esterke"]} />
       <P>
         <ArtistLink id="aaron-zeitlin">Aaron Zeitlin</ArtistLink> wrote the
         lyric and <ArtistLink id="sholom-secunda">Sholom Secunda</ArtistLink>{" "}
@@ -83,7 +81,7 @@ export function DonaDonaCousins() {
       </P>
       <CollapsibleVideo videoId="hVZnQ6THZrI" label="Yiddish — The Shvesters, live" />
 
-      <H2 id="dana">Not a woman’s name</H2>
+      <H2 {...SECTIONS["dana"]} />
       <P>
         The refrain — <em>dana, dana</em> — is not a woman’s name. It is a
         Polish folk vocable: syllables that fill a chorus without carrying a
@@ -108,7 +106,7 @@ export function DonaDonaCousins() {
         <Ref id="wikipedia-dona-dona" />
       </P>
 
-      <H2 id="folk">Folk-circuit Yiddish, then the whole revival</H2>
+      <H2 {...SECTIONS["folk"]} />
       <P>
         <ArtistLink id="sholom-secunda">Secunda</ArtistLink> made an English
         version that did not travel. In 1953{" "}
@@ -142,13 +140,13 @@ export function DonaDonaCousins() {
       </P>
       <CollapsibleVideo videoId="j1zBEWyBJb0" label="English — Joan Baez, 1960" />
 
-      <H2 id="family">The family, as a list</H2>
+      <H2 {...SECTIONS["family"]} />
       <P>
         Two catalog songs now: the Yiddish original and the English standard.
         The{" "}
         <Link
           href="/songs/dona-dona"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           Yiddish page
         </Link>{" "}
@@ -157,7 +155,7 @@ export function DonaDonaCousins() {
         the{" "}
         <Link
           href="/songs/donna-donna"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           English page
         </Link>{" "}
@@ -172,7 +170,7 @@ export function DonaDonaCousins() {
         For the wider Yiddish-stage crossings this song sits among, see{" "}
         <Link
           href="/history/klezmer"
-          className="text-foreground underline-offset-2 hover:underline"
+          className={PROSE_LINK}
         >
           Where did klezmer come from?
         </Link>
@@ -181,7 +179,7 @@ export function DonaDonaCousins() {
 
       <SourceList sources={SOURCES} />
 
-      <p className="mt-8 text-xs leading-relaxed text-muted-foreground/70">
+      <p className="mt-8 text-base leading-relaxed text-muted-foreground/70">
         Quotations are reproduced briefly for commentary and criticism, with
         attribution and links to the originals. Where a source is public domain
         it is marked as such; other works are quoted under fair use. Click a

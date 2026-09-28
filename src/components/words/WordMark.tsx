@@ -6,6 +6,7 @@
  */
 import {
   hasAudio,
+  nativesOf,
   spellingDiffers,
   type SpokenWord,
 } from "@/lib/words/registry";
@@ -20,24 +21,30 @@ interface WordMarkProps {
 
 export function WordMark({ word, mention }: WordMarkProps) {
   const shown = mention ?? word.latin;
-  const showSpelling = spellingDiffers(shown, word.native.spelling);
+  const forms = nativesOf(word).filter((form) =>
+    spellingDiffers(shown, form.spelling),
+  );
+  const hear = hasAudio(word);
 
   return (
     <>
-      {showSpelling && (
-        <>
+      {forms.map((form) => (
+        <span key={`${form.lang}:${form.spelling}`}>
           {" "}
           <span className="text-muted-foreground">
             (
-            <NativeScript
-              spelling={word.native.spelling}
-              lang={word.native.lang}
-            />
+            <NativeScript spelling={form.spelling} lang={form.lang} />
             )
           </span>
-        </>
-      )}
-      {hasAudio(word) && (
+          {hear && form === word.native && (
+            <>
+              {" "}
+              <PronounceButton word={word} />
+            </>
+          )}
+        </span>
+      ))}
+      {hear && !forms.includes(word.native) && (
         <>
           {" "}
           <PronounceButton word={word} />
