@@ -476,25 +476,20 @@ export const WORDS: SpokenWord[] = [
     audio: JEL("cheder.mp3", "1814"),
   },
   {
-    // JEL *yeshiva* /words/615. Etymology: Hebrew ישיבה, Yiddish
-    // ישיבֿה yeshive. Clip is yeh-SHEE-vuh, the English headword.
-    // yeh-SHIH-vuh and yeh-shee-VAH are other takes on the same entry.
+    // JEL *yeshiva* /words/615. Hebrew ישיבה and Yiddish ישיבֿה are the
+    // same word; the line shows the Yiddish spelling only. Hebrew stays
+    // in aliases so a search for ישיבה still finds it. Clip is
+    // yeh-SHEE-vuh, the English headword. yeh-SHIH-vuh and yeh-shee-VAH
+    // are other takes on the same entry.
     id: "yeshiva",
     latin: "yeshiva",
     alsoSpelled: ["yeshivah", "yeshive"],
-    aliases: ["yeshivas", "yeshivot"],
+    aliases: ["yeshivas", "yeshivot", "ישיבה"],
     native: {
-      spelling: "ישיבה",
-      language: "Hebrew",
-      lang: "he-IL",
+      spelling: "ישיבֿה",
+      language: "Yiddish",
+      lang: "yi",
     },
-    alsoNative: [
-      {
-        spelling: "ישיבֿה",
-        language: "Yiddish",
-        lang: "yi",
-      },
-    ],
     audio: JEL("yeshiva.mp3", "615"),
   },
   {

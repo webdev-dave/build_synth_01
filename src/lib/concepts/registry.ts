@@ -639,7 +639,7 @@ export const CONCEPTS: Concept[] = [
     ],
   },
   {
-    // Same id as the loanword, so <Term> shows ישיבה and the speaker.
+    // Same id as the loanword, so <Term> shows ישיבֿה and the speaker.
     slug: "yeshiva",
     term: "yeshiva",
     aliases: ["yeshivah", "yeshive", "yeshivas", "yeshivot"],
