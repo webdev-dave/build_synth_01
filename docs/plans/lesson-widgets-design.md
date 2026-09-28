@@ -1,10 +1,18 @@
 # Design: interactive lesson widgets — harmony, rhythm & meter, form
 
-> **Status: design (2026-09-12).** Child of
+> **Status: design, built through v1 (2026-09-12, branch
+> `cursor/genre-layer-lessons-222e`).** Child of
 > [genre-layer-lessons.md](genre-layer-lessons.md) §4.4–4.5. This is the
 > *how it teaches* document: what the reader sees, presses, and hears on
 > each layer's lesson, and why. Build phases and wiring stay in the umbrella
 > and [progressions-module.md](progressions-module.md).
+> Built: chord×scale overlay, chord lock (chord tones default), variant
+> toggles with diff captions, time-true `GrooveGrid`, `FeelControl` swing
+> slider, `CountAlong`, `BeatComparer`, `BarFence`, three-strip `FormMap`
+> with the sounding response lick, `ChorusStack`, `FormComparer`, and one
+> `useLessonClock` under all of it. **Not built (v1.5 / later as
+> planned):** TapPad, `SongBuilder`. What needs ears is listed in the
+> umbrella §9.3.
 
 ---
 

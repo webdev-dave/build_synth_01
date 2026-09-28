@@ -233,9 +233,23 @@ export function BluesScaleLesson() {
           green keys in any order: with the lock on there are no wrong notes.
           Land on <Mono>1</Mono> or <Mono>5</Mono> when you want a phrase to
           feel finished, and treat <Mono>♭5</Mono> as a note you pass through,
-          not one you stop on. Then take it to a{" "}
-          <Term id="twelve-bar-blues">12-bar blues</Term> —{" "}
-          <LessonLink href="/genres/blues">What is the blues?</LessonLink>{" "}
+          not one you stop on.
+        </P>
+
+        {/* ---------------------------------------------------------------- */}
+        <H2 id="over-the-chords">7. Over the chords</H2>
+        <P>
+          A blues is not just a scale; it is a scale played <em>over</em>{" "}
+          three chords that change every few bars. The reason one six-note
+          scale fits all three is that every chord in a blues is a seventh
+          chord, and the scale&rsquo;s <Mono>♭7</Mono> and <Mono>♭3</Mono> are
+          exactly the notes those chords add — the <Mono>♭3</Mono> is even the
+          seventh of the IV chord. The full story, with the chart playing under
+          a keyboard that shows both the scale and the sounding chord, is the{" "}
+          <LessonLink href="/progressions/twelve-bar-blues">
+            12-bar blues lesson
+          </LessonLink>
+          . <LessonLink href="/genres/blues">What is the blues?</LessonLink>{" "}
           covers the form and the shuffle the scale sits on.
         </P>
       </section>

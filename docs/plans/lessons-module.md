@@ -1,5 +1,13 @@
 # Plan: Interactive Scale Lessons Module
 
+> **Fully superseded (2026-09-12).** `/lessons` is now the curriculum
+> index over seven modules (concepts, scales, progressions, rhythm, forms,
+> genres, history) and every `/lessons/<slug>` here redirects: chords →
+> `/progressions/twelve-bar-blues`, waveforms / octaves / frequency →
+> `/concepts/*` (with Play-it demos), time-signatures / shuffle →
+> `/rhythm/*`. See [genre-layer-lessons.md](genre-layer-lessons.md) Phase 4
+> and §9. Kept for history; archive once that branch merges.
+>
 > **Superseded for scales (2026-09-05).** Scale/mode deep-dives now live in
 > the **Scales module** at `/scales/[slug]` — see
 > [genres-and-scales-modules.md](genres-and-scales-modules.md). The blues

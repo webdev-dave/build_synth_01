@@ -21,11 +21,14 @@ import {
 import { ARTISTS } from "@/lib/catalog/artists";
 import { GENRES } from "@/lib/genres/registry";
 import { SCALES, aliasNames, aliasSearchTerms } from "@/lib/scales/registry";
+import { PROGRESSIONS } from "@/lib/progressions/registry";
+import { GROOVES } from "@/lib/grooves/registry";
+import { FORMS, formBars } from "@/lib/forms/registry";
 import { COUSIN_ARTICLES } from "@/lib/cousins/registry";
 import { HISTORY_ARTICLES } from "@/lib/history/registry";
 import { CONCEPTS } from "@/lib/concepts/registry";
 import { LANGUAGES } from "@/lib/languages/registry";
-import { LESSONS } from "@/lib/lessons/registry";
+import { LESSON_BUCKETS } from "@/lib/lessons/registry";
 import { nativeSpellingsOf } from "@/lib/words/registry";
 import { normalizeSearch } from "@/lib/search/normalize";
 
@@ -36,6 +39,9 @@ export type SearchGroup =
   | "artists"
   | "genres"
   | "scales"
+  | "progressions"
+  | "rhythm"
+  | "forms"
   | "history"
   | "cousins"
   | "concepts"
@@ -49,6 +55,9 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
   artists: "Artists",
   genres: "Genres",
   scales: "Scales & modes",
+  progressions: "Chords & progressions",
+  rhythm: "Rhythm & meter",
+  forms: "Song forms",
   history: "Musical history",
   cousins: "Cousins",
   concepts: "Concepts",
@@ -58,32 +67,41 @@ export const GROUP_LABELS: Record<SearchGroup, string> = {
 
 /** How many rows a group may contribute to one result set. */
 const GROUP_CAPS: Record<SearchGroup, number> = {
+  lessons: 8,
   pages: 6,
   midi: 8,
   songs: 6,
   artists: 6,
   genres: 4,
   scales: 5,
+  progressions: 4,
+  rhythm: 4,
+  forms: 4,
   history: 4,
   cousins: 4,
   concepts: 6,
   languages: 4,
-  lessons: 4,
 };
 
-/** Canonical group order (ties in relevance keep this order). */
+/**
+ * Canonical group order (ties in relevance keep this order). Lessons first:
+ * it holds the module hubs, so "rhythm" opens the hub before its spokes.
+ */
 const GROUP_ORDER: SearchGroup[] = [
+  "lessons",
   "pages",
   "midi",
   "songs",
   "artists",
   "genres",
   "scales",
+  "progressions",
+  "rhythm",
+  "forms",
   "history",
   "cousins",
   "concepts",
   "languages",
-  "lessons",
 ];
 
 export interface SearchEntry {
@@ -155,8 +173,39 @@ function entry(
 function buildIndex(): SearchEntry[] {
   const out: SearchEntry[] = [];
 
+  // The curriculum: the index itself, then the seven module hubs in reading
+  // order. Hubs that are lesson buckets live here, not under "Tools & pages".
+  const bucketHrefs = new Set(LESSON_BUCKETS.map((b) => b.href));
+  out.push(
+    entry(
+      "lessons",
+      "lessons",
+      "/lessons",
+      "Lessons",
+      "The curriculum — every module in reading order",
+      ["music theory lessons", "learn", "curriculum", "start here"],
+    ),
+  );
+  for (const bucket of LESSON_BUCKETS) {
+    const nav = NAV_ITEMS.find((i) => i.href === bucket.href);
+    out.push(
+      entry(
+        "lessons",
+        bucket.id,
+        bucket.href,
+        bucket.name,
+        `${bucket.teaches} — ${nav?.description ?? bucket.blurb}`,
+        [bucket.blurb, nav?.label],
+        false,
+        nav && nav.label !== bucket.name ? [nav.label] : [],
+      ),
+    );
+  }
+
   // Tools & top-level pages — nav registry plus the two footer-ish pages.
-  for (const item of NAV_ITEMS.filter((i) => !i.hidden)) {
+  for (const item of NAV_ITEMS.filter(
+    (i) => !i.hidden && !bucketHrefs.has(i.href),
+  )) {
     out.push(
       entry("pages", item.id, item.href, item.label, item.description, []),
     );
@@ -250,6 +299,61 @@ function buildIndex(): SearchEntry[] {
     );
   }
 
+  for (const p of PROGRESSIONS) {
+    out.push(
+      entry(
+        "progressions",
+        "progressions",
+        `/progressions/${p.slug}`,
+        p.name,
+        p.question,
+        [
+          p.summary,
+          p.formula,
+          p.exampleChords,
+          ...p.keywords,
+          ...(p.variants ?? []).map((v) => v.label),
+        ],
+        p.status !== "live",
+        // "Blues changes", "1-4-5" rank like the title, so a reader who
+        // knows the chart by another name lands on it directly.
+        p.aliases,
+      ),
+    );
+  }
+
+  for (const g of GROOVES) {
+    out.push(
+      entry(
+        "rhythm",
+        "rhythm",
+        `/rhythm/${g.slug}`,
+        g.name,
+        g.question,
+        [g.summary, g.formula, g.pattern.cue, ...g.keywords],
+        g.status !== "live",
+        // "Swing feel", "common time" rank like the title.
+        g.aliases,
+      ),
+    );
+  }
+
+  for (const f of FORMS) {
+    out.push(
+      entry(
+        "forms",
+        "forms",
+        `/forms/${f.slug}`,
+        f.name,
+        f.question,
+        [f.summary, f.formula, `${formBars(f)} bars`, ...f.keywords],
+        f.status !== "live",
+        // "AAB", "blues form" rank like the title.
+        f.aliases,
+      ),
+    );
+  }
+
   for (const article of HISTORY_ARTICLES) {
     out.push(
       entry(
@@ -314,20 +418,6 @@ function buildIndex(): SearchEntry[] {
         language.summary,
         [language.question, language.nativeName, ...language.keywords],
         language.status !== "live",
-      ),
-    );
-  }
-
-  for (const lesson of LESSONS) {
-    out.push(
-      entry(
-        "lessons",
-        "lessons",
-        lesson.movedTo ?? `/lessons/${lesson.slug}`,
-        lesson.title,
-        lesson.summary,
-        [],
-        !lesson.movedTo, // unwritten lessons are placeholders; moved ones are live elsewhere
       ),
     );
   }

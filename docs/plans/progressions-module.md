@@ -1,7 +1,15 @@
 # Plan: Progressions module — the harmony layer, as its own lesson tree
 
-> **Status: planning (2026-09-12).** Nothing built. Decisions marked *open*
-> are still the user's to make; everything else is the proposed default.
+> **Status: built (2026-09-12, branch `cursor/genre-layer-lessons-222e`).**
+> `/progressions` hub, seven spokes (`twelve-bar-blues`, `i-iv-v`,
+> `power-chord` live; `ii-v-i`, `i-v-vi-iv`, `andalusian-cadence`,
+> `dominant-seventh` soon), `music/chords.ts`, the organ voice,
+> `ProgressionProvider` + chart / player / sounder / overlay / lock, the
+> blues **and rock** Harmony panels, concept delegations. A `kind: "chord"`
+> entry now also gets a teaser (its one bar loops — "Play the chord").
+> Open for review: the organ preset by ear (umbrella §9.3 item 2).
+> The text below is the plan as written; where it says "open" the umbrella
+> §5.1 decisions log has the answer.
 
 The harmony layer of a genre — which chords, in what order, and why they
 sound the way they do — gets its own hub-and-spoke module, parallel to

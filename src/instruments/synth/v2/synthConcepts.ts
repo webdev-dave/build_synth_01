@@ -1,8 +1,9 @@
 /**
  * Mini-lessons for the synth's learning panel. One entry per clickable
  * concept on the page; `lessonHref` is the "full lesson" link — scale
- * concepts point into the Scales module, the rest into the lessons
- * registry (src/lib/lessons/registry.ts).
+ * concepts point into the Scales module, waveform / octave / frequency
+ * into their glossary pages (each with a Play-it demo), chords into the
+ * 12-bar lesson's opening section.
  *
  * Copy lives here, out of the components, so wording can evolve without
  * touching rendering logic. The `scale-type` entry is the exception: its
@@ -92,7 +93,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       "The waveform is the shape the speaker traces as it vibrates, and it decides the tone color: a sine is a pure whistle, a square is hollow like an old video game, a sawtooth is bright and buzzy, a triangle sits between sine and square.",
       'All four shapes at the same key play the same pitch — what changes is the mix of quieter overtones stacked on top of it. That mix is what your ear reads as "different instrument".',
     ],
-    lessonHref: "/lessons/waveforms",
+    lessonHref: "/concepts/waveform",
   },
   octave: {
     id: "octave",
@@ -101,7 +102,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       "An octave up means the frequency doubles: A4 is 440 Hz, A5 is 880 Hz. Notes an octave apart blend so completely that we give them the same letter name — the number after the letter (C4, C5) just says which octave.",
       "This control shifts the whole keyboard by one octave at a time; the note pattern repeats identically in each one.",
     ],
-    lessonHref: "/lessons/octaves",
+    lessonHref: "/concepts/octave",
   },
   range: {
     id: "range",
@@ -110,7 +111,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       "Range sets how many octaves are on screen at once. A full piano spans a bit over 7 octaves; two octaves is plenty for melodies and chords, while more octaves make each key narrower.",
       "Widening the range doesn't change any pitches — it only shows more of the same repeating pattern.",
     ],
-    lessonHref: "/lessons/octaves",
+    lessonHref: "/concepts/octave",
   },
   frequency: {
     id: "frequency",
@@ -119,7 +120,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       "Pitch is vibration speed, measured in hertz (Hz) — how many times per second the air wiggles. The readout shows the exact frequency of the note you're holding.",
       "Concert tuning pins A4 at 440 Hz and every other note is derived from it: each half step up multiplies the frequency by about 1.0595, and twelve of those steps lands exactly on a doubling — the octave.",
     ],
-    lessonHref: "/lessons/frequency",
+    lessonHref: "/concepts/frequency",
   },
   chord: {
     id: "chord",
@@ -128,7 +129,7 @@ export const SYNTH_CONCEPTS: Record<SynthConceptId, SynthConcept> = {
       "A chord is three or more notes sounding at once. The basic unit is the triad: a root plus the notes a third and a fifth above it — play C, E and G together and the readout names it C Major.",
       "The middle note decides the mood: lower it a half step (C, E♭, G) and the same chord turns minor. Hold any three keys and watch the readout try to name what you've built.",
     ],
-    lessonHref: "/lessons/chords",
+    lessonHref: "/progressions/twelve-bar-blues#a-chord",
   },
   "computer-keys": {
     id: "computer-keys",
